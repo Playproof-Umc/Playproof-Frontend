@@ -1,4 +1,4 @@
-# 🛡️ PlayProof Frontend
+# ♞ PlayProof Frontend
 
 > **랜덤 매칭의 불확실성을 줄이고, 신뢰 기반의 팀워크를 만드는 게이머 매칭 플랫폼**
 
