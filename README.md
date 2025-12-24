@@ -11,8 +11,8 @@ React, TypeScript, Vite를 기반으로 하며, 유지보수성을 위해 **기�
 
 | 분류 | 기술 | 비고 |
 | :--- | :--- | :--- |
-| **Core** | ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) | UI 라이브러리 및 언어 |
-| **Build** | ![Vite](https://img.shields.io/badge/Vite-5.0-purple) | 빌드 도구 및 개발 서버 |
+| **Core** | ![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) | UI 라이브러리 및 언어 |
+| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.0-purple) | 빌드 도구 및 개발 서버 |
 | **State** | **TanStack Query** (Server), **Zustand** (Client) | 서버/클라이언트 상태 관리 분리 |
 | **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC) | CSS |
 | **Routing** | **React Router DOM** | SPA 라우팅 |
@@ -21,7 +21,7 @@ React, TypeScript, Vite를 기반으로 하며, 유지보수성을 위해 **기�
 
 <br/>
 
-## 🚀 Getting Started (설치 및 실행)
+## Getting Started (설치 및 실행)
 
 이 프로젝트는 **Node.js v20 (LTS)** 이상 환경을 권장합니다.
 ```bash
@@ -83,14 +83,14 @@ src/
 └── App.tsx
 ```
 
-### 💡 개발 원칙
+###  개발 원칙
 1. **Colocation:** 특정 기능에서만 쓰이는 컴포넌트는 `features/기능명/components` 안에 둡니다.
 2. **Barrel Exports:** `index.ts`를 활용하여 import 경로를 깔끔하게 유지합니다.
 3. **Absolute Import:** `../../` 대신 `@/features/user` 와 같이 절대 경로(`@`)를 사용합니다.
 
 <br/>
 
-## 🤝 Contribution Guide (협업 규칙)
+##  Contribution Guide (협업 규칙)
 
 ### 1. Git Flow 및 브랜치 전략
 * `main`: 배포 가능한 안정 버전
@@ -129,7 +129,6 @@ src/
 ```bash
 # 실행 예시
 npm run type-check && npm run lint
-# (아무런 에러 메시지가 뜨지 않아야 통과입니다!)
 ```
 
 <br/>
@@ -137,10 +136,12 @@ npm run type-check && npm run lint
 ## ⚠️ Troubleshooting
 
 **Q. `npm install` 시 에러가 발생해요.**
+<br/>
 A. Node 버전이 맞는지 확인하세요. (`node -v` >= 20). `nvm use 20`을 권장합니다. 캐시 문제라면 `npm cache clean --force` 후 다시 시도해 보세요.
 
 **Q. import 경로에서 `@/`가 인식이 안 돼요.**
+<br/>
 A. VS Code를 재시작하거나 **`Ctrl + Shift + P` (Win) / `Cmd + Shift + P` (Mac)** 를 눌러 명령 팔레트를 열고 `TypeScript: Restart TS server`를 실행해 보세요.
 
 ---
-**Happy Coding! 🎮** 문의사항은 Discord `#웹-chat` 채널로 주세요.
+**문의사항** 문의사항은 Discord `#웹-chat` 채널로 주세요.
