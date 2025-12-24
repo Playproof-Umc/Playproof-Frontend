@@ -144,4 +144,6 @@ A. Node 버전이 맞는지 확인하세요. (`node -v` >= 20). `nvm use 20`을 
 A. VS Code를 재시작하거나 **`Ctrl + Shift + P` (Win) / `Cmd + Shift + P` (Mac)** 를 눌러 명령 팔레트를 열고 `TypeScript: Restart TS server`를 실행해 보세요.
 
 ---
-**문의사항** 문의사항은 Discord `#웹-chat` 채널로 주세요.
+**문의사항** 
+
+**문의사항은 Discord `#웹-chat` 채널로 주세요.**
