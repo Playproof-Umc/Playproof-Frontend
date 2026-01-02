@@ -16,6 +16,7 @@ function App() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO)</div>} />
         </Routes>
       </BrowserRouter>
     </>

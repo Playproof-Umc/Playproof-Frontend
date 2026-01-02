@@ -1,27 +1,50 @@
-import { SignupForm } from '@/features/auth/components/SignupForm';
-import { useNavigate } from 'react-router-dom';
+import SignupForm from "./SignupForm";
+
+/* sub components */
+
+const Dot = ({ active, label }: { active?: boolean; label: string }) => (
+	<div
+		className={[
+		"h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
+		active ? "bg-black text-white" : "bg-[#D9D9D9] text-white",
+		].join(" ")}
+	>
+		{label}
+	</div>
+);
+
+const Bar = () => <div className="h-[2px] w-10 bg-[#D9D9D9]" />;
+
+const StepDots = ({ step = 1 }: { step?: 1 | 2 | 3 }) => (
+	<div className="mb-5 flex items-center justify-center">
+		<Dot active={step === 1} label="1" />
+		<Bar />
+		<Dot active={step === 2} label="2" />
+		<Bar />
+		<Dot active={step === 3} label="3" />
+	</div>
+);
+
+/* page */
 
 const SignupPage = () => {
-    const navigate = useNavigate();
+	return (
+		<div className="min-h-screen bg-white">
+			<div className="pt-10">
+				<StepDots step={1} />
+			</div>
 
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
-        <div className="w-full max-w-md">
-            {/* 뒤로가기 버튼 등 헤더 영역 */}
-            <button 
-            onClick={() => navigate(-1)} 
-            className="text-gray-400 hover:text-white mb-8 text-sm flex items-center gap-1 cursor-pointer"
-            >
-            &lt; 뒤로가기
-            </button>
+			<main className="mx-auto w-full max-w-[1280px] px-8 pb-24 pt-8">
+				<h1 className="mb-12 text-center text-2xl font-bold">회원가입</h1>
 
-            <h2 className="text-3xl font-bold text-white mb-2">회원가입</h2>
-            <p className="text-gray-400 mb-8">PlayProof와 함께 신뢰받는 팀원이 되어보세요.</p>
-            
-            <SignupForm />
-        </div>
-        </div>
-    );
+				<div className="flex justify-center">
+					<div className="w-full max-w-[343px]">
+						<SignupForm />
+					</div>
+				</div>
+			</main>
+		</div>
+	);
 };
 
 export default SignupPage;
