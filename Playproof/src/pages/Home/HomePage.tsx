@@ -106,8 +106,8 @@ export default function HomePage() {
                   name="레나"
                   tier="실버"
                   rank="3/4"
-                  tags={["#재미중시", "#무제한", "#오전중반"]}
-                  recentGames="은어 및 사람 구해요"
+                  tags={["#실력 중시", "#욕설 X", "#오더 가능"]}
+                  recentGames="같이 할 사람 구해요"
                   status={i === 0 ? "available" : "offline"}
                 />
               ))}
@@ -132,7 +132,7 @@ export default function HomePage() {
                   author="레나"
                   date="2025.12.16"
                   title="보석 실버 3/4"
-                  content="인게 내용으로 직성한 선은 혜택이 있씁니댜 슨녀 예쁘셔를 지은 헉헉 또또또..."
+                  content="어제 레포 했는데 웃겨 죽는줄ㅋㅋㅋㅋㅋㅋ"
                   likes={200}
                   comments={50}
                 />
@@ -144,7 +144,7 @@ export default function HomePage() {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-zinc-900">
-                🏠 아지트 페이지마케팅
+                🏠 커뮤니티 핫 토픽
               </h2>
               <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
                 더보기 →
@@ -163,7 +163,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div className="font-semibold text-zinc-900">
-                        채린이 대표 팀
+                        레전드 리썰 버그
                       </div>
                       <div className="text-sm text-zinc-500">
                         1232 좋아요 · 1 댓글

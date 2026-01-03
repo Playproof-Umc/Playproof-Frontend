@@ -5,7 +5,7 @@ const GAME_TABS = [
   "발로란트",
   "오버워치",
   "메이플 그룹",
-  "Sbooom",
+  "Steam",
   "기타",
 ];
 
@@ -51,7 +51,7 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
           <SearchIcon />
           <input
             type="text"
-            placeholder="챔피"
+            placeholder="챔피언"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -71,7 +71,7 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
           </button>
         </div>
 
-        {/* 티어 선택 */}
+        {/* //티어 선택
         <select
           value={tier}
           onChange={(e) => setTier(e.target.value)}
@@ -85,7 +85,7 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
           <option>다이아</option>
         </select>
 
-        {/* 게임 방식 선택 */}
+        //게임 방식 선택 
         <select
           value={matchType}
           onChange={(e) => setMatchType(e.target.value)}
@@ -95,7 +95,7 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
           <option>솔로랭크</option>
           <option>자유랭크</option>
           <option>일반</option>
-        </select>
+        </select> */}
 
         <button className="rounded-lg bg-zinc-900 px-6 py-2 text-sm font-medium text-white hover:bg-zinc-800">
           초기화
