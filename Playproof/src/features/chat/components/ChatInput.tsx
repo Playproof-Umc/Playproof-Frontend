@@ -1,9 +1,25 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, X, SquareArrowUp } from 'lucide-react'; 
 
 export const ChatInput: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<{ file: File; previewUrl: string }[]>([]);
+
+  // 1. Unmount 시 cleanup을 위해 현재 파일 목록을 추적하는 ref
+  const filesRef = useRef(selectedFiles);
+
+  useEffect(() => {
+    filesRef.current = selectedFiles;
+  }, [selectedFiles]);
+
+  // 2. 컴포넌트가 화면에서 사라질 때(언마운트) 남은 파일들의 메모리 해제
+  useEffect(() => {
+    return () => {
+      filesRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+      });
+    };
+  }, []);
 
   const handleClipClick = () => {
     fileInputRef.current?.click();
@@ -13,15 +29,26 @@ export const ChatInput: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files).map((file) => ({
         file,
-        previewUrl: URL.createObjectURL(file),
+        previewUrl: URL.createObjectURL(file), // 메모리에 URL 생성
       }));
       setSelectedFiles((prev) => [...prev, ...newFiles]);
     }
+    // 같은 파일을 다시 선택할 수 있도록 value 초기화
     if (e.target.value) e.target.value = '';
   };
 
+  // 개별 파일 삭제 시 메모리 해제
   const handleRemoveFile = (indexToRemove: number) => {
-    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+    setSelectedFiles((prev) => {
+      const target = prev[indexToRemove];
+      
+      // 삭제 대상이 있다면 메모리에서 해제(revoke)
+      if (target) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
   };
 
   const handleShareFile = (file: File) => {
