@@ -10,7 +10,7 @@ type Props = {
 export const OnboardingIndicator = ({
 	total,
 	initialActive = 0,
-	activeWidth = 150,
+	activeWidth = 183,
 }: Props) => {
 	const safeTotal = Math.max(1, total);
 	const [active, setActive] = useState(
@@ -78,7 +78,7 @@ export const OnboardingIndicator = ({
 					if (e.key === "End") setActive(safeTotal - 1);
 				}}
 				/* 긴 연한 바 길이 수정 */
-				className="relative h-[18px] w-[440px] focus:outline-none"
+				className="relative h-[18px] w-[549px] focus:outline-none"
 			>
 				{/* 긴 연한 바 */}
 				<span
