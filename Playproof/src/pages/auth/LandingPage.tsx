@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/Button";
-import { OnboardingPlaceholder } from "@/components/landingPageComponents/OnboardingPlaceholder";
-import { OnboardingIndicator } from "@/components/landingPageComponents/OnboardingIndicator";
+import { OnboardingPlaceholder } from "@/components/ui/OnboardingPlaceholder";
+import { OnboardingIndicator } from "@/components/ui/OnboardingIndicator";
 
 const LandingPage = () => {
     return (

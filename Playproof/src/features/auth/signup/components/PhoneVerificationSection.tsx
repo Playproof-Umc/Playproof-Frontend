@@ -35,7 +35,6 @@ export const PhoneVerificationSection = ({
 	onPhoneChange,
 
 	canRequestSms,
-	smsCooldown,
 	onRequestSms,
 
 	code,
@@ -49,12 +48,9 @@ export const PhoneVerificationSection = ({
 	canVerify,
 	onVerifyCode,
 }: Props) => {
-	const showOutline = phone.length > 0 && !phoneError && !phoneLocked;
-	const isCooldown = smsCooldown > 0;
-	const showVerifyOutline =
-		canTypeCode &&
-		code.length > 0 &&
-		verifyState !== "success";
+	const showOutline = canRequestSms;
+	const showVerifyOutline = canVerify;
+	
 	return (
 		<section>
 			<div className="mb-3 ml-2 text-lg font-semibold">전화번호*</div>
@@ -83,7 +79,7 @@ export const PhoneVerificationSection = ({
 
 				<Button
 					type="button"
-					variant={!isCooldown && showOutline ? "outline" : "secondary"}
+					variant={showOutline ? "outline" : "secondary"}
 					disabled={!canRequestSms}
 					onClick={onRequestSms}
 					className="h-[48px] rounded-lg text-xs whitespace-nowrap"
