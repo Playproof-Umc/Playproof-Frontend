@@ -10,11 +10,12 @@ const GAME_TABS = [
 ];
 
 type MatchingTabsProps = {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
   onSearch?: (query: string) => void;
 };
 
-export function MatchingTabs({ onSearch }: MatchingTabsProps) {
-  const [activeTab, setActiveTab] = React.useState("리그오브레전드");
+export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [tier, setTier] = React.useState("티어");
   const [matchType, setMatchType] = React.useState("게임 방식");
@@ -28,7 +29,7 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
         {GAME_TABS.map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => onTabChange(tab)}
             className={[
               "px-4 py-2 text-sm font-medium transition-colors",
               activeTab === tab
@@ -70,32 +71,6 @@ export function MatchingTabs({ onSearch }: MatchingTabsProps) {
             </span>
           </button>
         </div>
-
-        {/* //티어 선택
-        <select
-          value={tier}
-          onChange={(e) => setTier(e.target.value)}
-          className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-        >
-          <option>티어</option>
-          <option>브론즈</option>
-          <option>실버</option>
-          <option>골드</option>
-          <option>플래티넘</option>
-          <option>다이아</option>
-        </select>
-
-        //게임 방식 선택 
-        <select
-          value={matchType}
-          onChange={(e) => setMatchType(e.target.value)}
-          className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-        >
-          <option>게임 방식</option>
-          <option>솔로랭크</option>
-          <option>자유랭크</option>
-          <option>일반</option>
-        </select> */}
 
         <button className="rounded-lg bg-zinc-900 px-6 py-2 text-sm font-medium text-white hover:bg-zinc-800">
           초기화

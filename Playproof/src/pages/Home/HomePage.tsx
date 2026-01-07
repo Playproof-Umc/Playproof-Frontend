@@ -1,16 +1,17 @@
 import * as React from "react";
-import { Navbar } from "../../components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import { UserSummaryCard } from "./components/UserSummaryCard.tsx";
-import { PartyCard } from "./components/PartyCard";
-import { FriendList } from "./components/FriendList";
+import { PartyCard } from "@/features/team/components/PartyCard";
+import { FriendList } from "@/features/user/components/FriendList";
 import { MatchingTabs } from "./components/MatchingTabs";
 import { PopularUserCard } from "./components/PopularUserCard";
 import { CommunityPostCard } from "./components/CommunityPostCard";
-import { fetchUserSummaryMock, type UserSummary } from "./userSummaryMock";
+import { fetchUserSummaryMock, type UserSummary } from "@/data/mockData";
 
 export default function HomePage() {
   const [user, setUser] = React.useState<UserSummary | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [activeGameTab, setActiveGameTab] = React.useState("리그오브레전드");
 
   React.useEffect(() => {
     let alive = true;
@@ -88,7 +89,10 @@ export default function HomePage() {
           </div>
 
           {/* 일반 매칭 섹션 */}
-          <MatchingTabs />
+          <MatchingTabs
+            activeTab={activeGameTab}
+            onTabChange={setActiveGameTab}
+          />
 
           {/* 인기 유저 섹션 */}
           <section>
