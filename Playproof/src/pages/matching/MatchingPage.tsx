@@ -1,13 +1,14 @@
 //src/pages/matching/MatchingPage.tsx
 import React from 'react';
-import { Bell, Settings, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
+import { Navbar } from '@/components/common/Navbar';
+
 import { MatchingCard } from '@/features/matching/components/MatchingCard';
 import { MatchingSearchBar } from '@/features/matching/components/MatchingSearchBar';
 import { GameFilter } from '@/features/matching/components/GameFilter';
 import { RecommendedSection } from '@/features/matching/components/RecommendedSection';
 import { PartyRequestBanner } from '@/features/matching/components/PartyRequestBanner';
 import { MatchingWriteModal } from '@/features/matching/components/MatchingWriteModal';
-
 import { useMatchingBoard } from '@/features/matching/hooks/useMatchingBoard'; 
 
 const GAMES = ['리그오브레전드', '발로란트', '오버워치', '배틀그라운드', 'Steam', '기타'];
@@ -20,29 +21,11 @@ const MatchingPage = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
       
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
-           <div className="flex items-center gap-8">
-            <h1 className="text-2xl font-black tracking-tighter cursor-pointer" onClick={() => window.location.reload()}>PLAYPROOF</h1>
-            <nav className="hidden md:flex gap-6 text-sm font-medium text-gray-500">
-              <button className="text-black font-bold border-b-2 border-black h-16 px-1">매칭하기</button>
-              <button className="h-16 px-1 hover:text-black transition-colors">커뮤니티</button>
-              <button className="h-16 px-1 hover:text-black transition-colors">아지트</button>
-              <button className="h-16 px-1 hover:text-black transition-colors">상점</button>
-            </nav>
-           </div>
-           
-           <div className="flex items-center gap-4">
-            <button onClick={() => setters.setIsProUser(!isProUser)} className={`text-xs border px-3 py-1 rounded-full font-bold transition-colors ${isProUser ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>{isProUser ? 'Pro ON' : 'Pro OFF'}</button>
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600 bg-gray-100 rounded-full px-3 py-1.5 cursor-pointer hover:bg-gray-200 transition-colors">
-               <div className="w-5 h-5 bg-gray-300 rounded-full"></div>
-               <span className="font-medium">플레이프루프12...</span>
-            </div>
-            <Bell className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
-            <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
-           </div>
-        </div>
-      </header>
+      {/* [수정] 공통 Navbar 적용 (Pro 기능 활성화) */}
+      <Navbar 
+        isProUser={isProUser} 
+        onTogglePro={() => setters.setIsProUser(!isProUser)} 
+      />
 
       <div className="bg-white border-b border-gray-100 relative z-40">
         <div className="max-w-[1280px] mx-auto px-6 py-5 flex flex-col gap-5">
