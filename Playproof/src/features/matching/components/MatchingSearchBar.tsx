@@ -1,3 +1,4 @@
+//src/features/matching/components/MatchingSearchBar.tsx
 import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
 
@@ -6,9 +7,9 @@ interface MatchingSearchBarProps {
   onSearchChange: (text: string) => void;
   onSearchSubmit: (text: string) => void;
   onWriteClick: () => void;
-  // [3-3] 검색어 저장을 위한 추가 Props
+  //검색어 저장을 위한 추가 Props
   activeGame: string;
-  userId?: string; // 로그인 안했으면 undefined
+  userId?: string; 
 }
 
 export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
@@ -22,9 +23,7 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [showRecentSearch, setShowRecentSearch] = useState(false);
 
-  // [3-3] 저장소 키 생성 로직
-  // 로그인 유저: "recent_유저ID_게임명" (계정+게임별 저장)
-  // 비로그인: "recent_guest" (단순 저장)
+  //  키 생성   
   const storageKey = userId 
     ? `recent_${userId}_${activeGame}` 
     : `recent_guest`;
@@ -39,18 +38,15 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
     }
   }, [storageKey]);
 
-  // [3-2-b] 검색어 입력 핸들러 (20글자 제한)
+  //  검색어 입력 핸들러 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val.length <= 20) {
       onSearchChange(val);
     }
-    // 20자 초과 시 아무 동작 안 함 (에러 문구 미노출)
   };
 
   const handleSubmit = (keyword: string) => {
-    // [3-2-b] 2글자 미만이면 검색 실행 안 함 (단, 입력창이 비어있으면 초기화 의미로 실행 가능하게 할 수도 있음)
-    // 여기서는 "검색어 저장"만 막고, 필터링 로직은 부모(Page)에서 처리
     if (!keyword.trim()) return;
     
     // 2글자 이상일 때만 기록 저장

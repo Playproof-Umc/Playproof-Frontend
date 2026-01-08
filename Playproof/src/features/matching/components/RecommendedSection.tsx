@@ -1,3 +1,4 @@
+//src/features/matching/components/RecommendedSection.tsx
 import React from 'react';
 import { RefreshCw, Lock } from 'lucide-react';
 import { MatchingCard } from './MatchingCard';
@@ -5,7 +6,7 @@ import type { MatchingData } from '../types/types';
 
 interface RecommendedSectionProps {
   isProUser: boolean;
-  recommendations: MatchingData[]; // 추천 데이터 받기
+  recommendations: MatchingData[]; 
 }
 
 export const RecommendedSection: React.FC<RecommendedSectionProps> = ({ isProUser, recommendations }) => {
@@ -24,7 +25,7 @@ export const RecommendedSection: React.FC<RecommendedSectionProps> = ({ isProUse
       
       <div className="relative w-full min-h-[240px] rounded-xl border border-gray-200 overflow-hidden bg-gray-50">
         
-        {/* [Case 1] 일반 유저: 블러 처리 및 업그레이드 유도 */}
+        {/* 일반 유저: 블러 처리 및 업그레이드 유도 */}
         {!isProUser && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-20 flex flex-col items-center justify-center text-center p-6">
                 <div className="bg-gray-100 p-3 rounded-full mb-3">
@@ -38,14 +39,13 @@ export const RecommendedSection: React.FC<RecommendedSectionProps> = ({ isProUse
             </div>
         )}
         
-        {/* [Case 2] Pro 유저: TS 점수 높은 유저 리스트 (가로 스크롤) */}
-        {/* 일반 유저일 때도 뒷배경으로 살짝 보여주기 위해 조건문 없이 렌더링하되 z-index로 덮음 */}
+        {/* Pro 유저: TS 점수 높은 유저 리스트 (가로 스크롤) */}
         <div className="absolute inset-0 z-10 p-4 flex items-center overflow-x-auto no-scrollbar gap-4">
              {recommendations.map((item) => (
                 <div key={`rec-${item.id}`} className="min-w-[260px] w-[260px]">
-                   {/* 추천 카드 전용 스타일링 (테두리 강조 등) */}
+                   
                    <div className="relative">
-                      {/* 1등, 2등 강조 뱃지 예시 */}
+                      
                       {item.likes >= 50 && (
                         <div className="absolute -top-2 -left-2 z-20 bg-yellow-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
                           TOP RATED

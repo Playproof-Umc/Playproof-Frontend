@@ -1,1 +1,1 @@
-// Placeholder for profile-related types.
+//src/features/profile/types/index.ts

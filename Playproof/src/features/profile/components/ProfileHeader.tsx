@@ -1,9 +1,10 @@
+//src/features/profile/components/ProfileHeader.tsx
 import React from 'react';
 import { User } from 'lucide-react';
 
 interface ProfileHeaderProps {
   nickname: string;
-  isMyPage?: boolean; // 내 페이지인지 여부
+  isMyPage?: boolean; 
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ nickname, isMyPage }) => {

@@ -1,19 +1,19 @@
+//src/features/profile/components/UserProfileModal.tsx
 import React, { useEffect, useState } from 'react';
 import { X, User, ThumbsUp, MessageCircle, Gamepad2, Trophy } from 'lucide-react';
-import { useUserProfile } from '../context/UserProfileContext'; // 위에서 만든 Hook 임포트
+import { useUserProfile } from '../context/UserProfileContext'; 
 
 export const UserProfileModal = () => {
   const { isOpen, activeUserId, closeProfile } = useUserProfile();
   const [userData, setUserData] = useState<any>(null);
 
-  // 모달이 열리고 userId가 바뀌면 데이터 로딩 (Mocking)
+  // 모달이 열리고 userId가 바뀌면 데이터 로딩 
   useEffect(() => {
     if (isOpen && activeUserId) {
-      // 실제로는 여기서 API 호출: fetchUser(activeUserId)
-      // 지금은 더미 데이터 세팅
+      // API 호출: fetchUser(activeUserId)
       setUserData({
         id: activeUserId,
-        nickname: `유저_${activeUserId}`, // 임시 닉네임
+        nickname: `유저_${activeUserId}`, 
         tsScore: 90,
         mannerScore: 4.8,
         introduction: '안녕하세요! 즐겜 유저입니다. 평일 저녁 접속 가능합니다.',

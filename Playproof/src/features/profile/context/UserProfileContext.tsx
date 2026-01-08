@@ -1,3 +1,4 @@
+//src/features/profile/context/UserProfileContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // 프로필 데이터 타입 정의

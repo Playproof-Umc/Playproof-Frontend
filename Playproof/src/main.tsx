@@ -1,3 +1,4 @@
+//src/main.tsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 // React Query 설정 추가 (develop 브랜치 반영)

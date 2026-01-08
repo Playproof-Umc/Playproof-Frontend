@@ -1,3 +1,4 @@
+//src/features/matching/context/MatchingDetailContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import type { MatchingData } from '@/features/matching/types/types';
 
@@ -25,7 +26,6 @@ export const MatchingDetailProvider: React.FC<{ children: ReactNode }> = ({ chil
   const openMatchingDetail = (post: MatchingData) => {
     setSelectedPost(post);
     setIsOpen(true);
-    // 모달 열릴 때 배경 스크롤 막기
     document.body.style.overflow = 'hidden';
   };
 
