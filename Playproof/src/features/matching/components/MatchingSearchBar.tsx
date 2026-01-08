@@ -1,5 +1,5 @@
 //src/features/matching/components/MatchingSearchBar.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
 
 interface MatchingSearchBarProps {
@@ -7,7 +7,6 @@ interface MatchingSearchBarProps {
   onSearchChange: (text: string) => void;
   onSearchSubmit: (text: string) => void;
   onWriteClick: () => void;
-  //검색어 저장을 위한 추가 Props
   activeGame: string;
   userId?: string; 
 }
@@ -20,25 +19,15 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
   activeGame,
   userId,
 }) => {
-  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
+  const storageKey = userId ? `recent_${userId}_${activeGame}` : `recent_guest`;
+
+  const [recentKeywords, setRecentKeywords] = useState<string[]>(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved) : [];
+  });
+  
   const [showRecentSearch, setShowRecentSearch] = useState(false);
 
-  //  키 생성   
-  const storageKey = userId 
-    ? `recent_${userId}_${activeGame}` 
-    : `recent_guest`;
-
-  // 키(activeGame/userId)가 바뀔 때마다 해당 기록 불러오기
-  useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      setRecentKeywords(JSON.parse(saved));
-    } else {
-      setRecentKeywords([]);
-    }
-  }, [storageKey]);
-
-  //  검색어 입력 핸들러 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val.length <= 20) {
@@ -49,7 +38,6 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
   const handleSubmit = (keyword: string) => {
     if (!keyword.trim()) return;
     
-    // 2글자 이상일 때만 기록 저장
     if (keyword.length >= 2) {
         const newKeywords = [keyword, ...recentKeywords.filter(k => k !== keyword)].slice(0, 10);
         setRecentKeywords(newKeywords);
@@ -69,7 +57,6 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
 
   return (
     <div className="flex gap-2 w-full relative z-40">
-      
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input 
@@ -90,7 +77,6 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
                 <div className="text-xs font-bold text-gray-500">
                     최근 검색어 ({userId ? `${activeGame}` : 'Guest'})
                 </div>
-                {/* 전체 삭제 기능 등 추가 가능 */}
               </div>
               
               {recentKeywords.length === 0 ? (

@@ -1,9 +1,9 @@
 //src/features/matching/components/MatchingCard.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, MessageCircle, Heart, Eye, Mic } from 'lucide-react';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import type { MatchingData } from '@/features/matching/types/types';
+import { User, MessageCircle, Eye, Mic } from 'lucide-react'; // Heart 제거됨
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -14,7 +14,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
   const { openMatchingDetail } = useMatchingDetail();
 
   const handleCardClick = () => {
-    openMatchingDetail(data); // 데이터 전달 확인
+    openMatchingDetail(data);
   };
 
   const handleProfileClick = (e: React.MouseEvent) => {
@@ -23,7 +23,10 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
   };
 
   return (
-    <div onClick={handleCardClick} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col h-full min-h-[200px]">
+    <div 
+      onClick={handleCardClick}
+      className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col h-full min-h-[200px]"
+    >
       <div className="flex justify-between items-start mb-4">
         <div className="flex gap-2">
            <span className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md">모집중</span>
@@ -33,16 +36,25 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
       </div>
 
       <div className="flex items-center gap-3 mb-4">
-        <div onClick={handleProfileClick} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 transition-colors z-10 shrink-0">
-          {data.hostUser.avatarUrl ? <img src={data.hostUser.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" /> : <User size={20} />}
+        <div 
+            onClick={handleProfileClick}
+            className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 transition-colors z-10 shrink-0"
+        >
+          {data.hostUser.avatarUrl ? (
+            <img src={data.hostUser.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+          ) : (
+            <User size={20} />
+          )}
         </div>
         <div className="overflow-hidden">
-           <div onClick={handleProfileClick} className="font-bold text-sm text-gray-900 hover:underline z-10 inline-block truncate">{data.hostUser.nickname}</div>
-           <div className="text-xs text-blue-600 font-bold">TS {data.tsScore}</div>
+           <div onClick={handleProfileClick} className="font-bold text-sm text-gray-900 hover:underline underline-offset-2 z-10 inline-block truncate max-w-full">
+             {data.hostUser.nickname}
+           </div>
+           <div className="text-xs text-blue-600 font-bold flex items-center gap-1">TS {data.tsScore}</div>
         </div>
       </div>
 
-      <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{data.title}</h3>
+      <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1 break-all">{data.title}</h3>
 
       <div className="flex flex-wrap gap-1.5 mb-4 h-12 overflow-hidden content-start">
         {data.tags.map((tag, idx) => (

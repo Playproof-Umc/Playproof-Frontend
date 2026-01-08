@@ -1,5 +1,5 @@
 //src/features/matching/hooks/useMatchingWriteForm.ts
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { MatchingData } from '@/features/matching/types/types';
 import { MY_AZITS } from '@/features/matching/constants/matchingConfig';
 
@@ -24,13 +24,13 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
   
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
-  // 게임 변경 시 초기화
-  useEffect(() => {
+  // 게임 변경 핸들러 (게임이 바뀌면 포지션/티어 초기화)
+  const handleGameChange = (newGame: string) => {
+    setGame(newGame);
     setSelectedPositions([]);
     setTier('');
-  }, [game]);
+  };
 
-  // 핸들러
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length <= 20) setTitle(e.target.value);
   };
@@ -48,7 +48,6 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
     }
   };
 
-  // 유효성 검사
   const isFormValid = useMemo(() => {
     return (
       game && tier && selectedPositions.length > 0 &&
@@ -57,7 +56,6 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
     );
   }, [game, tier, selectedPositions, memberCount, selectedTags, title]);
 
-  // 데이터 생성
   const createPostData = (): MatchingData => {
     const azitName = azit === 'new' 
         ? '신규 생성' 
@@ -107,9 +105,10 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
       memberCount, micStatus, selectedTags, memo, showDuplicateModal
     },
     setters: {
-      setGame, setIsProMatch, setTier, setAzit, setMemberCount, setMicStatus, setMemo, setShowDuplicateModal
+      setIsProMatch, setTier, setAzit, setMemberCount, setMicStatus, setMemo, setShowDuplicateModal
     },
     handlers: {
+      handleGameChange, 
       handleTitleChange, handleTagToggle, handlePositionToggle,
       handleUploadAttempt, handleDuplicateAction
     },

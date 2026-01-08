@@ -1,3 +1,4 @@
+//src/pages/azit/AzitPage.tsx
 import React, { useState } from 'react';
 import { ArrowLeft, Users } from 'lucide-react';
 

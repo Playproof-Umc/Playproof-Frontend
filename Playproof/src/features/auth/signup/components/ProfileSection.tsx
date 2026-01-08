@@ -1,3 +1,4 @@
+//src/features/auth/signup/components/ProfileSection.tsx
 import { Button } from "@/components/ui/Button";
 
 type NicknameProps = {

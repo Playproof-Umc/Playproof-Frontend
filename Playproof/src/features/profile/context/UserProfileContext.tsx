@@ -1,4 +1,5 @@
 //src/features/profile/context/UserProfileContext.tsx
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // 프로필 데이터 타입 정의
@@ -37,7 +38,6 @@ export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ childre
   const openProfile = (userId: string | number) => {
     setActiveUserId(userId);
     setIsOpen(true);
-    // 모달 열릴 때 배경 스크롤 막기
     document.body.style.overflow = 'hidden';
   };
 

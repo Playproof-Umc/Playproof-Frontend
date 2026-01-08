@@ -1,3 +1,4 @@
+//src/pages/profile/UserProfilePage.tsx
 import React from 'react';
 
 const UserProfilePage: React.FC = () => {

@@ -1,3 +1,4 @@
+//src/pages/mypage/MyInfoEditPage.tsx
 import React from 'react';
 
 const MyInfoEditPage: React.FC = () => {

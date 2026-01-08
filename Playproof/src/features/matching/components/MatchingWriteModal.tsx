@@ -3,7 +3,6 @@ import React from 'react';
 import { X, Mic, MicOff, ChevronDown, Lightbulb } from 'lucide-react';
 import type { MatchingData } from '@/features/matching/types/types';
 
-// 상수 및 훅 임포트
 import { GAME_CONFIG, TAGS, MY_AZITS } from '@/features/matching/constants/matchingConfig';
 import { useMatchingWriteForm } from '@/features/matching/hooks/useMatchingWriteForm';
 
@@ -43,7 +42,11 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-900">게임 선택</label>
               <div className="relative">
-                <select value={game} onChange={(e) => setters.setGame(e.target.value)} className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm appearance-none outline-none focus:border-black font-medium cursor-pointer">
+                <select 
+                    value={game} 
+                    onChange={(e) => handlers.handleGameChange(e.target.value)} 
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm appearance-none outline-none focus:border-black font-medium cursor-pointer"
+                >
                   {Object.keys(GAME_CONFIG).map(g => (<option key={g} value={g}>{g}</option>))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
