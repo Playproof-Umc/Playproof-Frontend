@@ -12,13 +12,22 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+<<<<<<< HEAD
     "@tanstack/react-query": "^5.90.16",
+=======
+    "@tanstack/react-query": "^5.90.15",
+>>>>>>> develop
     "axios": "^1.13.2",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.11.0",
     "tailwindcss": "^4.1.18",
+<<<<<<< HEAD
     "tanstack": "^1.0.3"
+=======
+    "zustand": "^5.0.9"
+>>>>>>> develop
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
