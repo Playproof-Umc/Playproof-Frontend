@@ -17,9 +17,7 @@ type MatchingTabsProps = {
 
 export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [tier, setTier] = React.useState("티어");
-  const [matchType, setMatchType] = React.useState("게임 방식");
-
+  
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-bold text-zinc-900">일반 매칭</h2>

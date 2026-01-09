@@ -37,7 +37,6 @@ export function UserSummaryCard({
           {/* avatar */}
           <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-zinc-100 ring-1 ring-black/5">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={avatarUrl}
                 alt={`${name} 프로필 이미지`}

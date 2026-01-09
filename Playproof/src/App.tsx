@@ -1,11 +1,18 @@
+import HomePage from "./pages/Home/HomePage";
+import CommunityPage from "./pages/Community/CommunityPage";
+
 function App() {
-  return (
-    <div className="text-3xl font-bold text-blue-500 underline">
-      PlayProof 초기 페이지
-    </div>
-  )
+  // TODO: 나중에 React Router로 교체
+  const currentPath = window.location.pathname;
+
+  if (currentPath === "/community") {
+    return <CommunityPage />;
+  }
+
+  return <HomePage />;
 }
 
-export default App
+export default App;
+
 
 
