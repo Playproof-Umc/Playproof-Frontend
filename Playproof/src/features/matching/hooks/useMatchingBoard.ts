@@ -1,8 +1,7 @@
-//src/features/matching/hooks/useMatchingBoard.ts
+// src/features/matching/hooks/useMatchingBoard.ts
 import { useState, useMemo, useCallback } from 'react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData, FilterState } from '@/features/matching/types/types';
 
-// 초기 화면 확인용 더미 데이터
 const INITIAL_MOCK_DATA: MatchingData[] = [
   {
     id: 1,
@@ -20,6 +19,7 @@ const INITIAL_MOCK_DATA: MatchingData[] = [
     likes: 5,
     comments: 2,
     tsScore: 80,
+    mic: true,
     hostUser: { id: 'user-1', nickname: '페이커팬', avatarUrl: '' }
   },
   {
@@ -38,7 +38,27 @@ const INITIAL_MOCK_DATA: MatchingData[] = [
     likes: 1,
     comments: 0,
     tsScore: 92,
+    mic: true,
     hostUser: { id: 'user-2', nickname: '겐지장인', avatarUrl: '' }
+  },
+  {
+    id: 3,
+    game: '리그오브레전드',
+    title: '브론즈 탈출하실 분 (마이크X)',
+    tier: '브론즈',
+    tags: ['협력 유저'],
+    azit: '신규 생성',
+    position: ['adc', 'sup'],
+    memo: '채팅으로 소통해요.',
+    currentMembers: 1,
+    maxMembers: 2,
+    time: '30분 전',
+    views: 30,
+    likes: 0,
+    comments: 0,
+    tsScore: 65,
+    mic: false,
+    hostUser: { id: 'user-3', nickname: '침묵의고수', avatarUrl: '' }
   }
 ];
 
@@ -48,6 +68,9 @@ export const useMatchingBoard = () => {
   const [searchText, setSearchText] = useState('');
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [isProUser, setIsProUser] = useState(false);
+  
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filterConditions, setFilterConditions] = useState<FilterState | null>(null);
 
   const openWriteModal = useCallback(() => {
     setIsWriteModalOpen(true);
@@ -57,6 +80,14 @@ export const useMatchingBoard = () => {
   const closeWriteModal = useCallback(() => {
     setIsWriteModalOpen(false);
     document.body.style.overflow = 'unset';
+  }, []);
+
+  const openFilterModal = useCallback(() => setIsFilterModalOpen(true), []);
+  const closeFilterModal = useCallback(() => setIsFilterModalOpen(false), []);
+
+  const handleApplyFilter = useCallback((filters: FilterState) => {
+    setFilterConditions(filters);
+    console.log("적용된 필터:", filters);
   }, []);
 
   const handleNewPost = useCallback((newPost: MatchingData, action: 'new' | 'replace' | 'bump') => {
@@ -89,17 +120,61 @@ export const useMatchingBoard = () => {
 
   const filteredMatches = useMemo(() => {
     let result = [...matchesByGame];
+
+    // 1. 검색어 필터
     if (searchText.length >= 2) {
       result = result.filter(item => 
         item.title.toLowerCase().includes(searchText.toLowerCase())
       );
     }
+
+    // 2. 상세 조건 필터
+    if (filterConditions) {
+        const { minTs, memberCount, tags, useMic, positions, tiers } = filterConditions;
+
+        if (minTs !== '상관 없음') {
+            const minScore = parseInt(minTs.replace(/[^0-9]/g, '')) || 0;
+            result = result.filter(item => item.tsScore >= minScore);
+        }
+
+        if (memberCount !== '제한 없음') {
+            const count = parseInt(memberCount.replace(/[^0-9]/g, '')) || 0;
+            result = result.filter(item => item.maxMembers === count);
+        }
+
+        if (tags.length > 0) {
+            result = result.filter(item => 
+                tags.every(tag => item.tags.includes(tag))
+            );
+        }
+
+        if (useMic) {
+            result = result.filter(item => item.mic === true);
+        }
+
+        if (positions.length > 0) {
+            result = result.filter(item => 
+                positions.some(pos => item.position.includes(pos))
+            );
+        }
+
+        if (tiers.length > 0) {
+            result = result.filter(item => tiers.includes(item.tier));
+        }
+    }
+
     return result.sort((a, b) => b.id - a.id);
-  }, [matchesByGame, searchText]);
+  }, [matchesByGame, searchText, filterConditions]);
 
   return {
-    state: { allMatches, activeGame, searchText, isWriteModalOpen, isProUser, matchesByGame, popularMatches, filteredMatches },
+    state: { 
+      allMatches, activeGame, searchText, isWriteModalOpen, isProUser, 
+      matchesByGame, popularMatches, filteredMatches, isFilterModalOpen 
+    },
     setters: { setActiveGame, setSearchText, setIsProUser },
-    actions: { openWriteModal, closeWriteModal, handleNewPost }
+    actions: { 
+      openWriteModal, closeWriteModal, handleNewPost,
+      openFilterModal, closeFilterModal, handleApplyFilter 
+    }
   };
 };

@@ -16,12 +16,11 @@ const CURRENT_USER_ID = 'user-1';
 
 const MatchingPage = () => {
   const { state, setters, actions } = useMatchingBoard();
-  const { allMatches, activeGame, searchText, isWriteModalOpen, isProUser, matchesByGame, popularMatches, filteredMatches } = state;
+  const { allMatches, activeGame, searchText, isWriteModalOpen, isFilterModalOpen, isProUser, matchesByGame, popularMatches, filteredMatches } = state;
 
   return (
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
       
-      {/* [수정] 공통 Navbar 적용 (Pro 기능 활성화) */}
       <Navbar 
         isProUser={isProUser} 
         onTogglePro={() => setters.setIsProUser(!isProUser)} 
@@ -39,6 +38,12 @@ const MatchingPage = () => {
                 onSearchChange={setters.setSearchText} 
                 onSearchSubmit={setters.setSearchText}
                 onWriteClick={actions.openWriteModal}
+                
+                isFilterOpen={isFilterModalOpen}
+                onFilterToggle={() => isFilterModalOpen ? actions.closeFilterModal() : actions.openFilterModal()}
+                onFilterClose={actions.closeFilterModal}
+                onFilterApply={actions.handleApplyFilter}
+
                 activeGame={activeGame}
                 userId={CURRENT_USER_ID}
              />
@@ -106,6 +111,7 @@ const MatchingPage = () => {
         onUpload={actions.handleNewPost}
         existingPosts={allMatches.filter(p => p.hostUser.id === 'me')} 
       />
+      
     </div>
   );
 };

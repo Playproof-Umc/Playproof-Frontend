@@ -1,15 +1,19 @@
-//src/features/matching/types/types.ts
+// src/features/matching/types/types.ts
+export interface User {
+  id: string;
+  nickname: string;
+  avatarUrl: string;
+}
+
 export interface MatchingData {
   id: number;
   game: string;
   title: string;
   tier: string;
   tags: string[];
-  
-  azit: string;      
-  position: string[]; 
-  memo: string;       
-
+  azit: string;
+  position: string[];
+  memo: string;
   currentMembers: number;
   maxMembers: number;
   time: string;
@@ -17,9 +21,15 @@ export interface MatchingData {
   likes: number;
   comments: number;
   tsScore: number;
-  hostUser: {
-    id: string | number;
-    nickname: string;
-    avatarUrl?: string;
-  };
+  mic: boolean; // 마이크 사용 여부
+  hostUser: User;
+}
+
+export interface FilterState {
+  minTs: string;
+  memberCount: string;
+  tags: string[];
+  useMic: boolean;
+  positions: string[];
+  tiers: string[];
 }

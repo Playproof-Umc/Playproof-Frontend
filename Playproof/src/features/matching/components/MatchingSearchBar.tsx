@@ -1,12 +1,17 @@
 //src/features/matching/components/MatchingSearchBar.tsx
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
+import { MatchingFilterModal } from './MatchingFilterModal';
 
 interface MatchingSearchBarProps {
   searchText: string;
   onSearchChange: (text: string) => void;
   onSearchSubmit: (text: string) => void;
   onWriteClick: () => void;
+  isFilterOpen: boolean;
+  onFilterToggle: () => void;
+  onFilterClose: () => void;
+  onFilterApply: (filters: any) => void;
   activeGame: string;
   userId?: string; 
 }
@@ -16,6 +21,10 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
   onSearchChange,
   onSearchSubmit,
   onWriteClick,
+  isFilterOpen,
+  onFilterToggle,
+  onFilterClose,
+  onFilterApply,
   activeGame,
   userId,
 }) => {
@@ -37,13 +46,11 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
 
   const handleSubmit = (keyword: string) => {
     if (!keyword.trim()) return;
-    
     if (keyword.length >= 2) {
         const newKeywords = [keyword, ...recentKeywords.filter(k => k !== keyword)].slice(0, 10);
         setRecentKeywords(newKeywords);
         localStorage.setItem(storageKey, JSON.stringify(newKeywords));
     }
-    
     onSearchSubmit(keyword);
     setShowRecentSearch(false);
   };
@@ -70,7 +77,6 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit(searchText)}
         />
         
-        {/* 최근 검색어 팝업 */}
         {showRecentSearch && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50">
               <div className="flex justify-between items-center mb-2">
@@ -78,7 +84,6 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
                     최근 검색어 ({userId ? `${activeGame}` : 'Guest'})
                 </div>
               </div>
-              
               {recentKeywords.length === 0 ? (
                   <div className="text-center text-gray-400 text-xs py-4">최근 검색 내역이 없습니다.</div>
               ) : (
@@ -99,9 +104,21 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
         )}
       </div>
 
-      <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-600 bg-white">
-          <SlidersHorizontal size={18} />
-      </button>
+      <div className="relative">
+        <button 
+          onClick={onFilterToggle}
+          className={`p-3 border rounded-lg transition-colors bg-white ${isFilterOpen ? 'border-black text-black bg-gray-50' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+        >
+            <SlidersHorizontal size={18} />
+        </button>
+
+        <MatchingFilterModal 
+          isOpen={isFilterOpen}
+          onClose={onFilterClose}
+          activeGame={activeGame}
+          onApply={onFilterApply}
+        />
+      </div>
 
       <button 
         onClick={onWriteClick}
