@@ -1,11 +1,11 @@
 import * as React from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { UserSummaryCard } from "./components/UserSummaryCard.tsx";
+import { UserSummaryCard } from "@/pages/Home/components/UserSummaryCard";
 import { PartyCard } from "@/features/team/components/PartyCard";
 import { FriendList } from "@/features/user/components/FriendList";
-import { MatchingTabs } from "./components/MatchingTabs";
-import { PopularUserCard } from "./components/PopularUserCard";
-import { CommunityPostCard } from "./components/CommunityPostCard";
+import { MatchingTabs } from "@/pages/Home/components/MatchingTabs";
+import { PopularUserCard } from "@/pages/Home/components/PopularUserCard";
+import { CommunityPostCard } from "@/pages/Home/components/CommunityPostCard";
 import { fetchUserSummaryMock, type UserSummary } from "@/data/mockData";
 
 export default function HomePage() {
