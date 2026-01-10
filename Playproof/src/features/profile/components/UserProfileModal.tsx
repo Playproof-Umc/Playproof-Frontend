@@ -22,9 +22,12 @@ export const UserProfileModal = () => {
           tags: ['소통왕', '빡겜러', '오더가능']
         });
       }, 0);
-      return () => clearTimeout(timer);
-    } else {
-      setUserData(null); 
+      
+      // [수정] Cleanup 함수에서 데이터 초기화 (안전함)
+      return () => {
+        clearTimeout(timer);
+        setUserData(null);
+      };
     }
   }, [isOpen, activeUserId]);
 

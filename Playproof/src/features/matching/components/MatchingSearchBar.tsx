@@ -1,7 +1,8 @@
-//src/features/matching/components/MatchingSearchBar.tsx
+// src/features/matching/components/MatchingSearchBar.tsx
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
 import { MatchingFilterModal } from './MatchingFilterModal';
+import type { FilterState } from '@/features/matching/types/types';
 
 interface MatchingSearchBarProps {
   searchText: string;
@@ -11,7 +12,7 @@ interface MatchingSearchBarProps {
   isFilterOpen: boolean;
   onFilterToggle: () => void;
   onFilterClose: () => void;
-  onFilterApply: (filters: any) => void;
+  onFilterApply: (filters: FilterState) => void;
   activeGame: string;
   userId?: string; 
 }
@@ -113,6 +114,7 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
         </button>
 
         <MatchingFilterModal 
+          key={activeGame}
           isOpen={isFilterOpen}
           onClose={onFilterClose}
           activeGame={activeGame}

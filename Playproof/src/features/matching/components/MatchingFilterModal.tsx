@@ -1,5 +1,5 @@
-//src/features/matching/components/MatchingFilterModal.tsx
-import React, { useState, useEffect } from 'react';
+// src/features/matching/components/MatchingFilterModal.tsx
+import React, { useState } from 'react'; // useEffect 삭제
 import { X, RotateCcw } from 'lucide-react';
 import { GAME_CONFIG, TAGS } from '@/features/matching/constants/matchingConfig';
 import type { FilterState } from '@/features/matching/types/types';
@@ -27,11 +27,6 @@ export const MatchingFilterModal: React.FC<MatchingFilterModalProps> = ({
   onApply,
 }) => {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
-
-  // 게임 변경 시 필터 초기화
-  useEffect(() => {
-    setFilters(INITIAL_FILTERS);
-  }, [activeGame]);
 
   if (!isOpen) return null;
 

@@ -1,4 +1,5 @@
 // src/features/matching/constants/matchingConfig.tsx
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { Sword, Zap, Target, Crosshair, Heart, Eye, Flag, Shield, Star, User, Circle } from 'lucide-react';
 
