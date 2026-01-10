@@ -1,9 +1,6 @@
 // src/features/matching/types/types.ts
-export interface User {
-  id: string;
-  nickname: string;
-  avatarUrl: string;
-}
+
+import type { User } from '@/types'; 
 
 export interface MatchingData {
   id: number;
@@ -21,8 +18,8 @@ export interface MatchingData {
   likes: number;
   comments: number;
   tsScore: number;
-  mic: boolean; // 마이크 사용 여부
-  hostUser: User;
+  mic: boolean;
+  hostUser: User; 
 }
 
 export interface FilterState {

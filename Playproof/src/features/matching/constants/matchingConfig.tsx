@@ -1,4 +1,4 @@
-//src/features/matching/constants/matchingConfig.tsx
+// src/features/matching/constants/matchingConfig.tsx
 import React from 'react';
 import { Sword, Zap, Target, Crosshair, Heart, Eye, Flag, Shield, Star, User, Circle } from 'lucide-react';
 
@@ -62,3 +62,5 @@ export const GAME_CONFIG: Record<string, {
      tiers: ['레벨 무관']
   }
 };
+
+export const GAME_LIST = Object.keys(GAME_CONFIG);

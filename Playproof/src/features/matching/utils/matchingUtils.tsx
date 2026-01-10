@@ -1,8 +1,9 @@
-//src/features/matching/constants/matchingConfig.tsx
+// src/features/matching/utils/matchingUtils.tsx
 import React from 'react';
 import { Sword, Zap, Target, Crosshair, Heart, Eye, Flag, Shield, Star, User, Circle } from 'lucide-react';
+import type { MatchingData, FilterState } from '@/features/matching/types/types';
 
-// 포지션 ID에 따른 아이콘과 라벨 반환
+/* 포지션 ID에 따른 아이콘과 라벨 반환 */
 export const getPositionInfo = (posId: string) => {
   const POS_MAP: Record<string, { label: string, icon: React.ReactNode }> = {
     // 롤
@@ -28,4 +29,58 @@ export const getPositionInfo = (posId: string) => {
   };
 
   return POS_MAP[posId] || { label: posId, icon: <User size={16} /> };
+};
+
+/* 매칭 리스트를 검색어와 필터 조건에 따라 필터링하고 정렬하여 반환  */
+export const filterMatches = (
+  matches: MatchingData[], 
+  searchText: string, 
+  filterConditions: FilterState | null
+): MatchingData[] => {
+  let result = [...matches];
+
+  // 검색어 필터
+  if (searchText.length >= 2) {
+    result = result.filter(item => 
+      item.title.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }
+
+  // 상세 조건 필터
+  if (filterConditions) {
+    const { minTs, memberCount, tags, useMic, positions, tiers } = filterConditions;
+
+    if (minTs !== '상관 없음') {
+      const minScore = parseInt(minTs.replace(/[^0-9]/g, '')) || 0;
+      result = result.filter(item => item.tsScore >= minScore);
+    }
+
+    if (memberCount !== '제한 없음') {
+      const count = parseInt(memberCount.replace(/[^0-9]/g, '')) || 0;
+      result = result.filter(item => item.maxMembers === count);
+    }
+
+    if (tags.length > 0) {
+      result = result.filter(item => 
+        tags.every(tag => item.tags.includes(tag))
+      );
+    }
+
+    if (useMic) {
+      result = result.filter(item => item.mic === true);
+    }
+
+    if (positions.length > 0) {
+      result = result.filter(item => 
+        positions.some(pos => item.position.includes(pos))
+      );
+    }
+
+    if (tiers.length > 0) {
+      result = result.filter(item => tiers.includes(item.tier));
+    }
+  }
+
+  // ID 기준 내림차순
+  return result.sort((a, b) => b.id - a.id);
 };
