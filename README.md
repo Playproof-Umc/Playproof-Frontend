@@ -12,17 +12,18 @@ React, TypeScript, Vite를 기반으로 하며, 유지보수성을 위해 **기�
 | 분류 | 기술 | 비고 |
 | :--- | :--- | :--- |
 | **Core** | ![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) | UI 라이브러리 및 언어 |
-| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.0-purple) | 빌드 도구 및 개발 서버 |
-| **State** | **TanStack Query** (Server), **Zustand** (Client) | 서버/클라이언트 상태 관리 분리 |
-| **Network** | **Axios** | HTTP 비동기 통신 라이브러리 |
-| **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC) | CSS |
-| **Routing** | **React Router DOM** | SPA 라우팅 |
+| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.2-purple) | 빌드 도구 (TypeScript Project Reference 적용) |
+| **State** | **TanStack Query v5**, **Zustand v5** | Server / Client State 분리 |
+| **Network** | **Axios** | HTTP 비동기 통신 |
+| **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC) | CSS (@tailwindcss/vite) |
+| **Assets** | **Lucide React** | 아이콘 컴포넌트 |
+| **Routing** | **React Router DOM v7** | SPA 라우팅 |
 | **Pkg Mgr** | **npm** | 패키지 매니저 |
-| **Quality** | ESLint, Prettier | 코드 품질 및 포맷팅 (수동 실행) |
+| **Quality** | ESLint v9, Prettier | Code Quality (Flat Config) |
 
 <br/>
 
-## Getting Started (설치 및 실행)
+## ⚡️ Getting Started (설치 및 실행)
 
 이 프로젝트는 **Node.js v20 (LTS)** 이상 환경을 권장합니다.
 ```bash
@@ -69,8 +70,8 @@ src/
 ├── components/          # 전역 공통 UI (Button, Modal 등)
 │   └── ui/              # 디자인 시스템 기반의 원자 단위 컴포넌트
 │
-├── data/                # Mock Data (개발용 더미 데이터) ⭐️ (New)
-├── types.ts             # 전역 공통 타입 정의 ⭐️ (New)
+├── data/                # Mock Data (개발용 더미 데이터)
+├── types.ts             # 전역 공통 타입 정의
 │
 ├── features/            # 핵심 도메인별 기능 모음
 │   ├── auth/            # 로그인, 회원가입
@@ -80,7 +81,7 @@ src/
 │   └── chat/            # 채팅방, 미디어 아카이브
 │
 ├── pages/               # 라우트 페이지 (features를 조립해서 화면 구성)
-│   ├── azit/            # 아지트 페이지 ⭐️ (Updated)
+│   ├── azit/            # 아지트 페이지
 │   │   ├── panels/      # (Left, Main, Right Panel)
 │   │   └── AzitPage.tsx
 │   ├── HomePage.tsx
@@ -93,14 +94,14 @@ src/
 └── App.tsx
 ```
 
-###  개발 원칙
+### 개발 원칙
 1. **Colocation:** 특정 기능에서만 쓰이는 컴포넌트는 `features/기능명/components` 안에 둡니다.
 2. **Barrel Exports:** `index.ts`를 활용하여 import 경로를 깔끔하게 유지합니다.
 3. **Absolute Import:** `../../` 대신 `@/features/user` 와 같이 절대 경로(`@`)를 사용합니다.
 
 <br/>
 
-##  Contribution Guide (협업 규칙)
+## Contribution Guide (협업 규칙)
 
 ### 1. Git Flow 및 브랜치 전략
 * `main`: 배포 가능한 안정 버전
@@ -128,7 +129,7 @@ src/
 
 우리는 코드 품질을 유지하기 위해 PR(Pull Request)을 올리기 전, 로컬에서 **자가 검사**를 수행해야 합니다.
 
-**✅ PR 전 실행 명령어**
+**PR 전 실행 명령어**
 작업을 마치고 원격 저장소에 올리기 전, 터미널에 아래 명령어들을 입력하여 에러가 없는지 확인합니다.
 
 | 명령어 | 역할 | 설명 |
@@ -154,6 +155,6 @@ A. Node 버전이 맞는지 확인하세요. (`node -v` >= 20). `nvm use 20`을 
 A. VS Code를 재시작하거나 **`Ctrl + Shift + P` (Win) / `Cmd + Shift + P` (Mac)** 를 눌러 명령 팔레트를 열고 `TypeScript: Restart TS server`를 실행해 보세요.
 
 ---
-**문의사항** 
+**문의사항**
 
 **문의사항은 Discord `#웹-chat` 채널로 주세요.**
