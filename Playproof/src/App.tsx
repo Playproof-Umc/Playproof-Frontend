@@ -1,15 +1,18 @@
 // src/App.tsx
-import React, { Suspense, lazy } from 'react'; // Suspense, lazy 추가
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// Lazy Load Pages
 const LandingPage = lazy(() => import('@/pages/auth/LandingPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
-const HomePage = lazy(() => import('@/pages/HomePage')); 
+const HomePage = lazy(() => import('@/pages/Home/HomePage')); 
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
+// [Merged] develop 브랜치에 있던 CommunityPage 추가 (스타일 통일을 위해 lazy 적용)
+const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
 
 // Context Providers
 import { UserProfileProvider } from '@/features/profile/context/UserProfileContext';
@@ -37,7 +40,7 @@ function App() {
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 {/* Auth Routes */}
-                <Route path="/" element={<LandingPage />} /> {/* 루트 경로 수정 (landing -> /) */}
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -49,6 +52,7 @@ function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/azit" element={<AzitPage />} />
                 <Route path="/matching" element={<MatchingPage />} />
+                <Route path="/community" element={<CommunityPage />} /> {/* develop에서 가져온 라우트 */}
                 
                 {/* 유저 프로필 페이지 */}
                 <Route path="/user/:userId" element={<UserProfilePage />} />
