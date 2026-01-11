@@ -21,7 +21,7 @@ export function Navbar() {
             파티 보기
           </a>
           <a
-            href="#"
+            href="/community"
             className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
           >
             커뮤니티
