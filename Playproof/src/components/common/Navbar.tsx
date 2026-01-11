@@ -1,6 +1,10 @@
-import React from 'react';
+// src/components/common/Navbar.tsx
+import React, { useState } from 'react'; // useState 추가
 import { useNavigate } from 'react-router-dom';
 import { Bell, Settings, User } from 'lucide-react';
+
+// [New] 알림 드롭다운 컴포넌트 import
+import { NotificationDropdown } from '@/features/notification/components/NotificationDropdown';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -9,6 +13,8 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ isProUser, onTogglePro }) => {
   const navigate = useNavigate();
+  // [New] 알림 드롭다운 열림 상태 관리
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -50,7 +56,25 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser, onTogglePro }) => {
             <span className="font-medium">나(Player)</span>
           </div>
           
-          <Bell className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
+          {/* [Modified] 알림 아이콘 버튼 영역 */}
+          <div className="relative">
+            <button 
+              onClick={() => setIsNotiOpen(!isNotiOpen)}
+              className={`p-2 rounded-full transition-all relative ${
+                isNotiOpen ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 text-gray-500 hover:text-black'
+              }`}
+            >
+              <Bell className="w-5 h-5" />
+              {/* 읽지 않은 알림 배지 (예시) */}
+              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+            </button>
+
+            {/* [New] 알림 드롭다운 컴포넌트 조건부 렌더링 */}
+            {isNotiOpen && (
+              <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
+            )}
+          </div>
+
           <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
         </div>
       </div>
