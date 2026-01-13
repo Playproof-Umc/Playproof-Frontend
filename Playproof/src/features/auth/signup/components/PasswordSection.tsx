@@ -1,3 +1,4 @@
+//src/features/auth/signup/components/PasswordSection.tsx
 type Props = {
   password: string;
   confirm: string;
