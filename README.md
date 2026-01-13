@@ -7,23 +7,22 @@ React, TypeScript, Vite를 기반으로 하며, 유지보수성을 위해 **기�
 
 <br/>
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | 분류 | 기술 | 비고 |
 | :--- | :--- | :--- |
 | **Core** | ![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) | UI 라이브러리 및 언어 |
-| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.2-purple) | 빌드 도구 (TypeScript Project Reference 적용) |
-| **State** | **TanStack Query v5**, **Zustand v5** | Server / Client State 분리 |
-| **Network** | **Axios** | HTTP 비동기 통신 |
-| **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC) | CSS (@tailwindcss/vite) |
-| **Assets** | **Lucide React** | 아이콘 컴포넌트 |
-| **Routing** | **React Router DOM v7** | SPA 라우팅 |
+| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.0-purple) | 빌드 도구 및 개발 서버 |
+| **State** | **TanStack Query** (Server), **Zustand** (Client) | 서버/클라이언트 상태 관리 분리 |
+| **Network** | **Axios** | HTTP 비동기 통신 라이브러리 |
+| **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC) | CSS |
+| **Routing** | **React Router DOM** | SPA 라우팅 |
 | **Pkg Mgr** | **npm** | 패키지 매니저 |
-| **Quality** | ESLint v9, Prettier | Code Quality (Flat Config) |
+| **Quality** | ESLint, Prettier | 코드 품질 및 포맷팅 (수동 실행) |
 
 <br/>
 
-##  Getting Started (설치 및 실행)
+## Getting Started (설치 및 실행)
 
 이 프로젝트는 **Node.js v20 (LTS)** 이상 환경을 권장합니다.
 ```bash
@@ -59,7 +58,7 @@ npm run dev
 
 <br/>
 
-## Project Structure (폴더 구조)
+## 📂 Project Structure (폴더 구조)
 
 우리는 **기능(Feature) 중심의 아키텍처**를 사용합니다.
 관련된 로직(UI, Hook, API)이 하나의 폴더에 모여 있어야 유지보수가 쉽습니다.
@@ -70,8 +69,8 @@ src/
 ├── components/          # 전역 공통 UI (Button, Modal 등)
 │   └── ui/              # 디자인 시스템 기반의 원자 단위 컴포넌트
 │
-├── data/                # Mock Data (개발용 더미 데이터)
-├── types.ts             # 전역 공통 타입 정의
+├── data/                # Mock Data (개발용 더미 데이터) ⭐️ (New)
+├── types.ts             # 전역 공통 타입 정의 ⭐️ (New)
 │
 ├── features/            # 핵심 도메인별 기능 모음
 │   ├── auth/            # 로그인, 회원가입
@@ -81,7 +80,7 @@ src/
 │   └── chat/            # 채팅방, 미디어 아카이브
 │
 ├── pages/               # 라우트 페이지 (features를 조립해서 화면 구성)
-│   ├── azit/            # 아지트 페이지
+│   ├── azit/            # 아지트 페이지 ⭐️ (Updated)
 │   │   ├── panels/      # (Left, Main, Right Panel)
 │   │   └── AzitPage.tsx
 │   ├── HomePage.tsx
@@ -94,20 +93,20 @@ src/
 └── App.tsx
 ```
 
-### 개발 원칙
+###  개발 원칙
 1. **Colocation:** 특정 기능에서만 쓰이는 컴포넌트는 `features/기능명/components` 안에 둡니다.
 2. **Barrel Exports:** `index.ts`를 활용하여 import 경로를 깔끔하게 유지합니다.
 3. **Absolute Import:** `../../` 대신 `@/features/user` 와 같이 절대 경로(`@`)를 사용합니다.
 
 <br/>
 
-## Contribution Guide (협업 규칙)
+##  Contribution Guide (협업 규칙)
 
 ### 1. Git Flow 및 브랜치 전략
 * `main`: 배포 가능한 안정 버전
 * `develop`: 개발 중인 코드 (PR 대상)
 
-**브랜치 명명 규칙: `타입/기능명_작성자`**
+**📌 브랜치 명명 규칙: `타입/기능명_작성자`**
 누가 작업 중인지 명확히 알기 위해 **기능명 뒤에 작성자 이름(이니셜)**을 붙입니다.
 
 | 타입 | 설명 | 사용 예시 |
@@ -129,7 +128,7 @@ src/
 
 우리는 코드 품질을 유지하기 위해 PR(Pull Request)을 올리기 전, 로컬에서 **자가 검사**를 수행해야 합니다.
 
-**PR 전 실행 명령어**
+**✅ PR 전 실행 명령어**
 작업을 마치고 원격 저장소에 올리기 전, 터미널에 아래 명령어들을 입력하여 에러가 없는지 확인합니다.
 
 | 명령어 | 역할 | 설명 |
@@ -140,37 +139,6 @@ src/
 ```bash
 # 실행 예시
 npm run type-check && npm run lint
-```
-
-<br/>
-
-### 4. Issue & Workflow (작업 순서)
-
-우리는 이슈(Issue)를 통해 할 일을 정의하고, PR과 연결하여 작업 내역을 추적합니다.
-
-**작업 프로세스**
-1. **Issue 생성:** 작업 시작 전, 할 일 카드를 먼저 만듭니다.
-2. **Branch 생성:** 이슈 번호나 기능명을 따서 브랜치를 만듭니다.
-3. **Code & Commit:** 기능 구현 후 커밋합니다.
-4. **PR 생성:** PR 본문에 `Closes #이슈번호`를 적어 이슈와 연결합니다.
-5. **Merge:** PR이 승인되어 머지되면 이슈도 자동으로 닫힙니다(Done).
-
-**Issue 작성 규칙**
-* **제목:** `[FEAT] 매칭 시스템 초기 구현` (커밋 태그와 통일)
-* **내용:** 작업의 목적, 상세 할 일 목록(To-Do), 예상 완료일을 적습니다.
-
-**(예시 템플릿)**
-```markdown
-## 개요
-- 매칭 페이지의 UI와 기본 로직을 구현합니다.
-
-## 작업 상세 내용
-- [ ] 매칭 리스트 카드 컴포넌트 제작 (`MatchingCard`)
-- [ ] 글 작성 모달 퍼블리싱
-- [ ] 필터링 로직 구현
-
-## 예상 완료일
-- 2024.01.15
 ```
 
 <br/>
@@ -186,6 +154,6 @@ A. Node 버전이 맞는지 확인하세요. (`node -v` >= 20). `nvm use 20`을 
 A. VS Code를 재시작하거나 **`Ctrl + Shift + P` (Win) / `Cmd + Shift + P` (Mac)** 를 눌러 명령 팔레트를 열고 `TypeScript: Restart TS server`를 실행해 보세요.
 
 ---
-**문의사항**
+**문의사항** 
 
 **문의사항은 Discord `#웹-chat` 채널로 주세요.**
