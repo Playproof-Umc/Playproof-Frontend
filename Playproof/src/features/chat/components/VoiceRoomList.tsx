@@ -1,7 +1,8 @@
 //src/features/chat/components/VoiceRoomList.tsx
+
 import React from 'react';
 import { Plus, Users, Volume2 } from 'lucide-react';
-import type { Channel } from '@/features/team/types/types';
+import type { Channel } from '@/types';
 import { Card } from '@/components/ui/Card';
 
 interface Props {

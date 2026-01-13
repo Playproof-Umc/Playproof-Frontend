@@ -1,5 +1,4 @@
-//src/features/auth/signup/components/PhoneVerificationSection.tsx
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/Button";
 
 type Props = {
     // Phone

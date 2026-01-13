@@ -1,7 +1,7 @@
-// src/data/mockData.ts
-import type { User, Schedule, Channel, Clip } from '@/types'; // 타입 추가 Import
+//src/data/mockData.ts
+import type { Schedule, Channel, User, Clip } from '@/types';
 
-// [Develop] HomePage용 타입 및 Mock 데이터
+// HomePage용 타입 및 Mock 데이터
 export type UserStat = {
   label: string;
   value: string | number;
@@ -35,8 +35,8 @@ export function fetchUserSummaryMock(delayMs = 350): Promise<UserSummary> {
   });
 }
 
-// [Combined] 전역 멤버 리스트 (유저 DB)
-// HEAD와 develop의 데이터가 동일하므로 하나로 통합합니다.
+// Azit 페이지용 데이터
+// 1. 멤버 리스트
 export const mockMembers: User[] = [
   { id: 'u1', nickname: '레나', avatarUrl: '', isOnline: true },
   { id: 'u2', nickname: '엘릭', avatarUrl: '', isOnline: false },
@@ -44,7 +44,7 @@ export const mockMembers: User[] = [
   { id: 'u4', nickname: '구름', avatarUrl: '', isOnline: false }
 ];
 
-// [Develop] 아지트 일정 데이터
+// 2. 일정 데이터
 export const mockSchedules: Schedule[] = [
   {
     id: '1', title: '데바데 5인큐', dateStr: 'Mon 22', timeStr: '20:00', fullDate: new Date('2025-12-22'),
@@ -77,23 +77,24 @@ export const mockSchedules: Schedule[] = [
   }
 ];
 
-// [Develop] 보이스 채널
+// 3. 보이스 채널
 export const mockVoiceChannels: Channel[] = [
   { 
     id: 'v1', name: '로비', type: 'VOICE', 
     connectedUsers: [ mockMembers[0], mockMembers[2] ] 
   },
   { id: 'v2', name: '스크림 룸', type: 'VOICE', connectedUsers: [] }
+  // 필요하면 더 추가...
 ];
 
-// [Develop] 채팅 채널
+// 4. 채팅 채널
 export const mockChatChannels: Channel[] = [
   { id: 'c1', name: '팀채팅', type: 'TEXT' },
   { id: 'c2', name: '수다방', type: 'TEXT' },
   { id: 'c3', name: '공지사항', type: 'TEXT' }
 ];
 
-// [Develop] 클립
+// 5. 클립
 export const mockClips: Clip[] = [
   { id: 'cl1', date: '2025.12.18', thumbnailUrl: '' },
   { id: 'cl2', date: '2025.12.16', thumbnailUrl: '' },
