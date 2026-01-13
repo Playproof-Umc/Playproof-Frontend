@@ -11,7 +11,6 @@ const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
-// [Merged] develop 브랜치에 있던 CommunityPage 추가 (스타일 통일을 위해 lazy 적용)
 const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
 
 // Context Providers
