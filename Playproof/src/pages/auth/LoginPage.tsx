@@ -1,4 +1,3 @@
-//src/pages/auth/LoginPage.tsx
 const LoginPage = () => {
   return (
     <div className="min-h-screen bg-white text-black flex items-center justify-center px-6">

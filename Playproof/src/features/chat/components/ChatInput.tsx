@@ -1,4 +1,3 @@
-//src/features/chat/components/ChatInput.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, X, SquareArrowUp } from 'lucide-react'; 
 

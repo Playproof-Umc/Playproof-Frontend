@@ -1,6 +1,5 @@
-//src/pages/auth/LandingPage.tsx
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/Button";
 import { OnboardingPlaceholder } from "@/components/ui/OnboardingPlaceholder";
 import { OnboardingIndicator } from "@/components/ui/OnboardingIndicator";
 

@@ -1,5 +1,4 @@
-//src/features/auth/signup/components/SignupCTA.tsx
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/Button";
 
 type Props = {
     disabled: boolean;
