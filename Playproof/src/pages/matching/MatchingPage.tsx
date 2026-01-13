@@ -1,5 +1,4 @@
-// src/pages/matching/MatchingPage.tsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Navbar } from '@/components/common/Navbar';
 import { MatchingSearchBar } from '@/features/matching/components/MatchingSearchBar';
 import { GameFilter } from '@/features/matching/components/GameFilter';
@@ -19,6 +18,11 @@ const MatchingPage = () => {
     allMatches, activeGame, searchText, isWriteModalOpen, isFilterModalOpen, 
     isProUser, matchesByGame, popularMatches, filteredMatches 
   } = state;
+
+  // 코드 리뷰 반영: slice 연산 최적화를 위해 useMemo 사용
+  const recommendedData = useMemo(() => {
+    return matchesByGame.slice(0, 3);
+  }, [matchesByGame]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
@@ -56,7 +60,8 @@ const MatchingPage = () => {
 
       <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
         <PartyRequestBanner />
-        <RecommendedSection isProUser={isProUser} recommendations={matchesByGame.slice(0, 3)} />
+        {/* 수정된 recommendedData 전달 */}
+        <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />
         <FilteredMatchList matches={filteredMatches} searchText={searchText} />
       </main>

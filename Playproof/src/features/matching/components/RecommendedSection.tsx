@@ -1,4 +1,3 @@
-//src/features/matching/components/RecommendedSection.tsx
 import React from 'react';
 import { RefreshCw, Lock } from 'lucide-react';
 import { MatchingCard } from './MatchingCard';
@@ -9,7 +8,8 @@ interface RecommendedSectionProps {
   recommendations: MatchingData[]; 
 }
 
-export const RecommendedSection: React.FC<RecommendedSectionProps> = ({ isProUser, recommendations }) => {
+// 코드 리뷰 반영: React.memo로 감싸서 불필요한 리렌더링 방지
+export const RecommendedSection = React.memo<RecommendedSectionProps>(({ isProUser, recommendations }) => {
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -60,4 +60,4 @@ export const RecommendedSection: React.FC<RecommendedSectionProps> = ({ isProUse
       </div>
     </section>
   );
-};
+});
