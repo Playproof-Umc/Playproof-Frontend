@@ -188,9 +188,7 @@ const MOCK_BOARD_POSTS: Post[] = [
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = React.useState<CommunityTab>("하이라이트");
   const [searchQuery, setSearchQuery] = React.useState("");
-  
-  // 에러 발생 부분 삭제됨 (selectedPlace)
-  
+  const [selectedPlace, setSelectedPlace] = React.useState("자유게시판");
   const [sortBy, setSortBy] = React.useState("베스트 / 추천");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [itemsPerPage, setItemsPerPage] = React.useState(10);

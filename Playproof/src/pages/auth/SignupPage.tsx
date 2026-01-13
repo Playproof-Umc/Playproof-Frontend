@@ -1,4 +1,3 @@
-//src/pages/auth/SignupPage.tsx
 import SignupForm from "./SignupForm";
 
 /* sub components */

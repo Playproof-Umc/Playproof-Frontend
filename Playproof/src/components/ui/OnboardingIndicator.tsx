@@ -1,4 +1,3 @@
-//src/components/ui/OnboardingIndicator.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
