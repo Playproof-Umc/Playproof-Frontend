@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="modal.css">
+
+</head>
+<body>
+    <button id="openBtn" type="button">모달 열기</button>
+
+<div id="modal" class="modal" aria-hidden="true">
+  <div id="overlay" class="overlay"></div>
+  <!--overlay: 어두운 배경-->
+
+  <div class="panel" role="dialog" aria-modal="true">
+    <button id="closeBtn" type="button">닫기</button>
+    <p id="modalText">안녕하세요. 모달입니다.</p>
+  </div>
+</div>
+
+<script src="modal.js"></script>
+</body>
+</html>

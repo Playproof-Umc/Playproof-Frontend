@@ -1,0 +1,15 @@
+*  {box-sizing: border-box;}
+.modal { display: none; position: fixed; inset: 0; }
+.modal.open { display: block; }
+
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+
+.panel {
+  position: relative;
+  width: 320px;
+  margin: 120px auto;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+}
+body.no-scroll { overflow: hidden; }
