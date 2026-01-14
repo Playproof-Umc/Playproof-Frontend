@@ -15,7 +15,7 @@ export function HighlightCard({ post, onPostClick }: HighlightCardProps) {
 
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/players/${post.id}`);
+    navigate('/user/user-1');
   };
 
   const handleShare = (e: React.MouseEvent) => {

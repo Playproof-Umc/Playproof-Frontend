@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Share2, Bell, MoreVertical, Heart, Eye, MessageCircle } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+import { ArrowLeft, Share2, MoreVertical, Heart, Eye, MessageCircle } from "lucide-react";
+import { Navbar } from "@/components/common/Navbar";
 import { MOCK_BOARD_POSTS, MOCK_COMMENTS } from "@/data/mockData";
 
 export default function PostDetailPage() {

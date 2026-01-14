@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/common/Navbar";
 import { CommunityTabs } from "@/pages/Community/components/CommunityTabs";
 import { CommunitySearchBar } from "@/pages/Community/components/CommunitySearchBar";
 import { HighlightFeed } from "@/pages/Community/components/HighlightFeed";
