@@ -9,6 +9,8 @@ import LoginPage from "@/pages/auth/LoginPage";
 
 import HomePage from "@/pages/Home/HomePage";
 import CommunityPage from "@/pages/Community/CommunityPage";
+import PostDetailPage from "@/pages/Community/PostDetailPage";
+  
 // feat/azit-init_Elric 브랜치의 페이지 (아지트)
 import AzitPage from "./pages/azit/AzitPage";
 
@@ -20,9 +22,12 @@ function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
         <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO)</div>} />
+        {/* 추가한 라우트 (현) */}
+        <Route path="/home" element={<HomePage />} />
         <Route path="/community" element={<CommunityPage />} />
+        <Route path="/community/:postId" element={<PostDetailPage />} />
+        
         {/* 새로 추가한 아지트 라우트 (feat) */}
         <Route path="/azit" element={<AzitPage />} />
       </Routes>
