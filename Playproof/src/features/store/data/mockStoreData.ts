@@ -2,47 +2,62 @@
 import type { Product, StoreBanner } from '../types/types';
 
 export const STORE_BANNERS: StoreBanner[] = [
-  {
-    id: 1,
-    title: '오픈 기념 이벤트',
-    imageUrl: 'https://placehold.co/1200x300/2563eb/ffffff?text=OPEN+EVENT', 
+  { 
+    id: 1, 
+    title: '배너 1', 
+    imageUrl: 'https://placehold.co/1200x300/2563eb/ffffff?text=Banner+1' 
   },
-  {
-    id: 2,
-    title: '신규 아이템 출시',
-    imageUrl: 'https://placehold.co/1200x300/1e293b/ffffff?text=NEW+ITEMS',
+  { 
+    id: 2, 
+    title: '배너 2', 
+    imageUrl: 'https://placehold.co/1200x300/1e293b/ffffff?text=Banner+2' 
+  },
+  { 
+    id: 3, 
+    title: '배너 3', 
+    imageUrl: 'https://placehold.co/1200x300/dc2626/ffffff?text=Banner+3' 
   },
 ];
 
 export const MOCK_PRODUCTS: Product[] = [
   {
     id: 1,
-    title: '체크메이트 프로필 테두리',
+    title: '체크메이트 프로필 (보유중)',
     price: 3000,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/300x300/f1f5f9/94a3b8?text=Profile+Item',
-    tags: ['NEW'],
+    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Profile',
+    isOwned: true,
+    isRecommended: true,
   },
   {
     id: 2,
-    title: '경험치 2배 부스터 (1시간)',
-    price: 500,
+    title: '비싼 아이템 (포인트 부족)',
+    price: 999999,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/300x300/f1f5f9/94a3b8?text=EXP+Booster',
-    tags: ['HOT'],
+    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Expensive',
+    isRecommended: false,
   },
   {
     id: 3,
-    title: '닉네임 변경권',
-    price: 9900,
+    title: '멤버십 전용 아이템',
+    price: 1000,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/300x300/f1f5f9/94a3b8?text=Name+Change',
+    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=VIP',
+    requiredMembership: true,
   },
   {
     id: 4,
-    title: '프리미엄 멤버십 (30일)',
-    price: 15000,
-    category: 'MEMBERSHIP',
-    imageSrc: 'https://placehold.co/300x300/f1f5f9/94a3b8?text=Membership',
+    title: '일반 아이템 (추천)',
+    price: 500,
+    category: 'ITEM',
+    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Normal',
+    isRecommended: true,
+  },
+  {
+    id: 5,
+    title: '저렴한 아이템',
+    price: 100,
+    category: 'ITEM',
+    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Cheap',
   },
 ];

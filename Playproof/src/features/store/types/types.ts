@@ -1,12 +1,10 @@
 // src/features/store/types/types.ts
 
-// 상품 카테고리
 export type ProductCategory = 'ITEM' | 'PROFILE' | 'MEMBERSHIP';
 
-// 정렬 기준
+// 정렬 옵션 (4번 요구사항)
 export type SortOption = 'RECOMMEND' | 'LOW_PRICE' | 'HIGH_PRICE';
 
-// ✨ 여기가 핵심입니다! 이 부분이 없으면 에러가 납니다.
 export interface Product {
   id: number;
   title: string;
@@ -14,18 +12,16 @@ export interface Product {
   imageSrc: string;
   category: ProductCategory;
   tags?: string[];
-  isOwned?: boolean;
+  
+  // 6번 구매 로직을 위한 필드 추가
+  isOwned?: boolean;          // 이미 보유 중인지
+  requiredMembership?: boolean; // 멤버십 필요 여부
+  isRecommended?: boolean;    // 추천 상품 여부 (정렬용)
 }
 
-// 배너 데이터 타입
 export interface StoreBanner {
   id: number;
   title: string;
   imageUrl: string;
   link?: string;
-}
-
-// 유저 포인트 타입
-export interface UserPoint {
-  currentPoint: number;
 }

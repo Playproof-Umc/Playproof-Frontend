@@ -1,50 +1,163 @@
 // src/features/store/components/StoreSearchBar.tsx
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, X } from 'lucide-react';
 
-export const StoreSearchBar = () => {
+interface StoreSearchBarProps {
+  onSearch: (keyword: string) => void;
+  isLoggedIn?: boolean; // 로그인 여부 (App이나 Context에서 주입)
+}
+
+export const StoreSearchBar = ({ onSearch, isLoggedIn = false }: StoreSearchBarProps) => {
   const [keyword, setKeyword] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [recentKeywords, setRecentKeywords] = useState(['경험치', '닉네임', '멤버십']);
+  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 1-3. 초기 로드 시 저장된 검색어 불러오기
+  useEffect(() => {
+    if (isLoggedIn) {
+      // TODO: 서버 API 호출 (계정 기준)
+      // fetchRecentKeywords().then(setRecentKeywords);
+      const saved = localStorage.getItem('store_recent_keywords_user');
+      if (saved) setRecentKeywords(JSON.parse(saved));
+    } else {
+      // 비로그인: 로컬 스토리지
+      const saved = localStorage.getItem('store_recent_keywords_guest');
+      if (saved) setRecentKeywords(JSON.parse(saved));
+    }
+  }, [isLoggedIn]);
+
+  // 검색어 저장 로직
+  const saveKeyword = (newKeyword: string) => {
+    let updated = [newKeyword, ...recentKeywords.filter((k) => k !== newKeyword)];
+    // 1-1-a. 최대 10개만 저장
+    if (updated.length > 10) updated = updated.slice(0, 10);
+
+    setRecentKeywords(updated);
+
+    // 1-3. 저장소 분기
+    if (isLoggedIn) {
+      // TODO: API 전송
+      localStorage.setItem('store_recent_keywords_user', JSON.stringify(updated));
+    } else {
+      localStorage.setItem('store_recent_keywords_guest', JSON.stringify(updated));
+    }
+  };
+
+  // 1-1-a. 개별 키워드 삭제
+  const removeKeyword = (e: React.MouseEvent, target: string) => {
+    e.stopPropagation(); // 클릭 시 부모(input focus) 이벤트 방지
+    const updated = recentKeywords.filter((k) => k !== target);
+    setRecentKeywords(updated);
+    
+    const storageKey = isLoggedIn ? 'store_recent_keywords_user' : 'store_recent_keywords_guest';
+    localStorage.setItem(storageKey, JSON.stringify(updated));
+  };
+
+  // 1-2. 검색 수행
+  const handleSearch = () => {
+    const trimmed = keyword.trim();
+
+    // 1-2-c. 미입력시 전체 조회
+    if (trimmed.length === 0) {
+      onSearch('');
+      setIsFocused(false);
+      return;
+    }
+
+    // 1-2-b. 2글자 미만 제한
+    if (trimmed.length < 2) {
+      // 에러 문구 노출하지 않음 (기획서) -> 그냥 리턴하거나 UI 표시 안함
+      return;
+    }
+
+    saveKeyword(trimmed);
+    onSearch(trimmed);
+    setIsFocused(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  // 1-1-a. 칩 클릭 시 즉시 검색
+  const handleChipClick = (word: string) => {
+    setKeyword(word);
+    saveKeyword(word); // 순서 갱신
+    onSearch(word);
+    setIsFocused(false);
+  };
+
+  // 외부 클릭 시 팝업 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <div className="relative w-full mb-6 z-20">
-      <div className="flex gap-2">
-        <Input 
-          placeholder="원하는 아이템을 검색해보세요"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          className="flex-1 h-12 text-base bg-white"
-        />
-        <Button className="h-12 px-8 font-bold bg-gray-900 text-white rounded-lg">
+    <div className="relative w-full mb-8 z-20" ref={containerRef}>
+      <div className="flex gap-3">
+        {/* 검색어 입력창 */}
+        <div className="flex-1 relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <Search size={20} />
+          </div>
+          <input
+            type="text"
+            placeholder="제목, 한줄 소개를 검색해보세요."
+            value={keyword}
+            maxLength={20} // 1-2-b. 최대 20글자 제한
+            onFocus={() => setIsFocused(true)}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-black transition-colors"
+          />
+        </div>
+
+        <button 
+          onClick={handleSearch}
+          className="px-8 h-12 font-bold bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+        >
           검색
-        </Button>
+        </button>
       </div>
 
-      {/* 최근 검색어 팝업 */}
+      {/* 1-1. 최근 검색어 팝업 */}
       {isFocused && (
-        <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setIsFocused(false)} 
-          />
-          <div className="absolute top-14 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-20">
-            <span className="text-xs font-bold text-gray-500 mb-2 block">최근 검색어</span>
+        <div className="absolute top-14 left-0 w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-30">
+          <span className="text-xs font-bold text-gray-500 mb-3 block">최근 검색어</span>
+          
+          {recentKeywords.length === 0 ? (
+            // 1-1-b. 최근 검색어가 없을 때
+            <div className="text-sm text-gray-400 py-4 text-center">
+              최근 검색어가 없습니다.
+            </div>
+          ) : (
+            // 1-1-a. 칩 목록
             <div className="flex flex-wrap gap-2">
               {recentKeywords.map((word) => (
-                <button 
+                <div 
                   key={word}
-                  className="bg-gray-100 px-3 py-1.5 rounded-full text-sm text-gray-700 hover:bg-gray-200"
-                  onClick={() => setKeyword(word)}
+                  className="flex items-center gap-1 bg-gray-100 pl-3 pr-2 py-1.5 rounded-full text-sm text-gray-700 hover:bg-gray-200 cursor-pointer transition-colors"
+                  onClick={() => handleChipClick(word)}
                 >
-                  {word}
-                </button>
+                  <span>{word}</span>
+                  <button 
+                    onClick={(e) => removeKeyword(e, word)}
+                    className="p-0.5 hover:bg-gray-300 rounded-full text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
               ))}
             </div>
-          </div>
-        </>
+          )}
+        </div>
       )}
     </div>
   );

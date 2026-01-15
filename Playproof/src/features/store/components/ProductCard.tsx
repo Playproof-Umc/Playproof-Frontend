@@ -1,58 +1,106 @@
 // src/features/store/components/ProductCard.tsx
 import React from 'react';
+import { ShoppingCart } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import type { Product } from '../types/types';
 
 interface ProductCardProps {
   product: Product;
+  userPoint?: number;    // 유저 현재 포인트
+  isLoggedIn?: boolean;  // 로그인 여부
+  userMembershipLevel?: string; // 유저 멤버십 등급 (예: 'VIP', 'NORMAL')
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ 
+  product, 
+  userPoint = 0, 
+  isLoggedIn = false,
+  userMembershipLevel = 'NORMAL' 
+}: ProductCardProps) => {
+
+  // 6. 구매하기 버튼 로직
+  const handlePurchase = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // 6-a. 비로그인 체크
+    if (!isLoggedIn) {
+      if (confirm('로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+        // navigate('/login'); // 실제 코드에서는 주석 해제
+        alert('로그인 페이지 이동');
+      }
+      return;
+    }
+
+    // 6-d. 이미 보유 중 체크
+    if (product.isOwned) {
+      alert('이미 보유 중인 상품이에요.');
+      return;
+    }
+
+    // 6-e. 멤버십 체크
+    if (product.requiredMembership && userMembershipLevel !== 'VIP') {
+      if (confirm('멤버십 전용 상품이에요.\n멤버십 안내 페이지로 이동하시겠습니까?')) {
+        alert('멤버십 안내 페이지 이동');
+      }
+      return;
+    }
+
+    // 6-b. 포인트 부족 체크
+    if (userPoint < product.price) {
+      if (confirm('포인트가 부족해요.\n충전 페이지로 이동하시겠습니까?')) {
+        alert('충전 페이지 이동');
+      }
+      return;
+    }
+
+    // 6-c. 정상 결제 시도
+    if (confirm(`${product.title} 상품을 구매하시겠습니까?\n${product.price}P가 차감됩니다.`)) {
+      // TODO: 서버 결제 API 호출
+      // if (success) ...
+      // else: 6-f. 서버 오류
+      // alert('구매에 실패했어요. 다시 시도해 주세요.');
+      
+      alert('구매가 완료되었습니다!');
+    }
+  };
+
   return (
-    <Card className="overflow-hidden border border-gray-200 rounded-xl hover:shadow-md transition-all bg-white flex flex-col group cursor-pointer">
-      {/* 이미지 영역 */}
-      <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
-        <img 
-          src={product.imageSrc} 
-          alt={product.title} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        {product.tags && product.tags.length > 0 && (
-          <div className="absolute top-2 left-2 flex gap-1">
-            {product.tags.map(tag => (
-              <span key={tag} className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+    <Card className="group flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+      <div className="w-full aspect-square bg-gray-100 relative overflow-hidden">
+         <img 
+            src={product.imageSrc} 
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 mix-blend-multiply" 
+         />
       </div>
 
-      {/* 정보 영역 */}
-      <div className="p-4 flex flex-col flex-1 gap-3">
-        <div>
-          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px]">
-            {product.title}
-          </h3>
-          <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-lg font-bold text-gray-900">
-              {product.price.toLocaleString()}
-            </span>
-            <span className="text-xs font-medium text-gray-500">P</span>
-          </div>
+      <div className="p-4 flex flex-col gap-1">
+        <span className="text-xs text-gray-500 font-medium">아이템</span>
+        <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-1">{product.title}</h3>
+
+        <div className="flex items-center gap-1 mb-4">
+          <div className="w-5 h-5 rounded-full border border-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-800">P</div>
+          <span className="text-lg font-bold text-gray-900">{product.price.toLocaleString()}</span>
         </div>
 
-        <div className="mt-auto pt-2">
-          <Button 
-            className="w-full h-9 text-sm font-bold bg-gray-900 hover:bg-gray-800 text-white"
-            onClick={(e) => {
-              e.stopPropagation(); // 카드 클릭 이벤트 방지
-              alert(`${product.title} 구매!`);
-            }}
+        <div className="flex gap-2 mt-auto">
+          <button 
+            className={`flex-1 h-10 text-sm font-bold rounded transition-colors ${
+              product.isOwned 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-[#2C2C34] text-white hover:bg-black'
+            }`}
+            onClick={handlePurchase}
           >
-            구매하기
-          </Button>
+            {product.isOwned ? '보유중' : '구매하기'}
+          </button>
+          
+          <button 
+            className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 transition-colors text-gray-700"
+            onClick={(e) => { e.stopPropagation(); alert('장바구니 담기'); }}
+          >
+            <ShoppingCart size={18} />
+          </button>
         </div>
       </div>
     </Card>
