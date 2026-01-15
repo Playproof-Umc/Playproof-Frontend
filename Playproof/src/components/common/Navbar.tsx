@@ -32,7 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser, onTogglePro }) => {
             <button onClick={() => navigate('/matching')} className="h-16 px-1 hover:text-black transition-colors border-b-2 border-transparent hover:border-black">매칭하기</button>
             <button onClick={() => navigate('/community')} className="h-16 px-1 hover:text-black transition-colors border-b-2 border-transparent hover:border-black">커뮤니티</button>
             <button onClick={() => navigate('/azit')} className="h-16 px-1 hover:text-black transition-colors border-b-2 border-transparent hover:border-black">아지트</button>
-            <button onClick={() => navigate('/shop')} className="h-16 px-1 hover:text-black transition-colors border-b-2 border-transparent hover:border-black">상점</button>
+            <button onClick={() => navigate('/store')} className="h-16 px-1 hover:text-black transition-colors border-b-2 border-transparent hover:border-black">상점</button>
           </nav>
         </div>
         

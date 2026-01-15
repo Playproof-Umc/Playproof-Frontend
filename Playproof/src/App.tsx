@@ -12,17 +12,18 @@ const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
 const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const StorePage = lazy(() => import('@/pages/store/StorePage'));
 
 // Context Providers
 import { UserProfileProvider } from '@/features/profile/context/UserProfileContext';
 import { MatchingDetailProvider } from '@/features/matching/context/MatchingDetailContext';
 import { ToastProvider } from '@/features/notification/context/ToastContext';
 
-// Global Modals (모달은 미리 로드해두거나 필요 시 분리 가능, 여기선 유지)
+// Global Modals
 import { UserProfileModal } from '@/features/profile/components/UserProfileModal';
 import { MatchingDetailModal } from '@/features/matching/components/MatchingDetailModal';
 
-// 로딩 중 보여줄 컴포넌트 (간단한 스피너나 텍스트)
+// 로딩 중 보여줄 컴포넌트
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen bg-white">
     <div className="text-gray-400 text-sm font-bold">Loading...</div>
@@ -51,7 +52,10 @@ function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/azit" element={<AzitPage />} />
                 <Route path="/matching" element={<MatchingPage />} />
-                <Route path="/community" element={<CommunityPage />} /> {/* develop에서 가져온 라우트 */}
+                <Route path="/community" element={<CommunityPage />} />
+                
+                {/* ✨ 스토어 라우트 추가 */}
+                <Route path="/store" element={<StorePage />} />
                 
                 {/* 유저 프로필 페이지 */}
                 <Route path="/user/:userId" element={<UserProfilePage />} />
