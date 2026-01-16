@@ -302,3 +302,101 @@ export const MOCK_COMMENTS: Comment[] = [
     replies: 0,
   },
 ];
+
+// 마이페이지 사용자 프로필 데이터
+export interface MyProfileData {
+  userId: string;
+  nickname: string;
+  rank: number;
+  profileImage?: string;
+  bio: string;
+  tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND';
+  tierScore: number;
+  ranking: {
+    rank: number;
+    percentile: number; // uxScore -> percentile로 변경
+  };
+  temperScore: number;
+  positivityRating: number;
+  playStyles: string[];
+  preferredTags: string[];
+  feedbackTags: string[];
+  gameAccounts: {
+    game: string;
+    nickname: string;
+    tag: string;
+  }[];
+  gameStats: {
+    game: string;
+    tier?: string;
+    playTime?: string;
+    position?: string;
+    totalGames?: number;
+    winRate?: number;
+    kda?: number;
+  }[];
+  favoriteGames: {
+    rank?: number;
+    game: string;
+  }[];
+}
+
+export const MOCK_MY_PROFILE: MyProfileData = {
+  userId: 'user-1',
+  nickname: '레나',
+  rank: 1,
+  bio: '왓! 진짜 어렵다!!!@@#@#@$%$%^',
+  tier: 'PLATINUM',
+  tierScore: 90,
+  ranking: {
+    rank: 40,
+    percentile: 5, // 상위 5%를 의미
+  },
+  temperScore: 88,
+  positivityRating: 90,
+  playStyles: ['실력 중심', '마이크 필수', '시간 협의'],
+  preferredTags: ['소통 원활', '즐겜 유저', '욕설 X'],
+  feedbackTags: ['소통 원활', '즐겜 유저', '욕설 X'],
+  gameAccounts: [
+    {
+      game: '리그 오브 레전드',
+      nickname: '레나',
+      tag: '#rena9',
+    },
+    {
+      game: '오버워치',
+      nickname: '레나',
+      tag: '#overwatchRena',
+    },
+  ],
+  gameStats: [
+    {
+      game: '리그 오브 레전드',
+      tier: '골드',
+      position: '원딜',
+      winRate: 66,
+      kda: 3.5,
+    },
+    {
+      game: '오버워치',
+      tier: '플래티넘',
+      playTime: '350시간',
+      position: '탱커',
+      totalGames: 500,
+      winRate: 45,
+    },
+  ],
+  favoriteGames: [
+    { rank: 1, game: '리그 오브 레전드' },
+    { rank: 2, game: '오버쿡드' },
+  ],
+};
+
+// API 시뮬레이션 함수
+export const fetchMyProfile = (): Promise<MyProfileData> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_MY_PROFILE);
+    }, 500);
+  });
+};
