@@ -8,7 +8,7 @@ interface ProductCardProps {
   product: Product;
   userPoint?: number;    // 유저 현재 포인트
   isLoggedIn?: boolean;  // 로그인 여부
-  userMembershipLevel?: string; // 유저 멤버십 등급 (예: 'VIP', 'NORMAL')
+  userMembershipLevel?: string; // 유저 멤버십 등급
 }
 
 export const ProductCard = ({ 
@@ -18,11 +18,11 @@ export const ProductCard = ({
   userMembershipLevel = 'NORMAL' 
 }: ProductCardProps) => {
 
-  // 6. 구매하기 버튼 로직
+  // 구매하기 버튼 로직
   const handlePurchase = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // 6-a. 비로그인 체크
+    // 비로그인 체크
     if (!isLoggedIn) {
       if (confirm('로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?')) {
         // navigate('/login'); // 실제 코드에서는 주석 해제
@@ -31,13 +31,13 @@ export const ProductCard = ({
       return;
     }
 
-    // 6-d. 이미 보유 중 체크
+    
     if (product.isOwned) {
       alert('이미 보유 중인 상품이에요.');
       return;
     }
 
-    // 6-e. 멤버십 체크
+    // 멤버십 체크
     if (product.requiredMembership && userMembershipLevel !== 'VIP') {
       if (confirm('멤버십 전용 상품이에요.\n멤버십 안내 페이지로 이동하시겠습니까?')) {
         alert('멤버십 안내 페이지 이동');
@@ -45,7 +45,7 @@ export const ProductCard = ({
       return;
     }
 
-    // 6-b. 포인트 부족 체크
+    // 포인트 부족 체크
     if (userPoint < product.price) {
       if (confirm('포인트가 부족해요.\n충전 페이지로 이동하시겠습니까?')) {
         alert('충전 페이지 이동');
@@ -53,7 +53,7 @@ export const ProductCard = ({
       return;
     }
 
-    // 6-c. 정상 결제 시도
+    // 정상 결제 시도
     if (confirm(`${product.title} 상품을 구매하시겠습니까?\n${product.price}P가 차감됩니다.`)) {
       // TODO: 서버 결제 API 호출
       // if (success) ...

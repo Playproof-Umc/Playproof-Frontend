@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { STORE_BANNERS } from '../data/mockStoreData';
 
 export const StoreBannerSlider = () => {
-  // 3-a. 초기 상태: 항상 배너 1 (index 0)
+  // 초기 배너 
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // 3-b. 5초마다 자동 전환 (마지막 후 1번으로 루프)
+    // 5초마다 자동 전환 (마지막 후 1번으로 루프)
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % STORE_BANNERS.length);
     }, 5000);
@@ -16,7 +16,7 @@ export const StoreBannerSlider = () => {
 
   return (
     <div className="w-full h-[280px] rounded-2xl overflow-hidden relative group bg-gray-100 mb-8">
-      {/* 3-c. 캐러셀 전환 방식 */}
+      {/* 캐러셀 전환 방식 */}
       <div 
         className="w-full h-full flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}

@@ -1,8 +1,5 @@
 // src/features/store/types/types.ts
-
 export type ProductCategory = 'ITEM' | 'PROFILE' | 'MEMBERSHIP';
-
-// 정렬 옵션 (4번 요구사항)
 export type SortOption = 'RECOMMEND' | 'LOW_PRICE' | 'HIGH_PRICE';
 
 export interface Product {
@@ -13,7 +10,7 @@ export interface Product {
   category: ProductCategory;
   tags?: string[];
   
-  // 6번 구매 로직을 위한 필드 추가
+  // 구매 로직 관련 필드
   isOwned?: boolean;          // 이미 보유 중인지
   requiredMembership?: boolean; // 멤버십 필요 여부
   isRecommended?: boolean;    // 추천 상품 여부 (정렬용)
