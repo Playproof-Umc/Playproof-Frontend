@@ -10,10 +10,10 @@ export const NextMatchBox: React.FC<Props> = ({ nextMatchDate }) => {
   const [timeLeft, setTimeLeft] = useState("00 : 00 : 00");
 
   useEffect(() => {
-    // 1. 일정이 없으면 중단
+    // 일정이 없으면 중단
     if (!nextMatchDate) return;
 
-    // 2. 타이머 함수 정의
+    // 타이머 함수 정의
     const updateTimer = () => {
       const now = new Date();
       const diff = nextMatchDate.getTime() - now.getTime();
@@ -32,11 +32,11 @@ export const NextMatchBox: React.FC<Props> = ({ nextMatchDate }) => {
       }
     };
 
-    // 3. 즉시 1번 실행 (화면 깜빡임 방지) 후 1초마다 반복
+    // 즉시 1번 실행 (화면 깜빡임 방지) 후 1초마다 반복
     updateTimer();
     const timer = setInterval(updateTimer, 1000);
 
-    // 4. 청소 (Clean-up)
+    // 청소 (Clean-up)
     return () => clearInterval(timer);
   }, [nextMatchDate]);
 
