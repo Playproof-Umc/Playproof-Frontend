@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
-import { login } from "@/features/auth/api/loginApi";
+import { login } from "@/services/loginApi";
 import { useAuthStore } from "@/stores/authStore";
 import { usePasswordRules } from "@/features/auth/signup/hooks/usePasswordRules";
 import { PHONE_REGEX } from "@/constants/regex";

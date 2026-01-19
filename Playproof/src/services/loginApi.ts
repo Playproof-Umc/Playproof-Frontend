@@ -1,4 +1,4 @@
-import { api } from "@/features/auth/api/api";
+import { api } from "@/services/api";
 
 export type LoginRequest = {
   phoneNumber: string;
@@ -19,5 +19,8 @@ export type LoginResponse = {
 
 export async function login(body: LoginRequest): Promise<LoginResponse> {
   const res = await api.post<LoginResponse>("/auth/login", body);
+  if (res.data.error || res.data.statusCode !== 200) {
+    throw new Error('로그인 처리 중 오류가 발생했습니다.');
+  }
   return res.data;
 }

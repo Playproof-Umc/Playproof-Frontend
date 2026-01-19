@@ -36,6 +36,7 @@ export function LoginForm() {
     setCapsLockOn(e.getModifierState("CapsLock"));
   };
 
+  // ✅ 입력 여부 기준 (유효성 X)
   const isFilled = phoneNumber.trim().length > 0 && password.trim().length > 0;
 
   return (
@@ -51,6 +52,7 @@ export function LoginForm() {
           value={phoneNumber}
           onChange={(e) => onChangePhoneNumber(e.target.value)}
           error={fieldError.phoneNumber}
+          required
           rightSlot={
             phoneNumber ? (
               <button
@@ -77,6 +79,7 @@ export function LoginForm() {
           value={password}
           onChange={(e) => onChangePassword(e.target.value)}
           error={fieldError.password}
+          required
           onKeyDown={handleCapsLock}
           onKeyUp={handleCapsLock}
           onFocus={() => setCapsLockOn(false)}
@@ -93,9 +96,10 @@ export function LoginForm() {
           }
         />
 
-        {/* CapsLock: 문구들과 같은 위치(빨간색) */}
         {capsLockOn && (
-          <p className="mt-1 text-xs text-red-500">Caps Lock이 켜져 있습니다.</p>
+          <p className="mt-1 text-xs text-red-500">
+            Caps Lock이 켜져 있습니다.
+          </p>
         )}
       </div>
 
@@ -115,14 +119,16 @@ export function LoginForm() {
         type="submit"
         variant="blue"
         fullWidth
-        disabled={!isFilled || isPending} // ✅ 입력이 둘 다 있어야 활성
+        disabled={!isFilled || isPending}
         className="h-11"
       >
         {isPending ? "로그인 중..." : "시작하기"}
       </Button>
 
-      {/* 네트워크/기타 오류: 빨간 문구 */}
-      {serverError ? <p className="text-xs text-red-500">{serverError}</p> : null}
+      {/* 서버 오류 */}
+      {serverError ? (
+        <p className="text-xs text-red-500">{serverError}</p>
+      ) : null}
 
       {/* 하단 링크 */}
       <div className="flex items-center justify-center gap-3 pt-1 text-xs text-gray-600 mb-8">
