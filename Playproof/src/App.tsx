@@ -2,6 +2,13 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// 회원가입 step2 게임선택
+import SignupGameSelectPage from './pages/auth/SingupGameSelectPage';
+// 회원가입 step3 게임정보입력
+import SignupGameInfo from './pages/auth/SignupGameInfoPage';
+// 회원가입 완료 모달 라우트
+import AppLayout from './components/layout/AppLayout';
+
 // Lazy Load Pages
 const LandingPage = lazy(() => import('@/pages/auth/LandingPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
@@ -45,13 +52,14 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 
                 {/* Game Select */}
-                <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO)</div>} />
+                <Route path="/gameselect" element={<SignupGameSelectPage />} />
 
                 {/* Feature Routes */}
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/azit" element={<AzitPage />} />
                 <Route path="/matching" element={<MatchingPage />} />
                 <Route path="/community" element={<CommunityPage />} /> {/* develop에서 가져온 라우트 */}
+                <Route path="/gameinfo" element={<SignupGameInfo />} />
                 
                 {/* 유저 프로필 페이지 */}
                 <Route path="/user/:userId" element={<UserProfilePage />} />
