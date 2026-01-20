@@ -1,5 +1,6 @@
-//src/types.ts
-// 유저 정보
+// src/types.ts
+
+// Global User Interface
 export interface User {
   id: string;
   nickname: string;
@@ -7,7 +8,21 @@ export interface User {
   isOnline?: boolean;
 }
 
-// 채널 정보
+// [Added] 아지트 및 데이터 관련 타입 정의
+export interface Schedule {
+  id: string;
+  title: string;
+  dateStr: string;
+  timeStr: string;
+  fullDate: Date;
+  participants: {
+    user: User;
+    status: 'JOIN' | 'pending' | string;
+  }[];
+  isCompleted?: boolean;
+  needMembers?: boolean;
+}
+
 export interface Channel {
   id: string;
   name: string;
@@ -15,22 +30,6 @@ export interface Channel {
   connectedUsers?: User[];
 }
 
-// 일정 정보
-export interface Schedule {
-  id: string;
-  title: string;
-  dateStr: string;
-  timeStr: string;
-  fullDate: Date;
-  isCompleted?: boolean;
-  needMembers?: boolean;
-  participants: {
-    user: User | null;
-    status: 'JOIN' | 'DECLINE' | 'PENDING';
-  }[];
-}
-
-// 클립(하이라이트) 정보
 export interface Clip {
   id: string;
   date: string;
