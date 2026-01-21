@@ -1,5 +1,6 @@
 // src/data/mockData.ts
 import type { User, Schedule, Channel, Clip } from '@/types'; // 타입 추가 Import
+import type { MatchingData } from '@/features/matching/types/types'; // 매칭 글을 MatchingData 타입으로 import
 
 // [Develop] HomePage용 타입 및 Mock 데이터
 export type UserStat = {
@@ -400,3 +401,251 @@ export const fetchMyProfile = (): Promise<MyProfileData> => {
     }, 500);
   });
 };
+
+// 피드백 데이터 타입
+export interface FeedbackData {
+  id: string;
+  fromUser: {
+    userId: string;
+    nickname: string;
+    profileImage?: string;
+  };
+  game: string;
+  temperScoreChange: number;
+  tags: string[];
+  memo?: string;
+  createdAt: string;
+}
+
+// Mock 피드백 데이터
+export const MOCK_FEEDBACKS: FeedbackData[] = [
+  {
+    id: 'fb-1',
+    fromUser: {
+      userId: 'user-2',
+      nickname: '플레이어1',
+      profileImage: undefined,
+    },
+    game: '리그 오브 레전드',
+    temperScoreChange: 5,
+    tags: ['매너가 좋아요', '실력이 좋아요'],
+    memo: '정말 좋은 팀원이었습니다!',
+    createdAt: '2024-01-20',
+  },
+  {
+    id: 'fb-2',
+    fromUser: {
+      userId: 'user-3',
+      nickname: '플레이어2',
+      profileImage: undefined,
+    },
+    game: '발로란트',
+    temperScoreChange: 3,
+    tags: ['의사소통이 원활해요', '팀워크가 좋아요'],
+    memo: '다음에 또 같이 하고 싶어요',
+    createdAt: '2024-01-19',
+  },
+  {
+    id: 'fb-3',
+    fromUser: {
+      userId: 'user-4',
+      nickname: '플레이어3',
+      profileImage: undefined,
+    },
+    game: '리그 오브 레전드',
+    temperScoreChange: -2,
+    tags: ['욕설을 해요'],
+    memo: '게임 중 불쾌한 발언이 있었습니다.',
+    createdAt: '2024-01-18',
+  },
+];
+
+// 피드백 목록 조회 함수
+export async function fetchMyFeedbacks(delayMs = 300): Promise<FeedbackData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_FEEDBACKS);
+    }, delayMs);
+  });
+}
+
+// 내 게시글 데이터 타입 수정
+export interface MyPostsData {
+  matchingPosts: MatchingData[]; // any[] -> MatchingData[]로 변경
+  highlightPosts: HighlightPost[];
+  communityPosts: BoardPost[];
+}
+
+// 매칭 글 Mock 데이터 (MatchingData 타입에 맞게)
+export const MOCK_MATCHING_POSTS: MatchingData[] = [
+  {
+    id: 1,
+    game: '리그오브레전드',
+    title: '칼바람 나락 즐겜팟 구함',
+    tier: '골드',
+    tags: ['즐겜 유저', '소통 원활'],
+    azit: '즐겜러들의 쉼터',
+    position: ['top', 'mid'],
+    memo: '매너 게임 하실 분만 오세요~',
+    currentMembers: 2,
+    maxMembers: 5,
+    time: '10분 전',
+    views: 120,
+    likes: 5,
+    comments: 2,
+    tsScore: 88,
+    mic: true,
+    hostUser: { id: 'user-1', nickname: '레나', avatarUrl: undefined }
+  },
+  {
+    id: 2,
+    game: '발로란트',
+    title: '경쟁전 빡겜 하실 힐러님',
+    tier: '플래티넘',
+    tags: ['실력 중심', '마이크 필수'],
+    azit: '신규 생성',
+    position: ['support'],
+    memo: '마이크 필수입니다.',
+    currentMembers: 3,
+    maxMembers: 5,
+    time: '30분 전',
+    views: 80,
+    likes: 3,
+    comments: 1,
+    tsScore: 88,
+    mic: true,
+    hostUser: { id: 'user-1', nickname: '레나', avatarUrl: undefined }
+  },
+  {
+    id: 3,
+    game: '오버워치',
+    title: '경쟁전 탱커 구합니다',
+    tier: '다이아',
+    tags: ['승리 지향', '마이크 필수'],
+    azit: '신규 생성',
+    position: ['tank'],
+    memo: '다이아 탱커 구합니다. 디스코드 필수!',
+    currentMembers: 4,
+    maxMembers: 6,
+    time: '1시간 전',
+    views: 150,
+    likes: 7,
+    comments: 4,
+    tsScore: 88,
+    mic: true,
+    hostUser: { id: 'user-1', nickname: '레나', avatarUrl: undefined }
+  },
+];
+
+// Mock 내 게시글 데이터
+export const MOCK_MY_POSTS: MyPostsData = {
+  matchingPosts: MOCK_MATCHING_POSTS,
+  highlightPosts: MOCK_HIGHLIGHT_POSTS.slice(0, 3),
+  communityPosts: MOCK_BOARD_POSTS.slice(0, 5),
+};
+
+// 내 게시글 조회 함수
+export async function fetchMyPosts(delayMs = 300): Promise<MyPostsData> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_MY_POSTS);
+    }, delayMs);
+  });
+}
+
+// 친구 데이터 타입
+export interface FriendData {
+  userId: string;
+  nickname: string;
+  profileImage?: string;
+  isOnline: boolean;
+  lastSeen?: string;
+  tier?: string;
+  tierScore?: number;
+}
+
+// Mock 친구 데이터
+export const MOCK_FRIENDS: FriendData[] = [
+  {
+    userId: 'friend-1',
+    nickname: '레나',
+    profileImage: undefined,
+    isOnline: true,
+    tier: 'PLATINUM',
+    tierScore: 95,
+  },
+  {
+    userId: 'friend-2',
+    nickname: '레나',
+    profileImage: undefined,
+    isOnline: false,
+    lastSeen: '1시간 전',
+    tier: 'GOLD',
+    tierScore: 87,
+  },
+  {
+    userId: 'friend-3',
+    nickname: '레나',
+    profileImage: undefined,
+    isOnline: false,
+    lastSeen: '2일 전',
+    tier: 'SILVER',
+    tierScore: 78,
+  },
+];
+
+// 친구 목록 조회 함수
+export async function fetchFriends(delayMs = 300): Promise<FriendData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_FRIENDS);
+    }, delayMs);
+  });
+}
+
+// 차단 사용자 데이터 타입
+export interface BlockedUserData {
+  userId: string;
+  nickname: string;
+  profileImage?: string;
+  blockedAt: string;
+  tier?: string;
+  tierScore?: number;
+}
+
+// Mock 차단 사용자 데이터
+export const MOCK_BLOCKED_USERS: BlockedUserData[] = [
+  {
+    userId: 'blocked-1',
+    nickname: '레나',
+    profileImage: undefined,
+    blockedAt: '2024-01-10',
+    tier: 'BRONZE',
+    tierScore: 65,
+  },
+  {
+    userId: 'blocked-2',
+    nickname: '레나',
+    profileImage: undefined,
+    blockedAt: '2024-01-05',
+    tier: 'SILVER',
+    tierScore: 72,
+  },
+  {
+    userId: 'blocked-3',
+    nickname: '레나',
+    profileImage: undefined,
+    blockedAt: '2023-12-20',
+    tier: 'GOLD',
+    tierScore: 85,
+  },
+];
+
+// 차단 사용자 목록 조회 함수
+export async function fetchBlockedUsers(delayMs = 300): Promise<BlockedUserData[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_BLOCKED_USERS);
+    }, delayMs);
+  });
+}

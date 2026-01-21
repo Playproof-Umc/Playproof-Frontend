@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '@/components/ui/Card';
 import type { MyProfileData } from '@/data/mockData';
 import { ProfileDetail } from './profile/ProfileDetail';
 import { FeedbackSection } from './feedback/FeedbackSection';
@@ -24,14 +23,8 @@ export function SectionContent({ activeSection, profileData }: SectionContentPro
     return <RecentPosts />;
   }
 
-
   if (activeSection === '친구목록') {
-    return (
-      <div className="space-y-6">
-        <FriendsList type="friends" />
-        <FriendsList type="blocked" />
-      </div>
-    );
+    return <FriendsList />;
   }
 
   return null;
