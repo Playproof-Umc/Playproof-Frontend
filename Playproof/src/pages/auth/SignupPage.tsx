@@ -1,5 +1,4 @@
-//src/pages/auth/SignupPage.tsx
-import SignupForm from "@/features/auth/signup/components/SignupForm";
+import SignupForm from "./SignupForm";
 
 /* sub components */
 

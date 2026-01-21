@@ -1,4 +1,3 @@
-//src/features/auth/signup/components/TermsSection.tsx
 import { Check, ChevronDown } from "lucide-react";
 
 type Props = {
