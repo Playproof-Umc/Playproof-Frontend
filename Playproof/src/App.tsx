@@ -2,6 +2,11 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// 회원가입 step2 게임선택
+import SignupGameSelectPage from './pages/auth/SingupGameSelectPage';
+// 회원가입 step3 게임정보입력
+import SignupGameInfo from './pages/auth/SignupGameInfoPage';
+
 // Lazy Load Pages
 const LandingPage = lazy(() => import('@/pages/auth/LandingPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
@@ -45,8 +50,10 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 
-                {/* Game Select */}
-                <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO)</div>} />
+                {/* Game Select (Signup Step 2) */}
+                <Route path="/gameselect" element={<SignupGameSelectPage />} />
+                {/* Game Info (Signup Step 3) - develop 브랜치 병합 */}
+                <Route path="/gameinfo" element={<SignupGameInfo />} />
 
                 {/* Feature Routes */}
                 <Route path="/home" element={<HomePage />} />
@@ -54,7 +61,7 @@ function App() {
                 <Route path="/matching" element={<MatchingPage />} />
                 <Route path="/community" element={<CommunityPage />} />
                 
-                {/* ✨ 스토어 라우트 추가 */}
+                {/* ✨ 스토어 라우트 추가 - feat/store 브랜치 병합 */}
                 <Route path="/store" element={<StorePage />} />
                 
                 {/* 유저 프로필 페이지 */}
