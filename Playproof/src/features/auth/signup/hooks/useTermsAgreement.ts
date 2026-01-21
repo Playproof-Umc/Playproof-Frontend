@@ -1,4 +1,3 @@
-//src/features/auth/signup/hooks/useTermsAgreement.ts
 import { useMemo, useState } from "react";
 
 export const useTermsAgreement = () => {

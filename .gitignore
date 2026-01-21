@@ -1,4 +1,4 @@
-# Logs
+# Logs (로그 파일)
 logs
 *.log
 npm-debug.log*
@@ -7,19 +7,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies (의존성 모듈 - 절대 올리면 안 됨)
 node_modules
 dist
 dist-ssr
 *.local
-.env
 
-# Editor directories and files
+# Editor directories and files (에디터 설정 파일)
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+
 .idea
 .DS_Store
 *.suo
-*.ntvs*
+*.ntvs
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables (보안상 절대 올리면 안 되는 키 값들)
+.env
+.env.*
+!.env.example
+
+# Testing (테스트 커버리지 결과)
+coverage
+
+# Vite (빌드 산출물)
+build
+dist
+
+# Temporary files (임시 파일)
+*.tmp
+*.temp

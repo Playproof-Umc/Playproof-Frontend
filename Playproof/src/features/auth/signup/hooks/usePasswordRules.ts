@@ -1,4 +1,3 @@
-//src/features/auth/signup/hooks/usePasswordRules.ts
 import { useCallback, useMemo, useState } from "react";
 
 import { PASSWORD_REGEX } from "@/constants/regex";

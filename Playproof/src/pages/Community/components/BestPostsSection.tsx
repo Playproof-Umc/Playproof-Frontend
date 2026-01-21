@@ -1,95 +1,172 @@
-import React from "react";
-import { Heart, MessageCircle, Eye, MoreVertical } from "lucide-react";
-import type { BoardPost } from "@/data/mockData";
+import * as React from "react";
+import type { Post } from "./CommunityPostList";
 
-interface BestPostsSectionProps {
-  posts: BoardPost[];
-  onPostClick: (post: BoardPost) => void;
-}
+type BestPostsSectionProps = {
+  posts: Post[];
+};
 
-export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) {
-  // 상위 3개만 표시
-  const topPosts = posts.slice(0, 3);
+export function BestPostsSection({ posts }: BestPostsSectionProps) {
+  if (posts.length === 0) return null;
 
   return (
-    <section className="mb-8 mt-6">
-      {/* 정렬 드롭다운 */}
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-zinc-900">🔥 베스트 게시글</h2>
-        <button className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50">
-          BEST 게시글
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+    <div className="mb-6">
+      {/* 베스트 게시글 헤더 */}
+      <div className="mb-4 flex items-center gap-2">
+        <BestIcon />
+        <h2 className="text-lg font-bold text-zinc-900">베스트 게시글</h2>
       </div>
 
       {/* 베스트 게시글 리스트 */}
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
-        {topPosts.map((post, index) => (
+      <div className="space-y-0 rounded-lg border border-zinc-300 bg-zinc-50 overflow-hidden">
+        {posts.map((post, index) => (
           <div
             key={post.id}
-            onClick={() => onPostClick(post)}
-            className={`flex cursor-pointer items-center gap-4 p-4 transition hover:bg-gray-50 ${
-              index !== topPosts.length - 1 ? "border-b border-gray-100" : ""
-            }`}
+            className="flex items-center gap-4 border-b border-zinc-200 last:border-b-0 py-4 px-4 hover:bg-zinc-100 transition-colors cursor-pointer"
           >
+            {/* 순위 배지 */}
+            <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-zinc-700 text-white font-bold text-sm shadow-sm">
+              {index + 1}
+            </div>
+
             {/* 좋아요 */}
-            <div className="flex flex-col items-center gap-1 text-gray-600">
-              <Heart className="h-5 w-5" />
-              <span className="text-xs font-medium">{post.likes}</span>
+            <div className="flex flex-col items-center gap-1 px-2">
+              <button className="flex items-center justify-center text-zinc-400 hover:text-zinc-600 transition-colors">
+                <ThumbsUpIcon />
+              </button>
+              <span className="text-sm font-medium text-zinc-600">{post.likes}</span>
             </div>
 
             {/* 썸네일 */}
             {post.thumbnail && (
-              <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+              <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-zinc-100">
                 <img
                   src={post.thumbnail}
-                  alt=""
-                  className="h-full w-full object-cover"
+                  alt={post.title}
+                  className="w-full h-full object-cover"
                 />
               </div>
             )}
 
             {/* 게시글 정보 */}
-            <div className="flex-1">
-              <h3 className="mb-1 font-semibold text-gray-900">{post.title}</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <div className="flex items-center gap-1">
-                  <div className="h-4 w-4 rounded-full bg-gray-300" />
-                  <span>{post.author}</span>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base font-semibold text-zinc-900 truncate">
+                {post.title}
+              </h3>
+              <div className="mt-1 flex items-center gap-2 text-sm text-zinc-500">
+                <span className="flex items-center gap-1">
+                  <UserIcon />
+                  {post.author}
+                </span>
+              </div>
+            </div>
+
+            {/* 우측 정보 */}
+            <div className="flex items-center gap-6 px-2">
+              <div className="text-right">
+                <div className="text-sm text-zinc-500">{post.date}</div>
+                <div className="mt-1 flex items-center gap-3 text-sm text-zinc-500">
+                  <span className="flex items-center gap-1">
+                    <EyeIcon />
+                    {post.views}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <CommentIcon />
+                    {post.comments}
+                  </span>
                 </div>
               </div>
             </div>
-
-            {/* 날짜 및 통계 */}
-            <div className="flex flex-col items-end gap-1 text-right">
-              <span className="text-xs text-gray-500">{post.date}</span>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Eye className="h-3.5 w-3.5" />
-                  {post.views}
-                </span>
-                <span className="flex items-center gap-1">
-                  <MessageCircle className="h-3.5 w-3.5" />
-                  {post.comments}
-                </span>
-              </div>
-            </div>
-
-            {/* 더보기 버튼 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("더보기:", post.id);
-              }}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
           </div>
         ))}
       </div>
-    </section>
+    </div>
+  );
+}
+
+function BestIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-zinc-700"
+    >
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
+}
+
+function ThumbsUpIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function CommentIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
   );
 }
