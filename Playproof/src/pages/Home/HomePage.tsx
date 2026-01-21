@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/common/Navbar";
 import { UserSummaryCard } from "@/pages/Home/components/UserSummaryCard";
 import { PartyCard } from "@/features/team/components/PartyCard";
 import { FriendList } from "@/features/user/components/FriendList";
