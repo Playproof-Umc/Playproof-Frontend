@@ -1,6 +1,5 @@
 import React from 'react';
-import { getMyPosts } from '../../api/mypageApi';
-import type { MyPostsData } from '@/data/mockData';
+import { fetchMyPosts, type MyPostsData } from '@/data/mockData';
 import { MatchingCard } from '@/features/matching/components/MatchingCard';
 import { HighlightCard } from '@/features/community/components/HighlightCard';
 import { CommunityPostList } from '@/features/community/components/CommunityPostList';
@@ -14,7 +13,7 @@ export function RecentPosts() {
   React.useEffect(() => {
     const loadPosts = async () => {
       try {
-        const data = await getMyPosts();
+        const data = await fetchMyPosts();
         setPosts(data);
       } catch (error) {
         console.error('Failed to load posts:', error);
@@ -71,6 +70,7 @@ export function RecentPosts() {
                 post={post}
                 onPostClick={(post) => {
                   console.log('하이라이트 클릭:', post.id);
+                  // TODO: 하이라이트 상세 모달 열기
                 }}
               />
             ))}

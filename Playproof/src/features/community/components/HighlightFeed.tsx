@@ -1,5 +1,5 @@
 import React from "react";
-import { HighlightCard } from "@/pages/Community/components/HighlightCard";
+import { HighlightCard } from "@/features/community/components/HighlightCard";
 import type { HighlightPost } from "@/data/mockData";
 
 interface HighlightFeedProps {
