@@ -1,7 +1,7 @@
 // src/features/store/components/StoreSectionHeader.tsx
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { SortOption } from '../types/types';
+import type { SortOption } from '../types';
 
 interface SectionHeaderProps {
   title: string;

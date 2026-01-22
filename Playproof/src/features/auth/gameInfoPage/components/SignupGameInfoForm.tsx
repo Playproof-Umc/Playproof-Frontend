@@ -1,6 +1,6 @@
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { cn } from "@/components/utils/cn";
+import { cn } from "@/utils/cn";
 import { useSignupGameInfo } from "@/features/auth/gameInfoPage/hooks/useSignupGameInfo";
 
 export function SignupGameInfoForm() {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, MoreVertical } from 'lucide-react';
-import type { FriendData } from '@/data/mockData';
+import type { FriendData } from '@/features/mypage/types';
 
 interface FriendCardProps {
   friend: FriendData;

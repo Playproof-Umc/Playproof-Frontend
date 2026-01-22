@@ -1,6 +1,6 @@
 import React from 'react';
 import { User } from 'lucide-react';
-import type { BlockedUserData } from '@/data/mockData';
+import type { BlockedUserData } from '@/features/mypage/types';
 
 interface BlockedUserCardProps {
   user: BlockedUserData;

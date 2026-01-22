@@ -1,5 +1,5 @@
 // src/features/store/data/mockStoreData.ts
-import type { Product, StoreBanner } from '../types/types';
+import type { Product, StoreBanner } from '../types';
 
 export const STORE_BANNERS: StoreBanner[] = [
   { 

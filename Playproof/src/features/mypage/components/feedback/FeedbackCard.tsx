@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, ThumbsUp, ThumbsDown, UserPlus, Siren } from 'lucide-react';
-import type { FeedbackData } from '@/data/mockData';
+import type { FeedbackData } from '@/features/mypage/types';
 import { AddFriendModal } from './AddFriendModal';
 import { ReportModal } from './ReportModal';
 

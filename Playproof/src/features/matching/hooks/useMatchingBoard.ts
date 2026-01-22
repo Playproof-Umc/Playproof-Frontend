@@ -1,6 +1,6 @@
 // src/features/matching/hooks/useMatchingBoard.ts
 import { useState, useMemo, useCallback } from 'react';
-import type { MatchingData, FilterState } from '@/features/matching/types/types';
+import type { MatchingData, FilterState } from '@/features/matching/types';
 import { MOCK_MATCHING_DATA } from '@/features/matching/data/mockMatchingData';
 import { filterMatches } from '@/features/matching/utils/matchingUtils';
 

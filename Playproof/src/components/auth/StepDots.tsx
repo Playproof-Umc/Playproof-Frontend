@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/components/utils/cn";
+import { cn } from "@/utils/cn";
 
 type Step = 1 | 2 | 3;
 

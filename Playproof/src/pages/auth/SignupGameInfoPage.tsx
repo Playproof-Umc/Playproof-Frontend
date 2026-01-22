@@ -1,6 +1,6 @@
 import { StepDots } from "@/components/auth/StepDots";
 import { SignupGameInfoForm } from "@/features/auth/gameInfoPage/components/SignupGameInfoForm";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/common/Navbar";
 
 
 export default function SignupGameInfoPage() {

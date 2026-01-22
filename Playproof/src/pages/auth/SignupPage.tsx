@@ -1,6 +1,6 @@
 import SignupForm from "./SignupForm";
 import { StepDots } from "@/components/auth/StepDots";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/common/Navbar";
 
 const SignupPage = () => {
   return (

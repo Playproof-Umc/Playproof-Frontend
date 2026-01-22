@@ -3,15 +3,15 @@ import React, { useState } from 'react';
 import { ArrowLeft, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/common/Navbar';
-import { LeftPanel } from './panels/LeftPanel';
-import { MainPanel } from './panels/MainPanel';
-import { RightPanel } from './panels/RightPanel';
-import { mockMembers } from '@/data/mockData'; 
-import { 
-  mockSchedules, 
-  mockVoiceChannels, 
-  mockChatChannels, 
-  mockClips 
+import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
+import { MainPanel } from '@/features/team/components/azit/MainPanel';
+import { RightPanel } from '@/features/team/components/azit/RightPanel';
+import {
+  mockMembers,
+  mockSchedules,
+  mockVoiceChannels,
+  mockChatChannels,
+  mockClips,
 } from '@/features/team/data/mockTeamData'; // 팀 데이터
 
 const AzitPage = () => {

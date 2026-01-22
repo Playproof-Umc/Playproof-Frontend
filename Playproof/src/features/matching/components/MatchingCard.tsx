@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { User, MessageCircle, Eye, Mic } from 'lucide-react'; // Heart 제거됨
 
 interface MatchingCardProps {

@@ -1,4 +1,4 @@
-// src/features/profile/types/type.ts
+// src/features/profile/types.ts
 export interface UserProfile {
   id: string | number;
   nickname: string;

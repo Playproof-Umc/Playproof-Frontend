@@ -1,7 +1,7 @@
 import React from 'react';
 import { RefreshCw, Lock } from 'lucide-react';
 import { MatchingCard } from './MatchingCard';
-import type { MatchingData } from '../types/types';
+import type { MatchingData } from '../types';
 
 interface RecommendedSectionProps {
   isProUser: boolean;

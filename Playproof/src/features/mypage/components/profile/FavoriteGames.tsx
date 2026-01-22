@@ -1,5 +1,5 @@
 import React from 'react';
-import type { MyProfileData } from '@/data/mockData';
+import type { MyProfileData } from '@/features/mypage/types';
 
 interface FavoriteGamesProps {
   favoriteGames: MyProfileData['favoriteGames'];

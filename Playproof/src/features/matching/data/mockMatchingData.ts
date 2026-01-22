@@ -1,5 +1,5 @@
 // src/features/matching/data/mockMatchingData.ts
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 export const MOCK_MATCHING_DATA: MatchingData[] = [
   {

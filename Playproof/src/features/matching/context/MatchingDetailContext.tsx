@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 //src/features/matching/context/MatchingDetailContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 interface MatchingDetailContextType {
   isOpen: boolean;

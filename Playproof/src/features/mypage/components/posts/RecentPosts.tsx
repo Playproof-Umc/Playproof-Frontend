@@ -1,6 +1,6 @@
 import React from 'react';
 import { getMyPosts } from '../../api/mypageApi';
-import type { MyPostsData } from '@/data/mockData';
+import type { MyPostsData } from '@/features/mypage/types';
 import { MatchingCard } from '@/features/matching/components/MatchingCard';
 import { HighlightCard } from '@/features/community/components/HighlightCard';
 import { CommunityPostList } from '@/features/community/components/CommunityPostList';

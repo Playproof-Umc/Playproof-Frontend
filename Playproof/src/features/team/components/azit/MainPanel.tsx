@@ -1,4 +1,4 @@
-//src/pages/azit/panels/MainPanel.tsx
+//src/features/team/components/azit/MainPanel.tsx
 import React from 'react';
 // Chat 기능 
 import { ChatHeader } from '@/features/chat/components/ChatHeader';

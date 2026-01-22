@@ -1,6 +1,13 @@
 // src/features/team/data/mockTeamData.ts
-import type { Schedule, Channel, Clip } from '@/features/team/types/types';
-import { mockMembers } from '@/data/mockData'; 
+import type { Schedule, Channel, Clip } from '@/features/team/types';
+import type { User } from '@/types';
+
+export const mockMembers: User[] = [
+  { id: 'u1', nickname: '레나', avatarUrl: '', isOnline: true },
+  { id: 'u2', nickname: '엘릭', avatarUrl: '', isOnline: false },
+  { id: 'u3', nickname: '발베니', avatarUrl: '', isOnline: true },
+  { id: 'u4', nickname: '구름', avatarUrl: '', isOnline: false },
+];
 
 // 일정 데이터 (Team Schedule)
 export const mockSchedules: Schedule[] = [

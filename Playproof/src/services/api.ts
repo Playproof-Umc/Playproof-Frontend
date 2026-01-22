@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/store/authStore";
 
 // baseURL은 프로젝트 환경에 맞게 바꿔줘
 export const api = axios.create({

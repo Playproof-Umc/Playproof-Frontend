@@ -1,4 +1,4 @@
-//src/pages/azit/panels/RightPanel.tsx
+//src/features/team/components/azit/RightPanel.tsx
 import React from 'react';
 import type { User, Clip } from '@/types';
 

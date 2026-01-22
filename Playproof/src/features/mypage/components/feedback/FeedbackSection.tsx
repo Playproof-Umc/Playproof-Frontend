@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/Card';
-import { fetchMyFeedbacks, type FeedbackData } from '@/data/mockData';
+import { fetchMyFeedbacks } from '@/features/mypage/data/mockMyPageData';
+import type { FeedbackData } from '@/features/mypage/types';
 import { FeedbackCard } from './FeedbackCard';
 
 export function FeedbackSection() {

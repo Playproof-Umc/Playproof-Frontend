@@ -1,4 +1,4 @@
-//src/pages/azit/panels/LeftPanel.tsx
+//src/features/team/components/azit/LeftPanel.tsx
 import React from 'react';
 import type { Schedule, Channel } from '@/types';
 

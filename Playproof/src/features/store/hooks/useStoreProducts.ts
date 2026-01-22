@@ -1,7 +1,7 @@
 // src/features/store/hooks/useStoreProducts.ts
 import { useState, useMemo } from 'react';
 import { MOCK_PRODUCTS } from '../data/mockStoreData';
-import type { SortOption, Product } from '../types/types';
+import type { SortOption, Product } from '../types';
 
 export const useStoreProducts = () => {
   const [keyword, setKeyword] = useState('');

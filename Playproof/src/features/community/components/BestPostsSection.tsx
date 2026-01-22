@@ -1,6 +1,6 @@
 import React from "react";
 import { Heart, MessageCircle, Eye, MoreVertical } from "lucide-react";
-import type { BoardPost } from "@/data/mockData";
+import type { BoardPost } from "@/features/community/types";
 
 interface BestPostsSectionProps {
   posts: BoardPost[];

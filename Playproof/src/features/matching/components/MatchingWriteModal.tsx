@@ -1,7 +1,7 @@
 // src/features/matching/components/MatchingWriteModal.tsx
 import React from 'react';
 import { X } from 'lucide-react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { useMatchingWriteForm } from '@/features/matching/hooks/useMatchingWriteForm';
 import { WriteGameSection } from './write/WriteGameSection';
 import { WritePositionSection } from './write/WritePositionSection';

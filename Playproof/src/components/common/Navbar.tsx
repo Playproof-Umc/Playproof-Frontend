@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 1. 로고 및 네비게이션 */}
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => navigate('/')}>
+          <div className="flex items-center gap-1 cursor-pointer" onClick={() => navigate('/home')}>
             <h1 className="text-2xl font-black tracking-tighter">PLAYPROOF</h1>
             <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600">Pro</span>
           </div>

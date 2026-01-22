@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
 import { MatchingFilterModal } from './MatchingFilterModal';
-import type { FilterState } from '@/features/matching/types/types';
+import type { FilterState } from '@/features/matching/types';
 
 interface MatchingSearchBarProps {
   searchText: string;

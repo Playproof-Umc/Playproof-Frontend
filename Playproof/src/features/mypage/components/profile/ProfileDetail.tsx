@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { User } from 'lucide-react';
-import type { MyProfileData } from '@/data/mockData';
+import type { MyProfileData } from '@/features/mypage/types';
 import { PlayStyleTags } from './PlayStyleTags';
 import { FeedbackTags } from './FeedbackTags';
 import { GameAccounts } from './GameAccounts';

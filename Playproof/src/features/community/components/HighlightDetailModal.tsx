@@ -1,6 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { HighlightPost, Comment } from "@/data/mockData";
+import type { HighlightPost, Comment } from "@/features/community/types";
 
 interface HighlightDetailModalProps {
   post: HighlightPost;

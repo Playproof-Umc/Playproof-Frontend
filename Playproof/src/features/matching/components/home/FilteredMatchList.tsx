@@ -2,7 +2,7 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { MatchingCard } from '@/features/matching/components/MatchingCard';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 interface FilteredMatchListProps {
   matches: MatchingData[];
