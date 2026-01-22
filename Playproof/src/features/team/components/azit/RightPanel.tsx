@@ -1,23 +1,21 @@
-//src/features/team/components/azit/RightPanel.tsx
+// src/features/team/components/azit/RightPanel.tsx
 import React from 'react';
-import type { User, Clip } from '@/types';
+import type { Clip } from '@/types'; // User 타입 제거
 
 // Team 기능 
-import { TeamMemberList, ClipList } from '@/features/team/components';
+import { ClipList } from '@/features/team/components';
+// TeamMemberList 제거
 
 interface RightPanelProps {
-  members: User[];
   clips: Clip[];
+  // members prop 제거
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ members, clips }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
   return (
     <aside className="w-[320px] bg-gray-50 border-l border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 p-5 gap-6">
       
-      {/* 1. 멤버 목록 */}
-      <TeamMemberList members={members} />
-
-      {/* 2. 최근 클립 */}
+      {/* 우측은 하이라이트 전용 공간 - 디자인 번호 6 */}
       <ClipList clips={clips} />
 
     </aside>
