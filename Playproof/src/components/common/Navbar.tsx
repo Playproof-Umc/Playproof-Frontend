@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components';
+import { NAV_LINKS } from '@/constants/navigation';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -111,10 +112,19 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           </div>
 
           <nav className="hidden md:flex gap-6 text-sm font-medium text-gray-500">
-            <button onClick={() => navigate('/matching')} className={`h-16 px-1 transition-colors border-b-2 ${isActive('/matching') ? 'text-black border-black' : 'border-transparent hover:text-black hover:border-black'}`}>매칭하기</button>
-            <button onClick={() => navigate('/community')} className={`h-16 px-1 transition-colors border-b-2 ${isActive('/community') ? 'text-black border-black' : 'border-transparent hover:text-black hover:border-black'}`}>커뮤니티</button>
-            <button onClick={() => navigate('/azit')} className={`h-16 px-1 transition-colors border-b-2 ${isActive('/azit') ? 'text-black border-black' : 'border-transparent hover:text-black hover:border-black'}`}>아지트</button>
-            <button onClick={() => navigate('/store')} className={`h-16 px-1 transition-colors border-b-2 ${isActive('/store') ? 'text-black border-black' : 'border-transparent hover:text-black hover:border-black'}`}>상점</button>
+            {NAV_LINKS.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`h-16 px-1 transition-colors border-b-2 ${
+                  isActive(item.path)
+                    ? 'text-black border-black'
+                    : 'border-transparent hover:text-black hover:border-black'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
         </div>
         

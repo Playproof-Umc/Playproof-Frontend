@@ -1,13 +1,5 @@
 import * as React from "react";
-
-const GAME_TABS = [
-  "리그오브레전드",
-  "발로란트",
-  "오버워치",
-  "메이플 그룹",
-  "Steam",
-  "기타",
-];
+import { GAME_TABS } from "@/features/home/constants/matchingTabs";
 
 type MatchingTabsProps = {
   activeTab: string;

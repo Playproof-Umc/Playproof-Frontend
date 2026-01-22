@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { fetchMyFeedbacks } from '@/features/mypage/data/mockMyPageData';
 import type { FeedbackData } from '@/features/mypage/types';
-import { FeedbackCard } from './FeedbackCard';
+import { FeedbackCard } from '@/features/mypage/components/feedback/FeedbackCard';
 
 export function FeedbackSection() {
   const [feedbacks, setFeedbacks] = React.useState<FeedbackData[]>([]);

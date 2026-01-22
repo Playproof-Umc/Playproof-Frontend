@@ -1,1 +1,1 @@
-export * from './LoginForm';
+export * from '@/features/auth/login/components/LoginForm';

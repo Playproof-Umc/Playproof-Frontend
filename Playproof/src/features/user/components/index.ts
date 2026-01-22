@@ -1,1 +1,1 @@
-export * from './UserAvatar';
+export * from '@/features/user/components/UserAvatar';

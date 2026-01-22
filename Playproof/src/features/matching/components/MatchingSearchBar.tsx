@@ -1,7 +1,7 @@
 // src/features/matching/components/MatchingSearchBar.tsx
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Edit, X } from 'lucide-react';
-import { MatchingFilterModal } from './MatchingFilterModal';
+import { MatchingFilterModal } from '@/features/matching/components/MatchingFilterModal';
 import type { FilterState } from '@/features/matching/types';
 
 interface MatchingSearchBarProps {

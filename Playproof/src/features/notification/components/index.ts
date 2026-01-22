@@ -1,1 +1,1 @@
-export * from './NotificationDropdown';
+export * from '@/features/notification/components/NotificationDropdown';

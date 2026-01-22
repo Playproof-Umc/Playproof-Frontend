@@ -1,1 +1,1 @@
-export * from './SignupGameInfoForm';
+export * from '@/features/auth/gameInfoPage/components/SignupGameInfoForm';

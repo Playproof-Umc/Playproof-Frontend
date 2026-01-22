@@ -1,9 +1,9 @@
 import React from 'react';
 import type { MyProfileData } from '@/features/mypage/types';
-import { ProfileDetail } from './profile/ProfileDetail';
-import { FeedbackSection } from './feedback/FeedbackSection';
-import { RecentPosts } from './posts/RecentPosts';
-import { FriendsList } from './friends/FriendsList';
+import { ProfileDetail } from '@/features/mypage/components/profile/ProfileDetail';
+import { FeedbackSection } from '@/features/mypage/components/feedback/FeedbackSection';
+import { RecentPosts } from '@/features/mypage/components/posts/RecentPosts';
+import { FriendsList } from '@/features/mypage/components/friends/FriendsList';
 
 interface SectionContentProps {
   activeSection: string;

@@ -1,1 +1,1 @@
-export type { Friend, UserBasicInfo } from './types';
+export type { Friend, UserBasicInfo } from '@/features/user/types/types';

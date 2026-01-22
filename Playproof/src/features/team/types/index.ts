@@ -1,1 +1,1 @@
-export type { Channel, Clip, Schedule } from './types';
+export type { Channel, Clip, Schedule } from '@/features/team/types/types';

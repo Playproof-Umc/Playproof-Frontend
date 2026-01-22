@@ -4,4 +4,4 @@ export type {
   FriendData,
   MyPostsData,
   MyProfileData,
-} from './types';
+} from '@/features/mypage/types/types';

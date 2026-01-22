@@ -1,1 +1,1 @@
-export type { FilterState, MatchingData } from './types';
+export type { FilterState, MatchingData } from '@/features/matching/types/types';

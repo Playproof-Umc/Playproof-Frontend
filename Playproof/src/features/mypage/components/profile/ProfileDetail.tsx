@@ -2,11 +2,11 @@ import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { User } from 'lucide-react';
 import type { MyProfileData } from '@/features/mypage/types';
-import { PlayStyleTags } from './PlayStyleTags';
-import { FeedbackTags } from './FeedbackTags';
-import { GameAccounts } from './GameAccounts';
-import { GameStats } from './GameStats';
-import { FavoriteGames } from './FavoriteGames';
+import { PlayStyleTags } from '@/features/mypage/components/profile/PlayStyleTags';
+import { FeedbackTags } from '@/features/mypage/components/profile/FeedbackTags';
+import { GameAccounts } from '@/features/mypage/components/profile/GameAccounts';
+import { GameStats } from '@/features/mypage/components/profile/GameStats';
+import { FavoriteGames } from '@/features/mypage/components/profile/FavoriteGames';
 
 interface ProfileDetailProps {
   profileData: MyProfileData;

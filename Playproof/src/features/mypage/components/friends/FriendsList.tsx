@@ -2,8 +2,8 @@ import React from 'react';
 import { Search } from 'lucide-react';
 import { getFriends, getBlockedUsers, removeFriend, unblockUser } from '@/features/mypage/api/mypageApi';
 import type { FriendData, BlockedUserData } from '@/features/mypage/types';
-import { FriendCard } from './FriendCard';
-import { BlockedUserCard } from './BlockedUserCard';
+import { FriendCard } from '@/features/mypage/components/friends/FriendCard';
+import { BlockedUserCard } from '@/features/mypage/components/friends/BlockedUserCard';
 
 export function FriendsList() {
   const [friends, setFriends] = React.useState<FriendData[]>([]);

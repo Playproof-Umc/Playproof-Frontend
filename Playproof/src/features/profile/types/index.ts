@@ -1,1 +1,1 @@
-export type { UserProfile } from './types';
+export type { UserProfile } from '@/features/profile/types/types';
