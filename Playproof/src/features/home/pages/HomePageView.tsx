@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Navbar } from "@/components/common/Navbar";
 
-/* 1. 홈 전용 컴포넌트 (피그마 디자인 적용됨) */
+/* 홈 전용 컴포넌트  */
 import { 
   UserSummaryCard, 
   MatchingTabs, 
@@ -11,19 +11,19 @@ import {
   HomeFriendList   // 새로 만든 홈 전용 친구목록
 } from '@/features/home/components';
 
-/* 2. 타 도메인 위젯 (재사용) */
+/* 타 도메인 위젯 (재사용) */
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
-import { HighlightFeed } from "@/features/community/components/HighlightFeed";
+import { HomeCommunityHighlightSection } from "@/features/home/components/sections/HomeCommunityHighlightSection";
+import { HomeHotTopicSection } from "@/features/home/components/sections/HomeHotTopicSection";
 
-/* 3. 매칭 페이지 핵심 기능 */
+/* 매칭 페이지 핵심 기능 */
 import { 
   MatchingSearchBar, 
   PartyRequestBanner 
 } from '@/features/matching/components';
 
-/* 4. 데이터 및 상수 */
+/* 데이터 및 상수 */
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
-import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";
 import type { FilterState } from "@/features/matching/types";
 
 /* --- Mock Data 정의 (타입 에러 방지용) --- */
@@ -124,7 +124,7 @@ export const HomePageView = () => {
       <main className="mx-auto w-full max-w-7xl px-6 py-6">
         <div className="space-y-8">
           
-          {/* 1. 사용자 요약 (프로필 카드) */}
+          {/* 사용자 요약 (프로필 카드) */}
           {loading && <UserSummaryCardSkeleton />}
           {!loading && user && (
             <UserSummaryCard
@@ -136,7 +136,7 @@ export const HomePageView = () => {
             />
           )}
 
-          {/* 2. 파티 모집 & 친구 목록 (홈 전용 컴포넌트 사용) */}
+          {/* 파티 모집 & 친구 목록 (홈 전용 컴포넌트 사용) */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* 좌측: 게임 일정 (피그마 디자인 적용된 HomePartyCard) */}
             <div className="relative lg:col-span-2">
@@ -163,12 +163,12 @@ export const HomePageView = () => {
             </div>
           </div>
 
-          {/* 3. 일반 매칭 섹션 */}
+          {/* 일반 매칭 섹션 */}
           <section className="space-y-4">
-            {/* 3-1. 파티 참가 요청 배너 (최상단 배치) */}
+            {/* 파티 참가 요청 배너 (최상단 배치) */}
             <PartyRequestBanner count={MOCK_REQUESTS.length} />
 
-            {/* 3-2. 탭과 검색바 (위아래 배치) */}
+            {/* 탭과 검색바 (위아래 배치) */}
             <div className="flex flex-col gap-4">
               {/* 탭 (검색바 제거된 버전) */}
               <MatchingTabs 
@@ -191,58 +191,19 @@ export const HomePageView = () => {
               />
             </div>
             
-            {/* 3-3. 매칭 리스트 */}
-            {/* @ts-ignore : Mock 데이터 타입 호환용 */}
+            {/* 매칭 리스트 */}
+            {/* @ts-expect-error : Mock 데이터 타입 호환용 */}
             <PopularMatchList matches={MOCK_POPULAR_MATCHES} />
           </section>
 
-          {/* 4. 하이라이트 커뮤니티 */}
-          <section>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-zinc-900">
-                {HOME_SECTION_LABELS.highlightCommunityTitle}
-              </h2>
-              <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-                {HOME_ACTION_LABELS.more}
-              </button>
-            </div>
-            <HighlightFeed 
-              posts={MOCK_HIGHLIGHTS} 
-              onPostClick={(post) => console.log("Go to post", post.id)} 
-            />
-          </section>
+          {/* 하이라이트 커뮤니티 */}
+          <HomeCommunityHighlightSection
+            posts={MOCK_HIGHLIGHTS}
+            onPostClick={(post) => console.log("Go to post", post.id)}
+          />
 
-          {/* 5. 핫토픽 (간단 리스트) */}
-          <section>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-zinc-900">
-                {HOME_SECTION_LABELS.hotTopicTitle}
-              </h2>
-              <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-                {HOME_ACTION_LABELS.more}
-              </button>
-            </div>
-            <div className="grid gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 flex items-center gap-4 cursor-pointer hover:bg-zinc-50 transition-colors"
-                >
-                  <div className="text-2xl font-bold text-zinc-900 w-8 text-center">
-                    {i + 1}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-zinc-900">
-                      레전드 리썰 버그 발견했습니다 ㅋㅋ
-                    </div>
-                    <div className="text-sm text-zinc-500 mt-1">
-                      🔥 1,232 좋아요 · 💬 45 댓글
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* 핫토픽 (간단 리스트) */}
+          <HomeHotTopicSection />
 
         </div>
       </main>

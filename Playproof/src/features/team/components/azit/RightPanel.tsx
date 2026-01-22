@@ -1,7 +1,7 @@
 // src/features/team/components/azit/RightPanel.tsx
 import React from 'react';
 import type { Clip } from '@/types'; // User 타입 제거
-import { ClipList } from '@/features/team/components';
+import { ClipList } from '@/features/team/components/ClipList';
 
 interface RightPanelProps {
   clips: Clip[];

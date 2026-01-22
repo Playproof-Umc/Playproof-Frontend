@@ -4,7 +4,7 @@ import { ProfileDetail } from '@/features/mypage/components/profile/ProfileDetai
 import { FeedbackSection } from '@/features/mypage/components/feedback/FeedbackSection';
 import { RecentPosts } from '@/features/mypage/components/posts/RecentPosts';
 import { FriendsList } from '@/features/mypage/components/friends/FriendsList';
-import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
+import { MYPAGE_SECTION_IDS } from '@/features/mypage/constants/labels';
 
 interface SectionContentProps {
   activeSection: string;
@@ -12,19 +12,19 @@ interface SectionContentProps {
 }
 
 export function SectionContent({ activeSection, profileData }: SectionContentProps) {
-  if (activeSection === '내프로필') {
+  if (activeSection === MYPAGE_SECTION_IDS.profile) {
     return <ProfileDetail profileData={profileData} />;
   }
 
-  if (activeSection === MYPAGE_SECTION_LABELS.feedback) {
+  if (activeSection === MYPAGE_SECTION_IDS.feedback) {
     return <FeedbackSection />;
   }
 
-  if (activeSection === '작성게시판글') {
+  if (activeSection === MYPAGE_SECTION_IDS.writtenPosts) {
     return <RecentPosts />;
   }
 
-  if (activeSection === '친구목록') {
+  if (activeSection === MYPAGE_SECTION_IDS.friends) {
     return <FriendsList />;
   }
 

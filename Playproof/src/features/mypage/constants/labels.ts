@@ -17,6 +17,13 @@ export const MYPAGE_SECTION_LABELS = {
   feedbackTitle: "받은 피드백",
 } as const;
 
+export const MYPAGE_SECTION_IDS = {
+  profile: "내프로필",
+  feedback: "피드백",
+  writtenPosts: "작성게시판글",
+  friends: "친구목록",
+} as const;
+
 export const MYPAGE_ACTION_LABELS = {
   viewProfile: "프로필 보기",
   addFriend: "친구추가",

@@ -1,7 +1,7 @@
 // src/features/matching/components/home/FilteredMatchList.tsx
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
-import { MatchingCard } from '@/features/matching/components';
+import { MatchingCard } from '@/features/matching/components/MatchingCard';
 import type { MatchingData } from '@/features/matching/types';
 
 interface FilteredMatchListProps {

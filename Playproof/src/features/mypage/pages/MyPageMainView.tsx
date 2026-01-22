@@ -3,10 +3,12 @@ import { Navbar } from '@/components/common/Navbar';
 import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
-import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
+import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 export const MyPageMainView = () => {
-  const [activeSection, setActiveSection] = React.useState('내프로필');
+  const [activeSection, setActiveSection] = React.useState(
+    MYPAGE_SECTION_IDS.profile
+  );
   const [profileData, setProfileData] = React.useState<MyProfileData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);

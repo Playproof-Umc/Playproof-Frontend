@@ -1,5 +1,5 @@
 import React from "react";
-import { HighlightCard } from '@/features/community/components';
+import { HighlightCard } from '@/features/community/components/HighlightCard';
 import type { HighlightPost } from "@/features/community/types";
 
 interface HighlightFeedProps {

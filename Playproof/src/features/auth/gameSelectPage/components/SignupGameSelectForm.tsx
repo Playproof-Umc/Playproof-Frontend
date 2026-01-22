@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { GameSelectGrid } from "@/features/auth/gameSelectPage/components";
+import { GameSelectGrid } from "@/features/auth/gameSelectPage/components/GameSelectGrid";
 import { useSignupGameSelect } from "@/features/auth/gameSelectPage/hooks/useSignupGameSelect";
 
 export function SignupGameSelectForm() {

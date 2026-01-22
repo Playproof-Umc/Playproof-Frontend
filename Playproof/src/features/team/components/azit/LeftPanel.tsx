@@ -1,12 +1,11 @@
 // src/features/team/components/azit/LeftPanel.tsx
 import React from 'react';
-import { Plus, Volume2, Mic, Hash } from 'lucide-react'; // Hash 아이콘 추가 (채팅방용)
+import { Plus, Volume2, Mic } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import type { User } from '@/types';
 
 interface LeftPanelProps {
   members: User[];
-  [key: string]: any;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {

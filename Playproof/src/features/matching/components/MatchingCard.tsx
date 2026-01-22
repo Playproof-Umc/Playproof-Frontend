@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import type { MatchingData } from '@/features/matching/types';
-import { User, MessageCircle, Eye, Settings, Mic, MicOff } from 'lucide-react'; 
+import { User, MessageCircle, Eye, Settings, Mic } from 'lucide-react'; 
 
 interface MatchingCardProps {
   data: MatchingData;

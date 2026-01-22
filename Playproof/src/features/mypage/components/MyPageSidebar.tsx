@@ -1,5 +1,5 @@
 import React from 'react';
-import { MYPAGE_SECTION_LABELS } from "@/features/mypage/constants/labels";
+import { MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS } from "@/features/mypage/constants/labels";
 
 interface MyPageSidebarProps {
   activeSection: string;
@@ -8,10 +8,10 @@ interface MyPageSidebarProps {
 
 export function MyPageSidebar({ activeSection, onSectionChange }: MyPageSidebarProps) {
   const sidebarItems = [
-    { id: '내프로필', label: MYPAGE_SECTION_LABELS.profile },
-    { id: '피드백', label: MYPAGE_SECTION_LABELS.feedback },
-    { id: '작성게시판글', label: MYPAGE_SECTION_LABELS.writtenPosts },
-    { id: '친구목록', label: MYPAGE_SECTION_LABELS.friends },
+    { id: MYPAGE_SECTION_IDS.profile, label: MYPAGE_SECTION_LABELS.profile },
+    { id: MYPAGE_SECTION_IDS.feedback, label: MYPAGE_SECTION_LABELS.feedback },
+    { id: MYPAGE_SECTION_IDS.writtenPosts, label: MYPAGE_SECTION_LABELS.writtenPosts },
+    { id: MYPAGE_SECTION_IDS.friends, label: MYPAGE_SECTION_LABELS.friends },
   ];
 
   return (
