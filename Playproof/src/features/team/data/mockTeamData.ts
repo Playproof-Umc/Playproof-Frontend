@@ -1,7 +1,7 @@
 // src/features/team/data/mockTeamData.ts
 import type { Azit, User, Schedule, Channel, Clip } from '../types';
 
-// 1. 내 아지트 목록 (네비게이션용)
+// 내 아지트 목록 (네비게이션용)
 export const MOCK_MY_AZITS: Azit[] = [
   { 
     id: 1, 
@@ -23,7 +23,7 @@ export const MOCK_MY_AZITS: Azit[] = [
   },
 ];
 
-// 2. 멤버 목록
+// 멤버 목록
 export const mockMembers: User[] = [
   { id: 1, nickname: '레나', statusMessage: '즐겜 유저', isOnline: true },
   { id: 2, nickname: '엘릭', statusMessage: 'FE 개발 중...', isOnline: true },
@@ -32,13 +32,13 @@ export const mockMembers: User[] = [
   { id: 5, nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
 ];
 
-// 3. 스케줄 목록
+// 스케줄 목록
 export const mockSchedules: Schedule[] = [
   {
     id: 1,
     title: '데바데 5인큐',
     type: 'regular',
-    date: new Date(new Date().setHours(20, 0, 0, 0)), // 오늘 저녁 8시
+    date: new Date(new Date().setHours(20, 0, 0, 0)), 
     participants: [mockMembers[0], mockMembers[1], mockMembers[2]],
     maxParticipants: 5,
     isCompleted: false,
@@ -54,7 +54,7 @@ export const mockSchedules: Schedule[] = [
   },
 ];
 
-// 4. 음성/채팅 채널 목록
+// 음성/채팅 채널 목록
 export const mockVoiceChannels: Channel[] = [
   {
     id: 1,
@@ -68,7 +68,7 @@ export const mockVoiceChannels: Channel[] = [
     name: '스크림 룸',
     type: 'voice',
     category: 'game',
-    participants: [mockMembers[0], mockMembers[1]], // 레나, 엘릭 참여 중
+    participants: [mockMembers[0], mockMembers[1]], // 참여중
   },
   {
     id: 3,
@@ -86,7 +86,7 @@ export const mockVoiceChannels: Channel[] = [
   },
 ];
 
-// 5. 하이라이트 클립 목록
+// 하이라이트 클립 목록
 export const mockClips: Clip[] = [
   {
     id: 1,

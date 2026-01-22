@@ -1,7 +1,7 @@
 // src/features/team/components/azit/AzitNavigation.tsx
 import React from 'react';
 import { Plus } from 'lucide-react';
-import type { Azit } from '@/features/team/types'; // 절대 경로 import
+import type { Azit } from '@/features/team/types'; 
 
 interface AzitNavigationProps {
   azits: Azit[];

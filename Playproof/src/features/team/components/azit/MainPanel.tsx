@@ -1,10 +1,9 @@
 // src/features/team/components/azit/MainPanel.tsx
 import React from 'react';
 import { Plus, Trash2, Send, Paperclip } from 'lucide-react';
-import { useAzitChat } from '@/features/team/hooks/useAzitChat'; // 커스텀 훅 import
+import { useAzitChat } from '@/features/team/hooks/useAzitChat'; 
 
 export const MainPanel: React.FC = () => {
-  // 로직은 훅에서 가져옵니다.
   const {
     message, setMessage, previewUrls, fileInputRef,
     handleFileSelect, handleRemoveImage, triggerFileInput, sendMessage, hasContent

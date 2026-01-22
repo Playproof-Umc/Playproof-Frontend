@@ -13,14 +13,14 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
   return (
     <aside className="w-[340px] flex flex-col gap-6 pr-2 overflow-y-auto pb-10 shrink-0 custom-scrollbar">
       
-      {/* 1. 스케줄 섹션 */}
+      {/* 스케줄 섹션 */}
       <section>
         <h2 className="text-lg font-bold text-gray-900 mb-3 px-1">스케줄</h2>
         
-        {/* 하나의 카드 안에 모든 일정을 넣고 나눕니다 */}
+        
         <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-xl bg-white">
           
-          {/* 1-1. 정기 매칭 일정 헤더 */}
+          {/* 정기 매칭 일정 헤더 */}
           <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-white">
             <span className="font-bold text-gray-800 text-sm">정기 매칭 일정</span>
             <button className="text-gray-400 hover:bg-gray-100 p-1 rounded">
@@ -29,7 +29,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
             </button>
           </div>
           
-          {/* 1-2. 메인 일정 (카운트다운) */}
+          {/* 메인 일정 (카운트다운) */}
           <div className="p-4 border-b border-gray-100">
             <div className="flex gap-4 mb-4">
                {/* 날짜 배지 */}
@@ -73,7 +73,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
             </div>
           </div>
 
-          {/* 1-3. 하위 일정 1 */}
+          {/* 하위 일정  */}
           <div className="p-4 border-b border-gray-100 last:border-0">
              <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-gray-900 text-base">20:00</span>
@@ -88,7 +88,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
              </button>
           </div>
           
-          {/* 1-4. 하위 일정 2 */}
+          {/* 하위 일정 2 */}
           <div className="p-4">
              <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-gray-900 text-base">20:00</span>
@@ -106,7 +106,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
         </Card>
       </section>
 
-      {/* 2. 음성 채팅 섹션 */}
+      {/*음성 채팅 섹션 */}
       <section>
         <div className="flex justify-between items-center mb-2 px-1">
           <h2 className="text-lg font-bold text-gray-900">음성 채팅</h2>
@@ -115,13 +115,13 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
         
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           
-          {/* 2-1. 로비 (일반 음성방) */}
+          {/* 로비 (일반 음성방) */}
           <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer h-12">
             <Volume2 className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-bold text-gray-600">로비</span>
           </div>
 
-          {/* 2-2. 스크림 룸 (활성 - 참여자 표시) */}
+          {/* 스크림 룸 (활성 - 참여자 표시) */}
           <div className="bg-gray-50/50 pb-3 border-b border-gray-50">
              <div className="px-4 py-2 flex items-center gap-3 h-10">
                <Volume2 className="w-4 h-4 text-gray-900" />
@@ -143,13 +143,13 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
              </div>
           </div>
 
-          {/* 2-3. 그 아래 다른 채팅방 (팀 채팅) */}
+          {/* 그 아래 다른 채팅방 (팀 채팅) */}
           <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer h-12">
             <Volume2 className="w-4 h-4 text-gray-400" />
             <span className="text-sm font-bold text-gray-500">팀 채팅</span>
           </div>
           
-           {/* 2-4. 그 아래 다른 채팅방 (수다방) */}
+           {/* 그 아래 다른 채팅방 (수다방) */}
            <div className="px-4 py-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer h-12">
             <Volume2 className="w-4 h-4 text-gray-400" />
             <span className="text-sm font-bold text-gray-500">수다방</span>
@@ -157,7 +157,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
         </div>
       </section>
 
-      {/* 3. 멤버 섹션 */}
+      {/* 멤버 섹션 */}
       <section>
         <div className="flex justify-between items-center mb-2 px-1">
           <h2 className="text-lg font-bold text-gray-900">멤버</h2>
