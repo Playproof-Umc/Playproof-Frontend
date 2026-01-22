@@ -1,6 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import type { HighlightPost, Comment } from "@/features/community/types";
+import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 
 interface HighlightDetailModalProps {
   post: HighlightPost;
@@ -141,7 +142,7 @@ export function HighlightDetailModal({ post, comments, isOpen, onClose }: Highli
           {/* 댓글 목록 */}
           <div className="flex-1 overflow-y-auto p-4">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">
-              댓글 {comments.length}
+              {COMMUNITY_SECTION_LABELS.comments} {comments.length}
             </h3>
             <div className="space-y-4">
               {comments.map((comment) => (
@@ -173,7 +174,7 @@ export function HighlightDetailModal({ post, comments, isOpen, onClose }: Highli
                 type="text"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="댓글을 입력해주세요..."
+                placeholder={COMMUNITY_SECTION_LABELS.commentPlaceholder}
                 className="flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <button
@@ -181,7 +182,7 @@ export function HighlightDetailModal({ post, comments, isOpen, onClose }: Highli
                 disabled={!newComment.trim()}
                 className="rounded-full bg-black px-6 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-300"
               >
-                작성하기
+                {COMMUNITY_SECTION_LABELS.commentSubmit}
               </button>
             </div>
           </form>

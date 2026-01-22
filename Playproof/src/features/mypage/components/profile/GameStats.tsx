@@ -1,4 +1,5 @@
 import React from 'react';
+import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 import type { MyProfileData } from '@/features/mypage/types';
 
 interface GameStatsProps {
@@ -8,7 +9,9 @@ interface GameStatsProps {
 export function GameStats({ gameStats }: GameStatsProps) {
   return (
     <div className="mt-6">
-      <h3 className="mb-3 text-sm font-bold text-gray-900">게임별 통계</h3>
+      <h3 className="mb-3 text-sm font-bold text-gray-900">
+        {MYPAGE_SECTION_LABELS.gameStats}
+      </h3>
       <div className="rounded-lg bg-gray-100 p-4 space-y-6">
         {gameStats.map((stat, index) => (
           <div key={index}>

@@ -1,6 +1,8 @@
 import * as React from "react";
 
-const COMMUNITY_TABS = ["하이라이트", "자유게시판"] as const;
+import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
+
+const COMMUNITY_TABS = [COMMUNITY_PAGE_LABELS.highlightTab, COMMUNITY_PAGE_LABELS.freeTab] as const;
 
 type CommunityTab = (typeof COMMUNITY_TABS)[number];
 

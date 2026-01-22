@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 
 type CommunitySearchBarProps = {
   searchQuery: string;
@@ -22,7 +23,7 @@ export function CommunitySearchBar({
         <SearchIcon />
         <Input
           type="text"
-          placeholder="검색어를 입력하세요"
+          placeholder={COMMUNITY_SECTION_LABELS.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           onKeyDown={(e) => {
@@ -40,7 +41,7 @@ export function CommunitySearchBar({
         className="!px-4 !py-2.5 !rounded-lg !border-zinc-300 !text-zinc-700 hover:!bg-zinc-50"
       >
         <FilterIcon />
-        <span className="ml-2">필터</span>
+        <span className="ml-2">{COMMUNITY_SECTION_LABELS.filter}</span>
       </Button>
 
       {/* 글쓰기 버튼 - Button 컴포넌트 사용 */}
@@ -50,7 +51,7 @@ export function CommunitySearchBar({
         className="!bg-zinc-900 hover:!bg-zinc-800 !px-6 !py-2.5 !rounded-lg"
       >
         <WriteIcon />
-        <span className="ml-2">글쓰기</span>
+        <span className="ml-2">{COMMUNITY_SECTION_LABELS.write}</span>
       </Button>
     </div>
   );

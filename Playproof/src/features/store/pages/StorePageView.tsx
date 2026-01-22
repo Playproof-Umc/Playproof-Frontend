@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { StoreLayout, StoreSearchBar, StoreBannerSlider, ProductCard, StoreSectionHeader, StorePagination } from '@/features/store/components';
 import { useStoreProducts } from '@/features/store/hooks/useStoreProducts';
+import { STORE_SECTION_LABELS } from '@/features/store/constants/labels';
 
 const MOCK_USER = {
   isLoggedIn: true,
@@ -17,7 +18,7 @@ const ToggleButton = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => voi
     }}
     className="text-sm font-bold text-blue-500 flex items-center gap-1 hover:text-blue-600"
   >
-    {isOpen ? '접기' : '펼치기'}
+    {isOpen ? STORE_SECTION_LABELS.collapse : STORE_SECTION_LABELS.expand}
     {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
   </button>
 );
@@ -52,7 +53,7 @@ export const StorePageView = () => {
         {/* 추천 상품 섹션 */}
         <section className="mt-4 mb-12">
           <StoreSectionHeader
-            title="추천 상품"
+            title={STORE_SECTION_LABELS.recommended}
             sortOption={recommendSort}
             onSortChange={setRecommendSort}
           >
@@ -80,7 +81,7 @@ export const StorePageView = () => {
         {/* 전체 상품 섹션 */}
         <section className="mb-12">
           <StoreSectionHeader
-            title="전체 상품"
+            title={STORE_SECTION_LABELS.allProducts}
             sortOption={allSort}
             onSortChange={setAllSort}
           >

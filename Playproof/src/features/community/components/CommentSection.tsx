@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 
 interface Comment {
   id: string;
@@ -26,7 +27,7 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
   return (
     <section className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
       <h2 className="mb-4 text-lg font-semibold">
-        댓글 {totalCount}
+        {COMMUNITY_SECTION_LABELS.comments} {totalCount}
       </h2>
 
       {/* 댓글 작성 */}
@@ -34,7 +35,7 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="댓글을 입력하세요..."
+          placeholder={COMMUNITY_SECTION_LABELS.commentPlaceholderShort}
           className="w-full rounded-lg border border-gray-200 p-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           rows={3}
         />
@@ -44,7 +45,7 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
             disabled={!newComment.trim()}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            댓글 작성
+            {COMMUNITY_SECTION_LABELS.commentSubmit}
           </button>
         </div>
       </form>

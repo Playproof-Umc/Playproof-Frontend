@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
 import { MOCK_BOARD_POSTS, MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
+import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";
 import { PostDetailBody } from "@/features/community/components/detail/PostDetailBody";
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
@@ -13,13 +14,13 @@ export const PostDetailPageView = () => {
   const [searchParams] = useSearchParams();
   const [newComment, setNewComment] = React.useState("");
 
-  const fromTab = searchParams.get("from") || "하이라이트";
+  const fromTab = searchParams.get("from") || COMMUNITY_PAGE_LABELS.highlightTab;
   const post = MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
 
   if (!post) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>게시글을 찾을 수 없습니다.</p>
+        <p>{COMMUNITY_PAGE_LABELS.notFound}</p>
       </div>
     );
   }

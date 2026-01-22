@@ -1,6 +1,7 @@
 import React from "react";
 import { MoreVertical } from "lucide-react";
 import type { Comment } from "@/features/community/types";
+import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 
 type PostDetailCommentsProps = {
   comments: Comment[];
@@ -18,7 +19,7 @@ export const PostDetailComments = ({
   return (
     <div className="border-t border-gray-200 p-6">
       <h3 className="mb-4 text-sm font-semibold text-gray-900">
-        댓글 {comments.length}
+        {COMMUNITY_SECTION_LABELS.comments} {comments.length}
       </h3>
 
       <form onSubmit={onCommentSubmit} className="mb-6">
@@ -29,7 +30,7 @@ export const PostDetailComments = ({
               type="text"
               value={newComment}
               onChange={(e) => onCommentChange(e.target.value)}
-              placeholder="댓글을 입력해주세요..."
+              placeholder={COMMUNITY_SECTION_LABELS.commentPlaceholder}
               className="flex-1 bg-transparent text-sm focus:outline-none"
             />
             <button
@@ -37,7 +38,7 @@ export const PostDetailComments = ({
               disabled={!newComment.trim()}
               className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-300"
             >
-              작성하기
+              {COMMUNITY_SECTION_LABELS.commentSubmit}
             </button>
           </div>
         </div>

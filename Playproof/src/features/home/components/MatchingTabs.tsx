@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GAME_TABS } from "@/features/home/constants/matchingTabs";
+import { GAME_TABS, MATCHING_TAB_LABELS } from "@/features/home/constants/matchingTabs";
 
 type MatchingTabsProps = {
   activeTab: string;
@@ -12,7 +12,7 @@ export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsP
   
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-bold text-zinc-900">일반 매칭</h2>
+      <h2 className="text-xl font-bold text-zinc-900">{MATCHING_TAB_LABELS.title}</h2>
 
       {/* 탭 */}
       <div className="flex gap-2 border-b border-zinc-200">
@@ -31,7 +31,7 @@ export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsP
           </button>
         ))}
         <button className="ml-auto text-sm text-zinc-500 hover:text-zinc-900">
-          내역 →
+          {MATCHING_TAB_LABELS.history}
         </button>
       </div>
 
@@ -42,7 +42,7 @@ export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsP
           <SearchIcon />
           <input
             type="text"
-            placeholder="챔피언"
+            placeholder={MATCHING_TAB_LABELS.placeholder}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -63,11 +63,11 @@ export function MatchingTabs({ activeTab, onTabChange, onSearch }: MatchingTabsP
         </div>
 
         <button className="rounded-lg bg-zinc-900 px-6 py-2 text-sm font-medium text-white hover:bg-zinc-800">
-          초기화
+          {MATCHING_TAB_LABELS.reset}
         </button>
 
         <button className="rounded-lg bg-zinc-900 px-6 py-2 text-sm font-medium text-white hover:bg-zinc-800">
-          검색하기
+          {MATCHING_TAB_LABELS.search}
         </button>
       </div>
     </section>

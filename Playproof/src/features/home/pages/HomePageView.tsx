@@ -4,6 +4,7 @@ import { UserSummaryCard, MatchingTabs, PopularUserCard, CommunityPostCard } fro
 import { PartyCard } from '@/features/team/components';
 import { FriendList } from "@/features/user/components/list/FriendList";
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
+import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";
 
 export const HomePageView = () => {
   const [user, setUser] = React.useState<UserSummary | null>(null);
@@ -94,9 +95,11 @@ export const HomePageView = () => {
           {/* 인기 유저 섹션 */}
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-zinc-900">인기 유저 🔥</h2>
+              <h2 className="text-xl font-bold text-zinc-900">
+                {HOME_SECTION_LABELS.popularUsersTitle}
+              </h2>
               <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-                필터 ↓
+                {HOME_ACTION_LABELS.filter}
               </button>
             </div>
 
@@ -119,10 +122,10 @@ export const HomePageView = () => {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-zinc-900">
-                🔥 하이라이트 커뮤니티
+                {HOME_SECTION_LABELS.highlightCommunityTitle}
               </h2>
               <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-                더보기 →
+                {HOME_ACTION_LABELS.more}
               </button>
             </div>
 
@@ -145,10 +148,10 @@ export const HomePageView = () => {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-zinc-900">
-                🏠 커뮤니티 핫 토픽
+                {HOME_SECTION_LABELS.hotTopicTitle}
               </h2>
               <button className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
-                더보기 →
+                {HOME_ACTION_LABELS.more}
               </button>
             </div>
 

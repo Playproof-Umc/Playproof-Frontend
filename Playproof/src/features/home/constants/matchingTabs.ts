@@ -6,3 +6,11 @@ export const GAME_TABS = [
   "Steam",
   "기타",
 ] as const;
+
+export const MATCHING_TAB_LABELS = {
+  title: "일반 매칭",
+  history: "내역 →",
+  placeholder: "챔피언",
+  reset: "초기화",
+  search: "검색하기",
+} as const;

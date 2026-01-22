@@ -4,6 +4,7 @@ import { ProfileDetail } from '@/features/mypage/components/profile/ProfileDetai
 import { FeedbackSection } from '@/features/mypage/components/feedback/FeedbackSection';
 import { RecentPosts } from '@/features/mypage/components/posts/RecentPosts';
 import { FriendsList } from '@/features/mypage/components/friends/FriendsList';
+import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface SectionContentProps {
   activeSection: string;
@@ -15,7 +16,7 @@ export function SectionContent({ activeSection, profileData }: SectionContentPro
     return <ProfileDetail profileData={profileData} />;
   }
 
-  if (activeSection === '피드백') {
+  if (activeSection === MYPAGE_SECTION_LABELS.feedback) {
     return <FeedbackSection />;
   }
 

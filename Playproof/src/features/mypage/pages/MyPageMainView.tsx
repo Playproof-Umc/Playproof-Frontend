@@ -3,6 +3,7 @@ import { Navbar } from '@/components/common/Navbar';
 import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
+import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 export const MyPageMainView = () => {
   const [activeSection, setActiveSection] = React.useState('내프로필');
@@ -18,13 +19,15 @@ export const MyPageMainView = () => {
         const data = await getMyProfile();
 
         if (!data) {
-          throw new Error('프로필 데이터를 불러올 수 없습니다');
+          throw new Error(MYPAGE_ACTION_LABELS.profileLoadError);
         }
 
         setProfileData(data);
       } catch (error) {
         console.error('Failed to load profile:', error);
-        setError(error instanceof Error ? error.message : '프로필을 불러오는데 실패했습니다');
+        setError(
+          error instanceof Error ? error.message : MYPAGE_ACTION_LABELS.profileFetchFail
+        );
       } finally {
         setLoading(false);
       }
@@ -40,7 +43,9 @@ export const MyPageMainView = () => {
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent"></div>
-            <p className="mt-4 text-sm text-gray-500">로딩 중...</p>
+            <p className="mt-4 text-sm text-gray-500">
+              {MYPAGE_ACTION_LABELS.loading}
+            </p>
           </div>
         </div>
       </>
@@ -58,7 +63,7 @@ export const MyPageMainView = () => {
               onClick={() => window.location.reload()}
               className="mt-4 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-800"
             >
-              다시 시도
+              {MYPAGE_ACTION_LABELS.retry}
             </button>
           </div>
         </div>
@@ -71,7 +76,9 @@ export const MyPageMainView = () => {
       <>
         <Navbar />
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
-          <p className="text-sm text-gray-500">프로필 데이터가 없습니다</p>
+          <p className="text-sm text-gray-500">
+            {MYPAGE_SECTION_LABELS.profile} 데이터가 없습니다
+          </p>
         </div>
       </>
     );

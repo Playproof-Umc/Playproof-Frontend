@@ -4,6 +4,7 @@ import { Navbar } from "@/components/common/Navbar";
 import { CommunityTabs, CommunitySearchBar, HighlightFeed, BestPostsSection, CommunityPostList, Pagination, HighlightDetailModal } from '@/features/community/components';
 import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
 import type { CommunityTab, HighlightPost, BoardPost } from "@/features/community/types";
+import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
 
 export const CommunityPageView = () => {
@@ -22,7 +23,10 @@ export const CommunityPageView = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const currentTab = searchParams.get("tab");
-  const activeTab: CommunityTab = currentTab === "자유게시판" ? "자유게시판" : "하이라이트";
+  const activeTab: CommunityTab =
+    currentTab === COMMUNITY_PAGE_LABELS.freeTab
+      ? COMMUNITY_PAGE_LABELS.freeTab
+      : COMMUNITY_PAGE_LABELS.highlightTab;
 
   const handleTabChange = (tab: CommunityTab) => {
     setSearchParams({ tab });
@@ -89,7 +93,9 @@ export const CommunityPageView = () => {
 
       <main className="mx-auto w-full max-w-7xl px-6 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-zinc-900">Community</h1>
+        <h1 className="text-3xl font-bold text-zinc-900">
+          {COMMUNITY_PAGE_LABELS.title}
+        </h1>
         </div>
 
         <CommunityTabs activeTab={activeTab} onTabChange={handleTabChange} />

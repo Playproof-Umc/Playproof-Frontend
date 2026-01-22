@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, MoreVertical } from 'lucide-react';
 import type { FriendData } from '@/features/mypage/types';
+import { MYPAGE_ACTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface FriendCardProps {
   friend: FriendData;
@@ -57,7 +58,7 @@ export function FriendCard({ friend, onRemove }: FriendCardProps) {
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
               >
-                프로필 보기
+                {MYPAGE_ACTION_LABELS.viewProfile}
               </button>
               <button
                 onClick={() => {
@@ -66,7 +67,7 @@ export function FriendCard({ friend, onRemove }: FriendCardProps) {
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
               >
-                친구 삭제
+                {MYPAGE_ACTION_LABELS.removeFriend}
               </button>
             </div>
           </>
