@@ -1,5 +1,5 @@
 import * as React from "react";
-import { UserBasicInfo } from "@/features/user/types";
+import type { UserBasicInfo } from "@/features/user/types";
 import { cn } from "@/utils/cn"; 
 
 type FriendListProps = {

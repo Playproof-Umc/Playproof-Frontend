@@ -23,8 +23,8 @@ import { MatchingDetailProvider } from '@/features/matching/context/MatchingDeta
 import { ToastProvider } from '@/features/notification/context/ToastContext';
 
 // Global Modals (모달은 미리 로드해두거나 필요 시 분리 가능, 여기선 유지)
-import { UserProfileModal } from '@/features/profile/components/UserProfileModal';
-import { MatchingDetailModal } from '@/features/matching/components/MatchingDetailModal';
+import { UserProfileModal } from '@/features/profile/components';
+import { MatchingDetailModal } from '@/features/matching/components';
 
 // 로딩 중 보여줄 컴포넌트 (간단한 스피너나 텍스트)
 const LoadingFallback = () => (

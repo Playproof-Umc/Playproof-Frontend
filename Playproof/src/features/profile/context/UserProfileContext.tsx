@@ -31,7 +31,7 @@ export const useUserProfile = () => {
 };
 
 // Provider 컴포넌트
-export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProfileProvider: React.FC<{ children?: ReactNode }> = ({ children } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeUserId, setActiveUserId] = useState<string | number | null>(null);
 

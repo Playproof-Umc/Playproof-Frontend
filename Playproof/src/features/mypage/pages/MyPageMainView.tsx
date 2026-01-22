@@ -1,9 +1,6 @@
 import React from 'react';
 import { Navbar } from '@/components/common/Navbar';
-import { ProfileCard } from '@/features/mypage/components/ProfileCard';
-import { ProfileHeader } from '@/features/mypage/components/ProfileHeader';
-import { MyPageSidebar } from '@/features/mypage/components/MyPageSidebar';
-import { SectionContent } from '@/features/mypage/components/SectionContent';
+import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
 

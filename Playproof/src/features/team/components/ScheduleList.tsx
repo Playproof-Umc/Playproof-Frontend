@@ -54,8 +54,19 @@ export const ScheduleList: React.FC<Props> = ({ schedules }) => {
                     
                     <div className="flex -space-x-1.5 mb-3">
                       {sch.participants.map((p, idx) => (
-                        <div key={idx} className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white overflow-hidden flex items-center justify-center">
-                           {p.user ? <img src={p.user.avatarUrl} alt="" className="w-full h-full object-cover"/> : <div className="w-full h-full bg-gray-200"/>}
+                        <div
+                          key={idx}
+                          className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white overflow-hidden flex items-center justify-center"
+                        >
+                          {p.user?.avatarUrl ? (
+                            <img
+                              src={p.user.avatarUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200" />
+                          )}
                         </div>
                       ))}
                       {sch.needMembers && (

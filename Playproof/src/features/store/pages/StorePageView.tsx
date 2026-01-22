@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { StoreLayout } from '@/features/store/components/StoreLayout';
-import { StoreSearchBar } from '@/features/store/components/StoreSearchBar';
-import { StoreBannerSlider } from '@/features/store/components/StoreBannerSlider';
-import { ProductCard } from '@/features/store/components/ProductCard';
-import { StoreSectionHeader } from '@/features/store/components/StoreSectionHeader';
-import { StorePagination } from '@/features/store/components/StorePagination';
+import { StoreLayout, StoreSearchBar, StoreBannerSlider, ProductCard, StoreSectionHeader, StorePagination } from '@/features/store/components';
 import { useStoreProducts } from '@/features/store/hooks/useStoreProducts';
 
 const MOCK_USER = {

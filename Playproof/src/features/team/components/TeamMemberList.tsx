@@ -3,7 +3,7 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 import type { User } from '@/types';
 import { Card } from '@/components/ui/Card';
-import { UserAvatar } from '@/features/user/components/UserAvatar';
+import { UserAvatar } from '@/features/user/components';
 
 interface Props {
   members: User[];

@@ -1,11 +1,8 @@
 import * as React from "react";
 import { Navbar } from "@/components/common/Navbar";
-import { UserSummaryCard } from "@/features/home/components/UserSummaryCard";
-import { PartyCard } from "@/features/team/components/PartyCard";
-import { FriendList } from "@/features/user/components/FriendList";
-import { MatchingTabs } from "@/features/home/components/MatchingTabs";
-import { PopularUserCard } from "@/features/home/components/PopularUserCard";
-import { CommunityPostCard } from "@/features/home/components/CommunityPostCard";
+import { UserSummaryCard, MatchingTabs, PopularUserCard, CommunityPostCard } from '@/features/home/components';
+import { PartyCard } from '@/features/team/components';
+import { FriendList } from "@/features/user/components/list/FriendList";
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
 
 export const HomePageView = () => {
@@ -69,17 +66,20 @@ export const HomePageView = () => {
               <FriendList
                 friends={[
                   {
-                    name: "유저 11.9점",
+                    id: 1,
+                    nickname: "유저 11.9점",
                     game: "발로란트",
                     status: "게임 대기중",
                   },
                   {
-                    name: "유저 15.99점",
+                    id: 2,
+                    nickname: "유저 15.99점",
                     game: "리그오브레전드",
                     status: "게임중",
                   },
                   {
-                    name: "유저 11.9점",
+                    id: 3,
+                    nickname: "유저 11.9점",
                     game: "발로란트",
                     status: "대기 대기중",
                   },

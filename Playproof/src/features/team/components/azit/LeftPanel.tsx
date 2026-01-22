@@ -3,12 +3,10 @@ import React from 'react';
 import type { Schedule, Channel } from '@/types';
 
 // Team 기능
-import { NextMatchBox } from '@/features/team/components/NextMatchBox';
-import { ScheduleList } from '@/features/team/components/ScheduleList';
+import { NextMatchBox, ScheduleList } from '@/features/team/components';
 
 // Chat 기능
-import { VoiceRoomList } from '@/features/chat/components/VoiceRoomList';
-import { ChatRoomList } from '@/features/chat/components/ChatRoomList';
+import { VoiceRoomList, ChatRoomList } from '@/features/chat/components';
 
 interface LeftPanelProps {
   nextMatchDate: Date | null;

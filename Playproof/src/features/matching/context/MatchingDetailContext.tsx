@@ -20,7 +20,7 @@ export const useMatchingDetail = () => {
   return context;
 };
 
-export const MatchingDetailProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ children } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
 

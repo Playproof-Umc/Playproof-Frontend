@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
-import { NotificationDropdown } from '@/features/notification/components/NotificationDropdown';
+import { NotificationDropdown } from '@/features/notification/components';
 
 interface NavbarProps {
   isProUser?: boolean;

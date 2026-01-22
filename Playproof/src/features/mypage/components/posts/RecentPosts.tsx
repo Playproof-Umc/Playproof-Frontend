@@ -1,9 +1,8 @@
 import React from 'react';
-import { getMyPosts } from '../../api/mypageApi';
+import { getMyPosts } from '@/features/mypage/api/mypageApi';
 import type { MyPostsData } from '@/features/mypage/types';
-import { MatchingCard } from '@/features/matching/components/MatchingCard';
-import { HighlightCard } from '@/features/community/components/HighlightCard';
-import { CommunityPostList } from '@/features/community/components/CommunityPostList';
+import { MatchingCard } from '@/features/matching/components';
+import { HighlightCard, CommunityPostList } from '@/features/community/components';
 import { useNavigate } from 'react-router-dom';
 
 export function RecentPosts() {

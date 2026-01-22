@@ -2,11 +2,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PhoneVerificationSection } from "@/features/auth/signup/components/PhoneVerificationSection";
-import { PasswordSection } from "@/features/auth/signup/components/PasswordSection";
-import { ProfileSection } from "@/features/auth/signup/components/ProfileSection";
-import { TermsSection } from "@/features/auth/signup/components/TermsSection";
-import { SignupCTA } from "@/features/auth/signup/components/SignupCTA";
+import { PhoneVerificationSection } from "@/features/auth/signup/components";
+import { PasswordSection } from "@/features/auth/signup/components";
+import { ProfileSection } from "@/features/auth/signup/components";
+import { TermsSection } from "@/features/auth/signup/components";
+import { SignupCTA } from "@/features/auth/signup/components";
 
 import { usePhoneVerification } from "@/features/auth/signup/hooks/usePhoneVerification";
 import { usePasswordRules } from "@/features/auth/signup/hooks/usePasswordRules";

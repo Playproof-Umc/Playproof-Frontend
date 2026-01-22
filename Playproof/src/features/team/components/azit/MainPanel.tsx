@@ -1,9 +1,7 @@
 //src/features/team/components/azit/MainPanel.tsx
 import React from 'react';
 // Chat 기능 
-import { ChatHeader } from '@/features/chat/components/ChatHeader';
-import { MessageList } from '@/features/chat/components/MessageList';
-import { ChatInput } from '@/features/chat/components/ChatInput';
+import { ChatHeader, MessageList, ChatInput } from '@/features/chat/components';
 
 export const MainPanel: React.FC = () => {
   return (

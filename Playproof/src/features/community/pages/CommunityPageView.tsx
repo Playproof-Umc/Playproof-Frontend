@@ -1,13 +1,7 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
-import { CommunityTabs } from "@/features/community/components/CommunityTabs";
-import { CommunitySearchBar } from "@/features/community/components/CommunitySearchBar";
-import { HighlightFeed } from "@/features/community/components/HighlightFeed";
-import { BestPostsSection } from "@/features/community/components/BestPostsSection";
-import { CommunityPostList } from "@/features/community/components/CommunityPostList";
-import { Pagination } from "@/features/community/components/Pagination";
-import { HighlightDetailModal } from "@/features/community/components/HighlightDetailModal";
+import { CommunityTabs, CommunitySearchBar, HighlightFeed, BestPostsSection, CommunityPostList, Pagination, HighlightDetailModal } from '@/features/community/components';
 import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
 import type { CommunityTab, HighlightPost, BoardPost } from "@/features/community/types";
 import { getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
