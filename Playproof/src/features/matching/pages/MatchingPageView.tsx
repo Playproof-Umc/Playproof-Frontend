@@ -1,3 +1,4 @@
+// src/features/matching/pages/MatchingPageView.tsx
 import React, { useMemo } from 'react';
 import { Navbar } from '@/components/common/Navbar';
 import { MatchingSearchBar, GameFilter, RecommendedSection, PartyRequestBanner, MatchingWriteModal } from '@/features/matching/components';
@@ -22,8 +23,9 @@ export const MatchingPageView = () => {
     filteredMatches,
   } = state;
 
+  // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
   const recommendedData = useMemo(() => {
-    return matchesByGame.slice(0, 3);
+    return matchesByGame.slice(0, 10); 
   }, [matchesByGame]);
 
   return (
@@ -55,6 +57,7 @@ export const MatchingPageView = () => {
 
       <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
         <PartyRequestBanner />
+        {/* 추천 섹션 */}
         <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />
         <FilteredMatchList matches={filteredMatches} searchText={searchText} />
