@@ -1,4 +1,4 @@
-// src/features/matching/types/types.ts
+// src/features/matching/types.ts
 
 import type { User } from '@/types'; 
 

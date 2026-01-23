@@ -1,17 +1,17 @@
-import type { 
-  MyProfileData, 
-  FeedbackData, 
-  MyPostsData, 
-  FriendData, 
-  BlockedUserData 
-} from '@/data/mockData';
+import type {
+  BlockedUserData,
+  FeedbackData,
+  FriendData,
+  MyPostsData,
+  MyProfileData,
+} from '@/features/mypage/types';
 import {
   fetchMyProfile as mockFetchMyProfile,
   fetchMyFeedbacks as mockFetchMyFeedbacks,
   fetchMyPosts as mockFetchMyPosts,
   fetchFriends as mockFetchFriends,
   fetchBlockedUsers as mockFetchBlockedUsers,
-} from '@/data/mockData';
+} from '@/features/mypage/data/mockMyPageData';
 
 /**
  * 내 프로필 정보 조회

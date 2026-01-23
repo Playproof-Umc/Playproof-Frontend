@@ -1,7 +1,7 @@
 import React from "react";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { HighlightPost } from "@/data/mockData";
+import type { HighlightPost } from "@/features/community/types";
 
 interface HighlightCardProps {
   post: HighlightPost;

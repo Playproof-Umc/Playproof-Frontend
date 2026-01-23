@@ -1,10 +1,10 @@
 import React from 'react';
-import { getMyPosts } from '../../api/mypageApi';
-import type { MyPostsData } from '@/data/mockData';
-import { MatchingCard } from '@/features/matching/components/MatchingCard';
-import { HighlightCard } from '@/features/community/components/HighlightCard';
-import { CommunityPostList } from '@/features/community/components/CommunityPostList';
+import { getMyPosts } from '@/features/mypage/api/mypageApi';
+import type { MyPostsData } from '@/features/mypage/types';
+import { MatchingCard } from '@/features/matching/components';
+import { HighlightCard, CommunityPostList } from '@/features/community/components';
 import { useNavigate } from 'react-router-dom';
+import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 export function RecentPosts() {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export function RecentPosts() {
   if (loading) {
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-gray-500">로딩 중...</p>
+        <p className="text-sm text-gray-500">{MYPAGE_ACTION_LABELS.loading}</p>
       </div>
     );
   }
@@ -37,7 +37,9 @@ export function RecentPosts() {
   if (!posts) {
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-gray-500">데이터를 불러올 수 없습니다.</p>
+        <p className="text-sm text-gray-500">
+          {MYPAGE_ACTION_LABELS.dataLoadFail}
+        </p>
       </div>
     );
   }
@@ -46,9 +48,13 @@ export function RecentPosts() {
     <div className="space-y-12">
       {/* 최근 작성한 매칭 글 */}
       <div>
-        <h2 className="mb-6 text-xl font-bold text-gray-900">최근 작성한 매칭 글</h2>
+        <h2 className="mb-6 text-xl font-bold text-gray-900">
+          {MYPAGE_SECTION_LABELS.recentMatchingPosts}
+        </h2>
         {posts.matchingPosts.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">작성한 매칭 글이 없습니다.</p>
+          <p className="py-8 text-center text-sm text-gray-500">
+            {MYPAGE_ACTION_LABELS.emptyMatchingPosts}
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.matchingPosts.map((post) => (
@@ -60,9 +66,13 @@ export function RecentPosts() {
 
       {/* 최근 작성한 하이라이트 */}
       <div>
-        <h2 className="mb-6 text-xl font-bold text-gray-900">최근 작성한 하이라이트</h2>
+        <h2 className="mb-6 text-xl font-bold text-gray-900">
+          {MYPAGE_SECTION_LABELS.recentHighlights}
+        </h2>
         {posts.highlightPosts.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">작성한 하이라이트가 없습니다.</p>
+          <p className="py-8 text-center text-sm text-gray-500">
+            {MYPAGE_ACTION_LABELS.emptyHighlights}
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {posts.highlightPosts.map((post) => (
@@ -80,9 +90,13 @@ export function RecentPosts() {
 
       {/* 최근 작성한 커뮤니티 글 */}
       <div>
-        <h2 className="mb-6 text-xl font-bold text-gray-900">최근 작성한 커뮤니티 글</h2>
+        <h2 className="mb-6 text-xl font-bold text-gray-900">
+          {MYPAGE_SECTION_LABELS.recentCommunityPosts}
+        </h2>
         {posts.communityPosts.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">작성한 커뮤니티 글이 없습니다.</p>
+          <p className="py-8 text-center text-sm text-gray-500">
+            {MYPAGE_ACTION_LABELS.emptyCommunityPosts}
+          </p>
         ) : (
           <CommunityPostList
             posts={posts.communityPosts}

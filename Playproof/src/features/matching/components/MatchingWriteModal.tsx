@@ -1,13 +1,13 @@
 // src/features/matching/components/MatchingWriteModal.tsx
 import React from 'react';
 import { X } from 'lucide-react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { useMatchingWriteForm } from '@/features/matching/hooks/useMatchingWriteForm';
-import { WriteGameSection } from './write/WriteGameSection';
-import { WritePositionSection } from './write/WritePositionSection';
-import { WriteDetailSection } from './write/WriteDetailSection';
-import { WriteTagSection } from './write/WriteTagSection';
-import { DuplicateModal } from './write/DuplicateModal';
+import { WriteGameSection } from '@/features/matching/components/write/WriteGameSection';
+import { WritePositionSection } from '@/features/matching/components/write/WritePositionSection';
+import { WriteDetailSection } from '@/features/matching/components/write/WriteDetailSection';
+import { WriteTagSection } from '@/features/matching/components/write/WriteTagSection';
+import { DuplicateModal } from '@/features/matching/components/write/DuplicateModal';
 
 interface MatchingWriteModalProps {
   isOpen: boolean;

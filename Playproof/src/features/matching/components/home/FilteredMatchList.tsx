@@ -2,7 +2,7 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { MatchingCard } from '@/features/matching/components/MatchingCard';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 interface FilteredMatchListProps {
   matches: MatchingData[];
@@ -18,7 +18,7 @@ export const FilteredMatchList = ({ matches, searchText }: FilteredMatchListProp
             ? `'${searchText}' 검색 결과 (${matches.length})`
             : `전체 매칭 (${matches.length})`}
         </h2>
-        <RefreshCw size={16} className="text-gray-400 cursor-pointer" />
+        <RefreshCw size={16} className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" />
       </div>
 
       {matches.length === 0 ? (
@@ -31,9 +31,9 @@ export const FilteredMatchList = ({ matches, searchText }: FilteredMatchListProp
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-8 px-4 md:px-14 lg:px-28 justify-items-center">
+        <div className="flex flex-wrap gap-5 justify-start">
           {matches.map((item) => (
-            <div key={`all-${item.id}`} className="w-full max-w-[280px]">
+            <div key={`all-${item.id}`} className="w-[280px] max-w-full">
               <MatchingCard data={item} />
             </div>
           ))}

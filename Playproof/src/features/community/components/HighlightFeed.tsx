@@ -1,6 +1,6 @@
 import React from "react";
-import { HighlightCard } from "@/features/community/components/HighlightCard";
-import type { HighlightPost } from "@/data/mockData";
+import { HighlightCard } from '@/features/community/components/HighlightCard';
+import type { HighlightPost } from "@/features/community/types";
 
 interface HighlightFeedProps {
   posts: HighlightPost[];

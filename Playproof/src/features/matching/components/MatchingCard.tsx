@@ -1,9 +1,9 @@
-//src/features/matching/components/MatchingCard.tsx
+// src/features/matching/components/MatchingCard.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
-import type { MatchingData } from '@/features/matching/types/types';
-import { User, MessageCircle, Eye, Mic } from 'lucide-react'; // Heart 제거됨
+import type { MatchingData } from '@/features/matching/types';
+import { User, MessageCircle, Eye, Settings, Mic } from 'lucide-react'; 
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -22,56 +22,106 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
     navigate(`/user/${data.hostUser.id}`);
   };
 
+  // 요청 버튼 클릭 (상세 모달 열기 또는 별도 로직)
+  const handleRequestClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openMatchingDetail(data);
+  };
+
   return (
     <div 
       onClick={handleCardClick}
-      className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col h-full min-h-[200px]"
+      className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col h-full"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex gap-2">
-           <span className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md">모집중</span>
-           <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-md">{data.game}</span>
-        </div>
-        <span className="text-xs text-gray-400 font-medium">{data.time}</span>
+      {/* Header: Game Name */}
+      <div className="flex justify-between items-start mb-6">
+        <span className="text-sm font-bold text-gray-900">{data.game}</span>
+        {/* 옵션: 모집중 배지 등을 우측에 배치하거나 생략 가능 */}
       </div>
 
-      <div className="flex items-center gap-3 mb-4">
+      {/* Profile Section: Centered */}
+      <div className="flex flex-col items-center mb-5">
         <div 
             onClick={handleProfileClick}
-            className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 transition-colors z-10 shrink-0"
+            className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 transition-colors mb-3 overflow-hidden"
         >
           {data.hostUser.avatarUrl ? (
-            <img src={data.hostUser.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+            <img src={data.hostUser.avatarUrl} alt={data.hostUser.nickname} className="w-full h-full object-cover" />
           ) : (
-            <User size={20} />
+            <User size={32} />
           )}
         </div>
-        <div className="overflow-hidden">
-           <div onClick={handleProfileClick} className="font-bold text-sm text-gray-900 hover:underline underline-offset-2 z-10 inline-block truncate max-w-full">
+        
+        <div className="text-center">
+           <div onClick={handleProfileClick} className="font-bold text-gray-900 text-base hover:underline underline-offset-2 mb-1">
              {data.hostUser.nickname}
            </div>
-           <div className="text-xs text-blue-600 font-bold flex items-center gap-1">TS {data.tsScore}</div>
+           <div className="flex items-center justify-center gap-1 text-xs text-gray-500 font-medium">
+             <span>TS {data.tsScore}</span>
+             <Settings size={12} />
+           </div>
         </div>
       </div>
 
-      <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1 break-all">{data.title}</h3>
-
-      <div className="flex flex-wrap gap-1.5 mb-4 h-12 overflow-hidden content-start">
-        {data.tags.map((tag, idx) => (
-          <span key={idx} className="px-2 py-1 bg-gray-50 border border-gray-100 rounded-md text-[10px] text-gray-500 font-medium">{tag}</span>
-        ))}
+      {/* Tags Section: Centered Pills */}
+      <div className="flex flex-col items-center gap-2 mb-6">
+        {/* Row 1: Key Info (Tier, Role, Mic) */}
+        <div className="flex flex-wrap justify-center gap-1.5">
+            <span className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-[11px] font-medium text-gray-600 flex items-center gap-1">
+               {/* 티어 아이콘이 있다면 여기에 추가 */}
+               {data.tier}
+            </span>
+             {/* 마이크 여부 (데이터에 있다면 조건부 렌더링, 예시로 추가함) */}
+            <span className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-[11px] font-medium text-gray-600">
+               <Mic size={10} />
+            </span>
+        </div>
+        
+        {/* Row 2: Custom Tags */}
+        <div className="flex flex-wrap justify-center gap-1.5">
+            {data.tags.slice(0, 3).map((tag, idx) => (
+              <span key={idx} className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-[11px] font-medium text-gray-500">
+                {tag}
+              </span>
+            ))}
+        </div>
       </div>
 
-      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-         <div className="flex flex-col gap-1">
-            <div className="text-xs font-bold text-gray-900">{data.currentMembers} / {data.maxMembers}명</div>
-            <div className="text-[10px] text-gray-400 font-medium">{data.tier}</div>
-         </div>
-         <div className="flex items-center gap-3 text-gray-300">
-            <Mic size={14} className="text-gray-400" />
-            <div className="flex items-center gap-0.5 text-xs font-medium"><Eye size={12} /><span>{data.views}</span></div>
-            <div className="flex items-center gap-0.5 text-xs font-medium"><MessageCircle size={12} /><span>{data.comments}</span></div>
-         </div>
+      {/* Content Section: Left Aligned */}
+      <div className="mt-auto">
+        <div className="flex items-center gap-1 text-blue-500 text-xs font-bold mb-1">
+            <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
+            <span className="text-[10px]">&gt;</span>
+        </div>
+        
+        <h3 className="font-bold text-gray-900 text-[15px] mb-4 line-clamp-1 break-all">
+            {data.title}
+        </h3>
+
+        {/* Action Button */}
+        <button 
+            onClick={handleRequestClick}
+            className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors"
+        >
+            매칭 요청
+        </button>
+
+        {/* Footer: Meta Info */}
+        <div className="flex items-center justify-between text-gray-400 text-xs pt-1">
+             <span>{data.time}</span>
+             <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                    <Eye size={14} />
+                    <span>{data.views}</span>
+                </div>
+                {/* 하트 아이콘 (데이터에 없으므로 레이아웃만 유지하거나 주석 처리) */}
+                {/* <div className="flex items-center gap-1"><Heart size={14} /><span>12</span></div> */}
+                <div className="flex items-center gap-1">
+                    <MessageCircle size={14} />
+                    <span>{data.comments}</span>
+                </div>
+             </div>
+        </div>
       </div>
     </div>
   );

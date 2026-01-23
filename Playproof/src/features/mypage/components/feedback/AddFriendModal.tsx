@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, User } from 'lucide-react';
+import { MYPAGE_ACTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface AddFriendModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export function AddFriendModal({
 
         {/* 제목 */}
         <h2 className="mb-6 text-center text-lg font-bold text-gray-900">
-          해당 유저를 추가하시겠습니까?
+          {MYPAGE_ACTION_LABELS.addFriendConfirmTitle}
         </h2>
 
         {/* 프로필 영역 */}
@@ -81,7 +82,7 @@ export function AddFriendModal({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="친구 추가 메시지를 입력하세요 (선택사항)"
+            placeholder={MYPAGE_ACTION_LABELS.addFriendPlaceholder}
             className="w-full rounded-lg border border-gray-300 p-3 text-sm resize-none focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             rows={3}
             maxLength={100}
@@ -97,13 +98,13 @@ export function AddFriendModal({
             onClick={handleCancel}
             className="flex-1 rounded-lg bg-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-300 transition-colors"
           >
-            취소
+            {MYPAGE_ACTION_LABELS.cancel}
           </button>
           <button
             onClick={handleConfirm}
             className="flex-1 rounded-lg bg-blue-500 py-3 text-sm font-medium text-white hover:bg-blue-600 transition-colors"
           >
-            확인
+            {MYPAGE_ACTION_LABELS.confirm}
           </button>
         </div>
       </div>

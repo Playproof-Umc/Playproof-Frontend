@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 //src/features/matching/context/MatchingDetailContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 interface MatchingDetailContextType {
   isOpen: boolean;
@@ -20,7 +20,7 @@ export const useMatchingDetail = () => {
   return context;
 };
 
-export const MatchingDetailProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ children } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
 

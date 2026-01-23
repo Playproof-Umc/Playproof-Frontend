@@ -1,6 +1,7 @@
 import React from "react";
 import { Heart, MessageCircle, Eye, MoreVertical } from "lucide-react";
-import type { BoardPost } from "@/data/mockData";
+import type { BoardPost } from "@/features/community/types";
+import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 
 interface BestPostsSectionProps {
   posts: BoardPost[];
@@ -15,9 +16,11 @@ export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) 
     <section className="mb-8 mt-6">
       {/* 정렬 드롭다운 */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-zinc-900">🔥 베스트 게시글</h2>
+        <h2 className="text-xl font-bold text-zinc-900">
+          {COMMUNITY_SECTION_LABELS.bestPostsTitle}
+        </h2>
         <button className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50">
-          BEST 게시글
+          {COMMUNITY_SECTION_LABELS.bestPostsBadge}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

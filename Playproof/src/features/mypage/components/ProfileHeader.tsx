@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pencil } from 'lucide-react';
-import type { MyProfileData } from '@/data/mockData';
+import type { MyProfileData } from '@/features/mypage/types';
+import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface ProfileHeaderProps {
   profileData: MyProfileData;
@@ -26,7 +27,7 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
               type="text"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="상태메시지를 입력하세요"
+              placeholder={MYPAGE_ACTION_LABELS.statusPlaceholder}
               className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               autoFocus
             />
@@ -34,7 +35,7 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
               onClick={handleBioSave}
               className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"
             >
-              저장
+              {MYPAGE_ACTION_LABELS.save}
             </button>
             <button
               onClick={() => {
@@ -43,7 +44,7 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
               }}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              취소
+              {MYPAGE_ACTION_LABELS.cancel}
             </button>
           </div>
         ) : (
@@ -55,7 +56,7 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
               <Pencil className="h-4 w-4" />
             </button>
             <p className="flex-1 text-sm text-gray-700">
-              {bio || '상태메시지를 입력해주세요'}
+              {bio || MYPAGE_ACTION_LABELS.statusEmpty}
             </p>
           </div>
         )}
@@ -64,7 +65,9 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
       {/* 플레이 스타일 태그 */}
       {profileData.playStyles && profileData.playStyles.length > 0 && (
         <div className="mb-3">
-          <p className="mb-2 text-xs text-gray-500">플레이 스타일</p>
+          <p className="mb-2 text-xs text-gray-500">
+            {MYPAGE_SECTION_LABELS.playStyle}
+          </p>
           <div className="flex flex-wrap gap-2">
             {profileData.playStyles.map((style, index) => (
               <span
@@ -81,7 +84,9 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
       {/* 선호 태그 */}
       {profileData.preferredTags && profileData.preferredTags.length > 0 && (
         <div>
-          <p className="mb-2 text-xs text-gray-500">선호 태그</p>
+          <p className="mb-2 text-xs text-gray-500">
+            {MYPAGE_SECTION_LABELS.preferredTags}
+          </p>
           <div className="flex flex-wrap gap-2">
             {profileData.preferredTags.map((tag, index) => (
               <span

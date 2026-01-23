@@ -1,7 +1,6 @@
 //src/pages/auth/SignupForm.tsx
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { PhoneVerificationSection } from "@/features/auth/signup/components/PhoneVerificationSection";
 import { PasswordSection } from "@/features/auth/signup/components/PasswordSection";
 import { ProfileSection } from "@/features/auth/signup/components/ProfileSection";

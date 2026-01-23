@@ -2,7 +2,7 @@
 import React from 'react';
 import { MoreHorizontal, User, UserPlus, Home, AlertTriangle, Eye, Heart, MessageCircle } from 'lucide-react';
 import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 
 interface MatchingPostInfoProps {
   post: MatchingData;

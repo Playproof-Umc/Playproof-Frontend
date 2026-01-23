@@ -1,5 +1,5 @@
-import type { BoardPost, HighlightPost } from '@/data/mockData';
-import { MOCK_BOARD_POSTS, MOCK_HIGHLIGHT_POSTS } from '@/data/mockData';
+import type { BoardPost, HighlightPost } from '@/features/community/types';
+import { MOCK_BOARD_POSTS, MOCK_HIGHLIGHT_POSTS } from '@/features/community/data/mockCommunityData';
 
 /**
  * 게시판 글 목록 조회

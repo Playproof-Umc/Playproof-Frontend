@@ -1,6 +1,6 @@
 //src/features/matching/hooks/useMatchingWriteForm.ts
 import { useState, useMemo } from 'react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { MY_AZITS } from '@/features/matching/constants/matchingConfig';
 
 interface UseMatchingWriteFormProps {

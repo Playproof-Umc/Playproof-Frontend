@@ -1,24 +1,41 @@
+import type { MatchingData } from '@/features/matching/types';
+import type { HighlightPost, BoardPost } from '@/features/community/types';
+
 export interface MyProfileData {
+  userId: string;
   nickname: string;
+  rank: number;
   profileImage?: string;
+  bio: string;
+  tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND';
+  tierScore: number;
+  ranking: {
+    rank: number;
+    percentile: number;
+  };
   temperScore: number;
-  tier: string;
-  favoriteGames: string[];
-  playStyle: string[];
-  feedbackTags: {
-    positive: Array<{ label: string; count: number }>;
-    negative: Array<{ label: string; count: number }>;
-  };
-  gameAccounts: Array<{
+  positivityRating: number;
+  playStyles: string[];
+  preferredTags: string[];
+  feedbackTags: string[];
+  gameAccounts: {
     game: string;
-    accountName: string;
-    tier: string;
-  }>;
-  stats: {
-    matchCount: number;
-    winRate: number;
-    avgPlayTime: string;
-  };
+    nickname: string;
+    tag: string;
+  }[];
+  gameStats: {
+    game: string;
+    tier?: string;
+    playTime?: string;
+    position?: string;
+    totalGames?: number;
+    winRate?: number;
+    kda?: number;
+  }[];
+  favoriteGames: {
+    rank?: number;
+    game: string;
+  }[];
 }
 
 export interface FeedbackData {
@@ -55,7 +72,7 @@ export interface BlockedUserData {
 }
 
 export interface MyPostsData {
-  matchingPosts: any[];
-  highlightPosts: any[];
-  communityPosts: any[];
+  matchingPosts: MatchingData[];
+  highlightPosts: HighlightPost[];
+  communityPosts: BoardPost[];
 }

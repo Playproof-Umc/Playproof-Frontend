@@ -1,12 +1,8 @@
 //src/pages/mypage/MyActivityPage.tsx
-import React from 'react';
+import { MyActivityPageView } from '@/features/mypage/pages/MyActivityPageView';
 
-const MyActivityPage: React.FC = () => {
-  return (
-    <main>
-      <div>MyActivityPage</div>
-    </main>
-  );
+const MyActivityPage = () => {
+  return <MyActivityPageView />;
 };
 
 export default MyActivityPage;

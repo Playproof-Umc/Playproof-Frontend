@@ -1,7 +1,7 @@
 // src/features/matching/utils/matchingUtils.tsx
 import React from 'react';
 import { Sword, Zap, Target, Crosshair, Heart, Eye, Flag, Shield, Star, User, Circle } from 'lucide-react';
-import type { MatchingData, FilterState } from '@/features/matching/types/types';
+import type { MatchingData, FilterState } from '@/features/matching/types';
 
 /* 포지션 ID에 따른 아이콘과 라벨 반환 */
 export const getPositionInfo = (posId: string) => {

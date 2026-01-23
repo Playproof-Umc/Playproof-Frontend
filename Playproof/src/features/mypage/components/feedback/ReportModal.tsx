@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, ChevronDown, Image as ImageIcon, Video } from 'lucide-react';
+import { MYPAGE_REPORT_LABELS, MYPAGE_REPORT_TYPES } from '@/features/mypage/constants/labels';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -7,7 +8,7 @@ interface ReportModalProps {
   targetUserNickname: string;
 }
 
-type ReportType = '피드백 이의제기' | '비매너 유저 신고' | '서비스 문의' | '';
+type ReportType = (typeof MYPAGE_REPORT_TYPES)[number] | '';
 
 export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModalProps) {
   const [reportType, setReportType] = React.useState<ReportType>('');
@@ -19,7 +20,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
   const [videos, setVideos] = React.useState<File[]>([]);
   const [showDropdown, setShowDropdown] = React.useState(false);
 
-  const reportTypes: ReportType[] = ['피드백 이의제기', '비매너 유저 신고', '서비스 문의'];
+  const reportTypes: ReportType[] = [...MYPAGE_REPORT_TYPES];
 
   if (!isOpen) return null;
 
@@ -78,7 +79,9 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900">
               <span className="text-sm text-white">🔒</span>
             </div>
-            <h2 className="text-lg font-bold text-gray-900">신고&문의</h2>
+            <h2 className="text-lg font-bold text-gray-900">
+              {MYPAGE_REPORT_LABELS.title}
+            </h2>
           </div>
           <button
             onClick={handleClose}
@@ -93,13 +96,13 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 이름 */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-900">
-              이름
+              {MYPAGE_REPORT_LABELS.name}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="실명(ex.홍길동)"
+              placeholder={MYPAGE_REPORT_LABELS.namePlaceholder}
               className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -107,13 +110,13 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 이메일 */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-900">
-              이메일
+              {MYPAGE_REPORT_LABELS.email}
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="이메일을 입력해주세요"
+              placeholder={MYPAGE_REPORT_LABELS.emailPlaceholder}
               className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -121,7 +124,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 신고분류 (드롭다운) */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-900">
-              신고분류
+              {MYPAGE_REPORT_LABELS.category}
             </label>
             <div className="relative">
               <button
@@ -129,7 +132,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
                 className="w-full flex items-center justify-between rounded-lg border border-gray-300 px-4 py-3 text-sm text-left focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <span className={reportType ? 'text-gray-900' : 'text-gray-400'}>
-                  {reportType || '선택하세요'}
+                  {reportType || MYPAGE_REPORT_LABELS.categoryPlaceholder}
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               </button>
@@ -162,14 +165,14 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 글 작성 */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-900">
-              글 작성
+              {MYPAGE_REPORT_LABELS.contentTitle}
             </label>
             {/* 제목 */}
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목을 입력해주세요. (최대 20자)"
+              placeholder={MYPAGE_REPORT_LABELS.contentTitlePlaceholder}
               maxLength={20}
               className="w-full rounded-t-lg border border-b-0 border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
@@ -177,7 +180,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="내용을 입력해주세요."
+              placeholder={MYPAGE_REPORT_LABELS.contentPlaceholder}
               rows={8}
               className="w-full rounded-b-lg border border-gray-300 px-4 py-3 text-sm resize-none focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
@@ -186,7 +189,9 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 사진 등록 */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-900">사진 등록</label>
+              <label className="text-sm font-medium text-gray-900">
+                {MYPAGE_REPORT_LABELS.imageUpload}
+              </label>
               <span className="text-xs text-gray-400">{images.length}/0</span>
             </div>
             <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
@@ -204,7 +209,12 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
           {/* 영상 등록 */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-900">영상 등록 <span className="text-xs text-gray-400">(최대 60초)</span></label>
+              <label className="text-sm font-medium text-gray-900">
+                {MYPAGE_REPORT_LABELS.videoUpload}{" "}
+                <span className="text-xs text-gray-400">
+                  {MYPAGE_REPORT_LABELS.videoLimit}
+                </span>
+              </label>
               <span className="text-xs text-gray-400">{videos.length}/0</span>
             </div>
             <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
@@ -231,7 +241,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            업로드
+            {MYPAGE_REPORT_LABELS.upload}
           </button>
         </div>
       </div>

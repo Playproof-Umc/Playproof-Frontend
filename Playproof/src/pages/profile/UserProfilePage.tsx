@@ -1,12 +1,8 @@
 //src/pages/profile/UserProfilePage.tsx
-import React from 'react';
+import { UserProfilePageView } from '@/features/profile/pages/UserProfilePageView';
 
-const UserProfilePage: React.FC = () => {
-  return (
-    <main>
-      <div>UserProfilePage</div>
-    </main>
-  );
+const UserProfilePage = () => {
+  return <UserProfilePageView />;
 };
 
 export default UserProfilePage;

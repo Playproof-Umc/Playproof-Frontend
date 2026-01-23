@@ -1,4 +1,4 @@
-// src/features/team/types/types.ts
+// src/features/team/types.ts
 import type { User } from '@/types'; 
 
 // 채널 정보 (Team/Azit 전용)

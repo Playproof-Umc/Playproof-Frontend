@@ -1,8 +1,9 @@
 import React from 'react';
 import { User, ThumbsUp, ThumbsDown, UserPlus, Siren } from 'lucide-react';
-import type { FeedbackData } from '@/data/mockData';
-import { AddFriendModal } from './AddFriendModal';
-import { ReportModal } from './ReportModal';
+import type { FeedbackData } from '@/features/mypage/types';
+import { AddFriendModal } from '@/features/mypage/components/feedback/AddFriendModal';
+import { ReportModal } from '@/features/mypage/components/feedback/ReportModal';
+import { MYPAGE_ACTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface FeedbackCardProps {
   feedback: FeedbackData;
@@ -35,14 +36,14 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
             <button
               onClick={() => setIsReportModalOpen(true)}
               className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-              title="신고하기"
+              title={MYPAGE_ACTION_LABELS.report}
             >
               <Siren className="h-4 w-4 text-red-500" />
             </button>
             <button
               onClick={() => setIsAddFriendModalOpen(true)}
               className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-              title="친구 추가"
+              title={MYPAGE_ACTION_LABELS.addFriendTitle}
             >
               <UserPlus className="h-4 w-4 text-gray-600" />
             </button>

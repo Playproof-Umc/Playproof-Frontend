@@ -1,4 +1,4 @@
-import { cn } from "@/components/utils/cn";
+import { cn } from "@/utils/cn";
 import type { GameOption } from "@/features/auth/gameSelectPage/types";
 
 type Props = {

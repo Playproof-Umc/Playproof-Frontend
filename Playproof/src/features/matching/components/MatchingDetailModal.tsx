@@ -2,8 +2,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { useMatchingDetailLogic } from '@/features/matching/hooks/useMatchingDetailLogic';
-import { MatchingPostInfo } from './detail/MatchingPostInfo';
-import { MatchingComments } from './detail/MatchingComments';
+import { MatchingPostInfo } from '@/features/matching/components/detail/MatchingPostInfo';
+import { MatchingComments } from '@/features/matching/components/detail/MatchingComments';
 
 export const MatchingDetailModal = () => {
   const { state, setters, handlers } = useMatchingDetailLogic();

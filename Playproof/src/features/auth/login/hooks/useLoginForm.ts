@@ -4,9 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
 import { login } from "@/services/loginApi";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/store/authStore";
 import { usePasswordRules } from "@/features/auth/signup/hooks/usePasswordRules";
-import { PHONE_REGEX } from "@/constants/regex";
+import { PHONE_REGEX } from "@/features/auth/constants/regex";
 
 type FieldError = {
   phoneNumber?: string;
