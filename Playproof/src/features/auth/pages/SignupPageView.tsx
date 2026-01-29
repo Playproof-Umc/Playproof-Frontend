@@ -1,9 +1,10 @@
 import SignupForm from "@/features/auth/signup/components/SignupForm";
 import { StepDots } from "@/components/auth/StepDots";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 export const SignupPageView = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <AppLayout>
       <div className="pt-20">
         <StepDots step={1} />
       </div>
@@ -17,6 +18,6 @@ export const SignupPageView = () => {
           </div>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 };

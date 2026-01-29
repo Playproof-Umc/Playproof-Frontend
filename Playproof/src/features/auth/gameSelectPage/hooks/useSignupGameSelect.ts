@@ -72,11 +72,11 @@ export function useSignupGameSelect() {
     try {
       // TODO(API 연동): Step2 선택 저장
 
-      navigate("/gameinfo", {
+      navigate("/signup/username", {
         state: {
-          step: 3,
           gameId: selectedGame.id,
           mode: "manual",
+          nextPath: "/gameinfo",
         },
       });
     } finally {

@@ -58,21 +58,34 @@ export function SignupGameInfoForm() {
 
             <div className="space-y-2">
               <p className="text-sm font-semibold text-gray-900">플레이 스타일</p>
-              <select
-                className={cn(
-                  "h-12 w-full rounded-lg border bg-white px-4 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20",
-                  showErrors && errors.playStyle ? "border-red-400" : "border-gray-200"
-                )}
-                value={playStyle}
-                onChange={(e) => onChangePlayStyle(e.target.value)}
-              >
-                <option value="">스타일 선택</option>
-                {playStyleOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+              <div className="flex w-full gap-4">
+                <Button
+                  type="button"
+                  variant={playStyle === "실력 중심" ? "primary" : "outline"}
+                  fullWidth
+                  className={cn(
+                    "h-12",
+                    playStyle !== "실력 중심" &&
+                      "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                  )}
+                  onClick={() => onChangePlayStyle("실력 중심")}
+                >
+                  실력 중심
+                </Button>
+                <Button
+                  type="button"
+                  variant={playStyle === "매너 중심" ? "primary" : "outline"}
+                  fullWidth
+                  className={cn(
+                    "h-12",
+                    playStyle !== "매너 중심" &&
+                      "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                  )}
+                  onClick={() => onChangePlayStyle("매너 중심")}
+                >
+                  매너 중심
+                </Button>
+              </div>
               {showErrors && errors.playStyle ? (
                 <p className="text-xs text-red-500">{errors.playStyle}</p>
               ) : null}
@@ -125,18 +138,20 @@ export function SignupGameInfoForm() {
             </div>
           </div>
 
-          <div className="pt-2">
-            <Button
-              type="button"
-              variant="secondary"
-              fullWidth
-              className="h-12"
-              disabled={!canSubmit || isPending}
-              onClick={onSubmit}
-            >
-              {isPending ? "가입 처리 중..." : "가입하기"}
-            </Button>
-          </div>
+          {canSubmit ? (
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="primary"
+                fullWidth
+                className="h-12"
+                disabled={isPending}
+                onClick={onSubmit}
+              >
+                {isPending ? "가입 처리 중..." : "가입하기"}
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="mx-auto w-full max-w-[520px] space-y-8">
@@ -168,9 +183,13 @@ export function SignupGameInfoForm() {
             <div className="flex w-full gap-4">
               <Button
                 type="button"
-                variant="primary"
+                variant={playStyle === "실력 중심" ? "primary" : "outline"}
                 fullWidth
-                className="h-12"
+                className={cn(
+                  "h-12",
+                  playStyle !== "실력 중심" &&
+                    "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                )}
                 onClick={() => onSelectManualPlayStyle("실력 중심")}
               >
                 실력 중심
@@ -178,9 +197,13 @@ export function SignupGameInfoForm() {
 
               <Button
                 type="button"
-                variant="outline"
+                variant={playStyle === "매너 중심" ? "primary" : "outline"}
                 fullWidth
-                className="h-12"
+                className={cn(
+                  "h-12",
+                  playStyle !== "매너 중심" &&
+                    "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                )}
                 onClick={() => onSelectManualPlayStyle("매너 중심")}
               >
                 매너 중심
@@ -192,18 +215,20 @@ export function SignupGameInfoForm() {
             ) : null}
           </div>
 
-          <div className="pt-2">
-            <Button
-              type="button"
-              variant="secondary"
-              fullWidth
-              className="h-12"
-              disabled={!canSubmit || isPending}
-              onClick={onSubmit}
-            >
-              {isPending ? "가입 처리 중..." : "가입하기"}
-            </Button>
-          </div>
+          {canSubmit ? (
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="primary"
+                fullWidth
+                className="h-12"
+                disabled={isPending}
+                onClick={onSubmit}
+              >
+                {isPending ? "가입 처리 중..." : "가입하기"}
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
     </div>

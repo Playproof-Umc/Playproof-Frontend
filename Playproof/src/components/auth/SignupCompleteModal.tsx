@@ -7,7 +7,7 @@ type Props = {
   onClose: () => void;
 };
 
-const AUTO_CLOSE_MS = 1800;
+const AUTO_CLOSE_MS = 5000;
 
 export function SignupCompleteModal({ open, username, onClose }: Props) {
   // ✅ 자동 닫힘 (확인 버튼 없이 토스트처럼 사라지게)
