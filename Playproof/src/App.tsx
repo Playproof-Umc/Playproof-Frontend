@@ -12,6 +12,7 @@ const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
 const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const GameDataPage = lazy(() => import('@/pages/mypage/GameData'));
 
 // Context Providers
 import { UserProfileProvider } from '@/features/profile/context/UserProfileContext';
@@ -43,9 +44,7 @@ function App() {
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
-                
-                {/* Game Select */}
-                <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO)</div>} />
+                <Route path="/gameselect" element={<div>게임 선택 페이지 (TODO/회원가입 스텝2임)</div>} />
 
                 {/* Feature Routes */}
                 <Route path="/home" element={<HomePage />} />
@@ -58,6 +57,7 @@ function App() {
                 
                 {/* 마이페이지 */}
                 <Route path="/mypage/*" element={<MyPageMain />} />
+                <Route path="/mypage/gamedata" element={<GameDataPage />} />
               </Routes>
             </Suspense>
 
