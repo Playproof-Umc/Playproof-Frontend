@@ -8,14 +8,17 @@ import { useMatchingBoard } from '@/features/matching/hooks/useMatchingBoard';
 import { GAME_LIST } from '@/features/matching/constants/matchingConfig';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
+import { useAuthStore } from '@/store/authStore';
 
-const CURRENT_USER_ID = 'user-1';
+const FALLBACK_USER_ID = 'user-1';
 
 export const MatchingPageView = () => {
   const { state, setters, actions } = useMatchingBoard();
   const location = useLocation();
   const navigate = useNavigate();
-  const { openMatchingDetail } = useMatchingDetail();
+  const { openMatchingDetail, hydrateLikes, hydrateCommentCounts } = useMatchingDetail();
+  const authUserId = useAuthStore((s) => s.userId);
+  const currentUserId = authUserId ? `user-${authUserId}` : FALLBACK_USER_ID;
   const {
     allMatches,
     activeGame,
@@ -32,6 +35,11 @@ export const MatchingPageView = () => {
   const recommendedData = useMemo(() => {
     return matchesByGame.slice(0, 10); 
   }, [matchesByGame]);
+
+  useEffect(() => {
+    hydrateLikes(allMatches);
+    hydrateCommentCounts(allMatches);
+  }, [allMatches, hydrateLikes, hydrateCommentCounts]);
 
   useEffect(() => {
     const state = location.state as { openMatchId?: number; openWriteModal?: boolean; activeGame?: string } | null;
@@ -69,7 +77,7 @@ export const MatchingPageView = () => {
           </div>
           <div className="w-full border-t border-gray-50 pt-5">
             <MatchingSearchBar
-              key={`${activeGame}-${CURRENT_USER_ID}`}
+              key={`${activeGame}-${currentUserId}`}
               searchText={searchText}
               onSearchChange={setters.setSearchText}
               onSearchSubmit={setters.setSearchText}
@@ -79,7 +87,7 @@ export const MatchingPageView = () => {
               onFilterClose={actions.closeFilterModal}
               onFilterApply={actions.handleApplyFilter}
               activeGame={activeGame}
-              userId={CURRENT_USER_ID}
+              userId={currentUserId}
             />
           </div>
         </div>
@@ -97,7 +105,7 @@ export const MatchingPageView = () => {
         isOpen={isWriteModalOpen}
         onClose={actions.closeWriteModal}
         onUpload={actions.handleNewPost}
-        existingPosts={allMatches.filter((p) => p.hostUser.id === 'me')}
+        existingPosts={allMatches.filter((p) => p.hostUser.id === currentUserId)}
         initialGame={activeGame}
       />
     </div>

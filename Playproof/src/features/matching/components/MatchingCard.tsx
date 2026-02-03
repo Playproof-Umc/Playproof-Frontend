@@ -3,7 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import type { MatchingData } from '@/features/matching/types';
-import { User, MessageCircle, Eye, Settings, Mic } from 'lucide-react'; 
+import { User, MessageCircle, Eye, Settings, Mic, Heart } from 'lucide-react'; 
+import { useAuthStore } from '@/store/authStore';
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -12,7 +13,13 @@ interface MatchingCardProps {
 
 export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const navigate = useNavigate();
-  const { openMatchingDetail } = useMatchingDetail();
+  const { openMatchingDetail, toggleLike, getLikeState, getCommentCount } = useMatchingDetail();
+  const likeState = getLikeState(data);
+  const commentCount = getCommentCount(data);
+  const authUserId = useAuthStore((s) => s.userId);
+  const authNickname = useAuthStore((s) => s.nickname);
+  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const displayName = data.hostUser.id === currentUserId ? (authNickname ?? data.hostUser.nickname) : data.hostUser.nickname;
 
   const handleCardClick = () => {
     if (onOpen) {
@@ -36,7 +43,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   return (
     <div 
       onClick={handleCardClick}
-      className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col h-full"
+      className="bg-white rounded-2xl px-4 py-2 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col items-center w-[320px] h-[470px]"
     >
       {/* Header: Game Name */}
       <div className="flex justify-between items-start mb-6">
@@ -59,7 +66,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         
         <div className="text-center">
            <div onClick={handleProfileClick} className="font-bold text-gray-900 text-base hover:underline underline-offset-2 mb-1">
-             {data.hostUser.nickname}
+             {displayName}
            </div>
            <div className="flex items-center justify-center gap-1 text-xs text-gray-500 font-medium">
              <span>TS {data.tsScore}</span>
@@ -93,7 +100,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
       </div>
 
       {/* Content Section: Left Aligned */}
-      <div className="mt-auto">
+      <div className="mt-auto w-full">
         <div className="flex items-center gap-1 text-blue-500 text-xs font-bold mb-1">
             <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
             <span className="text-[10px]">&gt;</span>
@@ -106,24 +113,36 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         {/* Action Button */}
         <button 
             onClick={handleRequestClick}
-            className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors"
+            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-black text-white text-sm font-bold rounded-xl mb-4 hover:bg-gray-800 transition-colors"
         >
             매칭 요청
         </button>
 
-        {/* Footer: Meta Info */}
-        <div className="flex items-center justify-between text-gray-400 text-xs pt-1">
+      {/* Footer: Meta Info */}
+      <div className="flex items-center justify-between text-gray-400 text-xs pt-1">
              <span>{data.time}</span>
              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
                     <Eye size={14} />
                     <span>{data.views}</span>
                 </div>
-                {/* 하트 아이콘 (데이터에 없으므로 레이아웃만 유지하거나 주석 처리) */}
-                {/* <div className="flex items-center gap-1"><Heart size={14} /><span>12</span></div> */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleLike(data);
+                  }}
+                  className={`flex items-center gap-1 transition-colors ${
+                    likeState.isLiked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+                  }`}
+                  aria-label="좋아요"
+                >
+                  <Heart size={14} fill={likeState.isLiked ? "currentColor" : "none"} />
+                  <span>{likeState.count}</span>
+                </button>
                 <div className="flex items-center gap-1">
                     <MessageCircle size={14} />
-                    <span>{data.comments}</span>
+                    <span>{commentCount}</span>
                 </div>
              </div>
         </div>

@@ -21,12 +21,16 @@ export const PopularMatchList = ({ matches, onCardClick }: PopularMatchListProps
           <p>현재 인기 매칭이 없습니다.</p>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 snap-x no-scrollbar">
-          {matches.map((item) => (
-            <div key={`pop-${item.id}`} className="min-w-[280px] w-[280px] snap-start">
-              <MatchingCard data={item} onOpen={onCardClick} />
+        <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 box-border py-4">
+          <div className="w-[1008px] mx-auto overflow-hidden">
+            <div className="w-[1008px] flex gap-6 overflow-x-auto pb-4 snap-x no-scrollbar">
+              {matches.map((item) => (
+                <div key={`pop-${item.id}`} className="w-[320px] min-w-[320px] shrink-0 snap-start">
+                  <MatchingCard data={item} onOpen={onCardClick} />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       )}
     </section>
