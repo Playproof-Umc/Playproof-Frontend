@@ -1,5 +1,6 @@
 // src/features/team/pages/AzitPageView.tsx
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Settings, Users } from 'lucide-react';
 import { Navbar } from '@/components/common/Navbar';
 
@@ -8,11 +9,21 @@ import { AzitNavigation } from '@/features/team/components/azit/AzitNavigation';
 import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
 import { MainPanel } from '@/features/team/components/azit/MainPanel';
 import { RightPanel } from '@/features/team/components/azit/RightPanel';
-import { MOCK_MY_AZITS, mockMembers, mockClips } from '@/features/team/data/mockTeamData';
+import {
+  MOCK_MY_AZITS,
+  mockClipsByAzit,
+  mockMembersByAzit,
+  mockSchedulesByAzit,
+} from '@/features/team/data/mockTeamData';
 
 export const AzitPageView = () => {
-  const [currentAzitId, setCurrentAzitId] = useState<number>(1);
+  const location = useLocation();
+  const state = location.state as { azitId?: number } | null;
+  const [currentAzitId, setCurrentAzitId] = useState<number>(state?.azitId ?? 1);
   const currentAzit = MOCK_MY_AZITS.find(a => a.id === currentAzitId) || MOCK_MY_AZITS[0];
+  const currentMembers = mockMembersByAzit[currentAzitId] ?? mockMembersByAzit[1];
+  const currentClips = mockClipsByAzit[currentAzitId] ?? mockClipsByAzit[1];
+  const currentSchedules = mockSchedulesByAzit[currentAzitId] ?? mockSchedulesByAzit[1];
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -48,7 +59,7 @@ export const AzitPageView = () => {
 
         {/* Content Layout */}
         <div className="flex flex-1 px-6 pb-6 gap-8 overflow-hidden">
-          <LeftPanel members={mockMembers} />
+          <LeftPanel members={currentMembers} schedules={currentSchedules} />
           {/* 아지트 변경 시 채팅 상태 리셋을 위해 key prop 사용 */}
           <MainPanel key={currentAzitId} />
           
@@ -57,7 +68,7 @@ export const AzitPageView = () => {
                <h2 className="text-lg font-bold text-gray-900">하이라이트</h2>
                <button className="text-xs text-gray-500 underline font-medium">전체보기</button>
              </div>
-             <RightPanel clips={mockClips} />
+             <RightPanel clips={currentClips} />
           </div>
         </div>
       </div>

@@ -4,11 +4,22 @@ import { Plus, Volume2, Mic } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import type { User } from '@/types';
 
+import type { Schedule } from '@/types';
+
 interface LeftPanelProps {
   members: User[];
+  schedules?: Schedule[];
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
+export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] }) => {
+  const mainSchedule = schedules[0];
+  const secondarySchedule = schedules[1];
+  const tertiarySchedule = schedules[2];
+
+  const formatDate = (d?: Date) =>
+    d ? d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '';
+  const formatTime = (d?: Date) =>
+    d ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
   return (
     <aside className="w-[340px] flex flex-col gap-6 pr-2 overflow-y-auto pb-10 shrink-0 custom-scrollbar">
       
@@ -33,20 +44,28 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
             <div className="flex gap-4 mb-4">
                {/* 날짜 배지 */}
                <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-100 rounded-xl w-[52px] h-[52px] shrink-0">
-                  <span className="text-[11px] text-gray-500 font-medium uppercase leading-none mb-0.5">Mon</span>
-                  <span className="text-xl font-bold text-gray-900 leading-none">22</span>
+                  <span className="text-[11px] text-gray-500 font-medium uppercase leading-none mb-0.5">
+                    {mainSchedule ? mainSchedule.date.toLocaleDateString('en-US', { weekday: 'short' }) : '--'}
+                  </span>
+                  <span className="text-xl font-bold text-gray-900 leading-none">
+                    {mainSchedule ? mainSchedule.date.getDate() : '--'}
+                  </span>
                </div>
                
                {/* 내용 */}
                <div className="flex-1 min-w-0">
                  <div className="flex items-center gap-2 mb-1">
-                   <span className="text-lg font-bold text-gray-900 leading-none">20:00</span>
+                   <span className="text-lg font-bold text-gray-900 leading-none">
+                     {formatTime(mainSchedule?.date) || '--:--'}
+                   </span>
                    <Volume2 className="w-4 h-4 text-gray-400" />
                  </div>
-                 <div className="text-sm text-gray-600 font-medium truncate">데바데 5인큐</div>
+                 <div className="text-sm text-gray-600 font-medium truncate">
+                   {mainSchedule?.title ?? '일정 없음'}
+                 </div>
                  {/* 아바타 */}
                  <div className="flex -space-x-1.5 mt-2">
-                    {[1, 2, 3].map((i) => (
+                    {(mainSchedule?.participants ?? []).slice(0, 3).map((_, i) => (
                       <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white" />
                     ))}
                  </div>
@@ -75,12 +94,20 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
           {/* 하위 일정  */}
           <div className="p-4 border-b border-gray-100 last:border-0">
              <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-gray-900 text-base">20:00</span>
-                <span className="text-xs text-gray-500 font-medium">2025.12.8</span>
+                <span className="font-bold text-gray-900 text-base">
+                  {formatTime(secondarySchedule?.date) || '--:--'}
+                </span>
+                <span className="text-xs text-gray-500 font-medium">
+                  {formatDate(secondarySchedule?.date)}
+                </span>
              </div>
-             <div className="text-sm text-gray-700 font-medium mb-2">데바데 5인큐</div>
+             <div className="text-sm text-gray-700 font-medium mb-2">
+               {secondarySchedule?.title ?? '일정 없음'}
+             </div>
              <div className="flex items-center gap-1.5 mb-3">
-                {[1,2,3,4,5].map(i => <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />)}
+                {(secondarySchedule?.participants ?? []).slice(0, 5).map((_, i) => (
+                  <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />
+                ))}
              </div>
              <button className="w-full bg-gray-100 text-gray-400 py-2 rounded-lg text-xs font-bold cursor-not-allowed">
                완료
@@ -90,12 +117,20 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members }) => {
           {/* 하위 일정 2 */}
           <div className="p-4">
              <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-gray-900 text-base">20:00</span>
-                <span className="text-xs text-gray-500 font-medium">2025.12.8</span>
+                <span className="font-bold text-gray-900 text-base">
+                  {formatTime(tertiarySchedule?.date) || '--:--'}
+                </span>
+                <span className="text-xs text-gray-500 font-medium">
+                  {formatDate(tertiarySchedule?.date)}
+                </span>
              </div>
-             <div className="text-sm text-gray-700 font-medium mb-2">데바데 3인큐</div>
+             <div className="text-sm text-gray-700 font-medium mb-2">
+               {tertiarySchedule?.title ?? '일정 없음'}
+             </div>
              <div className="flex items-center gap-1.5 mb-3">
-                {[1,2].map(i => <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />)}
+                {(tertiarySchedule?.participants ?? []).slice(0, 2).map((_, i) => (
+                  <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />
+                ))}
              </div>
              <button className="w-full bg-white border border-gray-200 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 flex items-center justify-center gap-1">
                <Plus className="w-3 h-3" /> 추가 게이머 찾기

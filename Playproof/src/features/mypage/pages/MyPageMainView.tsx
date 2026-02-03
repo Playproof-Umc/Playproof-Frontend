@@ -4,11 +4,14 @@ import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/fea
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
 import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
+import { useAuthStore } from '@/store/authStore';
 
 export const MyPageMainView = () => {
   const [activeSection, setActiveSection] = React.useState(
     MYPAGE_SECTION_IDS.profile
   );
+  const authNickname = useAuthStore((s) => s.nickname);
+  const displayNickname = authNickname ?? '사용자';
   const [profileData, setProfileData] = React.useState<MyProfileData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -86,6 +89,11 @@ export const MyPageMainView = () => {
     );
   }
 
+  const displayProfileData: MyProfileData = {
+    ...profileData,
+    nickname: displayNickname,
+  };
+
   return (
     <>
       <Navbar />
@@ -94,10 +102,10 @@ export const MyPageMainView = () => {
           {/* 상단: 프로필 카드(좌) + 프로필 헤더(우) */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
-              <ProfileCard profileData={profileData} />
+              <ProfileCard profileData={displayProfileData} />
             </div>
             <div className="lg:col-span-3">
-              <ProfileHeader profileData={profileData} />
+              <ProfileHeader profileData={displayProfileData} />
             </div>
           </div>
 
@@ -108,7 +116,7 @@ export const MyPageMainView = () => {
             </aside>
 
             <main className="lg:col-span-3">
-              <SectionContent activeSection={activeSection} profileData={profileData} />
+              <SectionContent activeSection={activeSection} profileData={displayProfileData} />
             </main>
           </div>
         </div>

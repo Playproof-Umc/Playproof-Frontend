@@ -1,6 +1,7 @@
 // src/features/home/pages/HomePageView.tsx
 
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
 
 /* 홈 전용 컴포넌트  */
@@ -17,6 +18,9 @@ import { HomeCommunityHighlightSection } from "@/features/home/components/sectio
 import { HomeHotTopicSection } from "@/features/home/components/sections/HomeHotTopicSection";
 import { SignupCompleteModal } from "@/components/auth/SignupCompleteModal";
 import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
+import { useAuthStore } from "@/store/authStore";
+import { useMatchingDetail } from "@/features/matching/context/MatchingDetailContext";
+import { HighlightDetailModal } from "@/features/community/components";
 
 /* 매칭 페이지 핵심 기능 */
 import { 
@@ -26,6 +30,12 @@ import {
 
 /* 데이터 및 상수 */
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
+import { MOCK_MATCHING_DATA } from "@/features/matching/data/mockMatchingData";
+import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
+import type { MatchingData } from "@/features/matching/types";
+import type { HighlightPost, BoardPost } from "@/features/community/types";
+import { getBestPosts, getHighlights } from "@/features/community/api/communityApi";
+import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
 import type { FilterState } from "@/features/matching/types";
 
 /* --- Mock Data 정의 (타입 에러 방지용) --- */
@@ -36,58 +46,26 @@ const MOCK_REQUESTS = [
   { id: 2, user: { nickname: "고수2", mannerTier: "TS 99" }, message: "캐리해드림" },
 ];
 
-// 인기 매칭 데이터 (MatchingData 타입 호환)
-const MOCK_POPULAR_MATCHES = Array.from({ length: 4 }).map((_, i) => ({
-  id: i,
-  game: "오버워치 2",
-  title: `경쟁 빡겜 구합니다 ${i + 1}`,
-  tier: "Platinum",
-  tags: ["#빡겜", "#마이크필수"],
-  azit: "강남 아지트",
-  position: ["DPS", "SUP"],
-  memo: "즐겁게 게임하실 분 구해요.",
-  currentMembers: 2,
-  maxMembers: 5,
-  time: "방금 전",
-  views: 120,
-  likes: 12,
-  comments: 4,
-  tsScore: 90,
-  mic: true,
-  hostUser: {
-    id: i + 100,
-    nickname: `유저${i}`,
-    email: `user${i}@example.com`,
-    avatarUrl: undefined,
-    mannerTier: "TS 90",
-  },
-  created: new Date().toISOString()
-}));
-
-// 하이라이트 데이터 (HighlightPost 타입 호환)
-const MOCK_HIGHLIGHTS = Array.from({ length: 3 }).map((_, i) => ({
-  id: i,
-  author: "페이커",
-  date: "2025.12.16",
-  title: "레전드 한타 영상 ㅋㅋㅋ",
-  content: "어제 레포 했는데 웃겨 죽는줄ㅋㅋㅋㅋㅋㅋ",
-  likes: 350,
-  views: 1200,
-  comments: 15,
-  images: ["https://via.placeholder.com/300"], // images 배열 필수
-}));
-
 /* --- Main Component --- */
 
 export const HomePageView = () => {
+  const navigate = useNavigate();
   const { open: isSignupCompleteOpen, username, close } = useSignupCompleteModal();
+  const authNickname = useAuthStore((s) => s.nickname);
+  const { openMatchingDetail } = useMatchingDetail();
+  const displayName = authNickname ?? "사용자";
   const [user, setUser] = React.useState<UserSummary | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [highlights, setHighlights] = React.useState<HighlightPost[]>([]);
+  const [bestPosts, setBestPosts] = React.useState<BoardPost[]>([]);
+  const [selectedHighlight, setSelectedHighlight] = React.useState<HighlightPost | null>(null);
+  const [isHighlightOpen, setIsHighlightOpen] = React.useState(false);
   
   // 상태 관리
   const [activeGameTab, setActiveGameTab] = React.useState("리그오브레전드");
   const [isFilterOpen, setIsFilterOpen] = React.useState(false); 
   const [searchKeyword, setSearchKeyword] = React.useState(""); 
+  const [azitIndex, setAzitIndex] = React.useState(0);
 
   // 핸들러: 검색 제출
   const handleSearchSubmit = (text: string) => {
@@ -102,15 +80,52 @@ export const HomePageView = () => {
     // TODO: 필터링된 데이터 재조회
   };
 
+  const handleHomeMatchClick = (match: MatchingData) => {
+    openMatchingDetail(match);
+  };
+
+  const handleHighlightClick = (post: HighlightPost) => {
+    setSelectedHighlight(post);
+    setIsHighlightOpen(true);
+  };
+
+  const azitSlides = React.useMemo(() => {
+    const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
+    return MOCK_MY_AZITS.map((azit, idx) => {
+      const schedule = schedules[idx % schedules.length];
+      const timeLabel = schedule
+        ? schedule.date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
+        : "시간 미정";
+      return { azit, schedule, timeLabel };
+    });
+  }, []);
+
+
+  const filteredPopularMatches = React.useMemo(() => {
+    const matchesByGame = MOCK_MATCHING_DATA.filter(
+      (m) => m.game === activeGameTab
+    );
+
+    return [...matchesByGame]
+      .sort((a, b) => b.views + b.likes - (a.views + a.likes))
+      .slice(0, 10);
+  }, [activeGameTab]);
+
   // 데이터 로딩 (User Summary)
   React.useEffect(() => {
     let alive = true;
     (async () => {
       try {
         setLoading(true);
-        const data = await fetchUserSummaryMock();
+        const [data, highlightData, bestData] = await Promise.all([
+          fetchUserSummaryMock(),
+          getHighlights(1),
+          getBestPosts(),
+        ]);
         if (!alive) return;
         setUser(data);
+        setHighlights(highlightData);
+        setBestPosts(bestData);
       } catch (e) {
         console.error("user summary mock error:", e);
       } finally {
@@ -131,27 +146,69 @@ export const HomePageView = () => {
           {loading && <UserSummaryCardSkeleton />}
           {!loading && user && (
             <UserSummaryCard
-              name={user.name}
+              name={displayName}
               avatarUrl={user.avatarUrl}
               chips={user.chips}
               stats={user.stats}
-              onEdit={() => console.log("edit profile")}
+              onEdit={() => navigate("/mypage")}
             />
           )}
 
           {/* 파티 모집 & 친구 목록 (홈 전용 컴포넌트 사용) */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* 좌측: 게임 일정 (피그마 디자인 적용된 HomePartyCard) */}
-            <div className="relative lg:col-span-2">
-              <HomePartyCard
-                title="데바데 4인큐"
-                time="오늘 오후 5시"
-                location="아지트 이름"
-                currentPlayers={3}
-                maxPlayers={4}
-                memberAvatars={[]} // 실제 멤버 이미지 URL 배열
-                onClick={() => console.log("참여 확정 클릭")}
-              />
+            <div className="relative lg:col-span-2 group">
+              <div className="relative overflow-hidden">
+                <div
+                  className="flex transition-transform duration-300"
+                  style={{ transform: `translateX(-${azitIndex * 100}%)` }}
+                >
+                  {azitSlides.map((slide) => (
+                    <div key={slide.azit.id} className="w-full shrink-0">
+                      <HomePartyCard
+                        title={slide.schedule?.title ?? "일정 없음"}
+                        time={slide.timeLabel}
+                        location={slide.azit?.name ?? "아지트"}
+                        currentPlayers={slide.schedule?.participants.length ?? 0}
+                        maxPlayers={slide.schedule?.maxParticipants ?? 0}
+                        memberAvatars={[]} // 실제 멤버 이미지 URL 배열
+                        onClick={() =>
+                          navigate("/azit", { state: { azitId: slide.azit.id } })
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {azitSlides.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAzitIndex((prev) =>
+                          prev <= 0 ? azitSlides.length - 1 : prev - 1
+                        )
+                      }
+                      className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white"
+                      aria-label="이전 아지트"
+                    >
+                      ←
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAzitIndex((prev) =>
+                          prev >= azitSlides.length - 1 ? 0 : prev + 1
+                        )
+                      }
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white"
+                      aria-label="다음 아지트"
+                    >
+                      →
+                    </button>
+                  </>
+                ) : null}
+              </div>
             </div>
 
             {/* 우측: 친구 목록 (피그마 디자인 적용된 HomeFriendList) */}
@@ -176,7 +233,8 @@ export const HomePageView = () => {
               {/* 탭 (검색바 제거된 버전) */}
               <MatchingTabs 
                 activeTab={activeGameTab} 
-                onTabChange={setActiveGameTab} 
+                onTabChange={setActiveGameTab}
+                onMoreClick={() => navigate("/matching", { state: { activeGame: activeGameTab } })}
               />
               
               {/* 매칭 페이지와 동일한 검색바 (필터 모달 기능 포함) */}
@@ -184,7 +242,11 @@ export const HomePageView = () => {
                   searchText={searchKeyword}
                   onSearchChange={setSearchKeyword}
                   onSearchSubmit={handleSearchSubmit}
-                  onWriteClick={() => console.log("글쓰기 모달 열기")}
+                  onWriteClick={() =>
+                    navigate("/matching", {
+                      state: { openWriteModal: true, activeGame: activeGameTab },
+                    })
+                  }
                   isFilterOpen={isFilterOpen}
                   onFilterToggle={() => setIsFilterOpen(!isFilterOpen)}
                   onFilterClose={() => setIsFilterOpen(false)}
@@ -196,17 +258,23 @@ export const HomePageView = () => {
             
             {/* 매칭 리스트 */}
             {/* @ts-expect-error : Mock 데이터 타입 호환용 */}
-            <PopularMatchList matches={MOCK_POPULAR_MATCHES} />
+            <PopularMatchList matches={filteredPopularMatches} onCardClick={handleHomeMatchClick} />
           </section>
 
           {/* 하이라이트 커뮤니티 */}
           <HomeCommunityHighlightSection
-            posts={MOCK_HIGHLIGHTS}
-            onPostClick={(post) => console.log("Go to post", post.id)}
+            posts={highlights.slice(0, 3)}
+            onPostClick={handleHighlightClick}
           />
 
           {/* 핫토픽 (간단 리스트) */}
-          <HomeHotTopicSection />
+          <HomeHotTopicSection
+            posts={bestPosts}
+            onMoreClick={() =>
+              navigate({ pathname: "/community", search: "?tab=자유게시판" })
+            }
+            onPostClick={(post) => navigate(`/community/${post.id}?from=자유게시판`)}
+          />
 
         </div>
       </main>
@@ -216,6 +284,14 @@ export const HomePageView = () => {
         username={username}
         onClose={close}
       />
+      {selectedHighlight ? (
+        <HighlightDetailModal
+          post={selectedHighlight}
+          comments={MOCK_COMMENTS}
+          isOpen={isHighlightOpen}
+          onClose={() => setIsHighlightOpen(false)}
+        />
+      ) : null}
     </div>
   );
 };

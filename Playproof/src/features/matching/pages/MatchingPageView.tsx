@@ -1,16 +1,21 @@
 // src/features/matching/pages/MatchingPageView.tsx
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Navbar } from '@/components/common/Navbar';
 import { MatchingSearchBar, GameFilter, RecommendedSection, PartyRequestBanner, MatchingWriteModal } from '@/features/matching/components';
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
 import { FilteredMatchList } from '@/features/matching/components/home/FilteredMatchList';
 import { useMatchingBoard } from '@/features/matching/hooks/useMatchingBoard';
 import { GAME_LIST } from '@/features/matching/constants/matchingConfig';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 
 const CURRENT_USER_ID = 'user-1';
 
 export const MatchingPageView = () => {
   const { state, setters, actions } = useMatchingBoard();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { openMatchingDetail } = useMatchingDetail();
   const {
     allMatches,
     activeGame,
@@ -27,6 +32,31 @@ export const MatchingPageView = () => {
   const recommendedData = useMemo(() => {
     return matchesByGame.slice(0, 10); 
   }, [matchesByGame]);
+
+  useEffect(() => {
+    const state = location.state as { openMatchId?: number; openWriteModal?: boolean; activeGame?: string } | null;
+    const openMatchId = state?.openMatchId;
+    const openWriteModal = state?.openWriteModal;
+    const activeGameFromHome = state?.activeGame;
+
+    if (activeGameFromHome) {
+      setters.setActiveGame(activeGameFromHome);
+    }
+
+    if (openWriteModal) {
+      actions.openWriteModal();
+      navigate('.', { replace: true, state: null });
+      return;
+    }
+
+    if (!openMatchId) return;
+
+    const target = allMatches.find((m) => m.id === openMatchId);
+    if (target) {
+      openMatchingDetail(target);
+      navigate('.', { replace: true, state: null });
+    }
+  }, [actions, allMatches, location.state, navigate, openMatchingDetail, setters]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
@@ -68,6 +98,7 @@ export const MatchingPageView = () => {
         onClose={actions.closeWriteModal}
         onUpload={actions.handleNewPost}
         existingPosts={allMatches.filter((p) => p.hostUser.id === 'me')}
+        initialGame={activeGame}
       />
     </div>
   );

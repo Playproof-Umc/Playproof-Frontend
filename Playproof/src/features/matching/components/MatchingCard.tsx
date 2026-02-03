@@ -7,13 +7,18 @@ import { User, MessageCircle, Eye, Settings, Mic } from 'lucide-react';
 
 interface MatchingCardProps {
   data: MatchingData;
+  onOpen?: (data: MatchingData) => void;
 }
 
-export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
+export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const navigate = useNavigate();
   const { openMatchingDetail } = useMatchingDetail();
 
   const handleCardClick = () => {
+    if (onOpen) {
+      onOpen(data);
+      return;
+    }
     openMatchingDetail(data);
   };
 
