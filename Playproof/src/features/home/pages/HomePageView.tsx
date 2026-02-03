@@ -15,6 +15,8 @@ import {
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
 import { HomeCommunityHighlightSection } from "@/features/home/components/sections/HomeCommunityHighlightSection";
 import { HomeHotTopicSection } from "@/features/home/components/sections/HomeHotTopicSection";
+import { SignupCompleteModal } from "@/components/auth/SignupCompleteModal";
+import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
 
 /* 매칭 페이지 핵심 기능 */
 import { 
@@ -78,6 +80,7 @@ const MOCK_HIGHLIGHTS = Array.from({ length: 3 }).map((_, i) => ({
 /* --- Main Component --- */
 
 export const HomePageView = () => {
+  const { open: isSignupCompleteOpen, username, close } = useSignupCompleteModal();
   const [user, setUser] = React.useState<UserSummary | null>(null);
   const [loading, setLoading] = React.useState(true);
   
@@ -207,6 +210,12 @@ export const HomePageView = () => {
 
         </div>
       </main>
+
+      <SignupCompleteModal
+        open={isSignupCompleteOpen}
+        username={username}
+        onClose={close}
+      />
     </div>
   );
 };

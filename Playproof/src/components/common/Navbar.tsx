@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components';
 import { NAV_LINKS } from '@/constants/navigation';
+import { Button } from '@/components/ui/Button';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -32,6 +33,13 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
   }, []);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
+  const isAuthPage =
+    location.pathname === '/' ||
+    location.pathname.startsWith('/landing') ||
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/signup') ||
+    location.pathname.startsWith('/gameselect') ||
+    location.pathname.startsWith('/gameinfo');
 
   // ✨ 페이지별 드롭다운 메뉴 내용을 결정하는 함수
   const renderProfileMenu = () => {
@@ -130,6 +138,16 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 2. 우측 컨트롤 */}
         <div className="flex items-center gap-4">
+          {isAuthPage ? (
+            <Button
+              variant="primary"
+              className="h-9 rounded-md px-4 text-sm"
+              onClick={() => navigate('/login')}
+            >
+              로그인
+            </Button>
+          ) : (
+            <>
           {onTogglePro && (
             <button 
               onClick={onTogglePro} 
@@ -196,6 +214,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           </div>
 
           <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
+            </>
+          )}
         </div>
       </div>
     </header>

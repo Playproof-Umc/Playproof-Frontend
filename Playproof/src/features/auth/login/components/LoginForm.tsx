@@ -117,7 +117,7 @@ export function LoginForm() {
       {/* 시작하기 */}
       <Button
         type="submit"
-        variant="blue"
+        variant="primary"
         fullWidth
         disabled={!isFilled || isPending}
         className="h-11"

@@ -8,6 +8,7 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const SignupGameSelectPage = lazy(() => import('@/pages/auth/SignupGameSelectPage'));
 const SignupGameInfoPage = lazy(() => import('@/pages/auth/SignupGameInfoPage'));
+const SignupUsernamePage = lazy(() => import('@/pages/auth/SignupUsernamePage'));
 const HomePage = lazy(() => import('@/pages/home/HomePage'));
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup/username" element={<SignupUsernamePage />} />
                 
                 {/* Game Select */}
                 <Route path="/gameselect" element={<SignupGameSelectPage />} />
