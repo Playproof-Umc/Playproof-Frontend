@@ -32,27 +32,90 @@ export const mockMembers: User[] = [
   { id: 5, nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
 ];
 
+export const mockMembersByAzit: Record<number, User[]> = {
+  1: [
+    { id: 1, nickname: '레나', statusMessage: '즐겜 유저', isOnline: true },
+    { id: 2, nickname: '엘릭', statusMessage: 'FE 개발 중...', isOnline: true },
+    { id: 3, nickname: '카이', statusMessage: '밥 먹으러 감', isOnline: false },
+  ],
+  2: [
+    { id: 6, nickname: '로이', statusMessage: 'LoL 랭크 올림', isOnline: true },
+    { id: 7, nickname: '노아', statusMessage: '정글 연습 중', isOnline: true },
+    { id: 8, nickname: '베카', statusMessage: '서폿 유저', isOnline: false },
+  ],
+  3: [
+    { id: 9, nickname: '수지', statusMessage: '스터디 집중', isOnline: true },
+    { id: 10, nickname: '도윤', statusMessage: 'CS 기록 중', isOnline: false },
+    { id: 11, nickname: '하린', statusMessage: '자료 공유 가능', isOnline: true },
+  ],
+};
+
 // 스케줄 목록
 export const mockSchedules: Schedule[] = [
   {
     id: 1,
-    title: '데바데 5인큐',
+    title: '데바데 4인큐',
     type: 'regular',
     date: new Date(new Date().setHours(20, 0, 0, 0)), 
     participants: [mockMembers[0], mockMembers[1], mockMembers[2]],
-    maxParticipants: 5,
+    maxParticipants: 4,
     isCompleted: false,
   },
   {
     id: 2,
-    title: '발로란트 내전',
+    title: '리그 5인 랭크',
     type: 'instant',
-    date: new Date(new Date().setDate(new Date().getDate() + 1)), // 내일
-    participants: [mockMembers[0], mockMembers[4]],
-    maxParticipants: 10,
+    date: new Date(new Date().setDate(new Date().getDate() + 1)),
+    participants: [mockMembers[1], mockMembers[3]],
+    maxParticipants: 5,
+    isCompleted: false,
+  },
+  {
+    id: 3,
+    title: '발로란트 5인 스크림',
+    type: 'regular',
+    date: new Date(new Date().setDate(new Date().getDate() + 2)),
+    participants: [mockMembers[2], mockMembers[4]],
+    maxParticipants: 5,
     isCompleted: false,
   },
 ];
+
+export const mockSchedulesByAzit: Record<number, Schedule[]> = {
+  1: [
+    {
+      id: 1,
+      title: '데바데 4인큐',
+      type: 'regular',
+      date: new Date(new Date().setHours(20, 0, 0, 0)),
+      participants: [mockMembers[0], mockMembers[1], mockMembers[2]],
+      maxParticipants: 4,
+      isCompleted: false,
+    },
+  ],
+  2: [
+    {
+      id: 2,
+      title: '리그 5인 랭크',
+      type: 'instant',
+      date: new Date(new Date().setDate(new Date().getDate() + 1)),
+      participants: [mockMembers[1], mockMembers[3]],
+      maxParticipants: 5,
+      isCompleted: false,
+    },
+  ],
+  3: [
+    {
+      id: 3,
+      title: '발로란트 5인 스크림',
+      type: 'regular',
+      date: new Date(new Date().setDate(new Date().getDate() + 2)),
+      participants: [mockMembers[2], mockMembers[4]],
+      maxParticipants: 5,
+      isCompleted: false,
+    },
+  ],
+};
 
 // 음성/채팅 채널 목록
 export const mockVoiceChannels: Channel[] = [
@@ -116,3 +179,39 @@ export const mockClips: Clip[] = [
     createdAt: '3일 전',
   },
 ];
+
+export const mockClipsByAzit: Record<number, Clip[]> = {
+  1: [
+    {
+      id: 1,
+      title: '펜타킬 하이라이트',
+      author: '레나',
+      thumbnailUrl: 'https://via.placeholder.com/300x160/000000/FFFFFF?text=PentaKill',
+      views: 120,
+      duration: '0:45',
+      createdAt: '2시간 전',
+    },
+  ],
+  2: [
+    {
+      id: 2,
+      title: '리그 역전 하이라이트',
+      author: '로이',
+      thumbnailUrl: 'https://via.placeholder.com/300x160/2563eb/FFFFFF?text=LoL',
+      views: 210,
+      duration: '1:05',
+      createdAt: '5시간 전',
+    },
+  ],
+  3: [
+    {
+      id: 3,
+      title: '스터디 밈 모음',
+      author: '수지',
+      thumbnailUrl: 'https://via.placeholder.com/300x160/16a34a/FFFFFF?text=Study',
+      views: 45,
+      duration: '0:30',
+      createdAt: '어제',
+    },
+  ],
+};

@@ -6,9 +6,10 @@ import type { MatchingData } from '@/features/matching/types';
 
 interface PopularMatchListProps {
   matches: MatchingData[];
+  onCardClick?: (match: MatchingData) => void;
 }
 
-export const PopularMatchList = ({ matches }: PopularMatchListProps) => {
+export const PopularMatchList = ({ matches, onCardClick }: PopularMatchListProps) => {
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -23,7 +24,7 @@ export const PopularMatchList = ({ matches }: PopularMatchListProps) => {
         <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 snap-x no-scrollbar">
           {matches.map((item) => (
             <div key={`pop-${item.id}`} className="min-w-[280px] w-[280px] snap-start">
-              <MatchingCard data={item} />
+              <MatchingCard data={item} onOpen={onCardClick} />
             </div>
           ))}
         </div>

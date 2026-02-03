@@ -14,10 +14,11 @@ interface MatchingWriteModalProps {
   onClose: () => void;
   onUpload: (data: MatchingData, action: 'new' | 'replace' | 'bump') => void;
   existingPosts: MatchingData[];
+  initialGame?: string;
 }
 
 export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({ 
-  isOpen, onClose, onUpload, existingPosts 
+  isOpen, onClose, onUpload, existingPosts, initialGame
 }) => {
   const { formState, setters, handlers, isFormValid } = useMatchingWriteForm({ 
     onUpload, onClose, existingPosts 
@@ -27,6 +28,13 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
     game, title, isProMatch, selectedPositions, tier, azit, 
     memberCount, micStatus, selectedTags, memo, showDuplicateModal 
   } = formState;
+
+  React.useEffect(() => {
+    if (!isOpen || !initialGame) return;
+    if (initialGame !== game) {
+      handlers.handleGameChange(initialGame);
+    }
+  }, [game, handlers, initialGame, isOpen]);
 
   if (!isOpen) return null;
 

@@ -155,7 +155,7 @@ export function useLoginForm() {
   const onToggleShowPw = () => setShowPw((p) => !p);
 
   const onClickKakao = () => alert("카카오 로그인은 준비중입니다. (추후 API 연동 예정)");
-  const onClickFindPassword = () => alert("비밀번호 찾기는 준비중입니다.");
+  const onClickFindPassword = () => navigate("/find-password");
 
   return {
     phoneNumber,

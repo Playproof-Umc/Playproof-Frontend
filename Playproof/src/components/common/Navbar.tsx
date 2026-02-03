@@ -5,6 +5,7 @@ import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, Fi
 import { NotificationDropdown } from '@/features/notification/components';
 import { NAV_LINKS } from '@/constants/navigation';
 import { Button } from '@/components/ui/Button';
+import { useAuthStore } from '@/store/authStore';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -14,6 +15,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const authNickname = useAuthStore((s) => s.nickname);
+  const displayName = authNickname ?? "사용자";
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -169,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               </div>
               
               {/* 닉네임 & 뱃지 */}
-              <span className="font-bold text-sm text-gray-800">플루</span>
+              <span className="font-bold text-sm text-gray-800">{displayName}</span>
               <span className="bg-zinc-200 text-[10px] font-bold px-1.5 py-0.5 rounded text-gray-600">Pro</span>
 
               {/* 스크롤 버튼 (화살표) */}
@@ -187,7 +190,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
                       <User size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">플루</p>
+                      <p className="text-sm font-bold text-gray-900">{displayName}</p>
                       <p className="text-xs text-gray-500">playproof12@gmail.com</p>
                     </div>
                   </div>

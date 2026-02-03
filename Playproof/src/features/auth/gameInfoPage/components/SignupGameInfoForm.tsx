@@ -15,7 +15,6 @@ export function SignupGameInfoForm() {
     playStyle,
     tier,
     position,
-    playStyleOptions,
     tierOptions,
     positionOptions,
     onChangePlayStyle,

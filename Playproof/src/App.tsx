@@ -1,6 +1,6 @@
 // src/App.tsx
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 // Lazy Load Pages
 const LandingPage = lazy(() => import('@/pages/auth/LandingPage'));
@@ -9,6 +9,7 @@ const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const SignupGameSelectPage = lazy(() => import('@/pages/auth/SignupGameSelectPage'));
 const SignupGameInfoPage = lazy(() => import('@/pages/auth/SignupGameInfoPage'));
 const SignupUsernamePage = lazy(() => import('@/pages/auth/SignupUsernamePage'));
+const FindPasswordPage = lazy(() => import('@/pages/auth/FindPasswordPage'));
 const HomePage = lazy(() => import('@/pages/home/HomePage'));
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
@@ -37,6 +38,7 @@ const LoadingFallback = () => (
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ToastProvider>
         <UserProfileProvider>
           <MatchingDetailProvider>
@@ -49,6 +51,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup/username" element={<SignupUsernamePage />} />
+                <Route path="/find-password" element={<FindPasswordPage />} />
                 
                 {/* Game Select */}
                 <Route path="/gameselect" element={<SignupGameSelectPage />} />
@@ -84,5 +87,13 @@ function App() {
     </BrowserRouter>
   );
 }
+
+const ScrollToTop = () => {
+  const location = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [location.pathname, location.search]);
+  return null;
+};
 
 export default App;

@@ -17,8 +17,9 @@ export const useMatchingDetailLogic = () => {
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState(MOCK_COMMENTS);
 
-  // 현재 경로가 /matching이 아니면 모달을 숨김
-  const shouldRender = isOpen && selectedPost && location.pathname === '/matching';
+  // 홈에서도 상세 모달 노출
+  const allowPaths = ['/matching', '/home'];
+  const shouldRender = isOpen && selectedPost && allowPaths.includes(location.pathname);
 
   const handleMoveToProfile = (userId: string | number) => {
     navigate(`/user/${userId}`);
