@@ -3,6 +3,8 @@ import React from 'react';
 import { MoreHorizontal, User, UserPlus, Home, AlertTriangle, Eye, Heart, MessageCircle } from 'lucide-react';
 import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
 import type { MatchingData } from '@/features/matching/types';
+import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
+import { useAuthStore } from '@/store/authStore';
 
 interface MatchingPostInfoProps {
   post: MatchingData;
@@ -13,6 +15,12 @@ interface MatchingPostInfoProps {
 }
 
 export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu, onMoveToProfile }: MatchingPostInfoProps) => {
+  const { toggleLike, getLikeState } = useMatchingDetail();
+  const likeState = getLikeState(post);
+  const authUserId = useAuthStore((s) => s.userId);
+  const authNickname = useAuthStore((s) => s.nickname);
+  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const displayName = post.hostUser.id === currentUserId ? (authNickname ?? post.hostUser.nickname) : post.hostUser.nickname;
   return (
     <div className="w-[60%] p-8 flex flex-col h-full overflow-y-auto border-r border-gray-100 relative scrollbar-hide">
       {/* Header & Menu */}
@@ -38,7 +46,7 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           {post.hostUser.avatarUrl ? <img src={post.hostUser.avatarUrl} alt="" className="w-full h-full rounded-full object-cover"/> : <User size={32} />}
         </div>
         <div>
-          <h2 onClick={() => onMoveToProfile(post.hostUser.id)} className="text-xl font-bold text-gray-900 cursor-pointer hover:underline underline-offset-2">{post.hostUser.nickname}</h2>
+          <h2 onClick={() => onMoveToProfile(post.hostUser.id)} className="text-xl font-bold text-gray-900 cursor-pointer hover:underline underline-offset-2">{displayName}</h2>
           <p className="text-xs font-medium text-gray-500 mt-1">TS {post.tsScore}</p>
         </div>
       </div>
@@ -75,7 +83,17 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
         </div>
         <div className="flex items-center gap-4 text-xs font-medium text-gray-400 border-t border-gray-50 pt-4">
           <div className="flex items-center gap-1"><Eye size={14} /> <span>{post.views}</span></div>
-          <div className="flex items-center gap-1"><Heart size={14} /> <span>{post.likes}</span></div>
+          <button
+            type="button"
+            onClick={() => toggleLike(post)}
+            className={`flex items-center gap-1 transition-colors ${
+              likeState.isLiked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+            }`}
+            aria-label="좋아요"
+          >
+            <Heart size={14} fill={likeState.isLiked ? "currentColor" : "none"} />
+            <span>{likeState.count}</span>
+          </button>
           <div className="flex items-center gap-1"><MessageCircle size={14} /> <span>{commentCount}</span></div>
         </div>
       </div>

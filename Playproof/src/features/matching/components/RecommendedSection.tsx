@@ -22,7 +22,7 @@ const RecommendedSectionBase: React.FC<RecommendedSectionProps> = ({ isProUser, 
           <RefreshCw size={16} className="text-gray-400 cursor-pointer hover:rotate-180 transition-transform duration-500"/>
       </div>
       
-      <div className="relative w-full min-h-[420px] rounded-xl border border-gray-200 overflow-hidden bg-gray-50 flex flex-col justify-center">
+      <div className="relative w-full min-h-[450px] rounded-xl border border-gray-200 bg-gray-50 flex flex-col justify-center py-4">
         
         {!isProUser && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-20 flex flex-col items-center justify-center text-center p-6">
@@ -38,20 +38,23 @@ const RecommendedSectionBase: React.FC<RecommendedSectionProps> = ({ isProUser, 
         )}
         
         {/* 수정됨: snap-x 추가하여 부드러운 스크롤 적용 */}
-        <div className="w-full h-full p-6 flex items-stretch overflow-x-auto no-scrollbar gap-5 z-10 relative snap-x">
-             {recommendations.map((item) => (
-                /* 수정됨: snap-start 추가 */
-                <div key={`rec-${item.id}`} className="min-w-[280px] w-[280px] snap-start">
-                   <div className="relative h-full">
-                      {item.likes >= 50 && (
-                        <div className="absolute -top-2 -left-2 z-20 bg-yellow-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
-                          TOP RATED
-                        </div>
-                      )}
-                      <MatchingCard data={item} />
-                   </div>
+        <div className="w-full h-full overflow-hidden">
+          <div className="w-[1008px] mx-auto overflow-hidden">
+            <div className="w-[1008px] h-full flex gap-6 overflow-x-auto no-scrollbar snap-x z-10 relative">
+              {recommendations.map((item) => (
+                <div key={`rec-${item.id}`} className="w-[320px] min-w-[320px] shrink-0 snap-start">
+                  <div className="relative h-full overflow-visible pt-3">
+                    {item.likes >= 50 && (
+                      <div className="absolute -top-1 left-3 z-20 bg-yellow-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md ring-1 ring-white">
+                        TOP RATED
+                      </div>
+                    )}
+                    <MatchingCard data={item} />
+                  </div>
                 </div>
-             ))}
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>

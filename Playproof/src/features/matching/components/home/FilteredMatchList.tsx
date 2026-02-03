@@ -31,9 +31,9 @@ export const FilteredMatchList = ({ matches, searchText }: FilteredMatchListProp
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap gap-5 justify-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
           {matches.map((item) => (
-            <div key={`all-${item.id}`} className="w-[280px] max-w-full">
+            <div key={`all-${item.id}`} className="w-[320px] max-w-full">
               <MatchingCard data={item} />
             </div>
           ))}
