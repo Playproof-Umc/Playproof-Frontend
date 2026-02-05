@@ -1,12 +1,6 @@
 import * as React from "react";
-import type { BoardPost } from "@/features/community/types";
+import type { HomeHotTopicSectionProps } from "@/features/home/components/sections/types";
 import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";
-
-type HomeHotTopicSectionProps = {
-  posts: BoardPost[];
-  onMoreClick?: () => void;
-  onPostClick?: (post: BoardPost) => void;
-};
 
 export function HomeHotTopicSection({
   posts,

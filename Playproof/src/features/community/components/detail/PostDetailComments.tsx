@@ -1,77 +1,156 @@
-import React from "react";
-import { MoreVertical } from "lucide-react";
+import React, { useRef } from "react";
 import type { Comment } from "@/features/community/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
+import { PostDetailCommentForm } from "@/features/community/components/detail/comments/PostDetailCommentForm";
+import { PostDetailCommentItem } from "@/features/community/components/detail/comments/PostDetailCommentItem";
 
 type PostDetailCommentsProps = {
   comments: Comment[];
-  newComment: string;
+  totalCount: number;
+  currentUserName: string;
+  commentText: string;
+  replyText: string;
+  replyingToId: string | null;
+  editingCommentId: string | null;
+  editingReplyId: string | null;
+  editingParentId: string | null;
+  editText: string;
   onCommentChange: (value: string) => void;
-  onCommentSubmit: (event: React.FormEvent) => void;
+  onCommentSubmit: () => void;
+  onReplyChange: (value: string) => void;
+  onReplyToggle: (commentId: string) => void;
+  onReplySubmit: (commentId: string) => void;
+  onEditTextChange: (value: string) => void;
+  onEditCommentStart: (commentId: string, content: string) => void;
+  onEditReplyStart: (commentId: string, replyId: string, content: string) => void;
+  onEditCancel: () => void;
+  onEditSubmit: () => void;
+  onDeleteComment: (commentId: string) => void;
+  onDeleteReply: (commentId: string, replyId: string) => void;
 };
 
 export const PostDetailComments = ({
   comments,
-  newComment,
+  totalCount,
+  currentUserName,
+  commentText,
+  replyText,
+  replyingToId,
+  editingCommentId,
+  editingReplyId,
+  editingParentId,
+  editText,
   onCommentChange,
   onCommentSubmit,
+  onReplyChange,
+  onReplyToggle,
+  onReplySubmit,
+  onEditTextChange,
+  onEditCommentStart,
+  onEditReplyStart,
+  onEditCancel,
+  onEditSubmit,
+  onDeleteComment,
+  onDeleteReply,
 }: PostDetailCommentsProps) => {
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const editInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const focusCommentInput = () => {
+    requestAnimationFrame(() => {
+      commentInputRef.current?.focus();
+    });
+  };
+
+  const handleCommentSubmit = () => {
+    onCommentSubmit();
+    focusCommentInput();
+  };
+
+  const handleReplySubmit = (commentId: string) => {
+    onReplySubmit(commentId);
+    focusCommentInput();
+  };
+
+  const handleCommentKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleCommentSubmit();
+    }
+  };
+
+  const handleReplyKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+    commentId: string
+  ) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleReplySubmit(commentId);
+    }
+  };
+
+  const handleEditKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      onEditSubmit();
+    }
+  };
+
+  const handleEditCommentStart = (commentId: string, content: string) => {
+    onEditCommentStart(commentId, content);
+    requestAnimationFrame(() => editInputRef.current?.focus());
+  };
+
+  const handleEditReplyStart = (commentId: string, replyId: string, content: string) => {
+    onEditReplyStart(commentId, replyId, content);
+    requestAnimationFrame(() => editInputRef.current?.focus());
+  };
+
   return (
     <div className="border-t border-gray-200 p-6">
       <h3 className="mb-4 text-sm font-semibold text-gray-900">
-        {COMMUNITY_SECTION_LABELS.comments} {comments.length}
+        {COMMUNITY_SECTION_LABELS.comments} {totalCount}
       </h3>
 
-      <form onSubmit={onCommentSubmit} className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
-          <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => onCommentChange(e.target.value)}
-              placeholder={COMMUNITY_SECTION_LABELS.commentPlaceholder}
-              className="flex-1 bg-transparent text-sm focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={!newComment.trim()}
-              className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-300"
-            >
-              {COMMUNITY_SECTION_LABELS.commentSubmit}
-            </button>
-          </div>
-        </div>
-      </form>
+      <PostDetailCommentForm
+        commentText={commentText}
+        onCommentChange={onCommentChange}
+        onCommentSubmit={handleCommentSubmit}
+        onCommentKeyDown={handleCommentKeyDown}
+        commentInputRef={commentInputRef}
+      />
 
       <div className="space-y-4">
         {comments.map((comment) => (
-          <div key={comment.id} className="flex gap-3">
-            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {comment.author}
-                  </span>
-                  <span className="text-xs text-gray-500">{comment.date}</span>
-                </div>
-                <button className="text-gray-400 hover:text-gray-600">
-                  <MoreVertical className="h-4 w-4" />
-                </button>
-              </div>
-              <p className="mt-1 text-sm text-gray-700">{comment.content}</p>
-
-              <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                <button className="hover:text-gray-700">좋아요</button>
-                {comment.replies > 0 && (
-                  <button className="hover:text-gray-700">
-                    답글 {comment.replies}개
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <PostDetailCommentItem
+            key={comment.id}
+            comment={comment}
+            currentUserName={currentUserName}
+            replyingToId={replyingToId}
+            replyText={replyText}
+            onReplyChange={onReplyChange}
+            onReplyToggle={onReplyToggle}
+            onReplySubmit={handleReplySubmit}
+            onReplyKeyDown={handleReplyKeyDown}
+            replyInputRef={replyInputRef}
+            editingCommentId={editingCommentId}
+            editingReplyId={editingReplyId}
+            editingParentId={editingParentId}
+            editText={editText}
+            onEditTextChange={onEditTextChange}
+            onEditKeyDown={handleEditKeyDown}
+            onEditCommentStart={handleEditCommentStart}
+            onEditReplyStart={handleEditReplyStart}
+            onEditCancel={onEditCancel}
+            onEditSubmit={onEditSubmit}
+            onDeleteComment={onDeleteComment}
+            onDeleteReply={onDeleteReply}
+            editInputRef={editInputRef}
+          />
         ))}
       </div>
     </div>

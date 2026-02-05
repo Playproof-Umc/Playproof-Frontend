@@ -3,10 +3,12 @@ import type { BoardPost } from "@/features/community/types";
 
 type PostDetailBodyProps = {
   post: BoardPost;
+  likeCount: number;
+  isLiked: boolean;
   onLike: () => void;
 };
 
-export const PostDetailBody = ({ post, onLike }: PostDetailBodyProps) => {
+export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailBodyProps) => {
   return (
     <>
       <div className="p-6">
@@ -28,10 +30,14 @@ export const PostDetailBody = ({ post, onLike }: PostDetailBodyProps) => {
       <div className="border-t border-gray-200 px-6 py-4">
         <button
           onClick={onLike}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className={`flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors ${
+            isLiked
+              ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+              : "border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
         >
-          <Heart className="h-5 w-5" />
-          <span>{post.likes}</span>
+          <Heart className="h-5 w-5" fill={isLiked ? "currentColor" : "none"} />
+          <span>{likeCount}</span>
         </button>
       </div>
     </>

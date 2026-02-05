@@ -1,1 +1,7 @@
-export type { BoardPost, Comment, CommunityTab, HighlightPost } from '@/features/community/types/types';
+export type {
+  BoardPost,
+  Comment,
+  CommentReply,
+  CommunityTab,
+  HighlightPost,
+} from '@/features/community/types/types';

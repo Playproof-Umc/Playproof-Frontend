@@ -4,24 +4,28 @@ export type HighlightPost = {
   id: number;
   author: string;
   date: string;
+  createdAt?: string;
   title?: string;
   content: string;
   likes: number;
   views?: number;
   comments: number;
   images: string[];
+  mediaType?: "photo" | "video";
 };
 
 export type BoardPost = {
   id: number;
   author: string;
   date: string;
+  createdAt?: string;
   title: string;
   content: string;
   likes: number;
   views: number;
   comments: number;
   thumbnail?: string;
+  mediaType?: "photo" | "video";
 };
 
 export type Comment = {
@@ -30,5 +34,14 @@ export type Comment = {
   avatarUrl: string;
   content: string;
   date: string;
-  replies: number;
+  replies: CommentReply[];
+};
+
+export type CommentReply = {
+  id: string;
+  author: string;
+  avatarUrl: string;
+  content: string;
+  date: string;
+  parentId: string;
 };
