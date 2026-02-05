@@ -5,10 +5,25 @@ import type { HighlightPost } from "@/features/community/types";
 
 interface HighlightCardProps {
   post: HighlightPost;
+  likeCount: number;
+  isLiked: boolean;
+  commentCount: number;
+  onToggleLike: (postId: number) => void;
   onPostClick: (post: HighlightPost) => void;
+  currentUserName: string;
+  onDeletePost?: (postId: number) => void;
 }
 
-export function HighlightCard({ post, onPostClick }: HighlightCardProps) {
+export function HighlightCard({
+  post,
+  likeCount,
+  isLiked,
+  commentCount,
+  onToggleLike,
+  onPostClick,
+  currentUserName,
+  onDeletePost,
+}: HighlightCardProps) {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -26,8 +41,7 @@ export function HighlightCard({ post, onPostClick }: HighlightCardProps) {
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("좋아요:", post.id);
-    // TODO: 좋아요 기능 구현
+    onToggleLike(post.id);
   };
 
   const handleComment = (e: React.MouseEvent) => {
@@ -62,13 +76,25 @@ export function HighlightCard({ post, onPostClick }: HighlightCardProps) {
       {/* 프로필 영역 */}
       <div
         onClick={handleProfileClick}
-        className="flex cursor-pointer items-center gap-3 p-4 transition hover:bg-gray-50"
+        className="flex cursor-pointer items-center gap-3 p-4 transition hover:bg-gray-50 relative"
       >
         <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
         <div className="flex-1">
           <p className="text-sm font-semibold text-gray-900">{post.author}</p>
           <p className="text-xs text-gray-500">{post.date}</p>
         </div>
+        {post.author === currentUserName && onDeletePost ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeletePost(post.id);
+            }}
+            className="ml-auto rounded-lg px-2 py-1 text-[10px] font-semibold text-gray-500 hover:text-gray-700"
+          >
+            삭제
+          </button>
+        ) : null}
       </div>
 
       {/* 사진 영역 */}
@@ -129,17 +155,19 @@ export function HighlightCard({ post, onPostClick }: HighlightCardProps) {
         <div className="mb-3 flex items-center gap-4">
           <button
             onClick={handleLike}
-            className="flex items-center gap-1 text-sm text-gray-700 transition hover:text-gray-900"
+            className={`flex items-center gap-1 text-sm transition ${
+              isLiked ? "text-red-600" : "text-gray-700 hover:text-gray-900"
+            }`}
           >
-            <Heart className="h-5 w-5" />
-            <span className="font-medium">{post.likes}</span>
+            <Heart className="h-5 w-5" fill={isLiked ? "currentColor" : "none"} />
+            <span className="font-medium">{likeCount}</span>
           </button>
           <button
             onClick={handleComment}
             className="flex items-center gap-1 text-sm text-gray-700 transition hover:text-gray-900"
           >
             <MessageCircle className="h-5 w-5" />
-            <span className="font-medium">{post.comments}</span>
+            <span className="font-medium">{commentCount}</span>
           </button>
           <button
             onClick={handleShare}

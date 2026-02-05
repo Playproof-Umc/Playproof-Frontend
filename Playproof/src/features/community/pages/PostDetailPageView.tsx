@@ -1,21 +1,35 @@
-import React from "react";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
-import { MOCK_BOARD_POSTS, MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
+import { MOCK_BOARD_POSTS } from "@/features/community/data/mockCommunityData";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";
 import { PostDetailBody } from "@/features/community/components/detail/PostDetailBody";
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
+import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { postId } = useParams();
   const [searchParams] = useSearchParams();
-  const [newComment, setNewComment] = React.useState("");
-
   const fromTab = searchParams.get("from") || COMMUNITY_PAGE_LABELS.highlightTab;
-  const post = MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const statePost = (location.state as { post?: typeof MOCK_BOARD_POSTS[number] } | null)?.post;
+  const post = statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const { state, setters, handlers } = useCommunityDetailLogic(post);
+  const {
+    commentText,
+    replyText,
+    replyingToId,
+    comments,
+    currentUserName,
+    likeState,
+    totalCommentCount,
+    editingCommentId,
+    editingReplyId,
+    editingParentId,
+    editText,
+  } = state;
 
   if (!post) {
     return (
@@ -37,18 +51,12 @@ export const PostDetailPageView = () => {
     console.log("신고하기");
   };
 
-  const handleMore = () => {
-    console.log("더보기");
+  const handleEditPost = () => {
+    console.log("게시글 수정");
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("댓글 작성:", newComment);
-    setNewComment("");
-  };
-
-  const handleLike = () => {
-    console.log("좋아요");
+  const handleDeletePost = () => {
+    console.log("게시글 삭제");
   };
 
   return (
@@ -67,16 +75,44 @@ export const PostDetailPageView = () => {
         <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
           <PostDetailHeader
             post={post}
+            likeCount={likeState.count}
+            commentCount={totalCommentCount}
+            isLiked={likeState.isLiked}
+            currentUserName={currentUserName}
+            onEdit={handleEditPost}
+            onDelete={handleDeletePost}
             onShare={handleShare}
             onReport={handleReport}
-            onMore={handleMore}
           />
-          <PostDetailBody post={post} onLike={handleLike} />
+          <PostDetailBody
+            post={post}
+            likeCount={likeState.count}
+            isLiked={likeState.isLiked}
+            onLike={handlers.handleLikeToggle}
+          />
           <PostDetailComments
-            comments={MOCK_COMMENTS}
-            newComment={newComment}
-            onCommentChange={setNewComment}
-            onCommentSubmit={handleCommentSubmit}
+            comments={comments}
+            totalCount={totalCommentCount}
+            currentUserName={currentUserName}
+            commentText={commentText}
+            replyText={replyText}
+            replyingToId={replyingToId}
+            editingCommentId={editingCommentId}
+            editingReplyId={editingReplyId}
+            editingParentId={editingParentId}
+            editText={editText}
+            onCommentChange={setters.setCommentText}
+            onCommentSubmit={handlers.handleCommentSubmit}
+            onReplyChange={setters.setReplyText}
+            onReplyToggle={handlers.handleReplyToggle}
+            onReplySubmit={handlers.handleReplySubmit}
+            onEditTextChange={setters.setEditText}
+            onEditCommentStart={handlers.handleEditCommentStart}
+            onEditReplyStart={handlers.handleEditReplyStart}
+            onEditCancel={handlers.handleEditCancel}
+            onEditSubmit={handlers.handleEditSubmit}
+            onDeleteComment={handlers.handleDeleteComment}
+            onDeleteReply={handlers.handleDeleteReply}
           />
         </div>
       </main>

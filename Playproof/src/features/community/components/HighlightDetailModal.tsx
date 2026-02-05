@@ -1,53 +1,103 @@
 import React from "react";
 import { X } from "lucide-react";
 import type { HighlightPost, Comment } from "@/features/community/types";
-import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
+import { useNavigate } from "react-router-dom";
+import { HighlightDetailMediaPanel } from "@/features/community/components/highlight-detail/HighlightDetailMediaPanel";
+import { HighlightDetailCommentsPanel } from "@/features/community/components/highlight-detail/HighlightDetailCommentsPanel";
+import { useHighlightDetailState } from "@/features/community/components/highlight-detail/useHighlightDetailState";
 
 interface HighlightDetailModalProps {
   post: HighlightPost;
   comments: Comment[];
+  likeCount: number;
+  isLiked: boolean;
+  totalCommentCount: number;
+  onToggleLike: (postId: number) => void;
+  onAddComment: (postId: number, content: string) => void;
+  onAddReply: (postId: number, commentId: string, content: string) => void;
+  onEditComment: (postId: number, commentId: string, content: string) => void;
+  onEditReply: (postId: number, commentId: string, replyId: string, content: string) => void;
+  onDeleteComment: (postId: number, commentId: string) => void;
+  onDeleteReply: (postId: number, commentId: string, replyId: string) => void;
+  currentUserName: string;
   isOpen: boolean;
   onClose: () => void;
+  profileUserId?: string;
 }
 
-export function HighlightDetailModal({ post, comments, isOpen, onClose }: HighlightDetailModalProps) {
-  const [newComment, setNewComment] = React.useState("");
-  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+export function HighlightDetailModal(props: HighlightDetailModalProps) {
+  if (!props.isOpen) return null;
 
-  if (!isOpen) return null;
+  return <HighlightDetailModalContent key={props.post.id} {...props} />;
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submit comment:", newComment);
-    setNewComment("");
+function HighlightDetailModalContent({
+  post,
+  comments,
+  likeCount,
+  isLiked,
+  totalCommentCount,
+  onToggleLike,
+  onAddComment,
+  onAddReply,
+  onEditComment,
+  onEditReply,
+  onDeleteComment,
+  onDeleteReply,
+  currentUserName,
+  onClose,
+  profileUserId,
+}: HighlightDetailModalProps) {
+  const navigate = useNavigate();
+  const { state, refs, actions } = useHighlightDetailState(post);
+  const resolvedProfileUserId = profileUserId ?? "user-1";
+
+  const handleMoveToProfile = (event: React.MouseEvent, userId: string) => {
+    event.stopPropagation();
+    navigate(`/user/${userId}`);
   };
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === post.images.length - 1 ? 0 : prev + 1
-    );
+  const handleCommentSubmit = () => {
+    if (!state.commentText.trim()) return;
+    onAddComment(post.id, state.commentText.trim());
+    actions.setCommentText("");
+    actions.focusCommentInput();
   };
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? post.images.length - 1 : prev - 1
-    );
+  const handleReplySubmit = (commentId: string) => {
+    if (!state.replyText.trim()) return;
+    onAddReply(post.id, commentId, state.replyText.trim());
+    actions.setReplyText("");
+    actions.setReplyingToId(null);
+    actions.focusCommentInput();
   };
 
-  // 배경 클릭 시 닫기
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
+  const handleEditSubmit = () => {
+    const nextText = state.editText.trim();
+    if (!nextText) return;
+    if (state.editingCommentId) {
+      onEditComment(post.id, state.editingCommentId, nextText);
+      actions.handleEditCancel();
+      return;
+    }
+    if (state.editingReplyId && state.editingParentId) {
+      onEditReply(post.id, state.editingParentId, state.editingReplyId, nextText);
+      actions.handleEditCancel();
+    }
+  };
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
       onClose();
     }
   };
 
   return (
-    <div 
+    <div
       onClick={handleBackdropClick}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
       <div className="relative flex h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        {/* 닫기 버튼 */}
         <button
           onClick={onClose}
           className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900"
@@ -55,138 +105,53 @@ export function HighlightDetailModal({ post, comments, isOpen, onClose }: Highli
           <X className="h-6 w-6" />
         </button>
 
-        {/* 왼쪽: 미디어 영역 */}
-        <div className="relative flex w-3/5 items-center justify-center bg-zinc-900">
-          {post.images.length > 0 ? (
-            <>
-              <img
-                src={post.images[currentImageIndex]}
-                alt={post.content}
-                className="h-full w-full object-contain"
-              />
-              
-              {/* 이미지 네비게이션 */}
-              {post.images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 rounded-full bg-white/80 p-2 hover:bg-white"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 rounded-full bg-white/80 p-2 hover:bg-white"
-                  >
-                    →
-                  </button>
-                  <div className="absolute bottom-4 right-4 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
-                    {currentImageIndex + 1} / {post.images.length}
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <span className="text-4xl text-gray-400">이미지 없음</span>
-            </div>
-          )}
-        </div>
+        <HighlightDetailMediaPanel
+          post={post}
+          currentImageIndex={state.currentImageIndex}
+          onNextImage={actions.nextImage}
+          onPrevImage={actions.prevImage}
+          onToggleLike={onToggleLike}
+          likeCount={likeCount}
+          isLiked={isLiked}
+          totalCommentCount={totalCommentCount}
+          onMoveToProfile={handleMoveToProfile}
+          profileUserId={resolvedProfileUserId}
+        />
 
-        {/* 오른쪽: 댓글 영역 */}
-        <div className="flex w-2/5 flex-col">
-          {/* 작성자 정보 */}
-          <div className="border-b border-gray-200 p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gray-300" />
-              <div>
-                <p className="font-semibold text-gray-900">{post.author}</p>
-                <p className="text-xs text-gray-500">{post.date}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 액션 버튼 */}
-          <div className="flex items-center gap-4 border-b border-gray-200 px-4 py-3">
-            <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {post.likes}
-            </button>
-            <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {post.comments}
-            </button>
-          </div>
-
-          {/* 게시글 내용 */}
-          <div className="border-b border-gray-200 p-4">
-            <p className="text-sm text-gray-800">{post.content}</p>
-          </div>
-
-          {/* 댓글 목록 */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <h3 className="mb-4 text-sm font-semibold text-gray-900">
-              {COMMUNITY_SECTION_LABELS.comments} {comments.length}
-            </h3>
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3">
-                  <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900">
-                        {comment.author}
-                      </span>
-                      <span className="text-xs text-gray-500">{comment.date}</span>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-700">{comment.content}</p>
-                    {comment.replies > 0 && (
-                      <button className="mt-2 text-xs font-medium text-gray-500 hover:text-gray-700">
-                        답글보기 ({comment.replies})
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 댓글 작성 */}
-          <form onSubmit={handleSubmit} className="border-t border-gray-200 p-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder={COMMUNITY_SECTION_LABELS.commentPlaceholder}
-                className="flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                disabled={!newComment.trim()}
-                className="rounded-full bg-black px-6 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-300"
-              >
-                {COMMUNITY_SECTION_LABELS.commentSubmit}
-              </button>
-            </div>
-          </form>
-        </div>
+        <HighlightDetailCommentsPanel
+          comments={comments}
+          totalCommentCount={totalCommentCount}
+          currentUserName={currentUserName}
+          commentText={state.commentText}
+          onCommentTextChange={actions.setCommentText}
+          onCommentKeyDown={(event) => actions.handleCommentKeyDown(event, handleCommentSubmit)}
+          onCommentSubmit={handleCommentSubmit}
+          commentInputRef={refs.commentInputRef}
+          replyingToId={state.replyingToId}
+          replyText={state.replyText}
+          onReplyTextChange={actions.setReplyText}
+          onReplyKeyDown={(event, commentId) =>
+            actions.handleReplyKeyDown(event, () => handleReplySubmit(commentId))
+          }
+          onReplySubmit={handleReplySubmit}
+          onReplyToggle={actions.handleReplyToggle}
+          replyInputRef={refs.replyInputRef}
+          editingCommentId={state.editingCommentId}
+          editingReplyId={state.editingReplyId}
+          editingParentId={state.editingParentId}
+          editText={state.editText}
+          onEditTextChange={actions.setEditText}
+          onEditKeyDown={(event) => actions.handleEditKeyDown(event, handleEditSubmit)}
+          onEditStart={actions.handleEditStart}
+          onReplyEditStart={actions.handleReplyEditStart}
+          onEditCancel={actions.handleEditCancel}
+          onEditSubmit={handleEditSubmit}
+          onDeleteComment={(commentId) => onDeleteComment(post.id, commentId)}
+          onDeleteReply={(commentId, replyId) => onDeleteReply(post.id, commentId, replyId)}
+          editInputRef={refs.editInputRef}
+          onMoveToProfile={handleMoveToProfile}
+          profileUserId={resolvedProfileUserId}
+        />
       </div>
     </div>
   );
