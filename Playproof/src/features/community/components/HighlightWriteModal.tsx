@@ -18,7 +18,7 @@ function HighlightWriteModalContent({
   onClose,
   onSubmit,
 }: Omit<HighlightWriteModalProps, "isOpen">) {
-  const [title, setTitle] = useState("");
+  const [title] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<File[]>([]);
 
@@ -31,10 +31,10 @@ function HighlightWriteModalContent({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900"
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900"
           aria-label="닫기"
         >
           <X className="h-5 w-5" />
@@ -45,7 +45,7 @@ function HighlightWriteModalContent({
           <p className="mt-1 text-xs text-gray-500">사진 업로드와 내용을 작성해주세요.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5">
+        <form onSubmit={handleSubmit} className="px-6 py-5 max-h-[calc(90vh-96px)] overflow-y-auto">
           <div className="space-y-4">
             <div>
               <WriteModalUploadBox onFilesChange={setImages} />

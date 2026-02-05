@@ -45,7 +45,6 @@ function HighlightDetailModalContent({
   onDeleteComment,
   onDeleteReply,
   currentUserName,
-  isOpen,
   onClose,
   profileUserId,
 }: HighlightDetailModalProps) {

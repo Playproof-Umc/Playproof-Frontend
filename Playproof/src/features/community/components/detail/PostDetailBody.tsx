@@ -13,15 +13,24 @@ export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailB
     <>
       <div className="p-6">
         <div className="prose max-w-none">
-          <p className="whitespace-pre-wrap text-gray-800">
-            안녕하세요! 오늘은 눈이 와요.
-            ~~~~~~~~~~~~~~~~
-            혹시 듀오 구하시는 분 있으면 댓글 남겨주세요~! 같이 플레이 ㄱㄱ
-          </p>
+          <p className="whitespace-pre-wrap text-gray-800">{post.content}</p>
 
           {post.thumbnail && (
             <div className="mt-6 overflow-hidden rounded-lg bg-gray-200">
               <img src={post.thumbnail} alt="" className="h-auto w-full object-cover" />
+            </div>
+          )}
+
+          {post.images && post.images.length > 0 && (
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {post.images.map((url, index) => (
+                <div
+                  key={`${url}-${index}`}
+                  className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                >
+                  <img src={url} alt="" className="h-auto w-full object-cover" />
+                </div>
+              ))}
             </div>
           )}
         </div>

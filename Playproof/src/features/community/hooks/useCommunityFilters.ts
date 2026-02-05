@@ -23,6 +23,7 @@ export const useCommunityFilters = ({
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<CommunityFilterState>(DEFAULT_FILTERS);
+  const [boardGame, setBoardGame] = React.useState("전체글");
 
   const filteredHighlights = React.useMemo(
     () => filterHighlights(highlights, filters, searchQuery),
@@ -30,8 +31,8 @@ export const useCommunityFilters = ({
   );
 
   const filteredBoardPosts = React.useMemo(
-    () => filterBoardPosts(boardPosts, filters, searchQuery),
-    [boardPosts, filters, searchQuery]
+    () => filterBoardPosts(boardPosts, filters, searchQuery, boardGame),
+    [boardPosts, filters, searchQuery, boardGame]
   );
 
   const totalPages = Math.ceil(filteredBoardPosts.length / itemsPerPage);
@@ -46,6 +47,8 @@ export const useCommunityFilters = ({
     setIsFilterOpen,
     filters,
     setFilters,
+    boardGame,
+    setBoardGame,
     filteredHighlights,
     filteredBoardPosts,
     totalPages,

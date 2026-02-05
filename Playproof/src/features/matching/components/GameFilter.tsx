@@ -13,6 +13,7 @@ export const GameFilter: React.FC<GameFilterProps> = ({ games, activeGame, onGam
       {games.map((game) => (
           <button 
               key={game} 
+              type="button"
               onClick={() => onGameSelect(game)}
               className={`${activeGame === game ? 'text-black font-bold border-b-2 border-black pb-0.5' : 'hover:text-black'} whitespace-nowrap transition-colors`}
           >

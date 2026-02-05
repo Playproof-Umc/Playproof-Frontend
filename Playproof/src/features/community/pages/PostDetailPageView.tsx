@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
 import { MOCK_BOARD_POSTS } from "@/features/community/data/mockCommunityData";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
@@ -10,10 +10,12 @@ import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunity
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { postId } = useParams();
   const [searchParams] = useSearchParams();
   const fromTab = searchParams.get("from") || COMMUNITY_PAGE_LABELS.highlightTab;
-  const post = MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const statePost = (location.state as { post?: typeof MOCK_BOARD_POSTS[number] } | null)?.post;
+  const post = statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
   const { state, setters, handlers } = useCommunityDetailLogic(post);
   const {
     commentText,

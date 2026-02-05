@@ -19,12 +19,14 @@ export type BoardPost = {
   author: string;
   date: string;
   createdAt?: string;
+  game?: string;
   title: string;
   content: string;
   likes: number;
   views: number;
   comments: number;
   thumbnail?: string;
+  images?: string[];
   mediaType?: "photo" | "video";
 };
 

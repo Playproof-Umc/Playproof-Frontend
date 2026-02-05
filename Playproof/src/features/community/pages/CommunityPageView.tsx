@@ -12,6 +12,10 @@ import {
 } from "@/features/community/components";
 import { useCommunityPageLogic } from "@/features/community/hooks/useCommunityPageLogic";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
+import { GameFilter } from "@/features/matching/components";
+import { GAME_LIST } from "@/features/matching/constants/matchingConfig";
+
+const COMMUNITY_BOARD_GAMES = ["전체글", ...GAME_LIST];
 
 export const CommunityPageView = () => {
   const { ui, data, modal, user, actions } = useCommunityPageLogic();
@@ -43,6 +47,16 @@ export const CommunityPageView = () => {
             onFilterApply={(nextFilters) => actions.filter.setFilters(nextFilters)}
           />
         </div>
+
+        {ui.activeTab === COMMUNITY_PAGE_LABELS.freeTab && (
+          <div className="mt-4 border-t border-gray-100 pt-4">
+            <GameFilter
+              games={COMMUNITY_BOARD_GAMES}
+              activeGame={ui.boardGame}
+              onGameSelect={actions.board.setGame}
+            />
+          </div>
+        )}
 
         {data.loading ? (
           <div className="py-10 text-center text-zinc-500">로딩 중...</div>
@@ -100,6 +114,7 @@ export const CommunityPageView = () => {
           isOpen={modal.isWriteOpen}
           onClose={() => actions.modal.setWriteOpen(false)}
           onSubmit={actions.write.submit}
+          initialGame={ui.boardGame}
         />
       ) : (
         <HighlightWriteModal

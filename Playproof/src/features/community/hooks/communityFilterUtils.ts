@@ -68,16 +68,19 @@ export const filterHighlights = (
 export const filterBoardPosts = (
   boardPosts: BoardPost[],
   filters: CommunityFilterState,
-  searchQuery: string
+  searchQuery: string,
+  boardGame: string
 ) => {
   const normalizedQuery = normalizeQuery(searchQuery);
   const matchesMediaType = createMediaTypeChecker(filters);
   const isWithinRange = createDateRangeChecker(filters);
+  const shouldMatchGame = boardGame !== "전체글";
 
   return boardPosts.filter(
     (post) =>
       matchBoardQuery(post, normalizedQuery) &&
       matchesMediaType(post.mediaType) &&
-      isWithinRange(post.createdAt)
+      isWithinRange(post.createdAt) &&
+      (!shouldMatchGame || post.game === boardGame)
   );
 };

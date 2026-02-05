@@ -17,6 +17,7 @@ export const WriteModalUploadBox = ({
 }: WriteModalUploadBoxProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = React.useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
 
   React.useEffect(() => {
     return () => {
@@ -31,15 +32,35 @@ export const WriteModalUploadBox = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files ? Array.from(event.target.files) : [];
     if (!files.length) return;
+
+    const maxFiles = multiple ? 20 : 1;
+    const maxSize = 5 * 1024 * 1024;
+    const validFiles = files.filter((file) => file.size <= maxSize);
+
+    const merged = [...selectedFiles, ...validFiles].filter((file, index, self) => {
+      return (
+        self.findIndex(
+          (item) =>
+            item.name === file.name &&
+            item.size === file.size &&
+            item.lastModified === file.lastModified
+        ) === index
+      );
+    });
+
+    const nextFiles = merged.slice(0, maxFiles);
     previews.forEach((url) => URL.revokeObjectURL(url));
-    const nextPreviews = files.map((file) => URL.createObjectURL(file));
+    const nextPreviews = nextFiles.map((file) => URL.createObjectURL(file));
+    setSelectedFiles(nextFiles);
     setPreviews(nextPreviews);
-    onFilesChange(files);
+    onFilesChange(nextFiles);
+    event.target.value = "";
   };
 
   const clearPreviews = () => {
     previews.forEach((url) => URL.revokeObjectURL(url));
     setPreviews([]);
+    setSelectedFiles([]);
   };
 
   React.useEffect(() => {

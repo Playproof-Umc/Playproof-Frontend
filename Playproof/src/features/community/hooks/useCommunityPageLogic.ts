@@ -45,7 +45,7 @@ export const useCommunityPageLogic = () => {
   };
 
   const handleBoardClick = (post: BoardPost) => {
-    navigate(`/community/${post.id}?from=자유게시판`);
+    navigate(`/community/${post.id}?from=자유게시판`, { state: { post } });
   };
 
   const handleCloseModal = () => {
@@ -61,6 +61,8 @@ export const useCommunityPageLogic = () => {
     setIsFilterOpen,
     filters,
     setFilters,
+    boardGame,
+    setBoardGame,
     filteredHighlights,
     filteredBoardPosts,
     totalPages,
@@ -70,12 +72,25 @@ export const useCommunityPageLogic = () => {
     itemsPerPage: 10,
   });
 
-  const { isWriteOpen, setIsWriteOpen, handleWritePost, handleWriteSubmit } = useCommunityWrite({
+  const {
+    isWriteOpen,
+    setIsWriteOpen,
+    handleWritePost,
+    handleWriteSubmit,
+    revokeBoardMedia,
+  } = useCommunityWrite({
     activeTab,
     currentUserName: highlightState.currentUserName,
+    boardGame,
     addHighlightPost: highlightActions.addHighlightPost,
     setBoardPosts,
   });
+
+  React.useEffect(() => {
+    return () => {
+      revokeBoardMedia();
+    };
+  }, [revokeBoardMedia]);
 
   return {
     ui: {
@@ -84,6 +99,7 @@ export const useCommunityPageLogic = () => {
       currentPage,
       isFilterOpen,
       filters,
+      boardGame,
     },
     data: {
       bestPosts,
@@ -113,6 +129,10 @@ export const useCommunityPageLogic = () => {
         setOpen: setIsFilterOpen,
         setFilters,
       },
+      board: {
+        openDetail: handleBoardClick,
+        setGame: setBoardGame,
+      },
       pagination: {
         setPage: setCurrentPage,
       },
@@ -129,9 +149,6 @@ export const useCommunityPageLogic = () => {
         deleteComment: highlightActions.deleteComment,
         deleteReply: highlightActions.deleteReply,
         deletePost: highlightActions.deletePost,
-      },
-      board: {
-        openDetail: handleBoardClick,
       },
       modal: {
         closeDetail: handleCloseModal,
