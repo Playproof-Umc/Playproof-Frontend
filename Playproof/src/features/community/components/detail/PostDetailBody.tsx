@@ -15,11 +15,16 @@ export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailB
         <div className="prose max-w-none">
           <p className="whitespace-pre-wrap text-gray-800">{post.content}</p>
 
-          {post.thumbnail && (
-            <div className="mt-6 overflow-hidden rounded-lg bg-gray-200">
-              <img src={post.thumbnail} alt="" className="h-auto w-full object-cover" />
-            </div>
-          )}
+          <div className="mt-6 overflow-hidden rounded-lg bg-gray-200">
+            <img
+              src={post.thumbnail || "/no-image.png"}
+              alt=""
+              className="h-auto w-full object-cover"
+              onError={(event) => {
+                event.currentTarget.src = "/no-image.png";
+              }}
+            />
+          </div>
 
           {post.images && post.images.length > 0 && (
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -28,7 +33,14 @@ export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailB
                   key={`${url}-${index}`}
                   className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
                 >
-                  <img src={url} alt="" className="h-auto w-full object-cover" />
+                  <img
+                    src={url || "/no-image.png"}
+                    alt=""
+                    className="h-auto w-full object-cover"
+                    onError={(event) => {
+                      event.currentTarget.src = "/no-image.png";
+                    }}
+                  />
                 </div>
               ))}
             </div>

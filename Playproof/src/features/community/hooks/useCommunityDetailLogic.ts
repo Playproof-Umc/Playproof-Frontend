@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState, useEffect } from "react";
 import type { BoardPost } from "@/features/community/types/types";
 import type { CommunityComment } from "@/features/community/types/types";
 import { useAuthStore } from "@/store/authStore";
-import { getComments, addComment, editComment, deleteComment } from "@/features/community/api/communityApi";
+import { getComments, addComment, editComment, deleteComment, toggleLike } from "@/features/community/api/communityApi";
 
 const FALLBACK_USER_ID = "user-1";
 const FALLBACK_USER_NAME = "사용자";
@@ -37,8 +37,16 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
   const [editText, setEditText] = useState("");
   const [likeState, setLikeState] = useState<LikeState>({
     count: post?.likes ?? 0,
-    isLiked: false,
+    isLiked: post?.isLiked ?? false,
   });
+
+  useEffect(() => {
+    if (!post) return;
+    setLikeState({
+      count: post.likes ?? 0,
+      isLiked: post.isLiked ?? false,
+    });
+  }, [post]);
 
   const totalCommentCount = useMemo(
     () => comments.reduce((sum, comment) => sum + 1 + comment.replies.length, 0),
@@ -165,14 +173,26 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
     [editingReplyId, handleEditCancel]
   );
 
-  const handleLikeToggle = useCallback(() => {
+  const handleLikeToggle = useCallback(async () => {
+    if (!post) return;
+    try {
+      const res = await toggleLike({ postId: post.id });
+      const nextCount = res?.like_count ?? res?.likeCount;
+      const nextLiked = res?.is_liked ?? res?.isLiked;
+      if (typeof nextCount === "number" && typeof nextLiked === "boolean") {
+        setLikeState({ count: nextCount, isLiked: nextLiked });
+        return;
+      }
+    } catch {
+      // ignore and fall back to optimistic toggle
+    }
     setLikeState((prev) => {
       const next = prev.isLiked
         ? { count: Math.max(0, prev.count - 1), isLiked: false }
         : { count: prev.count + 1, isLiked: true };
       return next;
     });
-  }, []);
+  }, [post]);
 
   return {
     state: {

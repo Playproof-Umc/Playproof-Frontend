@@ -138,6 +138,7 @@ export interface BoardPost {
   title: string;
   content: string;
   likes: number;
+  isLiked?: boolean;
   views: number;
   comments: number;
   mediaType?: "photo" | "video";

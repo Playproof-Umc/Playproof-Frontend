@@ -2,7 +2,6 @@ import React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  ImagePlaceholderIcon,
 } from "@/features/community/components/community-post/CommunityPostIcons";
 
 type CommunityPostMediaCarouselProps = {
@@ -68,9 +67,12 @@ export function CommunityPostMediaCarousel({ title, images }: CommunityPostMedia
             {images.map((imageUrl, index) => (
               <img
                 key={index}
-                src={imageUrl}
+                src={imageUrl || "/no-image.png"}
                 alt={`${title} - ${index + 1}`}
                 className="h-full w-full flex-shrink-0 object-cover"
+                onError={(event) => {
+                  event.currentTarget.src = "/no-image.png";
+                }}
               />
             ))}
           </div>
@@ -119,9 +121,14 @@ export function CommunityPostMediaCarousel({ title, images }: CommunityPostMedia
           )}
         </>
       ) : (
-        <div className="flex h-full w-full items-center justify-center">
-          <ImagePlaceholderIcon />
-        </div>
+        <img
+          src="/no-image.png"
+          alt={`${title} - 기본 이미지`}
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = "/no-image.png";
+          }}
+        />
       )}
     </div>
   );

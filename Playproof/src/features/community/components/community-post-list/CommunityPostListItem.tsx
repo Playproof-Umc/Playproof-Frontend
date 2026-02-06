@@ -29,18 +29,21 @@ export function CommunityPostListItem({ post, isLast, onPostClick }: CommunityPo
         isLast ? "" : "border-b border-gray-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-1 text-gray-600">
-        <Heart className="h-5 w-5" />
+      <div className={`flex flex-col items-center gap-1 ${post.isLiked ? "text-red-500" : "text-gray-600"}`}>
+        <Heart className="h-5 w-5" fill={post.isLiked ? "currentColor" : "none"} />
         <span className="text-xs font-medium">{post.likes}</span>
       </div>
 
-      {post.thumbnail ? (
-        <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-          <img src={post.thumbnail} alt="" className="h-full w-full object-cover" />
-        </div>
-      ) : (
-        <div className="h-16 w-24 flex-shrink-0 rounded-lg bg-gray-200" />
-      )}
+      <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+        <img
+          src={post.thumbnail || "/no-image.png"}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = "/no-image.png";
+          }}
+        />
+      </div>
 
       <div className="flex-1">
         <h3 className="mb-1 font-semibold text-gray-900">{post.title}</h3>
