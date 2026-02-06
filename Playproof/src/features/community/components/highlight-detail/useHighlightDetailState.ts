@@ -4,10 +4,10 @@ import type { HighlightPost } from "@/features/community/types";
 export function useHighlightDetailState(post: HighlightPost) {
   const [commentText, setCommentText] = React.useState("");
   const [replyText, setReplyText] = React.useState("");
-  const [replyingToId, setReplyingToId] = React.useState<string | null>(null);
-  const [editingCommentId, setEditingCommentId] = React.useState<string | null>(null);
-  const [editingReplyId, setEditingReplyId] = React.useState<string | null>(null);
-  const [editingParentId, setEditingParentId] = React.useState<string | null>(null);
+  const [replyingToId, setReplyingToId] = React.useState<number | null>(null);
+  const [editingCommentId, setEditingCommentId] = React.useState<number | null>(null);
+  const [editingReplyId, setEditingReplyId] = React.useState<number | null>(null);
+  const [editingParentId, setEditingParentId] = React.useState<number | null>(null);
   const [editText, setEditText] = React.useState("");
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
@@ -20,11 +20,11 @@ export function useHighlightDetailState(post: HighlightPost) {
     });
   };
 
-  const handleReplyToggle = (commentId: string) => {
+  const handleReplyToggle = (commentId: number) => {
     setReplyingToId((prev) => (prev === commentId ? null : commentId));
   };
 
-  const handleEditStart = (commentId: string, content: string) => {
+  const handleEditStart = (commentId: number, content: string) => {
     setEditingCommentId(commentId);
     setEditingReplyId(null);
     setEditingParentId(null);
@@ -34,7 +34,7 @@ export function useHighlightDetailState(post: HighlightPost) {
     });
   };
 
-  const handleReplyEditStart = (commentId: string, replyId: string, content: string) => {
+  const handleReplyEditStart = (commentId: number, replyId: number, content: string) => {
     setEditingCommentId(null);
     setEditingReplyId(replyId);
     setEditingParentId(commentId);
