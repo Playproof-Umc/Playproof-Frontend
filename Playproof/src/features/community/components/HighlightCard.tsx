@@ -91,12 +91,19 @@ export function HighlightCard({
 
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
-      {/* 프로필 영역 */}
+      {/* 프로필/상단 영역 */}
       <div
-        onClick={handleProfileClick}
-        className="flex cursor-pointer items-center gap-3 p-4 transition hover:bg-gray-50 relative"
+        onClick={() => onPostClick(post)}
+        className="flex items-center gap-3 p-4 transition hover:bg-gray-50 relative cursor-pointer"
       >
-        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300">
+        <div
+          className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleProfileClick(e);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
           {/* 프로필 이미지 */}
           {post.profileUrl && (
             <img src={post.profileUrl} alt="프로필" className="h-10 w-10 rounded-full object-cover" />
