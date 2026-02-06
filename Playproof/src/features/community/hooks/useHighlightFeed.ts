@@ -62,7 +62,7 @@ export const useHighlightFeed = ({
     (post: HighlightPost) => {
       const comments = commentsMap[post.id];
       if (!comments) return post.commentCount ?? post.comments ?? 0;
-      return comments.reduce((sum, comment) => sum + 1 + comment.replies.length, 0);
+      return comments.reduce((sum, comment) => sum + 1 + (comment.replies?.length ?? 0), 0);
     },
     [commentsMap]
   );
