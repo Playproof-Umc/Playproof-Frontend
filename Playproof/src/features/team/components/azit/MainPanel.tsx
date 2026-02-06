@@ -55,7 +55,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   }, [activeMedia, navigate]);
 
   return (
-    <main className="flex-1 flex flex-col min-w-[400px] h-full">
+    <main className="flex-1 flex flex-col w-full min-w-0 lg:min-w-[400px] h-auto lg:h-full">
       {/* 헤더 */}
       <div className="flex-none h-12 flex items-center gap-2 mb-2 px-1">
         <h2 className="text-lg font-bold text-gray-900">{roomName}</h2>

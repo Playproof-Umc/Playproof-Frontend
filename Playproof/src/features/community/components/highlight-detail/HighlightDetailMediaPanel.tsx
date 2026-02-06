@@ -27,7 +27,7 @@ export function HighlightDetailMediaPanel({
   profileUserId,
 }: HighlightDetailMediaPanelProps) {
   return (
-    <div className="relative flex w-3/5 flex-col bg-white">
+    <div className="relative flex w-full md:w-3/5 flex-col bg-white min-h-0">
       <div className="border-b border-gray-200 p-5">
         <div className="flex items-center gap-3">
           <div

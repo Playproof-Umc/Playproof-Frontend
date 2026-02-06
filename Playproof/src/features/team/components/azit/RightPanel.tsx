@@ -23,7 +23,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
     shareToHighlight,
   } = useAzitMediaViewer(clips);
   return (
-    <aside className="w-[320px] bg-gray-50 border-l border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 p-5 gap-6">
+    <aside className="w-full lg:w-[320px] bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 p-5 gap-6">
       
       <ClipList
         clips={clips}

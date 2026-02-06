@@ -56,7 +56,7 @@ export const AzitPageView = () => {
         <Navbar />
       </div>
 
-      <div className="flex flex-col flex-1 overflow-hidden w-full max-w-[1920px] mx-auto">
+      <div className="flex flex-col flex-1 overflow-y-auto lg:overflow-hidden w-full max-w-[1920px] mx-auto">
         {/* Navigation */}
         <div className="flex-none">
           <AzitNavigation 
@@ -68,8 +68,8 @@ export const AzitPageView = () => {
         </div>
 
         {/* Header */}
-        <div className="px-6 pb-2 pt-2 shrink-0">
-          <div className="h-[60px] bg-gray-100 rounded-xl flex items-center justify-between px-6">
+        <div className="px-4 sm:px-6 pb-2 pt-2 shrink-0">
+          <div className="min-h-[60px] bg-gray-100 rounded-xl flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-3 sm:py-0">
             <div className="flex items-center gap-3">
               <button
                 onClick={handleBackClick}
@@ -84,14 +84,14 @@ export const AzitPageView = () => {
                 <span className="text-sm">{currentAzit.memberCount}</span>
               </div>
             </div>
-            <button className="text-gray-400 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <button className="text-gray-400 hover:bg-gray-200 rounded-full p-2 transition-colors self-end sm:self-auto">
               <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Content Layout */}
-        <div className="flex flex-1 px-6 pb-6 gap-8 overflow-hidden">
+        <div className="flex flex-1 flex-col lg:flex-row px-4 sm:px-6 pb-6 gap-6 lg:gap-8 overflow-visible lg:overflow-hidden">
           <LeftPanel 
             members={currentMembers} 
             schedules={schedules}  // State 전달
@@ -119,7 +119,7 @@ export const AzitPageView = () => {
             currentUserName={currentUser.nickname}
           />
           
-          <div className="w-[300px] flex flex-col shrink-0 gap-4">
+          <div className="w-full lg:w-[300px] flex flex-col shrink-0 gap-4">
              <div className="flex justify-between items-center px-1">
                <h2 className="text-lg font-bold text-gray-900">하이라이트</h2>
                <button

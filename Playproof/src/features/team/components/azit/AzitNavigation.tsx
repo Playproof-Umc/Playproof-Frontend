@@ -10,14 +10,14 @@ interface AzitNavigationProps {
   onOpenCreate: () => void;
 }
 
-export const AzitNavigation: React.FC<AzitNavigationProps> = ({ 
-  azits, 
-  selectedId, 
+export const AzitNavigation: React.FC<AzitNavigationProps> = ({
+  azits,
+  selectedId,
   onSelect,
   onOpenCreate,
 }) => {
   return (
-    <div className="flex items-center gap-3 px-6 py-4 bg-white">
+    <div className="flex items-center gap-3 px-4 sm:px-6 py-4 bg-white overflow-x-auto">
       {azits.map((azit) => (
         <button
           key={azit.id}

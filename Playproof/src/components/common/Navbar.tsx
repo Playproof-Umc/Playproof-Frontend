@@ -1,7 +1,7 @@
 // src/components/common/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
+import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2, Menu, X } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components';
 import { NAV_LINKS } from '@/constants/navigation';
 import { Button } from '@/components/ui/Button';
@@ -20,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   // 드롭다운 외부 클릭 감지를 위한 Ref
   const profileRef = useRef<HTMLDivElement>(null);
@@ -117,6 +118,14 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 1. 로고 및 네비게이션 */}
         <div className="flex items-center gap-8">
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(true)}
+            className="md:hidden p-2 rounded-full hover:bg-gray-100 text-gray-600"
+            aria-label="메뉴 열기"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => navigate('/home')}>
             <h1 className="text-2xl font-black tracking-tighter">PLAYPROOF</h1>
             <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600">Pro</span>
@@ -221,6 +230,68 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           )}
         </div>
       </div>
+
+      {/* 모바일 네비게이션 */}
+      {isMobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[120] bg-black/40"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <aside className="fixed left-0 top-0 z-[121] h-full w-[280px] bg-white shadow-2xl border-r border-gray-200 p-6 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-1">
+                <h2 className="text-lg font-black tracking-tighter">PLAYPROOF</h2>
+                <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">Pro</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
+                aria-label="메뉴 닫기"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <nav className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+              {NAV_LINKS.map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    navigate(item.path);
+                    setIsMobileOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                    isActive(item.path) ? "bg-gray-100 text-black" : "hover:bg-gray-50"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="mt-6 border-t border-gray-200 pt-4">
+              {isAuthPage ? (
+                <Button
+                  variant="primary"
+                  className="w-full h-10 rounded-md text-sm"
+                  onClick={() => {
+                    navigate('/login');
+                    setIsMobileOpen(false);
+                  }}
+                >
+                  로그인
+                </Button>
+              ) : (
+                <div className="rounded-xl border border-gray-200 overflow-hidden">
+                  {renderProfileMenu()}
+                </div>
+              )}
+            </div>
+          </aside>
+        </>
+      )}
     </header>
   );
 };
