@@ -32,10 +32,12 @@ const createMediaTypeChecker = (filters: CommunityFilterState) => (mediaType?: "
 const matchHighlightQuery = (post: HighlightPost, normalizedQuery: string) => {
   if (!normalizedQuery) return true;
   const title = post.title ?? "";
+  const content = post.content ?? "";
+  const author = post.author ?? post.nickname ?? "";
   return (
     title.toLowerCase().includes(normalizedQuery) ||
-    post.content.toLowerCase().includes(normalizedQuery) ||
-    post.author.toLowerCase().includes(normalizedQuery)
+    content.toLowerCase().includes(normalizedQuery) ||
+    author.toLowerCase().includes(normalizedQuery)
   );
 };
 
