@@ -30,3 +30,13 @@ export interface Clip {
   date: string;
   thumbnailUrl: string;
 }
+
+export interface CustomMatchSchedule {
+  id: string;
+  title: string;        // 유저가 직접 입력하는 제목
+  startTime: string;    // 시작 시간 (예: "20:00")
+  targetDate: Date;     // 매칭 마감 시각 (카운트다운 기준)
+  currentParticipants: number;
+  maxParticipants: number;
+  status: '모집중' | '매칭완료';
+}

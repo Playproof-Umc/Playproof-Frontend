@@ -2,16 +2,16 @@
 import React from 'react';
 import { Plus, Volume2, Mic } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import type { User } from '@/types';
-
-import type { Schedule } from '@/types';
+import type { User, Schedule } from '@/types';
 
 interface LeftPanelProps {
   members: User[];
   schedules?: Schedule[];
+  // ✅ 수정: 이벤트를 통해 '기준이 될 요소(HTMLElement)'를 전달받도록 변경
+  onAddSchedule?: (target: HTMLElement) => void;
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] }) => {
+export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [], onAddSchedule }) => {
   const mainSchedule = schedules[0];
   const secondarySchedule = schedules[1];
   const tertiarySchedule = schedules[2];
@@ -20,13 +20,29 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] })
     d ? d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '';
   const formatTime = (d?: Date) =>
     d ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
+
   return (
     <aside className="w-[340px] flex flex-col gap-6 pr-2 overflow-y-auto pb-10 shrink-0 custom-scrollbar">
       
       {/* 스케줄 섹션 */}
       <section>
-        <h2 className="text-lg font-bold text-gray-900 mb-3 px-1">스케줄</h2>
-        
+        {/* ✅ 헤더 영역: 이 div가 모달의 위치 기준점이 됩니다. */}
+        <div className="flex justify-between items-center mb-3 px-1 relative">
+          <h2 className="text-lg font-bold text-gray-900">스케줄</h2>
+          <button 
+            onClick={(e) => {
+              // ✅ 핵심 수정: 버튼이 아닌 '헤더 전체 영역(부모 div)'을 anchor로 전달
+              // e.currentTarget = button, parentElement = div.flex...
+              if (onAddSchedule && e.currentTarget.parentElement) {
+                onAddSchedule(e.currentTarget.parentElement);
+              }
+            }}
+            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+            type="button"
+          >
+            <Plus className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
         
         <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-xl bg-white">
           
@@ -91,7 +107,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] })
             </div>
           </div>
 
-          {/* 하위 일정  */}
+          {/* 하위 일정 1 */}
           <div className="p-4 border-b border-gray-100 last:border-0">
              <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-gray-900 text-base">
@@ -140,7 +156,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] })
         </Card>
       </section>
 
-      {/*음성 채팅 섹션 */}
+      {/* 음성 채팅 섹션 */}
       <section>
         <div className="flex justify-between items-center mb-2 px-1">
           <h2 className="text-lg font-bold text-gray-900">음성 채팅</h2>

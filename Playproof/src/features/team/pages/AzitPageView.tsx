@@ -4,11 +4,12 @@ import { useLocation } from 'react-router-dom';
 import { Settings, Users } from 'lucide-react';
 import { Navbar } from '@/components/common/Navbar';
 
-// 분리된 컴포넌트 및 데이터 import
 import { AzitNavigation } from '@/features/team/components/azit/AzitNavigation';
 import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
 import { MainPanel } from '@/features/team/components/azit/MainPanel';
 import { RightPanel } from '@/features/team/components/azit/RightPanel';
+import { ScheduleCreateModal } from '@/features/team/components/schedule/ScheduleCreateModal';
+
 import {
   MOCK_MY_AZITS,
   mockClipsByAzit,
@@ -20,10 +21,19 @@ export const AzitPageView = () => {
   const location = useLocation();
   const state = location.state as { azitId?: number } | null;
   const [currentAzitId, setCurrentAzitId] = useState<number>(state?.azitId ?? 1);
+  
+  // 모달 위치의 기준이 될 요소(Anchor Element)
+  const [scheduleAnchorEl, setScheduleAnchorEl] = useState<HTMLElement | null>(null);
+
   const currentAzit = MOCK_MY_AZITS.find(a => a.id === currentAzitId) || MOCK_MY_AZITS[0];
   const currentMembers = mockMembersByAzit[currentAzitId] ?? mockMembersByAzit[1];
   const currentClips = mockClipsByAzit[currentAzitId] ?? mockClipsByAzit[1];
   const currentSchedules = mockSchedulesByAzit[currentAzitId] ?? mockSchedulesByAzit[1];
+
+  const handleCreateSchedule = (data: any) => {
+    console.log("새 스케줄 데이터:", data);
+    // TODO: 백엔드 API 전송 로직
+  };
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -59,8 +69,13 @@ export const AzitPageView = () => {
 
         {/* Content Layout */}
         <div className="flex flex-1 px-6 pb-6 gap-8 overflow-hidden">
-          <LeftPanel members={currentMembers} schedules={currentSchedules} />
-          {/* 아지트 변경 시 채팅 상태 리셋을 위해 key prop 사용 */}
+          {/* ✅ LeftPanel에서 넘겨준 요소(헤더 div)를 상태에 저장 */}
+          <LeftPanel 
+            members={currentMembers} 
+            schedules={currentSchedules} 
+            onAddSchedule={(target) => setScheduleAnchorEl(target)}
+          />
+          
           <MainPanel key={currentAzitId} />
           
           <div className="w-[300px] flex flex-col shrink-0 gap-4">
@@ -72,6 +87,13 @@ export const AzitPageView = () => {
           </div>
         </div>
       </div>
+
+      {/* Anchor Element가 있으면 모달을 렌더링하고, 위치를 해당 요소 기준으로 잡음 */}
+      <ScheduleCreateModal 
+        anchorEl={scheduleAnchorEl}
+        onClose={() => setScheduleAnchorEl(null)}
+        onCreate={handleCreateSchedule}
+      />
     </div>
   );
 };
