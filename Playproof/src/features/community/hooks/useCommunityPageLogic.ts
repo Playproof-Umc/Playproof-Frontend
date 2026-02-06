@@ -42,6 +42,7 @@ export const useCommunityPageLogic = () => {
   const handleHighlightClick = (post: HighlightPost) => {
     setSelectedPost(post);
     setIsModalOpen(true);
+    highlightActions.fetchComments(post.id);
   };
 
   const handleBoardClick = (post: BoardPost) => {

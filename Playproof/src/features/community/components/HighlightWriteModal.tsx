@@ -1,32 +1,59 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { WriteModalUploadBox } from "@/features/community/components/WriteModalUploadBox";
+import { createHighlight } from "@/services/api";
+
+// 타입을 직접 정의하여 import 오류 방지
+interface CreateHighlightMedia {
+  media_url: string;
+  order: number;
+}
 
 type HighlightWriteModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: { title?: string; content: string; images: File[] }) => void;
 };
 
-export function HighlightWriteModal({ isOpen, onClose, onSubmit }: HighlightWriteModalProps) {
+export function HighlightWriteModal({ isOpen, onClose }: HighlightWriteModalProps) {
   if (!isOpen) return null;
-
-  return <HighlightWriteModalContent onClose={onClose} onSubmit={onSubmit} />;
+  return <HighlightWriteModalContent onClose={onClose} />;
 }
 
-function HighlightWriteModalContent({
-  onClose,
-  onSubmit,
-}: Omit<HighlightWriteModalProps, "isOpen">) {
-  const [title] = useState("");
+function HighlightWriteModalContent({ onClose }: { onClose: () => void }) {
   const [content, setContent] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  // 실제 서비스에서는 S3 업로드 후 media_url을 받아야 함
+  // 여기서는 File 객체의 name을 임시 URL로 사용 (실제 구현 시 S3 업로드 필요)
+  const getMediaUrls = async (files: File[]): Promise<CreateHighlightMedia[]> => {
+    // TODO: S3 업로드 로직 필요
+    // 임시로 파일명을 media_url로 사용
+    return files.map((file, idx) => ({
+      media_url: file.name, // 실제는 S3 업로드 후 URL
+      order: idx + 1,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!content.trim() && images.length === 0 && !title.trim()) return;
-    onSubmit({ title: title.trim() || undefined, content: content.trim(), images });
-    onClose();
+    setError(null);
+    if (!content.trim() && images.length === 0) return;
+    setLoading(true);
+    try {
+      const medias = await getMediaUrls(images);
+      await createHighlight({
+        content: content.trim(),
+        is_public: true,
+        medias,
+      });
+      onClose();
+    } catch (e: any) {
+      setError("업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,14 +88,16 @@ function HighlightWriteModalContent({
                 className="w-full resize-none rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:border-gray-400 focus:outline-none"
               />
             </div>
+            {error && <div className="text-red-500 text-xs mt-2">{error}</div>}
           </div>
 
           <div className="mt-6">
             <button
               type="submit"
               className="w-full bg-black text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+              disabled={loading}
             >
-              업로드
+              {loading ? "업로드 중..." : "업로드"}
             </button>
           </div>
         </form>

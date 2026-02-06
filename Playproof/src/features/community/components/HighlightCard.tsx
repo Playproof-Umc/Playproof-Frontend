@@ -4,27 +4,21 @@ import { useNavigate } from "react-router-dom";
 import type { HighlightPost } from "@/features/community/types";
 
 interface HighlightCardProps {
-  post: {
-    highlight_id: number;
-    user_id: number;
-    nickname: string;
-    profileUrl: string | null;
-    content: string;
-    medias: string[];
-    comment_count: number;
-    like_count: number;
-    is_liked: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  post: HighlightPost;
+  likeCount: number;
+  isLiked: boolean;
+  commentCount: number;
   onToggleLike: (postId: number) => void;
-  onPostClick: (post: any) => void;
+  onPostClick: (post: HighlightPost) => void;
   currentUserName: string;
   onDeletePost?: (postId: number) => void;
 }
 
 export function HighlightCard({
   post,
+  likeCount,
+  isLiked,
+  commentCount,
   onToggleLike,
   onPostClick,
   currentUserName,
@@ -47,7 +41,7 @@ export function HighlightCard({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onToggleLike(post.highlight_id);
+    onToggleLike(post.id ?? post.highlight_id);
   };
 
   const handleComment = (e: React.MouseEvent) => {
@@ -115,12 +109,12 @@ export function HighlightCard({
             {post.createdAt ? getRelativeTime(post.createdAt) : '날짜 없음'}
           </p>
         </div>
-        {post.nickname === currentUserName && onDeletePost ? (
+        {(post.nickname ?? post.author) === currentUserName && onDeletePost ? (
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onDeletePost(post.highlight_id);
+              onDeletePost(post.id ?? post.highlight_id);
             }}
             className="ml-auto rounded-lg px-2 py-1 text-[10px] font-semibold text-gray-500 hover:text-gray-700"
           >
@@ -134,13 +128,13 @@ export function HighlightCard({
         onClick={() => onPostClick(post)}
         className="relative aspect-square cursor-pointer bg-gray-200"
       >
-        {post.medias && post.medias.length > 0 ? (
+        {(post.medias ?? post.images ?? []).length > 0 ? (
           <>
             <img
               src={
-                post.medias[currentImageIndex].startsWith('http')
-                  ? post.medias[currentImageIndex]
-                  : `${import.meta.env.VITE_API_BASE_URL}/uploads/${post.medias[currentImageIndex]}`
+                (post.medias ?? post.images ?? [])[currentImageIndex].startsWith('http')
+                  ? (post.medias ?? post.images ?? [])[currentImageIndex]
+                  : `${import.meta.env.VITE_API_BASE_URL}/uploads/${(post.medias ?? post.images ?? [])[currentImageIndex]}`
               }
               alt=""
               className="h-full w-full object-cover"
@@ -149,10 +143,10 @@ export function HighlightCard({
               }}
             />
             {/* 이미지 개수 표시 */}
-            {post.medias.length > 1 && (
+            {(post.medias ?? post.images ?? []).length > 1 && (
               <>
                 <div className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white">
-                  {currentImageIndex + 1} / {post.medias.length}
+                  {currentImageIndex + 1} / {(post.medias ?? post.images ?? []).length}
                 </div>
                 {/* 이미지 네비게이션 */}
                 <div className="absolute inset-0 flex items-center justify-between px-2">
@@ -166,7 +160,7 @@ export function HighlightCard({
                       </svg>
                     </button>
                   )}
-                  {currentImageIndex < post.medias.length - 1 && (
+                  {currentImageIndex < (post.medias ?? post.images ?? []).length - 1 && (
                     <button
                       onClick={handleNextImage}
                       className="ml-auto rounded-full bg-white/80 p-1.5 text-gray-800 shadow-md hover:bg-white"
@@ -193,18 +187,18 @@ export function HighlightCard({
           <button
             onClick={handleLike}
             className={`flex items-center gap-1 text-sm transition ${
-              post.is_liked ? "text-red-600" : "text-gray-700 hover:text-gray-900"
+              isLiked ? "text-red-600" : "text-gray-700 hover:text-gray-900"
             }`}
           >
-            <Heart className="h-5 w-5" fill={post.is_liked ? "currentColor" : "none"} />
-            <span className="font-medium">{post.like_count}</span>
+            <Heart className="h-5 w-5" fill={isLiked ? "currentColor" : "none"} />
+            <span className="font-medium">{likeCount}</span>
           </button>
           <button
             onClick={handleComment}
             className="flex items-center gap-1 text-sm text-gray-700 transition hover:text-gray-900"
           >
             <MessageCircle className="h-5 w-5" />
-            <span className="font-medium">{post.comment_count}</span>
+            <span className="font-medium">{commentCount}</span>
           </button>
           <button
             onClick={handleShare}
@@ -217,7 +211,7 @@ export function HighlightCard({
         {/* 제목/내용 영역 */}
         <div className="text-sm">
           <p className="text-gray-900">
-            <span className="font-semibold">{post.nickname}</span>{" "}
+            <span className="font-semibold">{post.nickname ?? post.author ?? ""}</span>{" "}
             {isExpanded || !needsTruncate
               ? post.content
               : truncateText(post.content)}
