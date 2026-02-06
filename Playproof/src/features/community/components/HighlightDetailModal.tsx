@@ -1,24 +1,25 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { HighlightPost, Comment } from "@/features/community/types";
+import type { Highlight, CommunityComment } from "@/features/community/types/types";
 import { useNavigate } from "react-router-dom";
 import { HighlightDetailMediaPanel } from "@/features/community/components/highlight-detail/HighlightDetailMediaPanel";
 import { HighlightDetailCommentsPanel } from "@/features/community/components/highlight-detail/HighlightDetailCommentsPanel";
 import { useHighlightDetailState } from "@/features/community/components/highlight-detail/useHighlightDetailState";
 
-interface HighlightDetailModalProps {
-  post: HighlightPost;
-  comments: Comment[];
+
+export interface HighlightDetailModalProps {
+  post: Highlight;
+  comments: CommunityComment[];
   likeCount: number;
   isLiked: boolean;
   totalCommentCount: number;
   onToggleLike: (postId: number) => void;
   onAddComment: (postId: number, content: string) => void;
-  onAddReply: (postId: number, commentId: string, content: string) => void;
-  onEditComment: (postId: number, commentId: string, content: string) => void;
-  onEditReply: (postId: number, commentId: string, replyId: string, content: string) => void;
-  onDeleteComment: (postId: number, commentId: string) => void;
-  onDeleteReply: (postId: number, commentId: string, replyId: string) => void;
+  onAddReply: (postId: number, commentId: number, content: string) => void;
+  onEditComment: (postId: number, commentId: number, content: string) => void;
+  onEditReply: (postId: number, commentId: number, replyId: number, content: string) => void;
+  onDeleteComment: (postId: number, commentId: number) => void;
+  onDeleteReply: (postId: number, commentId: number, replyId: number) => void;
   currentUserName: string;
   isOpen: boolean;
   onClose: () => void;
@@ -64,7 +65,7 @@ function HighlightDetailModalContent({
     actions.focusCommentInput();
   };
 
-  const handleReplySubmit = (commentId: string) => {
+  const handleReplySubmit = (commentId: number) => {
     if (!state.replyText.trim()) return;
     onAddReply(post.id, commentId, state.replyText.trim());
     actions.setReplyText("");
@@ -76,12 +77,12 @@ function HighlightDetailModalContent({
     const nextText = state.editText.trim();
     if (!nextText) return;
     if (state.editingCommentId) {
-      onEditComment(post.id, state.editingCommentId, nextText);
+      onEditComment(post.id, Number(state.editingCommentId), nextText);
       actions.handleEditCancel();
       return;
     }
     if (state.editingReplyId && state.editingParentId) {
-      onEditReply(post.id, state.editingParentId, state.editingReplyId, nextText);
+      onEditReply(post.id, Number(state.editingParentId), Number(state.editingReplyId), nextText);
       actions.handleEditCancel();
     }
   };
@@ -124,13 +125,13 @@ function HighlightDetailModalContent({
           currentUserName={currentUserName}
           commentText={state.commentText}
           onCommentTextChange={actions.setCommentText}
-          onCommentKeyDown={(event) => actions.handleCommentKeyDown(event, handleCommentSubmit)}
+          onCommentKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => actions.handleCommentKeyDown(event, handleCommentSubmit)}
           onCommentSubmit={handleCommentSubmit}
           commentInputRef={refs.commentInputRef}
           replyingToId={state.replyingToId}
           replyText={state.replyText}
           onReplyTextChange={actions.setReplyText}
-          onReplyKeyDown={(event, commentId) =>
+          onReplyKeyDown={(event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: number) =>
             actions.handleReplyKeyDown(event, () => handleReplySubmit(commentId))
           }
           onReplySubmit={handleReplySubmit}
@@ -141,13 +142,13 @@ function HighlightDetailModalContent({
           editingParentId={state.editingParentId}
           editText={state.editText}
           onEditTextChange={actions.setEditText}
-          onEditKeyDown={(event) => actions.handleEditKeyDown(event, handleEditSubmit)}
+          onEditKeyDown={(event: React.KeyboardEvent<HTMLTextAreaElement>) => actions.handleEditKeyDown(event, handleEditSubmit)}
           onEditStart={actions.handleEditStart}
           onReplyEditStart={actions.handleReplyEditStart}
           onEditCancel={actions.handleEditCancel}
           onEditSubmit={handleEditSubmit}
-          onDeleteComment={(commentId) => onDeleteComment(post.id, commentId)}
-          onDeleteReply={(commentId, replyId) => onDeleteReply(post.id, commentId, replyId)}
+          onDeleteComment={(commentId: number) => onDeleteComment(post.id, commentId)}
+          onDeleteReply={(commentId: number, replyId: number) => onDeleteReply(post.id, commentId, replyId)}
           editInputRef={refs.editInputRef}
           onMoveToProfile={handleMoveToProfile}
           profileUserId={resolvedProfileUserId}
