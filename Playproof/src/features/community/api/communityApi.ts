@@ -1,4 +1,4 @@
-import type { HighlightPost, CommunityPost, CommunityComment, User } from '@/features/community/types/types';
+import type { HighlightPost, CommunityPost, CommunityComment, User, BoardPost } from '@/features/community/types/types';
 import { api } from '@/services/api';
 
 const normalizeUser = (user: any): User | undefined => {
@@ -113,10 +113,37 @@ export async function deleteComment(commentId: number) {
 export async function getBoardPosts(gameId: number, page: number = 1, limit: number = 10): Promise<CommunityPost[]> {
   const res = await api.get(`/community/games/${gameId}/posts`, { params: { page, limit } });
   const data = res.data.data;
-  if (Array.isArray(data)) {
-    return data as CommunityPost[];
-  }
-  return [];
+  if (!Array.isArray(data)) return [];
+  return data.map((item: any) => ({
+    id: item.post_id ?? item.id,
+    author: item.nickname ?? item.author ?? "",
+    date: item.created_at ?? "",
+    createdAt: item.created_at ?? "",
+    game: item.game_name ?? item.game ?? "",
+    title: item.title ?? "",
+    content: item.content ?? "",
+    likes: item.like_count ?? 0,
+    views: item.view_count ?? 0,
+    comments: item.comment_count ?? 0,
+    mediaType: (item.medias ?? []).length > 0 ? "photo" : undefined,
+    thumbnail: item.medias?.[0]?.media_url ?? item.thumbnail ?? undefined,
+  })) as BoardPost[];
+}
+
+// 자유게시판 글 작성
+export async function createBoardPost(payload: {
+  game_id: number;
+  title: string;
+  content: string;
+  medias?: { media_url: string; order: number }[];
+}) {
+  const res = await api.post('/community/posts', {
+    game_id: payload.game_id,
+    title: payload.title,
+    content: payload.content,
+    medias: payload.medias ?? [],
+  });
+  return res.data.data;
 }
 
 /**
