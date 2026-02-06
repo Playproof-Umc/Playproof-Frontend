@@ -12,6 +12,19 @@ export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) 
   // 상위 3개만 표시
   const topPosts = posts.slice(0, 3);
 
+  const getRelativeTime = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "";
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString("ko-KR");
+  };
+
   return (
     <section className="mb-8 mt-6">
       {/* 정렬 드롭다운 */}
@@ -67,7 +80,7 @@ export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) 
 
             {/* 날짜 및 통계 */}
             <div className="flex flex-col items-end gap-1 text-right">
-              <span className="text-xs text-gray-500">{post.date}</span>
+              <span className="text-xs text-gray-500">{getRelativeTime(post.createdAt || post.date)}</span>
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <Eye className="h-3.5 w-3.5" />
