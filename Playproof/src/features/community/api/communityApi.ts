@@ -3,10 +3,15 @@ import { api } from '@/services/api';
 
 // 댓글 목록 조회
 export async function getComments({ highlightId, postId, parentId, page = 1, limit = 20 }: { highlightId?: number; postId?: number; parentId?: number; page?: number; limit?: number }) {
-  // highlightId 또는 postId로 필터링
   const params: any = { page, limit };
-  if (highlightId) params.highlight_id = highlightId;
-  if (postId) params.post_id = postId;
+  if (highlightId) {
+    params.target_type = 'HIGHLIGHT';
+    params.target_id = highlightId;
+  }
+  if (postId) {
+    params.target_type = 'POST';
+    params.target_id = postId;
+  }
   if (parentId) params.parent_id = parentId;
   const res = await api.get('/community/comments', { params });
   return res.data.data?.comments || [];
@@ -14,10 +19,22 @@ export async function getComments({ highlightId, postId, parentId, page = 1, lim
 
 // 댓글 작성
 export async function addComment({ highlightId, postId, content, parentId }: { highlightId?: number; postId?: number; content: string; parentId?: number }) {
-  const payload: any = { content };
-  if (highlightId) payload.highlight_id = highlightId;
-  if (postId) payload.post_id = postId;
-  if (parentId) payload.parent_id = parentId;
+  // 새로운 API 스펙에 맞게 요청 바디 구성
+  let target_type = '';
+  let target_id = 0;
+  if (highlightId) {
+    target_type = 'HIGHLIGHT';
+    target_id = highlightId;
+  } else if (postId) {
+    target_type = 'POST';
+    target_id = postId;
+  }
+  const payload = {
+    target_type,
+    target_id,
+    parent_id: parentId ?? 0,
+    content,
+  };
   const res = await api.post('/community/comments', payload);
   return res.data.data;
 }
