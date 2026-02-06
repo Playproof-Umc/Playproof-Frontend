@@ -1,5 +1,6 @@
 // src/features/team/pages/AzitPageView.tsx
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import { Settings, Users } from 'lucide-react';
 import { Navbar } from '@/components/common/Navbar';
 
@@ -8,23 +9,31 @@ import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
 import { MainPanel } from '@/features/team/components/azit/MainPanel';
 import { RightPanel } from '@/features/team/components/azit/RightPanel';
 import { ScheduleCreateModal } from '@/features/team/components/schedule/ScheduleCreateModal';
+import { AzitCreateModal } from '@/features/team/components/azit/AzitCreateModal';
 
 import { useAzitPageLogic } from '@/features/team/hooks/useAzitPageLogic';
 
 export const AzitPageView = () => {
+  const navigate = useNavigate();
   const { state, actions } = useAzitPageLogic();
+  const [isAzitCreateOpen, setIsAzitCreateOpen] = React.useState(false);
   const {
     currentAzitId,
     scheduleAnchorEl,
+    selectedChatRoom,
+    voiceRooms,
+    textRooms,
+    messages,
     currentAzit,
     currentMembers,
     currentClips,
     schedules,
     currentUserId,
+    currentUser,
   } = state;
 
   const handleCreateSchedule = (data: any) => {
-    console.log("새 스케줄 데이터:", data);
+    actions.addSchedule(data);
   };
 
   return (
@@ -40,6 +49,7 @@ export const AzitPageView = () => {
             azits={state.azits}
             selectedId={currentAzitId} 
             onSelect={actions.setCurrentAzitId}
+            onOpenCreate={() => setIsAzitCreateOpen(true)}
           />
         </div>
 
@@ -67,14 +77,35 @@ export const AzitPageView = () => {
             currentUserId={currentUserId}
             onAddSchedule={(target) => actions.setScheduleAnchorEl(target)}
             onStatusChange={actions.handleStatusChange} // 핸들러 전달
+            selectedChatRoom={selectedChatRoom}
+            onSelectChatRoom={actions.setSelectedChatRoom}
+            voiceRooms={voiceRooms}
+            onJoinVoiceRoom={(roomId) => actions.joinVoiceRoom(roomId)}
+            textRooms={textRooms}
+            onCreateChatRoom={actions.addChatRoom}
+            onRenameVoiceRoom={actions.renameVoiceRoom}
+            onDeleteVoiceRoom={actions.deleteVoiceRoom}
+            onRenameChatRoom={actions.renameChatRoom}
+            onDeleteChatRoom={actions.deleteChatRoom}
           />
           
-          <MainPanel key={currentAzitId} />
+          <MainPanel
+            key={currentAzitId}
+            roomName={selectedChatRoom}
+            messages={messages}
+            onSendMessage={actions.addChatMessage}
+            currentUserName={currentUser.nickname}
+          />
           
           <div className="w-[300px] flex flex-col shrink-0 gap-4">
              <div className="flex justify-between items-center px-1">
                <h2 className="text-lg font-bold text-gray-900">하이라이트</h2>
-               <button className="text-xs text-gray-500 underline font-medium">전체보기</button>
+               <button
+                 className="text-xs text-gray-500 underline font-medium"
+                 onClick={() => navigate("/community?tab=하이라이트")}
+               >
+                 전체보기
+               </button>
              </div>
              <RightPanel clips={currentClips} />
           </div>
@@ -85,6 +116,15 @@ export const AzitPageView = () => {
         anchorEl={scheduleAnchorEl}
         onClose={() => actions.setScheduleAnchorEl(null)}
         onCreate={handleCreateSchedule}
+      />
+
+      <AzitCreateModal
+        open={isAzitCreateOpen}
+        onClose={() => setIsAzitCreateOpen(false)}
+        onCreate={({ name, iconUrl }) => {
+          actions.addAzit(name, iconUrl);
+          setIsAzitCreateOpen(false);
+        }}
       />
     </div>
   );

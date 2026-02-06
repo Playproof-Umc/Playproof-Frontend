@@ -1,3 +1,5 @@
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/common/Navbar";
 import {
   CommunityTabs,
@@ -19,6 +21,34 @@ const COMMUNITY_BOARD_GAMES = ["전체글", ...GAME_LIST];
 
 export const CommunityPageView = () => {
   const { ui, data, modal, user, actions } = useCommunityPageLogic();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [sharedFiles, setSharedFiles] = React.useState<File[]>([]);
+  const shareState = location.state as { shareFiles?: File[] } | null;
+
+  React.useEffect(() => {
+    if (!shareState?.shareFiles || shareState.shareFiles.length === 0) return;
+    if (ui.activeTab !== COMMUNITY_PAGE_LABELS.highlightTab) {
+      actions.tab.change(COMMUNITY_PAGE_LABELS.highlightTab);
+    }
+    setSharedFiles(shareState.shareFiles);
+    actions.modal.setWriteOpen(true);
+    navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
+  }, [
+    actions.modal,
+    actions.tab,
+    navigate,
+    location.pathname,
+    location.search,
+    shareState,
+    ui.activeTab,
+  ]);
+
+  React.useEffect(() => {
+    if (!modal.isWriteOpen && sharedFiles.length > 0) {
+      setSharedFiles([]);
+    }
+  }, [modal.isWriteOpen, sharedFiles.length]);
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -121,6 +151,7 @@ export const CommunityPageView = () => {
           isOpen={modal.isWriteOpen}
           onClose={() => actions.modal.setWriteOpen(false)}
           onSubmit={actions.write.submit}
+          initialImages={sharedFiles}
         />
       )}
     </div>

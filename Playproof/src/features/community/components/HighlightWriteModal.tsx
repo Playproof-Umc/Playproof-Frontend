@@ -6,21 +6,34 @@ type HighlightWriteModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (payload: { title?: string; content: string; images: File[] }) => void;
+  initialImages?: File[];
 };
 
-export function HighlightWriteModal({ isOpen, onClose, onSubmit }: HighlightWriteModalProps) {
+export function HighlightWriteModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialImages,
+}: HighlightWriteModalProps) {
   if (!isOpen) return null;
 
-  return <HighlightWriteModalContent onClose={onClose} onSubmit={onSubmit} />;
+  return (
+    <HighlightWriteModalContent
+      onClose={onClose}
+      onSubmit={onSubmit}
+      initialImages={initialImages}
+    />
+  );
 }
 
 function HighlightWriteModalContent({
   onClose,
   onSubmit,
+  initialImages = [],
 }: Omit<HighlightWriteModalProps, "isOpen">) {
   const [title] = useState("");
   const [content, setContent] = useState("");
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<File[]>(initialImages);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +61,7 @@ function HighlightWriteModalContent({
         <form onSubmit={handleSubmit} className="px-6 py-5 max-h-[calc(90vh-96px)] overflow-y-auto">
           <div className="space-y-4">
             <div>
-              <WriteModalUploadBox onFilesChange={setImages} />
+              <WriteModalUploadBox onFilesChange={setImages} initialFiles={initialImages} />
             </div>
 
             <div>

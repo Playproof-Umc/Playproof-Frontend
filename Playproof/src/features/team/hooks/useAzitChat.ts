@@ -3,17 +3,31 @@ import { useState, useRef, ChangeEvent } from 'react';
 export const useAzitChat = () => {
   const [message, setMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [previewItems, setPreviewItems] = useState<{ url: string; type: "image" | "video" }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const MAX_FILES = 10;
 
   // 파일 선택
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    setSelectedFiles((prev) => [...prev, ...files]);
-    const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+    let nextFiles: File[] = [];
+    setSelectedFiles((prev) => {
+      const remaining = MAX_FILES - prev.length;
+      if (remaining <= 0) {
+        return prev;
+      }
+      nextFiles = files.slice(0, remaining);
+      return [...prev, ...nextFiles];
+    });
+    if (nextFiles.length > 0) {
+      const newPreviewItems = nextFiles.map((file) => ({
+        url: URL.createObjectURL(file),
+        type: file.type.startsWith("video/") ? "video" : "image",
+      }));
+      setPreviewItems((prev) => [...prev, ...newPreviewItems]);
+    }
     
     // 같은 파일 재선택 가능하도록 초기화
     e.target.value = '';
@@ -22,8 +36,8 @@ export const useAzitChat = () => {
   // 이미지 삭제
   const handleRemoveImage = (indexToRemove: number) => {
     setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-    setPreviewUrls((prev) => {
-      URL.revokeObjectURL(prev[indexToRemove]); // 메모리 해제
+    setPreviewItems((prev) => {
+      URL.revokeObjectURL(prev[indexToRemove].url); // 메모리 해제
       return prev.filter((_, index) => index !== indexToRemove);
     });
   };
@@ -42,8 +56,8 @@ export const useAzitChat = () => {
     // 초기화
     setMessage('');
     setSelectedFiles([]);
-    setPreviewUrls((prev) => {
-      prev.forEach(url => URL.revokeObjectURL(url));
+    setPreviewItems((prev) => {
+      prev.forEach((item) => URL.revokeObjectURL(item.url));
       return [];
     });
   };
@@ -51,7 +65,8 @@ export const useAzitChat = () => {
   return {
     message,
     setMessage,
-    previewUrls,
+    selectedFiles,
+    previewItems,
     fileInputRef,
     handleFileSelect,
     handleRemoveImage,

@@ -7,12 +7,14 @@ interface AzitNavigationProps {
   azits: Azit[];
   selectedId: number;
   onSelect: (id: number) => void;
+  onOpenCreate: () => void;
 }
 
 export const AzitNavigation: React.FC<AzitNavigationProps> = ({ 
   azits, 
   selectedId, 
-  onSelect 
+  onSelect,
+  onOpenCreate,
 }) => {
   return (
     <div className="flex items-center gap-3 px-6 py-4 bg-white">
@@ -38,7 +40,7 @@ export const AzitNavigation: React.FC<AzitNavigationProps> = ({
       ))}
       <button 
         className="w-14 h-14 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-500 transition-colors shrink-0"
-        onClick={() => alert('아지트 생성')}
+        onClick={onOpenCreate}
       >
         <Plus className="w-6 h-6" />
       </button>

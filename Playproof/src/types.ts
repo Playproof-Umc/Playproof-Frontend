@@ -34,4 +34,7 @@ export interface Clip {
   id: string;
   date: string;
   thumbnailUrl: string;
+  mediaType?: 'image' | 'video';
+  mediaUrl?: string;
+  durationLabel?: string;
 }
