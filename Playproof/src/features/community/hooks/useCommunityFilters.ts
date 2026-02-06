@@ -13,17 +13,23 @@ type UseCommunityFiltersArgs = {
   highlights: HighlightPost[];
   boardPosts: BoardPost[];
   itemsPerPage?: number;
+  boardGame?: string;
+  setBoardGame?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const useCommunityFilters = ({
   highlights,
   boardPosts,
   itemsPerPage = 10,
+  boardGame: externalBoardGame,
+  setBoardGame: setExternalBoardGame,
 }: UseCommunityFiltersArgs) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<CommunityFilterState>(DEFAULT_FILTERS);
-  const [boardGame, setBoardGame] = React.useState("전체글");
+  const [internalBoardGame, setInternalBoardGame] = React.useState("전체글");
+  const boardGame = externalBoardGame ?? internalBoardGame;
+  const setBoardGame = setExternalBoardGame ?? setInternalBoardGame;
 
   const filteredHighlights = React.useMemo(
     () => filterHighlights(highlights, filters, searchQuery),

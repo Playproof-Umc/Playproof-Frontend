@@ -77,12 +77,18 @@ export const filterBoardPosts = (
   const matchesMediaType = createMediaTypeChecker(filters);
   const isWithinRange = createDateRangeChecker(filters);
   const shouldMatchGame = boardGame !== "전체글";
+  const BOARD_GAME_ID_MAP: Record<string, number> = {
+    "리그오브레전드": 1,
+    "발로란트": 2,
+    "오버워치": 3,
+  };
+  const targetGameId = BOARD_GAME_ID_MAP[boardGame];
 
   return boardPosts.filter(
     (post) =>
       matchBoardQuery(post, normalizedQuery) &&
       matchesMediaType(post.mediaType) &&
       isWithinRange(post.createdAt) &&
-      (!shouldMatchGame || post.game === boardGame)
+      (!shouldMatchGame || post.game === boardGame || post.gameId === targetGameId)
   );
 };

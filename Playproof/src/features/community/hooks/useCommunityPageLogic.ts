@@ -21,23 +21,17 @@ export const useCommunityPageLogic = () => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [selectedPost, setSelectedPost] = React.useState<HighlightPost | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [boardGame, setBoardGame] = React.useState("전체글");
 
   const currentTab = searchParams.get("tab");
   const activeTab: CommunityTab =
     currentTab === COMMUNITY_PAGE_LABELS.freeTab
       ? COMMUNITY_PAGE_LABELS.freeTab
       : COMMUNITY_PAGE_LABELS.highlightTab;
-
   const handleTabChange = (tab: CommunityTab) => {
     setSearchParams({ tab });
     setCurrentPage(1);
   };
-
-  const { boardPosts, setBoardPosts, bestPosts, loading } = useCommunityDataLoad({
-    activeTab,
-    currentPage,
-    hydrateHighlights: highlightActions.hydrateFromPosts,
-  });
 
   const handleHighlightClick = (post: HighlightPost) => {
     setSelectedPost(post);
@@ -54,6 +48,26 @@ export const useCommunityPageLogic = () => {
     setSelectedPost(null);
   };
 
+  const BOARD_GAME_ID_MAP: Record<string, number> = {
+    "전체글": 0,
+    "리그오브레전드": 1,
+    "발로란트": 2,
+    "오버워치": 3,
+  };
+  const boardGameId = BOARD_GAME_ID_MAP[boardGame] ?? 0;
+
+  const {
+    boardPosts: loadedBoardPosts,
+    setBoardPosts: setLoadedBoardPosts,
+    bestPosts: loadedBestPosts,
+    loading: loadedLoading,
+  } = useCommunityDataLoad({
+    activeTab,
+    currentPage,
+    boardGameId,
+    hydrateHighlights: highlightActions.hydrateFromPosts,
+  });
+
   const {
     searchQuery,
     setSearchQuery,
@@ -62,15 +76,15 @@ export const useCommunityPageLogic = () => {
     setIsFilterOpen,
     filters,
     setFilters,
-    boardGame,
-    setBoardGame,
     filteredHighlights,
     filteredBoardPosts,
     totalPages,
   } = useCommunityFilters({
     highlights: highlightState.highlights,
-    boardPosts,
+    boardPosts: loadedBoardPosts,
     itemsPerPage: 10,
+    boardGame,
+    setBoardGame,
   });
 
   const {
@@ -84,7 +98,7 @@ export const useCommunityPageLogic = () => {
     currentUserName: highlightState.currentUserName,
     boardGame,
     addHighlightPost: highlightActions.addHighlightPost,
-    setBoardPosts,
+    setBoardPosts: setLoadedBoardPosts,
   });
 
   React.useEffect(() => {
@@ -103,8 +117,8 @@ export const useCommunityPageLogic = () => {
       boardGame,
     },
     data: {
-      bestPosts,
-      loading,
+      bestPosts: loadedBestPosts,
+      loading: loadedLoading,
       filteredHighlights,
       filteredBoardPosts,
       totalPages,

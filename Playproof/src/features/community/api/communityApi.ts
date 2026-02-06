@@ -1,4 +1,4 @@
-import type { HighlightPost, CommunityPost, CommunityComment, User, BoardPost } from '@/features/community/types/types';
+import type { HighlightPost, CommunityComment, User, BoardPost } from '@/features/community/types/types';
 import { api } from '@/services/api';
 
 const normalizeUser = (user: any): User | undefined => {
@@ -50,6 +50,29 @@ const buildCommentTree = (items: CommunityComment[]) => {
 
   return roots;
 };
+
+const BOARD_GAME_NAME_MAP: Record<number, string> = {
+  1: "리그오브레전드",
+  2: "발로란트",
+  3: "오버워치",
+};
+
+const mapBoardPost = (item: any): BoardPost => ({
+  id: item.post_id ?? item.id,
+  userId: item.user_id ?? item.userId,
+  gameId: item.game_id ?? item.gameId,
+  author: item.nickname ?? item.author ?? "",
+  date: item.created_at ?? "",
+  createdAt: item.created_at ?? "",
+  game: BOARD_GAME_NAME_MAP[item.game_id ?? item.gameId] ?? item.game_name ?? item.game ?? "",
+  title: item.title ?? "",
+  content: item.content ?? "",
+  likes: item.like_count ?? 0,
+  views: item.view_count ?? 0,
+  comments: item.comment_count ?? 0,
+  mediaType: (item.medias ?? []).length > 0 ? "photo" : undefined,
+  thumbnail: item.medias?.[0]?.media_url ?? item.thumbnail ?? undefined,
+});
 
 // 댓글 목록 조회
 export async function getComments({ highlightId, postId, parentId, page = 1, limit = 20 }: { highlightId?: number; postId?: number; parentId?: number; page?: number; limit?: number }) {
@@ -110,24 +133,11 @@ export async function deleteComment(commentId: number) {
 /**
  * 게시판 글 목록 조회 (실제 API 연동)
  */
-export async function getBoardPosts(gameId: number, page: number = 1, limit: number = 10): Promise<CommunityPost[]> {
+export async function getBoardPosts(gameId: number, page: number = 1, limit: number = 10): Promise<BoardPost[]> {
   const res = await api.get(`/community/games/${gameId}/posts`, { params: { page, limit } });
   const data = res.data.data;
-  if (!Array.isArray(data)) return [];
-  return data.map((item: any) => ({
-    id: item.post_id ?? item.id,
-    author: item.nickname ?? item.author ?? "",
-    date: item.created_at ?? "",
-    createdAt: item.created_at ?? "",
-    game: item.game_name ?? item.game ?? "",
-    title: item.title ?? "",
-    content: item.content ?? "",
-    likes: item.like_count ?? 0,
-    views: item.view_count ?? 0,
-    comments: item.comment_count ?? 0,
-    mediaType: (item.medias ?? []).length > 0 ? "photo" : undefined,
-    thumbnail: item.medias?.[0]?.media_url ?? item.thumbnail ?? undefined,
-  })) as BoardPost[];
+  const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
+  return posts.map((item: any) => mapBoardPost(item));
 }
 
 // 자유게시판 글 작성
@@ -171,13 +181,15 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
 /**
  * 베스트 게시글 조회 (실제 API 연동)
  */
-export async function getBestPosts(limit: number = 5): Promise<CommunityPost[]> {
-  const res = await api.get('/community/posts/best', { params: { limit } });
-  const data = res.data.data;
-  if (Array.isArray(data)) {
-    return data as CommunityPost[];
+export async function getBestPosts(limit: number = 5): Promise<BoardPost[]> {
+  try {
+    const res = await api.get('/community/posts/best', { params: { limit } });
+    const data = res.data.data;
+    const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
+    return posts.map((item: any) => mapBoardPost(item));
+  } catch {
+    return [];
   }
-  return [];
 }
 
 // 하이라이트 상세 조회 (단일)
