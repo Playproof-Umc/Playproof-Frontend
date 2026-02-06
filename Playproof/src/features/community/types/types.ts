@@ -33,6 +33,8 @@ export interface CommunityLike {
   postId?: number;
   likedAt: string; // ISO date string
   user: User;
+  highlight?: Highlight;
+  post?: CommunityPost;
 }
 
 export interface CommunityComment {
@@ -46,6 +48,9 @@ export interface CommunityComment {
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   user: User;
+  highlight?: Highlight;
+  post?: CommunityPost;
+  parent?: CommunityComment;
   replies: CommunityComment[];
 }
 
@@ -77,4 +82,62 @@ export interface CommunityPost {
   comments: CommunityComment[];
   likes: CommunityLike[];
   medias: CommunityMedia[];
+}
+
+// UI 전용 타입 (기존 화면/필터/목록에 사용)
+export type CommunityTab = "하이라이트" | "자유게시판";
+
+export interface CommentReply {
+  id: string | number;
+  author: string;
+  avatarUrl?: string;
+  content: string;
+  date: string;
+  parentId?: string | number;
+}
+
+export interface Comment {
+  id: string | number;
+  author: string;
+  avatarUrl?: string;
+  content: string;
+  date: string;
+  replies: CommentReply[];
+}
+
+export interface HighlightPost {
+  id: number;
+  userId?: number;
+  nickname?: string;
+  profileUrl?: string | null;
+  author?: string;
+  date?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  title?: string;
+  content: string;
+  likes?: number;
+  views?: number;
+  comments?: number;
+  mediaType?: "photo" | "video";
+  images?: string[];
+  medias?: string[];
+  commentCount?: number;
+  likeCount?: number;
+  isLiked?: boolean;
+}
+
+export interface BoardPost {
+  id: number;
+  author: string;
+  date: string;
+  createdAt: string;
+  game: string;
+  title: string;
+  content: string;
+  likes: number;
+  views: number;
+  comments: number;
+  mediaType?: "photo" | "video";
+  thumbnail?: string;
 }
