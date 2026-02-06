@@ -11,12 +11,14 @@ React, TypeScript, Vite를 기반으로 하며, 유지보수성을 위해 **기�
 
 | 분류 | 기술 | 비고 |
 | :--- | :--- | :--- |
-| **Core** | ![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) | UI 라이브러리 및 언어 |
-| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.0-purple) | 빌드 도구 및 개발 서버 |
+| **Core** | ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) | UI 라이브러리 및 언어 |
+| **Build** | ![Vite](https://img.shields.io/badge/Vite-7.2-purple) | 빌드 도구 및 개발 서버 |
 | **State** | **TanStack Query** (Server), **Zustand** (Client) | 서버/클라이언트 상태 관리 분리 |
 | **Network** | **Axios** | HTTP 비동기 통신 라이브러리 |
 | **Style** | ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC) | CSS |
 | **Routing** | **React Router DOM** | SPA 라우팅 |
+| **Date** | **React Day Picker** | 캘린더/날짜 선택 UI |
+| **Icons** | **lucide-react** | 아이콘 라이브러리 |
 | **Pkg Mgr** | **npm** | 패키지 매니저 |
 | **Quality** | ESLint, Prettier | 코드 품질 및 포맷팅 (수동 실행) |
 
