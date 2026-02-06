@@ -1,4 +1,3 @@
-
 import type { Highlight, CommunityPost } from '@/features/community/types/types';
 import { api } from '@/services/api';
 
@@ -46,4 +45,26 @@ export async function getBestPosts(limit: number = 5): Promise<CommunityPost[]> 
     return data as CommunityPost[];
   }
   return [];
+}
+
+// 하이라이트 상세 조회 (단일)
+export async function getHighlightDetail(highlightId: number) {
+  const res = await api.get(`/community/highlights/${highlightId}`);
+  const item = res.data.data;
+  // camelCase로 변환 및 기본 이미지 처리
+  return {
+    id: item.highlight_id,
+    userId: item.user_id,
+    nickname: item.nickname,
+    profileUrl: item.profileUrl || '/no-image.png',
+    content: item.content,
+    medias: (item.medias && item.medias.length > 0)
+      ? item.medias.map((m: string) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
+      : ['/no-image.png'],
+    commentCount: item.comment_count,
+    likeCount: item.like_count,
+    isLiked: item.is_liked,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  };
 }
