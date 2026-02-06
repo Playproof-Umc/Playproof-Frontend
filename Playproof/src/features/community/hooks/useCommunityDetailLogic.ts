@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import type { BoardPost, Comment, CommentReply } from "@/features/community/types";
-import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import type { BoardPost } from "@/features/community/types/types";
+import type { CommunityComment } from "@/features/community/types/types";
 import { useAuthStore } from "@/store/authStore";
+import { getComments, addComment, editComment, deleteComment } from "@/features/community/api/communityApi";
 
 const FALLBACK_USER_ID = "user-1";
 const FALLBACK_USER_NAME = "사용자";
@@ -19,11 +20,20 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
 
   const [commentText, setCommentText] = useState("");
   const [replyText, setReplyText] = useState("");
-  const [replyingToId, setReplyingToId] = useState<string | null>(null);
-  const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
-  const [editingParentId, setEditingParentId] = useState<string | null>(null);
+  const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [comments, setComments] = useState<CommunityComment[]>([]);
+    // 댓글 목록 불러오기
+    useEffect(() => {
+      if (!post) return;
+      const fetchComments = async () => {
+        const res = await getComments({ postId: post.id });
+        setComments(res);
+      };
+      fetchComments();
+    }, [post]);
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editingParentId, setEditingParentId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [likeState, setLikeState] = useState<LikeState>({
     count: post?.likes ?? 0,
@@ -35,50 +45,47 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
     [comments]
   );
 
-  const handleCommentSubmit = useCallback(() => {
-    if (!commentText.trim()) return;
-    const newComment: Comment = {
-      id: String(Date.now()),
-      author: currentUserName,
-      avatarUrl: "",
-      content: commentText.trim(),
-      date: "방금 전",
-      replies: [],
-    };
-    setComments((prev) => [newComment, ...prev]);
+  const handleCommentSubmit = useCallback(async () => {
+    if (!commentText.trim() || !post) return;
+    const res = await addComment({ postId: post.id, content: commentText.trim() });
+    if (res) {
+      // 새로고침 없이 추가
+      setComments((prev) => [res, ...prev]);
+    } else {
+      const refreshed = await getComments({ postId: post.id });
+      setComments(refreshed);
+    }
     setCommentText("");
-  }, [commentText, currentUserName]);
+  }, [commentText, post]);
 
-  const handleReplyToggle = useCallback((commentId: string) => {
+  const handleReplyToggle = useCallback((commentId: number) => {
     setReplyingToId((prev) => (prev === commentId ? null : commentId));
     setReplyText("");
   }, []);
 
   const handleReplySubmit = useCallback(
-    (commentId: string) => {
-      if (!replyText.trim()) return;
-      const newReply: CommentReply = {
-        id: String(Date.now()),
-        author: currentUserName,
-        avatarUrl: "",
-        content: replyText.trim(),
-        date: "방금 전",
-        parentId: commentId,
-      };
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === commentId
-            ? { ...comment, replies: [...comment.replies, newReply] }
-            : comment
-        )
-      );
+    async (commentId: number) => {
+      if (!replyText.trim() || !post) return;
+      const res = await addComment({ postId: post.id, content: replyText.trim(), parentId: commentId });
+      if (res) {
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, replies: [...(comment.replies || []), res] }
+              : comment
+          )
+        );
+      } else {
+        const refreshed = await getComments({ postId: post.id });
+        setComments(refreshed);
+      }
       setReplyText("");
       setReplyingToId(null);
     },
-    [replyText, currentUserName]
+    [replyText, post]
   );
 
-  const handleEditCommentStart = useCallback((commentId: string, content: string) => {
+  const handleEditCommentStart = useCallback((commentId: number, content: string) => {
     setEditingCommentId(commentId);
     setEditingReplyId(null);
     setEditingParentId(null);
@@ -86,7 +93,7 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
   }, []);
 
   const handleEditReplyStart = useCallback(
-    (commentId: string, replyId: string, content: string) => {
+    (commentId: number, replyId: number, content: string) => {
       setEditingCommentId(null);
       setEditingReplyId(replyId);
       setEditingParentId(commentId);
@@ -102,26 +109,28 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
     setEditText("");
   }, []);
 
-  const handleEditSubmit = () => {
+  const handleEditSubmit = async () => {
     const nextText = editText.trim();
     if (!nextText) return;
     if (editingCommentId) {
+      await editComment({ commentId: Number(editingCommentId), content: nextText });
       setComments((prev) =>
         prev.map((comment) =>
-          comment.id === editingCommentId ? { ...comment, content: nextText } : comment
+          comment.id === Number(editingCommentId) ? { ...comment, content: nextText } : comment
         )
       );
       handleEditCancel();
       return;
     }
     if (editingReplyId && editingParentId) {
+      await editComment({ commentId: Number(editingReplyId), content: nextText });
       setComments((prev) =>
         prev.map((comment) =>
-          comment.id === editingParentId
+          comment.id === Number(editingParentId)
             ? {
                 ...comment,
                 replies: comment.replies.map((reply) =>
-                  reply.id === editingReplyId ? { ...reply, content: nextText } : reply
+                  reply.id === Number(editingReplyId) ? { ...reply, content: nextText } : reply
                 ),
               }
             : comment
@@ -131,7 +140,8 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
     }
   };
 
-  const handleDeleteComment = useCallback((commentId: string) => {
+  const handleDeleteComment = useCallback(async (commentId: number) => {
+    await deleteComment(commentId);
     setComments((prev) => prev.filter((comment) => comment.id !== commentId));
     if (editingCommentId === commentId) {
       handleEditCancel();
@@ -139,7 +149,8 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
   }, [editingCommentId, handleEditCancel]);
 
   const handleDeleteReply = useCallback(
-    (commentId: string, replyId: string) => {
+    async (commentId: number, replyId: number) => {
+      await deleteComment(replyId);
       setComments((prev) =>
         prev.map((comment) =>
           comment.id === commentId
