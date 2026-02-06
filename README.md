@@ -68,6 +68,7 @@ src/
 ├── assets/              # 이미지, 폰트 등 정적 리소스
 ├── components/          # 전역 공통 UI (Button, Modal 등)
 │   └── ui/              # 디자인 시스템 기반의 원자 단위 컴포넌트
+│       └── ModalShell.tsx
 │
 ├── data/                # Mock Data (개발용 더미 데이터) ⭐️ (New)
 ├── types.ts             # 전역 공통 타입 정의 ⭐️ (New)
@@ -76,6 +77,18 @@ src/
 │   ├── auth/            # 로그인, 회원가입
 │   ├── user/            # 프로필, TS(신뢰지수), 매너 평가
 │   ├── team/            # 아지트, 팀 캘린더, 엠블럼
+│   │   ├── components/
+│   │   │   ├── azit/
+│   │   │   ├── feedback/
+│   │   │   └── schedule/
+│   │   ├── hooks/
+│   │   │   ├── useAzitFeedback.ts
+│   │   │   ├── useAzitMedia.ts
+│   │   │   ├── useAzitMediaViewer.ts
+│   │   │   ├── useAzitRooms.ts
+│   │   │   └── useAzitSchedules.ts
+│   │   └── utils/
+│   │       └── pendingFeedback.ts
 │   ├── matching/        # 매칭 필터 리스트
 │   └── chat/            # 채팅방, 미디어 아카이브
 │
