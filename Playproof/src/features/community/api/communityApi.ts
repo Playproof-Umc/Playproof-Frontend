@@ -11,6 +11,12 @@ const normalizeUser = (user: any): User | undefined => {
 };
 
 const normalizeComment = (item: any): CommunityComment => {
+  const user = normalizeUser(item.user) ?? (item.nickname ? {
+    id: item.user_id ?? item.userId ?? 0,
+    nickname: item.nickname ?? "",
+    profileImage: item.profile_image ?? item.profileImage ?? undefined,
+  } : undefined);
+
   return {
     id: item.id ?? item.comment_id ?? 0,
     userId: item.userId ?? item.user_id ?? 0,
@@ -21,7 +27,7 @@ const normalizeComment = (item: any): CommunityComment => {
     isPublic: item.isPublic ?? item.is_public ?? true,
     createdAt: item.createdAt ?? item.created_at ?? "",
     updatedAt: item.updatedAt ?? item.updated_at ?? "",
-    user: normalizeUser(item.user) as User,
+    user: user as User,
     highlight: item.highlight,
     post: item.post,
     parent: item.parent,
@@ -68,6 +74,7 @@ const mapBoardPost = (item: any): BoardPost => ({
   title: item.title ?? "",
   content: item.content ?? "",
   likes: item.like_count ?? 0,
+  isLiked: item.is_liked ?? item.isLiked ?? false,
   views: item.view_count ?? 0,
   comments: item.comment_count ?? 0,
   mediaType: (item.medias ?? []).length > 0 ? "photo" : undefined,
@@ -127,6 +134,21 @@ export async function editComment({ commentId, content }: { commentId: number; c
 // 댓글 삭제
 export async function deleteComment(commentId: number) {
   const res = await api.delete(`/community/comments/${commentId}`);
+  return res.data.data;
+}
+
+// 좋아요 토글
+export async function toggleLike({ highlightId, postId }: { highlightId?: number; postId?: number }) {
+  let target_type = "";
+  let target_id = 0;
+  if (highlightId) {
+    target_type = "HIGHLIGHT";
+    target_id = highlightId;
+  } else if (postId) {
+    target_type = "POST";
+    target_id = postId;
+  }
+  const res = await api.post("/community/likes", { target_type, target_id });
   return res.data.data;
 }
 
