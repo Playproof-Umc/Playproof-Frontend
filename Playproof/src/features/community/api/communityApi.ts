@@ -1,5 +1,55 @@
-import type { HighlightPost, CommunityPost } from '@/features/community/types/types';
+import type { HighlightPost, CommunityPost, CommunityComment, User } from '@/features/community/types/types';
 import { api } from '@/services/api';
+
+const normalizeUser = (user: any): User | undefined => {
+  if (!user) return undefined;
+  return {
+    id: user.id ?? user.user_id ?? 0,
+    nickname: user.nickname ?? user.name ?? "",
+    profileImage: user.profileImage ?? user.profile_image ?? undefined,
+  };
+};
+
+const normalizeComment = (item: any): CommunityComment => {
+  return {
+    id: item.id ?? item.comment_id ?? 0,
+    userId: item.userId ?? item.user_id ?? 0,
+    highlightId: item.highlightId ?? item.highlight_id ?? undefined,
+    postId: item.postId ?? item.post_id ?? undefined,
+    parentId: item.parentId ?? item.parent_id ?? undefined,
+    content: item.content ?? "",
+    isPublic: item.isPublic ?? item.is_public ?? true,
+    createdAt: item.createdAt ?? item.created_at ?? "",
+    updatedAt: item.updatedAt ?? item.updated_at ?? "",
+    user: normalizeUser(item.user) as User,
+    highlight: item.highlight,
+    post: item.post,
+    parent: item.parent,
+    replies: Array.isArray(item.replies)
+      ? item.replies.map((reply: any) => normalizeComment(reply))
+      : [],
+  };
+};
+
+const buildCommentTree = (items: CommunityComment[]) => {
+  const byId = new Map<number, CommunityComment>();
+  const roots: CommunityComment[] = [];
+
+  items.forEach((comment) => {
+    byId.set(comment.id, { ...comment, replies: comment.replies ?? [] });
+  });
+
+  byId.forEach((comment) => {
+    if (comment.parentId && byId.has(comment.parentId)) {
+      const parent = byId.get(comment.parentId)!;
+      parent.replies = [...(parent.replies ?? []), comment];
+    } else {
+      roots.push(comment);
+    }
+  });
+
+  return roots;
+};
 
 // 댓글 목록 조회
 export async function getComments({ highlightId, postId, parentId, page = 1, limit = 20 }: { highlightId?: number; postId?: number; parentId?: number; page?: number; limit?: number }) {
@@ -14,7 +64,10 @@ export async function getComments({ highlightId, postId, parentId, page = 1, lim
   }
   if (parentId) params.parent_id = parentId;
   const res = await api.get('/community/comments', { params });
-  return res.data.data?.comments || [];
+  const raw = res.data.data?.comments ?? res.data.data ?? [];
+  if (!Array.isArray(raw)) return [];
+  const normalized = raw.map((item: any) => normalizeComment(item));
+  return buildCommentTree(normalized);
 }
 
 // 댓글 작성
@@ -29,14 +82,17 @@ export async function addComment({ highlightId, postId, content, parentId }: { h
     target_type = 'POST';
     target_id = postId;
   }
-  const payload = {
+  const payload: any = {
     target_type,
     target_id,
-    parent_id: parentId ?? 0,
     content,
   };
+  if (typeof parentId === 'number' && Number.isFinite(parentId)) {
+    payload.parent_id = parentId;
+  }
   const res = await api.post('/community/comments', payload);
-  return res.data.data;
+  const raw = res.data.data?.comment ?? res.data.data;
+  return raw ? normalizeComment(raw) : undefined;
 }
 
 // 댓글 수정
