@@ -1,6 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { Highlight, CommunityComment } from "@/features/community/types/types";
+import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
 import { useNavigate } from "react-router-dom";
 import { HighlightDetailMediaPanel } from "@/features/community/components/highlight-detail/HighlightDetailMediaPanel";
 import { HighlightDetailCommentsPanel } from "@/features/community/components/highlight-detail/HighlightDetailCommentsPanel";
@@ -8,7 +8,7 @@ import { useHighlightDetailState } from "@/features/community/components/highlig
 
 
 export interface HighlightDetailModalProps {
-  post: Highlight;
+  post: HighlightPost;
   comments: CommunityComment[];
   likeCount: number;
   isLiked: boolean;
