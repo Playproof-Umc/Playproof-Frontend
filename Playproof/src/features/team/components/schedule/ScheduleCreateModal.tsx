@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { X, Calendar as CalendarIcon, Clock, AlertCircle } from "lucide-react"; // AlertCircle 추가
 import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/style.css"; 
@@ -6,6 +6,7 @@ import "react-day-picker/style.css";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/utils/cn";
+import { useScheduleCreateState } from "@/features/team/hooks/useScheduleCreateState";
 
 // ---[ 시간 선택기 (변경 없음) ]---
 interface TimeSelection {
@@ -63,69 +64,25 @@ interface ScheduleCreateModalProps {
 }
 
 export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCreateModalProps) => {
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-
-  const [title, setTitle] = useState("");
-  const [recruitCount, setRecruitCount] = useState(0); // 0명이어도 생성 가능 (필요 시 1로 수정)
-  const [gameDate, setGameDate] = useState<Date | undefined>(undefined);
-  const [isGameDateOpen, setIsGameDateOpen] = useState(false);
-  const [gameStartTime, setGameStartTime] = useState<TimeSelection>({ ampm: "AM", hour: 12, minute: 0 });
-  const [gameEndTime, setGameEndTime] = useState<TimeSelection>({ ampm: "AM", hour: 12, minute: 0 });
-  const [recruitRange, setRecruitRange] = useState<DateRange | undefined>(undefined);
-  const [isRecruitDateOpen, setIsRecruitDateOpen] = useState(false);
-  const [recruitStartTime, setRecruitStartTime] = useState<TimeSelection>({ ampm: "AM", hour: 12, minute: 0 });
-  const [recruitEndTime, setRecruitEndTime] = useState<TimeSelection>({ ampm: "AM", hour: 12, minute: 0 });
-  const [activeTimePicker, setActiveTimePicker] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (anchorEl) {
-      const rect = anchorEl.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + window.scrollY + 8, 
-        left: rect.left + window.scrollX
-      });
-    }
-  }, [anchorEl]);
+  const { state, actions } = useScheduleCreateState({ anchorEl, onCreate, onClose });
 
   if (!anchorEl) return null;
-
-  const handleRecruitCount = (delta: number) => setRecruitCount((prev) => Math.max(0, prev + delta));
-  const formatDate = (date: Date | undefined) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : "날짜를 선택해주세요.";
-  const formatRange = (range: DateRange | undefined) => range?.from ? `${formatDate(range.from)} ~ ${range.to ? formatDate(range.to) : formatDate(range.from)}` : "날짜를 선택해주세요.";
-
-  // ✅ [핵심 수정] 유효성 검사 로직 개선
-  const validateForm = () => {
-    if (!title.trim()) return { isValid: false, msg: "제목을 입력해주세요." };
-    if (!gameDate) return { isValid: false, msg: "게임 일정을 선택해주세요." };
-    if (!recruitRange?.from) return { isValid: false, msg: "모집 기간을 선택해주세요." };
-    
-    // 날짜 비교 시 '시간'을 00:00:00으로 초기화하여 순수 날짜만 비교
-    const game = new Date(gameDate);
-    game.setHours(0, 0, 0, 0);
-
-    const recruitStart = new Date(recruitRange.from);
-    recruitStart.setHours(0, 0, 0, 0);
-
-    // 모집 시작일이 게임일보다 늦으면 안 됨
-    if (recruitStart > game) return { isValid: false, msg: "모집 기간이 게임 일정보다 늦습니다." };
-
-    if (recruitRange.to) {
-      const recruitEnd = new Date(recruitRange.to);
-      recruitEnd.setHours(0, 0, 0, 0);
-      // 모집 종료일이 게임일보다 늦으면 안 됨
-      if (recruitEnd > game) return { isValid: false, msg: "모집 종료일은 게임 일정 이전이어야 합니다." };
-    }
-
-    return { isValid: true, msg: "" };
-  };
-
-  const { isValid, msg } = validateForm();
-
-  const handleSubmit = () => {
-    if (!isValid) return;
-    onCreate({ title, recruitCount, gameDate, gameStartTime, gameEndTime, recruitRange, recruitStartTime, recruitEndTime });
-    onClose();
-  };
+  const {
+    position,
+    title,
+    recruitCount,
+    gameDate,
+    isGameDateOpen,
+    gameStartTime,
+    gameEndTime,
+    recruitRange,
+    isRecruitDateOpen,
+    recruitStartTime,
+    recruitEndTime,
+    activeTimePicker,
+    isValid,
+    msg,
+  } = state;
 
   return (
     <>
@@ -151,16 +108,32 @@ export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCre
           {/* 1. 제목 */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-gray-900">제목</label>
-            <Input variant="light" placeholder="최대 20글자" maxLength={20} value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input
+              variant="light"
+              placeholder="최대 20글자"
+              maxLength={20}
+              value={title}
+              onChange={(e) => actions.setTitle(e.target.value)}
+            />
           </div>
 
           {/* 2. 모집 인원 */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-gray-900">모집 인원</label>
             <div className="flex items-center justify-between border border-gray-300 rounded-lg px-4 h-12">
-              <button onClick={() => handleRecruitCount(-1)} className="text-gray-400 hover:text-black text-xl font-medium px-2">-</button>
+              <button
+                onClick={() => actions.handleRecruitCount(-1)}
+                className="text-gray-400 hover:text-black text-xl font-medium px-2"
+              >
+                -
+              </button>
               <span className="font-bold text-lg">{recruitCount}</span>
-              <button onClick={() => handleRecruitCount(1)} className="text-gray-400 hover:text-black text-xl font-medium px-2">+</button>
+              <button
+                onClick={() => actions.handleRecruitCount(1)}
+                className="text-gray-400 hover:text-black text-xl font-medium px-2"
+              >
+                +
+              </button>
             </div>
           </div>
 
@@ -169,19 +142,19 @@ export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCre
             <label className="text-sm font-bold text-gray-900">게임 일정</label>
             <div className="grid grid-cols-1 gap-2">
               <div className="relative">
-                <button onClick={() => setIsGameDateOpen(!isGameDateOpen)} className="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white flex items-center justify-between text-sm text-gray-900 hover:border-gray-400">
-                  <span className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gray-400" />{formatDate(gameDate)}</span>
+                <button onClick={() => actions.setIsGameDateOpen(!isGameDateOpen)} className="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white flex items-center justify-between text-sm text-gray-900 hover:border-gray-400">
+                  <span className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gray-400" />{actions.formatDate(gameDate)}</span>
                   <span className="text-[10px] text-gray-400">▼</span>
                 </button>
                 {isGameDateOpen && (
                   <div className="absolute top-full left-0 mt-2 bg-white border rounded-xl shadow-xl z-50 p-2">
-                    <DayPicker mode="single" selected={gameDate} onSelect={(date) => { setGameDate(date); setIsGameDateOpen(false); }} styles={{ head_cell: { width: "40px" }, cell: { width: "40px" } }} />
+                    <DayPicker mode="single" selected={gameDate} onSelect={(date) => { actions.setGameDate(date); actions.setIsGameDateOpen(false); }} styles={{ head_cell: { width: "40px" }, cell: { width: "40px" } }} />
                   </div>
                 )}
               </div>
               <div className="flex gap-2">
-                <TimePicker value={gameStartTime} onChange={setGameStartTime} isOpen={activeTimePicker === 'gameStart'} onToggle={() => setActiveTimePicker(activeTimePicker === 'gameStart' ? null : 'gameStart')} />
-                <TimePicker value={gameEndTime} onChange={setGameEndTime} isOpen={activeTimePicker === 'gameEnd'} onToggle={() => setActiveTimePicker(activeTimePicker === 'gameEnd' ? null : 'gameEnd')} />
+                <TimePicker value={gameStartTime} onChange={actions.setGameStartTime} isOpen={activeTimePicker === 'gameStart'} onToggle={() => actions.setActiveTimePicker(activeTimePicker === 'gameStart' ? null : 'gameStart')} />
+                <TimePicker value={gameEndTime} onChange={actions.setGameEndTime} isOpen={activeTimePicker === 'gameEnd'} onToggle={() => actions.setActiveTimePicker(activeTimePicker === 'gameEnd' ? null : 'gameEnd')} />
               </div>
             </div>
           </div>
@@ -191,20 +164,20 @@ export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCre
             <label className="text-sm font-bold text-gray-900">인원 모집 기간</label>
             <div className="grid grid-cols-1 gap-2">
                <div className="relative">
-                <button onClick={() => setIsRecruitDateOpen(!isRecruitDateOpen)} className="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white flex items-center justify-between text-sm text-gray-900 hover:border-gray-400">
-                  <span className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gray-400" />{formatRange(recruitRange)}</span>
+                <button onClick={() => actions.setIsRecruitDateOpen(!isRecruitDateOpen)} className="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white flex items-center justify-between text-sm text-gray-900 hover:border-gray-400">
+                  <span className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gray-400" />{actions.formatRange(recruitRange)}</span>
                   <span className="text-[10px] text-gray-400">▼</span>
                 </button>
                 {isRecruitDateOpen && (
                   <div className="absolute top-full left-0 mt-2 bg-white border rounded-xl shadow-xl z-50 p-2">
-                    <DayPicker mode="range" selected={recruitRange} onSelect={setRecruitRange} numberOfMonths={1} styles={{ head_cell: { width: "40px" }, cell: { width: "40px" } }} />
-                    <div className="flex justify-end p-2 border-t mt-2"><button onClick={() => setIsRecruitDateOpen(false)} className="text-blue-600 text-sm font-bold">적용</button></div>
+                    <DayPicker mode="range" selected={recruitRange} onSelect={actions.setRecruitRange} numberOfMonths={1} styles={{ head_cell: { width: "40px" }, cell: { width: "40px" } }} />
+                    <div className="flex justify-end p-2 border-t mt-2"><button onClick={() => actions.setIsRecruitDateOpen(false)} className="text-blue-600 text-sm font-bold">적용</button></div>
                   </div>
                 )}
               </div>
               <div className="flex gap-2">
-                <TimePicker value={recruitStartTime} onChange={setRecruitStartTime} isOpen={activeTimePicker === 'recruitStart'} onToggle={() => setActiveTimePicker(activeTimePicker === 'recruitStart' ? null : 'recruitStart')} />
-                <TimePicker value={recruitEndTime} onChange={setRecruitEndTime} isOpen={activeTimePicker === 'recruitEnd'} onToggle={() => setActiveTimePicker(activeTimePicker === 'recruitEnd' ? null : 'recruitEnd')} />
+                <TimePicker value={recruitStartTime} onChange={actions.setRecruitStartTime} isOpen={activeTimePicker === 'recruitStart'} onToggle={() => actions.setActiveTimePicker(activeTimePicker === 'recruitStart' ? null : 'recruitStart')} />
+                <TimePicker value={recruitEndTime} onChange={actions.setRecruitEndTime} isOpen={activeTimePicker === 'recruitEnd'} onToggle={() => actions.setActiveTimePicker(activeTimePicker === 'recruitEnd' ? null : 'recruitEnd')} />
               </div>
             </div>
           </div>
@@ -219,7 +192,7 @@ export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCre
               <span>{msg}</span>
             </div>
           )}
-          <Button fullWidth variant={isValid ? "primary" : "secondary"} disabled={!isValid} onClick={handleSubmit} className="h-12 text-base rounded-xl">업로드</Button>
+          <Button fullWidth variant={isValid ? "primary" : "secondary"} disabled={!isValid} onClick={actions.handleSubmit} className="h-12 text-base rounded-xl">업로드</Button>
         </div>
       </div>
     </>

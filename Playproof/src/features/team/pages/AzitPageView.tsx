@@ -1,6 +1,5 @@
 // src/features/team/pages/AzitPageView.tsx
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
 import { Settings, Users } from 'lucide-react';
 import { Navbar } from '@/components/common/Navbar';
 
@@ -10,29 +9,22 @@ import { MainPanel } from '@/features/team/components/azit/MainPanel';
 import { RightPanel } from '@/features/team/components/azit/RightPanel';
 import { ScheduleCreateModal } from '@/features/team/components/schedule/ScheduleCreateModal';
 
-import {
-  MOCK_MY_AZITS,
-  mockClipsByAzit,
-  mockMembersByAzit,
-  mockSchedulesByAzit,
-} from '@/features/team/data/mockTeamData';
+import { useAzitPageLogic } from '@/features/team/hooks/useAzitPageLogic';
 
 export const AzitPageView = () => {
-  const location = useLocation();
-  const state = location.state as { azitId?: number } | null;
-  const [currentAzitId, setCurrentAzitId] = useState<number>(state?.azitId ?? 1);
-  
-  // 모달 위치의 기준이 될 요소(Anchor Element)
-  const [scheduleAnchorEl, setScheduleAnchorEl] = useState<HTMLElement | null>(null);
-
-  const currentAzit = MOCK_MY_AZITS.find(a => a.id === currentAzitId) || MOCK_MY_AZITS[0];
-  const currentMembers = mockMembersByAzit[currentAzitId] ?? mockMembersByAzit[1];
-  const currentClips = mockClipsByAzit[currentAzitId] ?? mockClipsByAzit[1];
-  const currentSchedules = mockSchedulesByAzit[currentAzitId] ?? mockSchedulesByAzit[1];
+  const { state, actions } = useAzitPageLogic();
+  const {
+    currentAzitId,
+    scheduleAnchorEl,
+    currentAzit,
+    currentMembers,
+    currentClips,
+    schedules,
+    currentUserId,
+  } = state;
 
   const handleCreateSchedule = (data: any) => {
     console.log("새 스케줄 데이터:", data);
-    // TODO: 백엔드 API 전송 로직
   };
 
   return (
@@ -45,9 +37,9 @@ export const AzitPageView = () => {
         {/* Navigation */}
         <div className="flex-none">
           <AzitNavigation 
-            azits={MOCK_MY_AZITS} 
+            azits={state.azits}
             selectedId={currentAzitId} 
-            onSelect={setCurrentAzitId}
+            onSelect={actions.setCurrentAzitId}
           />
         </div>
 
@@ -69,11 +61,12 @@ export const AzitPageView = () => {
 
         {/* Content Layout */}
         <div className="flex flex-1 px-6 pb-6 gap-8 overflow-hidden">
-          {/* ✅ LeftPanel에서 넘겨준 요소(헤더 div)를 상태에 저장 */}
           <LeftPanel 
             members={currentMembers} 
-            schedules={currentSchedules} 
-            onAddSchedule={(target) => setScheduleAnchorEl(target)}
+            schedules={schedules}  // State 전달
+            currentUserId={currentUserId}
+            onAddSchedule={(target) => actions.setScheduleAnchorEl(target)}
+            onStatusChange={actions.handleStatusChange} // 핸들러 전달
           />
           
           <MainPanel key={currentAzitId} />
@@ -88,10 +81,9 @@ export const AzitPageView = () => {
         </div>
       </div>
 
-      {/* Anchor Element가 있으면 모달을 렌더링하고, 위치를 해당 요소 기준으로 잡음 */}
       <ScheduleCreateModal 
         anchorEl={scheduleAnchorEl}
-        onClose={() => setScheduleAnchorEl(null)}
+        onClose={() => actions.setScheduleAnchorEl(null)}
         onCreate={handleCreateSchedule}
       />
     </div>
