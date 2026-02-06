@@ -65,6 +65,7 @@ function App() {
                 {/* Community Routes */}
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/community/:postId" element={<PostDetailPage />} />
+                <Route path="/community/highlights/:highlightId" element={<PostDetailPage />} />
                 
                 {/* 유저 프로필 페이지 */}
                 <Route path="/user/:userId" element={<UserProfilePage />} />
