@@ -54,6 +54,19 @@ export function PostDetailCommentItem({
   onDeleteReply,
   editInputRef,
 }: PostDetailCommentItemProps) {
+  const getRelativeTime = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "";
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString("ko-KR");
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex gap-3">
@@ -62,7 +75,7 @@ export function PostDetailCommentItem({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">{comment.author}</span>
-              <span className="text-xs text-gray-500">{comment.date}</span>
+              <span className="text-xs text-gray-500">{getRelativeTime(comment.date)}</span>
             </div>
             <div className="flex items-center gap-2 text-[10px] font-semibold text-gray-400">
               {comment.author === currentUserName ? (
