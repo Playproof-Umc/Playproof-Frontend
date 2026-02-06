@@ -1,15 +1,26 @@
 import React from "react";
 import type { DateRange } from "react-day-picker";
 
-interface TimeSelection {
+export interface TimeSelection {
   ampm: "AM" | "PM";
   hour: number;
   minute: number;
 }
 
+export type ScheduleCreatePayload = {
+  title: string;
+  recruitCount: number;
+  gameDate?: Date;
+  gameStartTime: TimeSelection;
+  gameEndTime: TimeSelection;
+  recruitRange?: DateRange;
+  recruitStartTime: TimeSelection;
+  recruitEndTime: TimeSelection;
+};
+
 type UseScheduleCreateStateArgs = {
   anchorEl: HTMLElement | null;
-  onCreate: (data: any) => void;
+  onCreate: (data: ScheduleCreatePayload) => void;
   onClose: () => void;
 };
 
@@ -18,7 +29,14 @@ export function useScheduleCreateState({
   onCreate,
   onClose,
 }: UseScheduleCreateStateArgs) {
-  const [position, setPosition] = React.useState({ top: 0, left: 0 });
+  const position = React.useMemo(() => {
+    if (!anchorEl) return { top: 0, left: 0 };
+    const rect = anchorEl.getBoundingClientRect();
+    return {
+      top: rect.bottom + window.scrollY + 8,
+      left: rect.left + window.scrollX,
+    };
+  }, [anchorEl]);
   const [title, setTitle] = React.useState("");
   const [recruitCount, setRecruitCount] = React.useState(0);
   const [gameDate, setGameDate] = React.useState<Date | undefined>(undefined);
@@ -46,15 +64,6 @@ export function useScheduleCreateState({
     minute: 0,
   });
   const [activeTimePicker, setActiveTimePicker] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (!anchorEl) return;
-    const rect = anchorEl.getBoundingClientRect();
-    setPosition({
-      top: rect.bottom + window.scrollY + 8,
-      left: rect.left + window.scrollX,
-    });
-  }, [anchorEl]);
 
   const handleRecruitCount = (delta: number) => {
     setRecruitCount((prev) => Math.max(0, prev + delta));
@@ -102,7 +111,7 @@ export function useScheduleCreateState({
 
   const handleSubmit = () => {
     if (!isValid) return;
-    onCreate({
+    const payload: ScheduleCreatePayload = {
       title,
       recruitCount,
       gameDate,
@@ -111,7 +120,8 @@ export function useScheduleCreateState({
       recruitRange,
       recruitStartTime,
       recruitEndTime,
-    });
+    };
+    onCreate(payload);
     onClose();
   };
 

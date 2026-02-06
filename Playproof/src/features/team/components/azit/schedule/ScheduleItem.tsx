@@ -8,12 +8,14 @@ type ScheduleItemProps = {
   schedule: Schedule;
   currentUserId: string;
   onStatusChange?: (id: string, status: 'JOIN' | 'DECLINE') => void;
+  onFeedback?: (scheduleId: string) => void;
 };
 
 export const ScheduleItem: React.FC<ScheduleItemProps> = ({
   schedule,
   currentUserId,
   onStatusChange,
+  onFeedback,
 }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
 
@@ -68,7 +70,10 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
         );
       case 'TIME_OVER':
         return (
-          <button className="w-full bg-blue-100 text-blue-600 py-3 rounded-xl text-sm font-bold hover:bg-blue-200 transition-colors">
+          <button
+            onClick={() => onFeedback?.(schedule.id)}
+            className="w-full bg-blue-100 text-blue-600 py-3 rounded-xl text-sm font-bold hover:bg-blue-200 transition-colors"
+          >
             피드백 남기기
           </button>
         );

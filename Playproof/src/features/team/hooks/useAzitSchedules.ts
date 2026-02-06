@@ -97,6 +97,12 @@ export function useAzitSchedules(
     [currentUser, currentUserId]
   );
 
+  const markFeedbackDone = React.useCallback((scheduleId: string) => {
+    setSchedules((prev) =>
+      prev.map((sch) => (sch.id === scheduleId ? { ...sch, isFeedbackDone: true } : sch))
+    );
+  }, []);
+
   return {
     currentAzitId,
     setCurrentAzitId,
@@ -104,5 +110,6 @@ export function useAzitSchedules(
     setSchedules,
     handleStatusChange,
     addSchedule,
+    markFeedbackDone,
   };
 }

@@ -1,7 +1,7 @@
 // src/features/team/pages/AzitPageView.tsx
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import { Settings, Users } from 'lucide-react';
+import { ArrowLeft, Settings, Users } from 'lucide-react';
 import { Navbar } from '@/components/common/Navbar';
 
 import { AzitNavigation } from '@/features/team/components/azit/AzitNavigation';
@@ -9,7 +9,9 @@ import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
 import { MainPanel } from '@/features/team/components/azit/MainPanel';
 import { RightPanel } from '@/features/team/components/azit/RightPanel';
 import { ScheduleCreateModal } from '@/features/team/components/schedule/ScheduleCreateModal';
+import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCreateState";
 import { AzitCreateModal } from '@/features/team/components/azit/AzitCreateModal';
+import { FeedbackModal } from "@/features/team/components/feedback/FeedbackModal";
 
 import { useAzitPageLogic } from '@/features/team/hooks/useAzitPageLogic';
 
@@ -30,10 +32,22 @@ export const AzitPageView = () => {
     schedules,
     currentUserId,
     currentUser,
+    feedbackModal,
   } = state;
 
-  const handleCreateSchedule = (data: any) => {
+  const handleCreateSchedule = (data: ScheduleCreatePayload) => {
     actions.addSchedule(data);
+  };
+
+  const handleBackClick = () => {
+    const pending = actions.getPendingFeedbacks().find(
+      (item) => item.azitId === currentAzitId
+    );
+    if (pending) {
+      actions.openFeedbackModal(pending.scheduleId, true);
+      return;
+    }
+    navigate(-1);
   };
 
   return (
@@ -57,6 +71,13 @@ export const AzitPageView = () => {
         <div className="px-6 pb-2 pt-2 shrink-0">
           <div className="h-[60px] bg-gray-100 rounded-xl flex items-center justify-between px-6">
             <div className="flex items-center gap-3">
+              <button
+                onClick={handleBackClick}
+                className="text-gray-500 hover:text-gray-900"
+                aria-label="돌아가기"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">{currentAzit.name}</h1>
               <div className="flex items-center gap-1 text-gray-500 font-bold mt-0.5">
                 <Users className="w-4 h-4" />
@@ -77,6 +98,7 @@ export const AzitPageView = () => {
             currentUserId={currentUserId}
             onAddSchedule={(target) => actions.setScheduleAnchorEl(target)}
             onStatusChange={actions.handleStatusChange} // 핸들러 전달
+            onFeedback={(scheduleId) => actions.openFeedbackModal(scheduleId)}
             selectedChatRoom={selectedChatRoom}
             onSelectChatRoom={actions.setSelectedChatRoom}
             voiceRooms={voiceRooms}
@@ -124,6 +146,19 @@ export const AzitPageView = () => {
         onCreate={({ name, iconUrl }) => {
           actions.addAzit(name, iconUrl);
           setIsAzitCreateOpen(false);
+        }}
+      />
+
+      <FeedbackModal
+        open={feedbackModal.open}
+        required={feedbackModal.required}
+        targetName={feedbackModal.targetName ?? "상대방"}
+        targetMeta={feedbackModal.targetMeta}
+        avatarUrl={feedbackModal.avatarUrl}
+        onClose={actions.closeFeedbackModal}
+        onSubmit={() => {
+          if (!feedbackModal.scheduleId) return;
+          actions.submitFeedback(feedbackModal.scheduleId);
         }}
       />
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -20,15 +20,14 @@ export const ChatRoomCreateModal = ({ anchorEl, onClose, onCreate }: ChatRoomCre
   const [name, setName] = useState("");
   const [type, setType] = useState<"TEXT" | "VOICE">("TEXT");
   const [isPrivate, setIsPrivate] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  useEffect(() => {
-    if (!anchorEl) return;
+  const position = useMemo(() => {
+    if (!anchorEl) return { top: 0, left: 0 };
     const rect = anchorEl.getBoundingClientRect();
-    setPosition({
+    return {
       top: rect.bottom + window.scrollY + 8,
       left: rect.left + window.scrollX,
-    });
+    };
   }, [anchorEl]);
 
   if (!anchorEl) return null;

@@ -18,14 +18,12 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
   onCreate,
 }) => {
   const [name, setName] = React.useState("");
-  const [imageFile, setImageFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string>("");
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (!open) return;
     setName("");
-    setImageFile(null);
     setPreviewUrl("");
   }, [open]);
 
@@ -41,7 +39,6 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     e.target.value = "";
   };

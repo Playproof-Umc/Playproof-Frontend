@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Send, Paperclip } from 'lucide-react';
 import { useAzitChat } from '@/features/team/hooks/useAzitChat';
+import { ModalShell } from "@/components/ui/ModalShell";
 
 type ChatMessage = {
   id: string;
@@ -187,53 +188,49 @@ export const MainPanel: React.FC<MainPanelProps> = ({
         </div>
       </div>
 
-      {activeMedia && (
-        <>
-          <div
-            className="fixed inset-0 z-[130] bg-black/60"
-            onClick={() => setActiveMedia(null)}
-          />
-          <div className="fixed inset-0 z-[131] flex items-center justify-center px-6">
-            <div className="w-full max-w-[960px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-4">
-              <div className="flex items-center justify-between mb-3 px-2">
-                <h3 className="text-base font-bold text-gray-900">미디어 보기</h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleShareToHighlight}
-                    className="text-sm text-gray-500 hover:text-gray-900"
-                  >
-                    공유
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveMedia(null)}
-                    className="text-sm text-gray-500 hover:text-gray-900"
-                  >
-                    닫기
-                  </button>
-                </div>
-              </div>
-              <div className="w-full aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">
-                {activeMedia.type === "video" ? (
-                  <video
-                    src={activeMedia.url}
-                    className="w-full h-full object-contain"
-                    controls
-                    autoPlay
-                  />
-                ) : (
-                  <img
-                    src={activeMedia.url}
-                    alt="media"
-                    className="w-full h-full object-contain"
-                  />
-                )}
-              </div>
-            </div>
+      <ModalShell
+        open={Boolean(activeMedia)}
+        onOverlayClick={() => setActiveMedia(null)}
+        overlayClassName="fixed inset-0 z-[130] bg-black/60"
+        wrapperClassName="fixed inset-0 z-[131] flex items-center justify-center px-6"
+        panelClassName="w-full max-w-[960px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-4"
+      >
+        <div className="flex items-center justify-between mb-3 px-2">
+          <h3 className="text-base font-bold text-gray-900">미디어 보기</h3>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleShareToHighlight}
+              className="text-sm text-gray-500 hover:text-gray-900"
+            >
+              공유
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMedia(null)}
+              className="text-sm text-gray-500 hover:text-gray-900"
+            >
+              닫기
+            </button>
           </div>
-        </>
-      )}
+        </div>
+        <div className="w-full aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">
+          {activeMedia?.type === "video" ? (
+            <video
+              src={activeMedia.url}
+              className="w-full h-full object-contain"
+              controls
+              autoPlay
+            />
+          ) : activeMedia ? (
+            <img
+              src={activeMedia.url}
+              alt="media"
+              className="w-full h-full object-contain"
+            />
+          ) : null}
+        </div>
+      </ModalShell>
     </main>
   );
 };

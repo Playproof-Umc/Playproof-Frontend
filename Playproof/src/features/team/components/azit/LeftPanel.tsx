@@ -12,6 +12,7 @@ interface LeftPanelProps {
   currentUserId: string;
   onAddSchedule?: (target: HTMLElement) => void;
   onStatusChange?: (scheduleId: string, newStatus: 'JOIN' | 'DECLINE') => void;
+  onFeedback?: (scheduleId: string) => void;
   selectedChatRoom: string;
   onSelectChatRoom: (roomName: string) => void;
   voiceRooms: { id: string; name: string; users: User[] }[];
@@ -30,6 +31,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
   currentUserId,
   onAddSchedule,
   onStatusChange,
+  onFeedback,
   selectedChatRoom,
   onSelectChatRoom,
   voiceRooms,
@@ -131,6 +133,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 schedule={sch} 
                 currentUserId={currentUserId}
                 onStatusChange={onStatusChange}
+                onFeedback={onFeedback}
               />
             ))
           ) : (

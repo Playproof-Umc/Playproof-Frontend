@@ -27,13 +27,6 @@ export interface Schedule {
   }[];
 }
 
-// 클립 정보
-export interface Clip {
-  id: string;
-  date: string;
-  thumbnailUrl: string;
-}
-
 export interface CustomMatchSchedule {
   id: string;
   title: string;

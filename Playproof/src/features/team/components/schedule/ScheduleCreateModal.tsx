@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { X, Calendar as CalendarIcon, Clock, AlertCircle } from "lucide-react"; // AlertCircle 추가
-import { DayPicker, type DateRange } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css"; 
 
 import { Button } from "@/components/ui/Button";
@@ -57,10 +57,12 @@ const TimePicker = ({ value, onChange, isOpen, onToggle, label }: TimePickerProp
 
 // ---[ 메인 컴포넌트 ]---
 
+import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCreateState";
+
 interface ScheduleCreateModalProps {
   anchorEl: HTMLElement | null;
   onClose: () => void;
-  onCreate: (data: any) => void;
+  onCreate: (data: ScheduleCreatePayload) => void;
 }
 
 export const ScheduleCreateModal = ({ anchorEl, onClose, onCreate }: ScheduleCreateModalProps) => {

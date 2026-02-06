@@ -8,9 +8,15 @@ interface Props {
   clips: Clip[];
   onViewAll?: () => void;
   onSelectClip?: (clip: Clip, index: number) => void;
+  viewAllLabel?: string;
 }
 
-export const ClipList: React.FC<Props> = ({ clips, onViewAll, onSelectClip }) => {
+export const ClipList: React.FC<Props> = ({
+  clips,
+  onViewAll,
+  onSelectClip,
+  viewAllLabel = "전체보기",
+}) => {
   return (
     <section className="flex-1">
       {/* 헤더 (박스 바깥) */}
@@ -21,7 +27,7 @@ export const ClipList: React.FC<Props> = ({ clips, onViewAll, onSelectClip }) =>
           onClick={onViewAll}
           className="text-xs text-gray-500 hover:text-gray-900 flex items-center hover:underline"
         >
-          전체보기
+          {viewAllLabel}
         </button>
       </div>
       
