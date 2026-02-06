@@ -1,4 +1,4 @@
-import type { Highlight, CommunityPost } from '@/features/community/types/types';
+import type { HighlightPost, CommunityPost } from '@/features/community/types/types';
 import { api } from '@/services/api';
 
 // 댓글 목록 조회
@@ -66,7 +66,7 @@ export async function getBoardPosts(gameId: number, page: number = 1, limit: num
 /**
  * 하이라이트 목록 조회 (실제 API 연동)
  */
-export async function getHighlights(page: number = 1, limit: number = 10): Promise<Highlight[]> {
+export async function getHighlights(page: number = 1, limit: number = 10): Promise<HighlightPost[]> {
   const res = await api.get('/community/highlights', { params: { page, limit } });
   const highlights = res.data.data?.highlights || [];
   // API 응답을 HighlightPost[]로 매핑
