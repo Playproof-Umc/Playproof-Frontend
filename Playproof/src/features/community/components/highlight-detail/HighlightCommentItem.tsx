@@ -1,29 +1,43 @@
+// 날짜를 '10분전', '1일전' 등으로 변환하는 함수
+function formatRelativeTime(dateString: string): string {
+  if (!dateString || isNaN(Date.parse(dateString))) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 60) return `${diff}초전`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}분전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간전`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)}일전`;
+  if (diff < 31536000) return `${Math.floor(diff / 2592000)}개월전`;
+  return `${Math.floor(diff / 31536000)}년전`;
+}
 import React from "react";
 import { CornerDownRight } from "lucide-react";
-import type { Comment } from "@/features/community/types";
 
-interface HighlightCommentItemProps {
-  comment: Comment;
+import type { CommunityComment } from "@/features/community/types/types";
+
+export interface HighlightCommentItemProps {
+  comment: CommunityComment;
   currentUserName: string;
-  replyingToId: string | null;
+  replyingToId: number | null;
   replyText: string;
   onReplyTextChange: (value: string) => void;
-  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: string) => void;
-  onReplySubmit: (commentId: string) => void;
-  onReplyToggle: (commentId: string) => void;
+  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: number) => void;
+  onReplySubmit: (commentId: number) => void;
+  onReplyToggle: (commentId: number) => void;
   replyInputRef: React.RefObject<HTMLTextAreaElement>;
-  editingCommentId: string | null;
-  editingReplyId: string | null;
-  editingParentId: string | null;
+  editingCommentId: number | null;
+  editingReplyId: number | null;
+  editingParentId: number | null;
   editText: string;
   onEditTextChange: (value: string) => void;
   onEditKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  onEditStart: (commentId: string, content: string) => void;
-  onReplyEditStart: (commentId: string, replyId: string, content: string) => void;
+  onEditStart: (commentId: number, content: string) => void;
+  onReplyEditStart: (commentId: number, replyId: number, content: string) => void;
   onEditCancel: () => void;
   onEditSubmit: () => void;
-  onDeleteComment: (commentId: string) => void;
-  onDeleteReply: (commentId: string, replyId: string) => void;
+  onDeleteComment: (commentId: number) => void;
+  onDeleteReply: (commentId: number, replyId: number) => void;
   editInputRef: React.RefObject<HTMLTextAreaElement>;
   onMoveToProfile: (event: React.MouseEvent, userId: string) => void;
   profileUserId: string;
@@ -68,11 +82,13 @@ export function HighlightCommentItem({
               onClick={(event) => onMoveToProfile(event, profileUserId)}
               className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
             >
-              {comment.author}
+              {comment.user && comment.user.nickname ? comment.user.nickname : '알 수 없음'}
             </span>
-            <span className="text-xs text-gray-500">{comment.date}</span>
+            <span className="text-xs text-gray-500">
+              {comment.createdAt ? formatRelativeTime(comment.createdAt) : ''}
+            </span>
             <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-gray-400">
-              {comment.author === currentUserName ? (
+              {comment.user?.nickname === currentUserName ? (
                 <>
                   <button
                     type="button"
@@ -153,11 +169,13 @@ export function HighlightCommentItem({
                     onClick={(event) => onMoveToProfile(event, profileUserId)}
                     className="cursor-pointer text-xs font-semibold text-gray-900 hover:underline"
                   >
-                    {reply.author}
+                    {reply.user && reply.user.nickname ? reply.user.nickname : '알 수 없음'}
                   </span>
-                  <span className="text-[10px] text-gray-500">{reply.date}</span>
+                  <span className="text-[10px] text-gray-500">
+                    {reply.createdAt ? formatRelativeTime(reply.createdAt) : ''}
+                  </span>
                   <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-gray-400">
-                    {reply.author === currentUserName ? (
+                    {reply.user?.nickname === currentUserName ? (
                       <>
                         <button
                           type="button"
