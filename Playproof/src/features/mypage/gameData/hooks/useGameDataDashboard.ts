@@ -8,6 +8,7 @@ import type {
   GameKey,
   LinkedAccount,
 } from "@/features/mypage/gameData/types/gameDataTypes";
+import type { OverwatchStatsResponse } from "@/features/mypage/gameData/api/overwatchApi";
 import { MOCK_GAME_DATA_DASHBOARD } from "@/features/mypage/gameData/data/mock";
 
 import { useLolGameData } from "@/features/mypage/gameData/hooks/useLolGameData";
@@ -45,7 +46,7 @@ type ValView = {
 
 type OwLoadingView = { kind: "owLoading" };
 type OwErrorView = { kind: "owError"; message: string };
-type OwView = { kind: "overwatch"; data: Record<string, unknown> | null };
+type OwView = { kind: "overwatch"; data: OverwatchStatsResponse };
 
 type DashboardView =
   | EmptyView

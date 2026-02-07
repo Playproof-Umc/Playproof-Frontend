@@ -5,11 +5,6 @@ import { MatchingSearchBar, PartyRequestBanner } from "@/features/matching/compo
 import { PopularMatchList } from "@/features/matching/components/home/PopularMatchList";
 import type { HomeMatchingSectionProps } from "@/features/home/components/sections/types";
 
-const MOCK_REQUESTS = [
-  { id: 1, user: { nickname: "뉴비1", mannerTier: "TS 50" }, message: "껴주세요!" },
-  { id: 2, user: { nickname: "고수2", mannerTier: "TS 99" }, message: "캐리해드림" },
-];
-
 export const HomeMatchingSection = ({
   activeGameTab,
   searchKeyword,

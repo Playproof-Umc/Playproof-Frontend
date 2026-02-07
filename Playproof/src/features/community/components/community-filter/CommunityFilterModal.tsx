@@ -45,7 +45,7 @@ export function CommunityFilterModal({ isOpen, onClose, onApply }: CommunityFilt
             showCalendar={state.showCalendar}
             onToggleCalendar={() => actions.setShowCalendar((prev) => !prev)}
             range={state.range}
-            onRangeChange={(nextRange) => actions.setRange(nextRange ?? {})}
+            onRangeChange={(nextRange) => actions.setRange(nextRange)}
           />
         </div>
 

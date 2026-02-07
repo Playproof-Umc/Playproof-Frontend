@@ -102,7 +102,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .lineRadial<DataPoint>()
       .curve(d3.curveLinearClosed)
       .radius((d) => rScale(d.value))
-      .angle((d, i) => i * angleSlice);
+      .angle((_d, i) => i * angleSlice);
 
     svg
       .append('path')

@@ -1,6 +1,7 @@
 // src/features/community/components/community-filter/useCommunityFilterState.ts
 
 import React, { useMemo } from "react";
+import type { DateRange } from "react-day-picker";
 import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
 const INITIAL_FILTERS: CommunityFilterState = {
@@ -17,16 +18,16 @@ type UseCommunityFilterStateArgs = {
 export function useCommunityFilterState({ onApply, onClose }: UseCommunityFilterStateArgs) {
   const [filters, setFilters] = React.useState<CommunityFilterState>(INITIAL_FILTERS);
   const [showCalendar, setShowCalendar] = React.useState(false);
-  const [range, setRange] = React.useState<{ from?: Date; to?: Date }>({});
+  const [range, setRange] = React.useState<DateRange | undefined>(undefined);
 
   const handleReset = () => {
     setFilters(INITIAL_FILTERS);
-    setRange({});
+    setRange(undefined);
   };
 
   const handleApply = () => {
-    const startDate = range.from ? range.from.toISOString().slice(0, 10) : "";
-    const endDate = range.to ? range.to.toISOString().slice(0, 10) : "";
+    const startDate = range?.from ? range.from.toISOString().slice(0, 10) : "";
+    const endDate = range?.to ? range.to.toISOString().slice(0, 10) : "";
     onApply({ ...filters, startDate, endDate });
     onClose();
   };
