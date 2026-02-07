@@ -99,6 +99,37 @@ export const StoreSearchBar = ({ onSearch, isLoggedIn = false }: StoreSearchBarP
             onKeyDown={handleKeyDown}
             className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-black transition-colors"
           />
+
+          {/* 최근 검색어 팝업 */}
+          {isFocused && (
+            <div className="absolute top-14 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-30">
+              <span className="text-xs font-bold text-gray-500 mb-3 block">최근 검색어</span>
+              
+              {recentKeywords.length === 0 ? (
+                <div className="text-sm text-gray-400 py-4 text-center">
+                  최근 검색어가 없습니다.
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {recentKeywords.map((word) => (
+                    <div 
+                      key={word}
+                      className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs text-gray-700 hover:bg-gray-200 cursor-pointer transition-colors"
+                      onClick={() => handleChipClick(word)}
+                    >
+                      <span>{word}</span>
+                      <button 
+                        onClick={(e) => removeKeyword(e, word)}
+                        className="p-0.5 hover:bg-gray-300 rounded-full text-gray-400 hover:text-gray-600"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <button className="w-12 h-12 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors relative">
@@ -114,36 +145,6 @@ export const StoreSearchBar = ({ onSearch, isLoggedIn = false }: StoreSearchBarP
         </button>
       </div>
 
-      {/* 최근 검색어 팝업 */}
-      {isFocused && (
-        <div className="absolute top-14 left-0 w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-30">
-          <span className="text-xs font-bold text-gray-500 mb-3 block">최근 검색어</span>
-          
-          {recentKeywords.length === 0 ? (
-            <div className="text-sm text-gray-400 py-4 text-center">
-              최근 검색어가 없습니다.
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {recentKeywords.map((word) => (
-                <div 
-                  key={word}
-                  className="flex items-center gap-1 bg-gray-100 pl-3 pr-2 py-1.5 rounded-full text-sm text-gray-700 hover:bg-gray-200 cursor-pointer transition-colors"
-                  onClick={() => handleChipClick(word)}
-                >
-                  <span>{word}</span>
-                  <button 
-                    onClick={(e) => removeKeyword(e, word)}
-                    className="p-0.5 hover:bg-gray-300 rounded-full text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { StoreLayout, StoreSearchBar, StoreBannerSlider, ProductCard, StoreSectionHeader, StorePagination } from '@/features/store/components';
+import { StoreLayout, StoreSearchBar, StoreBannerSlider, ProductCard, StoreSectionHeader } from '@/features/store/components';
 import { useStoreProducts } from '@/features/store/hooks/useStoreProducts';
 import { STORE_SECTION_LABELS } from '@/features/store/constants/labels';
 
@@ -36,6 +36,41 @@ export const StorePageView = () => {
 
   const [isRecommendOpen, setIsRecommendOpen] = useState(true);
   const [isAllOpen, setIsAllOpen] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(8);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const sortedAllProducts = useMemo(
+    () => getSortedProducts(filteredProducts, allSort),
+    [filteredProducts, allSort, getSortedProducts]
+  );
+  const visibleProducts = useMemo(
+    () => sortedAllProducts.slice(0, visibleCount),
+    [sortedAllProducts, visibleCount]
+  );
+
+  useEffect(() => {
+    setVisibleCount(8);
+  }, [filteredProducts, allSort]);
+
+  useEffect(() => {
+    if (!isAllOpen) return;
+    const target = sentinelRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry?.isIntersecting) return;
+        setVisibleCount((prev) => Math.min(prev + 8, sortedAllProducts.length));
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(target);
+    return () => {
+      observer.disconnect();
+    };
+  }, [isAllOpen, sortedAllProducts.length]);
 
   return (
     <StoreLayout>
@@ -89,21 +124,21 @@ export const StorePageView = () => {
           </StoreSectionHeader>
 
           {isAllOpen && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {getSortedProducts(filteredProducts, allSort).map((product) => (
-                <ProductCard
-                  key={`all-${product.id}`}
-                  product={product}
-                  userPoint={MOCK_USER.point}
-                  isLoggedIn={MOCK_USER.isLoggedIn}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {visibleProducts.map((product) => (
+                  <ProductCard
+                    key={`all-${product.id}`}
+                    product={product}
+                    userPoint={MOCK_USER.point}
+                    isLoggedIn={MOCK_USER.isLoggedIn}
+                  />
+                ))}
+              </div>
+              <div ref={sentinelRef} className="h-10" />
+            </>
           )}
         </section>
-
-        {/* 페이지네이션 */}
-        <StorePagination />
       </div>
     </StoreLayout>
   );

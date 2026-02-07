@@ -6,7 +6,7 @@ import type { Product } from '@/features/store/types';
 
 interface ProductCardProps {
   product: Product;
-  userPoint?: number;    // 유저 현재 포인트
+  userPoint?: number;    // 유저 현재 금액(원)
   isLoggedIn?: boolean;  // 로그인 여부
   userMembershipLevel?: string; // 유저 멤버십 등급
 }
@@ -45,16 +45,16 @@ export const ProductCard = ({
       return;
     }
 
-    // 포인트 부족 체크
+    // 금액 부족 체크
     if (userPoint < product.price) {
-      if (confirm('포인트가 부족해요.\n충전 페이지로 이동하시겠습니까?')) {
+      if (confirm('금액이 부족해요.\n충전 페이지로 이동하시겠습니까?')) {
         alert('충전 페이지 이동');
       }
       return;
     }
 
     // 정상 결제 시도
-    if (confirm(`${product.title} 상품을 구매하시겠습니까?\n${product.price}P가 차감됩니다.`)) {
+    if (confirm(`${product.title} 상품을 구매하시겠습니까?\n₩${product.price.toLocaleString()}가 차감됩니다.`)) {
       // TODO: 서버 결제 API 호출
       // if (success) ...
       // else: 6-f. 서버 오류
@@ -79,8 +79,7 @@ export const ProductCard = ({
         <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-1">{product.title}</h3>
 
         <div className="flex items-center gap-1 mb-4">
-          <div className="w-5 h-5 rounded-full border border-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-800">P</div>
-          <span className="text-lg font-bold text-gray-900">{product.price.toLocaleString()}</span>
+          <span className="text-lg font-bold text-gray-900">₩{product.price.toLocaleString()}</span>
         </div>
 
         <div className="flex gap-2 mt-auto">
