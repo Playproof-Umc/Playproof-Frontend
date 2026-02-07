@@ -68,16 +68,26 @@ npm run dev
 ```text
 src/
 ├── assets/              # 이미지, 폰트 등 정적 리소스
-├── components/          # 전역 공통 UI (Button, Modal 등)
-│   └── ui/              # 디자인 시스템 기반의 원자 단위 컴포넌트
-│       └── ModalShell.tsx
+├── components/          # 전역 공용 UI / 레이아웃
+│   ├── layout/          # AppLayout, Navbar
+│   └── ui/              # 디자인 시스템 기반 원자 컴포넌트
 │
-├── data/                # Mock Data (개발용 더미 데이터) ⭐️ (New)
-├── types.ts             # 전역 공통 타입 정의 ⭐️ (New)
+├── api/                 # 프론트에서 사용하는 API 요청/타입 (서버리스 제외)
+│   ├── riot/
+│   ├── valorant/
+│   └── overwatch/
+│
+├── types.ts             # 전역 공통 타입 정의
 │
 ├── features/            # 핵심 도메인별 기능 모음
 │   ├── auth/            # 로그인, 회원가입
-│   ├── user/            # 프로필, TS(신뢰지수), 매너 평가
+│   ├── community/       # 커뮤니티, 하이라이트
+│   ├── home/            # 홈
+│   ├── matching/        # 매칭
+│   ├── mypage/          # 마이페이지
+│   ├── notification/    # 알림
+│   ├── profile/         # 프로필
+│   ├── store/           # 상점
 │   ├── team/            # 아지트, 팀 캘린더, 엠블럼
 │   │   ├── components/
 │   │   │   ├── azit/
@@ -91,17 +101,18 @@ src/
 │   │   │   └── useAzitSchedules.ts
 │   │   └── utils/
 │   │       └── pendingFeedback.ts
-│   ├── matching/        # 매칭 필터 리스트
-│   └── chat/            # 채팅방, 미디어 아카이브
+│   └── user/            # 유저
 │
 ├── pages/               # 라우트 페이지 (features를 조립해서 화면 구성)
-│   ├── azit/            # 아지트 페이지 ⭐️ (Updated)
-│   │   ├── panels/      # (Left, Main, Right Panel)
-│   │   └── AzitPage.tsx
-│   ├── HomePage.tsx
-│   └── MatchingPage.tsx
+│   ├── auth/
+│   ├── azit/
+│   ├── community/
+│   ├── home/
+│   ├── matching/
+│   ├── mypage/
+│   ├── profile/
+│   └── store/
 │
-├── hooks/               # 전역 커스텀 훅 (useTheme, useScroll)
 ├── services/            # API 호출 인스턴스 (Axios 설정)
 ├── store/               # 전역 클라이언트 상태 (Zustand)
 ├── utils/               # 순수 자바스크립트 유틸 함수
