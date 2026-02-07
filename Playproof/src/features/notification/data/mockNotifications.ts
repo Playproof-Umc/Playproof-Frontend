@@ -19,9 +19,11 @@ export interface Notification {
     avatarUrl?: string;
   };
   targetId?: string; // 이동할 대상 ID (채팅방 ID, 아지트 ID 등)
+  azitId?: number;
+  scheduleId?: string;
 }
 
-export const MOCK_NOTIFICATIONS: Notification[] = [
+const BASE_NOTIFICATIONS: Notification[] = [
   {
     id: 1,
     type: 'MATCH_REQUEST',
@@ -48,14 +50,6 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     sender: { id: 'user3', nickname: '파티장' }
   },
   {
-    id: 4,
-    type: 'AZIT_SCHEDULE',
-    message: '아지트 "즐겜러들의 쉼터"의 내전 일정이 시작되었습니다.',
-    time: '2시간 전',
-    isRead: true,
-    targetId: 'azit_1'
-  },
-  {
     id: 5,
     type: 'FRIEND_REQUEST',
     message: '힐러유저님이 친구 요청을 보냈습니다.',
@@ -64,3 +58,33 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     sender: { id: 'user4', nickname: '힐러유저' }
   }
 ];
+
+export const MOCK_NOTIFICATIONS: Notification[] = BASE_NOTIFICATIONS;
+
+import { MOCK_MY_AZITS, mockSchedulesByAzit } from '@/features/team/data/mockTeamData';
+
+export const buildMockNotifications = (currentUserId: string): Notification[] => {
+  const scheduleNotifications: Notification[] = [];
+  let idCursor = 100;
+
+  Object.entries(mockSchedulesByAzit).forEach(([azitId, schedules]) => {
+    const azit = MOCK_MY_AZITS.find((item) => item.id === Number(azitId));
+    schedules.forEach((schedule) => {
+      if (String(schedule.hostId) !== String(currentUserId)) return;
+      const now = new Date();
+      const statusLabel = schedule.fullDate <= now ? "완료된" : "시작된";
+      scheduleNotifications.push({
+        id: idCursor++,
+        type: 'AZIT_SCHEDULE',
+        message: `아지트 "${azit?.name ?? '아지트'}"의 "${schedule.title}" 일정이 ${statusLabel} 상태입니다.`,
+        time: '방금 전',
+        isRead: false,
+        azitId: Number(azitId),
+        scheduleId: schedule.id,
+        targetId: `azit_${azitId}`,
+      });
+    });
+  });
+
+  return [...BASE_NOTIFICATIONS, ...scheduleNotifications];
+};

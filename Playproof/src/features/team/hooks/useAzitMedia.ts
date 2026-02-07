@@ -11,9 +11,19 @@ const formatDuration = (seconds: number) => {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 };
 
+type ClipsByAzitRoom = Record<number, Record<string, Clip[]>>;
+
+const toRoomClips = (initialClips: Record<number, Clip[]>): ClipsByAzitRoom => {
+  const result: ClipsByAzitRoom = {};
+  Object.entries(initialClips).forEach(([azitId, clips]) => {
+    result[Number(azitId)] = { "자유 대화": clips };
+  });
+  return result;
+};
+
 export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
-  const [clipsByAzit, setClipsByAzit] = React.useState<Record<number, Clip[]>>(
-    initialClips
+  const [clipsByAzit, setClipsByAzit] = React.useState<ClipsByAzitRoom>(
+    toRoomClips(initialClips)
   );
   const mediaUrlsRef = React.useRef<string[]>([]);
 
@@ -28,7 +38,8 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
     return media;
   }, []);
 
-  const addClipsFromMedia = React.useCallback((azitId: number, media: MediaItem[]) => {
+  const addClipsFromMedia = React.useCallback(
+    (azitId: number, roomName: string, media: MediaItem[]) => {
     if (media.length === 0) return;
     const nowLabel = "방금 전";
     const newClips: Clip[] = media.map((item, index) => ({
@@ -41,8 +52,15 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
     }));
 
     setClipsByAzit((prev) => {
-      const current = prev[azitId] ?? [];
-      return { ...prev, [azitId]: [...newClips, ...current] };
+      const currentRooms = prev[azitId] ?? {};
+      const current = currentRooms[roomName] ?? [];
+      return {
+        ...prev,
+        [azitId]: {
+          ...currentRooms,
+          [roomName]: [...newClips, ...current],
+        },
+      };
     });
 
     newClips.forEach((clip) => {
@@ -53,12 +71,16 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
       video.onloadedmetadata = () => {
         const label = formatDuration(video.duration);
         setClipsByAzit((prev) => {
-          const current = prev[azitId] ?? [];
+          const currentRooms = prev[azitId] ?? {};
+          const current = currentRooms[roomName] ?? [];
           return {
             ...prev,
-            [azitId]: current.map((item) =>
-              item.id === clip.id ? { ...item, durationLabel: label } : item
-            ),
+            [azitId]: {
+              ...currentRooms,
+              [roomName]: current.map((item) =>
+                item.id === clip.id ? { ...item, durationLabel: label } : item
+              ),
+            },
           };
         });
       };
@@ -66,7 +88,49 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
   }, []);
 
   const initAzitClips = React.useCallback((azitId: number) => {
-    setClipsByAzit((prev) => ({ ...prev, [azitId]: [] }));
+    setClipsByAzit((prev) => ({ ...prev, [azitId]: { "자유 대화": [] } }));
+  }, []);
+
+  const ensureRoomClips = React.useCallback((azitId: number, roomName: string) => {
+    setClipsByAzit((prev) => {
+      const currentRooms = prev[azitId] ?? {};
+      if (currentRooms[roomName]) return prev;
+      return {
+        ...prev,
+        [azitId]: {
+          ...currentRooms,
+          [roomName]: [],
+        },
+      };
+    });
+  }, []);
+
+  const renameRoomClips = React.useCallback(
+    (azitId: number, fromName: string, toName: string) => {
+      setClipsByAzit((prev) => {
+        const currentRooms = prev[azitId] ?? {};
+        if (!currentRooms[fromName] || currentRooms[toName]) return prev;
+        const { [fromName]: roomClips, ...rest } = currentRooms;
+        return {
+          ...prev,
+          [azitId]: {
+            ...rest,
+            [toName]: roomClips ?? [],
+          },
+        };
+      });
+    },
+    []
+  );
+
+  const deleteRoomClips = React.useCallback((azitId: number, roomName: string) => {
+    setClipsByAzit((prev) => {
+      const currentRooms = prev[azitId] ?? {};
+      if (!currentRooms[roomName]) return prev;
+      const nextRooms = { ...currentRooms };
+      delete nextRooms[roomName];
+      return { ...prev, [azitId]: nextRooms };
+    });
   }, []);
 
   React.useEffect(() => {
@@ -81,5 +145,8 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
     createMediaItems,
     addClipsFromMedia,
     initAzitClips,
+    ensureRoomClips,
+    renameRoomClips,
+    deleteRoomClips,
   };
 };

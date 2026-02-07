@@ -38,6 +38,7 @@ export const MatchingPageView = () => {
   const [pendingFeedback, setPendingFeedback] = React.useState(
     getPendingFeedbacks()[0]
   );
+  const [openApplicants, setOpenApplicants] = React.useState(false);
 
   // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
   const recommendedData = useMemo(() => {
@@ -50,10 +51,16 @@ export const MatchingPageView = () => {
   }, [allMatches, hydrateLikes, hydrateCommentCounts]);
 
   useEffect(() => {
-    const state = location.state as { openMatchId?: number; openWriteModal?: boolean; activeGame?: string } | null;
+    const state = location.state as {
+      openMatchId?: number;
+      openWriteModal?: boolean;
+      activeGame?: string;
+      openApplicants?: boolean;
+    } | null;
     const openMatchId = state?.openMatchId;
     const openWriteModal = state?.openWriteModal;
     const activeGameFromHome = state?.activeGame;
+    const shouldOpenApplicants = state?.openApplicants;
 
     if (activeGameFromHome) {
       setters.setActiveGame(activeGameFromHome);
@@ -63,6 +70,11 @@ export const MatchingPageView = () => {
       actions.openWriteModal();
       navigate('.', { replace: true, state: null });
       return;
+    }
+
+    if (shouldOpenApplicants) {
+      setOpenApplicants(true);
+      navigate('.', { replace: true, state: null });
     }
 
     if (!openMatchId) return;
@@ -102,7 +114,7 @@ export const MatchingPageView = () => {
       </div>
 
       <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
-        <PartyRequestBanner />
+      <PartyRequestBanner initialOpen={openApplicants} />
         {/* 추천 섹션 */}
         <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />

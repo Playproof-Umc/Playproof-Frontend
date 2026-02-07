@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2, Menu, X } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components';
+import { buildMockNotifications } from '@/features/notification/data/mockNotifications';
 import { NAV_LINKS } from '@/constants/navigation';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
@@ -15,12 +16,16 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const displayName = authNickname ?? "사용자";
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [notifications, setNotifications] = useState(() =>
+    buildMockNotifications(authUserId ? `user-${authUserId}` : "1")
+  );
   
   // 드롭다운 외부 클릭 감지를 위한 Ref
   const profileRef = useRef<HTMLDivElement>(null);
@@ -220,9 +225,17 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               className={`p-2 rounded-full transition-all relative ${isNotiOpen ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 text-gray-500 hover:text-black'}`}
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              {notifications.some((noti) => !noti.isRead) && (
+                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              )}
             </button>
-            {isNotiOpen && <NotificationDropdown onClose={() => setIsNotiOpen(false)} />}
+            {isNotiOpen && (
+              <NotificationDropdown
+                onClose={() => setIsNotiOpen(false)}
+                notifications={notifications}
+                onUpdateNotifications={setNotifications}
+              />
+            )}
           </div>
 
           <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
