@@ -54,8 +54,15 @@ export function useAzitPageLogic() {
     markFeedbackDone,
   });
 
-  const { clipsByAzit, createMediaItems, addClipsFromMedia, initAzitClips } =
-    useAzitMedia(mockClipsByAzit);
+  const {
+    clipsByAzit,
+    createMediaItems,
+    addClipsFromMedia,
+    initAzitClips,
+    ensureRoomClips,
+    renameRoomClips,
+    deleteRoomClips,
+  } = useAzitMedia(mockClipsByAzit);
 
   const {
     selectedChatRoom,
@@ -81,7 +88,7 @@ export function useAzitPageLogic() {
 
   const currentAzit = azits.find((azit) => azit.id === currentAzitId) ?? azits[0];
   const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
-  const currentClips = clipsByAzit[currentAzitId] ?? [];
+  const currentClips = clipsByAzit[currentAzitId]?.[selectedChatRoom] ?? [];
   const addChatMessage = React.useCallback(
     (roomName: string, content: string, files: File[]) => {
       const text = content.trim();
@@ -90,7 +97,7 @@ export function useAzitPageLogic() {
       const media = createMediaItems(files);
 
       addRoomMessage(roomName, text, media);
-      addClipsFromMedia(currentAzitId, media);
+      addClipsFromMedia(currentAzitId, roomName, media);
     },
     [addClipsFromMedia, addRoomMessage, createMediaItems, currentAzitId]
   );
@@ -126,6 +133,34 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
+  const handleAddChatRoom = React.useCallback(
+    (name: string, type: "TEXT" | "VOICE") => {
+      addChatRoom(name, type);
+      if (type === "TEXT" && name.trim()) {
+        ensureRoomClips(currentAzitId, name.trim());
+      }
+    },
+    [addChatRoom, currentAzitId, ensureRoomClips]
+  );
+
+  const handleRenameChatRoom = React.useCallback(
+    (roomName: string, nextName: string) => {
+      renameChatRoom(roomName, nextName);
+      const trimmed = nextName.trim();
+      if (!trimmed || trimmed === roomName) return;
+      renameRoomClips(currentAzitId, roomName, trimmed);
+    },
+    [currentAzitId, renameChatRoom, renameRoomClips]
+  );
+
+  const handleDeleteChatRoom = React.useCallback(
+    (roomName: string) => {
+      deleteChatRoom(roomName);
+      deleteRoomClips(currentAzitId, roomName);
+    },
+    [currentAzitId, deleteChatRoom, deleteRoomClips]
+  );
+
   return {
     state: {
       azits,
@@ -150,11 +185,11 @@ export function useAzitPageLogic() {
       joinVoiceRoom,
       handleStatusChange,
       addSchedule,
-      addChatRoom,
+      addChatRoom: handleAddChatRoom,
       renameVoiceRoom,
       deleteVoiceRoom,
-      renameChatRoom,
-      deleteChatRoom,
+      renameChatRoom: handleRenameChatRoom,
+      deleteChatRoom: handleDeleteChatRoom,
       addChatMessage,
       addAzit,
       openFeedbackModal,

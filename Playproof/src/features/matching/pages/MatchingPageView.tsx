@@ -1,5 +1,5 @@
 // src/features/matching/pages/MatchingPageView.tsx
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Navbar } from '@/components/common/Navbar';
 import { MatchingSearchBar, GameFilter, RecommendedSection, PartyRequestBanner, MatchingWriteModal } from '@/features/matching/components';
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
@@ -35,8 +35,12 @@ export const MatchingPageView = () => {
     popularMatches,
     filteredMatches,
   } = state;
+  const lastLocationKeyRef = useRef<string | null>(null);
   const [pendingFeedback, setPendingFeedback] = React.useState(
     getPendingFeedbacks()[0]
+  );
+  const initialOpenApplicants = Boolean(
+    (location.state as { openApplicants?: boolean } | null)?.openApplicants
   );
 
   // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
@@ -50,10 +54,21 @@ export const MatchingPageView = () => {
   }, [allMatches, hydrateLikes, hydrateCommentCounts]);
 
   useEffect(() => {
-    const state = location.state as { openMatchId?: number; openWriteModal?: boolean; activeGame?: string } | null;
-    const openMatchId = state?.openMatchId;
-    const openWriteModal = state?.openWriteModal;
-    const activeGameFromHome = state?.activeGame;
+    if (lastLocationKeyRef.current === location.key) return;
+    lastLocationKeyRef.current = location.key;
+
+    const routeState = location.state as {
+      openMatchId?: number;
+      openWriteModal?: boolean;
+      activeGame?: string;
+      openApplicants?: boolean;
+    } | null;
+    if (!routeState) return;
+
+    const openMatchId = routeState.openMatchId;
+    const openWriteModal = routeState.openWriteModal;
+    const activeGameFromHome = routeState.activeGame;
+    const shouldOpenApplicants = routeState.openApplicants;
 
     if (activeGameFromHome) {
       setters.setActiveGame(activeGameFromHome);
@@ -65,6 +80,10 @@ export const MatchingPageView = () => {
       return;
     }
 
+    if (shouldOpenApplicants) {
+      navigate('.', { replace: true, state: null });
+    }
+
     if (!openMatchId) return;
 
     const target = allMatches.find((m) => m.id === openMatchId);
@@ -72,7 +91,7 @@ export const MatchingPageView = () => {
       openMatchingDetail(target);
       navigate('.', { replace: true, state: null });
     }
-  }, [actions, allMatches, location.state, navigate, openMatchingDetail, setters]);
+  }, [allMatches, location.key, location.state, navigate, openMatchingDetail, actions, setters]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
@@ -102,7 +121,7 @@ export const MatchingPageView = () => {
       </div>
 
       <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
-        <PartyRequestBanner />
+      <PartyRequestBanner initialOpen={initialOpenApplicants} />
         {/* 추천 섹션 */}
         <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />

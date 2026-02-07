@@ -10,9 +10,13 @@ const INITIAL_APPLICANTS = [
   { id: 4, game: '리그오브레전드', title: '칼바람 나락 ㄱㄱ', user: '페이커팬', ts: 95, time: '방금 전' },
 ];
 
-export const PartyRequestBanner = () => {
+interface PartyRequestBannerProps {
+  initialOpen?: boolean;
+}
+
+export const PartyRequestBanner = ({ initialOpen = false }: PartyRequestBannerProps) => {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [applicants, setApplicants] = useState(INITIAL_APPLICANTS);
 
   // 훅을 먼저 실행하고 조건부 렌더링은 나중에 처리
@@ -23,6 +27,12 @@ export const PartyRequestBanner = () => {
       return a.game.localeCompare(b.game);
     });
   }, [applicants]);
+
+  React.useEffect(() => {
+    if (initialOpen) {
+      setIsOpen(true);
+    }
+  }, [initialOpen]);
 
   // applicants가 비어있으면 Hooks 실행 후 여기서 리턴
   if (applicants.length === 0) return null;

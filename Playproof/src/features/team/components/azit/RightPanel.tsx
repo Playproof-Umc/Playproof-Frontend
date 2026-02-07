@@ -14,12 +14,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
     isGalleryOpen,
     activeMedia,
     hasMedia,
+    openGallery,
     closeGallery,
     openMedia,
     closeMedia,
     goPrev,
     goNext,
-    goHighlight,
     shareToHighlight,
   } = useAzitMediaViewer(clips);
   return (
@@ -27,9 +27,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
       
       <ClipList
         clips={clips}
-        onViewAll={goHighlight}
+        onViewAll={openGallery}
         onSelectClip={openMedia}
-        viewAllLabel="하이라이트 전체보기"
+        viewAllLabel="클립 전체보기"
       />
 
       <ModalShell

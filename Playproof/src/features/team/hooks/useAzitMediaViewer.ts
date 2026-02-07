@@ -9,6 +9,10 @@ export const useAzitMediaViewer = (clips: Clip[]) => {
   const navigate = useNavigate();
   const hasMedia = clips.length > 0;
 
+  const openGallery = React.useCallback(() => {
+    setIsGalleryOpen(true);
+  }, []);
+
   const closeGallery = React.useCallback(() => {
     setIsGalleryOpen(false);
   }, []);
@@ -62,6 +66,7 @@ export const useAzitMediaViewer = (clips: Clip[]) => {
     activeMedia,
     activeIndex,
     hasMedia,
+    openGallery,
     closeGallery,
     openMedia,
     closeMedia,
