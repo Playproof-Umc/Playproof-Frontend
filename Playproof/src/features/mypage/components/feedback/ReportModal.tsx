@@ -1,3 +1,5 @@
+// src/features/mypage/components/feedback/ReportModal.tsx
+
 import React from 'react';
 import { X, ChevronDown, Image as ImageIcon, Video } from 'lucide-react';
 import { MYPAGE_REPORT_LABELS, MYPAGE_REPORT_TYPES } from '@/features/mypage/constants/labels';

@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/utils/statCalculator.ts
+
 export interface HexagonStat {
   axis: string;
   value: number; // 0 ~ 100

@@ -1,3 +1,5 @@
+// src/features/community/hooks/useCommunityPageLogic.ts
+
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";

@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/utils/overwatchHeros.ts
+
 const OVERFAST_BASE = "https://overfast-api.tekrop.fr";
 
 const HERO_NAME_KO: Record<string, string> = {

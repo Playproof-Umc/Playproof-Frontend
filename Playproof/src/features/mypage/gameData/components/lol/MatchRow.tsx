@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/MatchRow.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { LolMatchItem } from "@/features/mypage/gameData/types/gameDataTypes";
 

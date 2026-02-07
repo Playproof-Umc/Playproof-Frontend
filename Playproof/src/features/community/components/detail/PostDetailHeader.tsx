@@ -1,3 +1,5 @@
+// src/features/community/components/detail/PostDetailHeader.tsx
+
 import { Eye, MessageCircle, Heart, Share2 } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";
 

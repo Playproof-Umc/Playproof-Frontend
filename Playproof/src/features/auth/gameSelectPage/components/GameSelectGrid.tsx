@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/components/GameSelectGrid.tsx
+
 import { cn } from "@/utils/cn";
 import type { GameOption } from "@/features/auth/gameSelectPage/types";
 

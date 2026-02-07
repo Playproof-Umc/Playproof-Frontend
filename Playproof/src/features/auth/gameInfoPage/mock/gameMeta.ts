@@ -1,3 +1,5 @@
+// src/features/auth/gameInfoPage/mock/gameMeta.ts
+
 import type { GameId } from "@/features/auth/gameInfoPage/types"
 
 export const AUTH_STYLE_GAMES: GameId[] = ["lol", "valo", "ow"];

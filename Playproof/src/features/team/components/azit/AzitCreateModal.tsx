@@ -1,3 +1,5 @@
+// src/features/team/components/azit/AzitCreateModal.tsx
+
 import React from "react";
 import { Camera, X } from "lucide-react";
 

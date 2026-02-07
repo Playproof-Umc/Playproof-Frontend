@@ -1,3 +1,5 @@
+// src/features/community/api/communityApi.ts
+
 import type { BoardPost, HighlightPost } from '@/features/community/types';
 import { MOCK_BOARD_POSTS, MOCK_HIGHLIGHT_POSTS } from '@/features/community/data/mockCommunityData';
 

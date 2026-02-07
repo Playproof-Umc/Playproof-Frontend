@@ -1,3 +1,5 @@
+// src/features/home/components/sections/HighlightCommunitySection.tsx
+
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { CommunityPostCard } from "@/features/home/components/CommunityPostCard";

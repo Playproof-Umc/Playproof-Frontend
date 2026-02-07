@@ -1,6 +1,14 @@
+// src/features/store/pages/StorePageView.tsx
+
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { StoreLayout, StoreSearchBar, StoreBannerSlider, ProductCard, StoreSectionHeader } from '@/features/store/components';
+import {
+  StoreLayout,
+  StoreSearchBar,
+  StoreBannerSlider,
+  ProductCard,
+  StoreSectionHeader,
+} from '@/features/store/components';
 import { useStoreProducts } from '@/features/store/hooks/useStoreProducts';
 import { STORE_SECTION_LABELS } from '@/features/store/constants/labels';
 

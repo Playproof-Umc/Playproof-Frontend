@@ -1,3 +1,5 @@
+// src/features/community/components/community-filter/CommunityFilterHeader.tsx
+
 import React from "react";
 import { X } from "lucide-react";
 

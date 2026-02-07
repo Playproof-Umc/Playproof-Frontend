@@ -1,3 +1,5 @@
+// src/features/community/components/BestPostsSection.tsx
+
 import React from "react";
 import { Heart, MessageCircle, Eye, MoreVertical } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";

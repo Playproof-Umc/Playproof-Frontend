@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/PaginationBar.tsx
+
 import type { PaginationState } from "@/features/mypage/gameData/types/gameDataTypes";
 
 type Props = {

@@ -1,3 +1,5 @@
+// src/features/team/hooks/useAzitChat.ts
+
 import { useState, useRef, ChangeEvent } from 'react';
 
 export const useAzitChat = () => {

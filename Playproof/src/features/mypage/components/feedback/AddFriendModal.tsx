@@ -1,3 +1,5 @@
+// src/features/mypage/components/feedback/AddFriendModal.tsx
+
 import React from 'react';
 import { X, User } from 'lucide-react';
 import { MYPAGE_ACTION_LABELS } from '@/features/mypage/constants/labels';

@@ -1,3 +1,5 @@
+// src/features/mypage/components/friends/FriendCard.tsx
+
 import React from 'react';
 import { User, MoreVertical } from 'lucide-react';
 import type { FriendData } from '@/features/mypage/types';

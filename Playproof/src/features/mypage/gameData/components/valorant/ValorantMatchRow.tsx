@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/valorant/ValorantMatchRow.tsx
+
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import type { ValorantMatchRowVM } from "@/features/mypage/gameData/utils/valorantHenrikMapper";

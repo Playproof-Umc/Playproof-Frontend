@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Settings, Users } from 'lucide-react';
-import { Navbar } from '@/components/common/Navbar';
+import { Navbar } from "@/components/layout/Navbar";
 
 import { AzitNavigation } from '@/features/team/components/azit/AzitNavigation';
 import { LeftPanel } from '@/features/team/components/azit/LeftPanel';

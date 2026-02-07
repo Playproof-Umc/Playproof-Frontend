@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/LolStatsCardRow.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { LolAggregateStats } from "@/features/mypage/gameData/types/gameDataTypes";
 import { getChampionIconUrl } from "@/features/mypage/gameData/utils/lolViewModel";

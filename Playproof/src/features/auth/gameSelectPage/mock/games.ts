@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/mock/games.ts
+
 import type { GameOption } from "@/features/auth/gameSelectPage/types";
 
 /**

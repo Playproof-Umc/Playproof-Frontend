@@ -1,3 +1,5 @@
+// src/features/home/constants/labels.ts
+
 export const HOME_SECTION_LABELS = {
   popularUsersTitle: "인기 유저 🔥",
   highlightCommunityTitle: "🔥 하이라이트 커뮤니티",

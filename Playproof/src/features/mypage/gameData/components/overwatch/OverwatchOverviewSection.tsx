@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/overwatch/OverwatchOverviewSection.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { OverwatchStatsResponse } from "@/features/mypage/gameData/api/overwatchApi";
 

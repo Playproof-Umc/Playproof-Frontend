@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/types/gameDataTypes.ts
+
 export type GameKey = "lol" | "valorant" | "pubg" | "overwatch" | "steam";
 
 export type LinkedAccountMeta = {

@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/HighlightDetailCommentsPanel.tsx
+
 import React from "react";
 import type { Comment } from "@/features/community/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";

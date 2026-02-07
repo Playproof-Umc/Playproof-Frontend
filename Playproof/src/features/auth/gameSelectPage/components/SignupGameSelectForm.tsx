@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/components/SignupGameSelectForm.tsx
+
 import { Button } from "@/components/ui/Button";
 import { GameSelectGrid } from "@/features/auth/gameSelectPage/components/GameSelectGrid";
 import type { GameOption } from "@/features/auth/gameSelectPage/types";

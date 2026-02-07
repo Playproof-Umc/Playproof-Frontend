@@ -1,3 +1,5 @@
+// src/features/community/components/community-post/CommunityPostMediaCarousel.tsx
+
 import React from "react";
 import {
   ChevronLeftIcon,

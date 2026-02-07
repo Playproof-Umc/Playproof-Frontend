@@ -1,3 +1,5 @@
+// src/features/auth/signup/hooks/useNicknameCheck.ts
+
 //src/features/auth/signup/hooks/useNicknameCheck.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

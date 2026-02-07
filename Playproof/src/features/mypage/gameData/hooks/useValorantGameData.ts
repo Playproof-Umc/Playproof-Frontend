@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/hooks/useValorantGameData.ts
+
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 

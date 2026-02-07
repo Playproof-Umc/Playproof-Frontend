@@ -1,3 +1,5 @@
+// src/features/auth/gameInfoPage/hooks/useSignupGameInfo.ts
+
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {

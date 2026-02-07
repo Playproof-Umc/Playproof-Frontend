@@ -1,3 +1,5 @@
+// src/features/community/components/HighlightWriteModal.tsx
+
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { WriteModalUploadBox } from "@/features/community/components/WriteModalUploadBox";

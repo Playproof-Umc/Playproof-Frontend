@@ -1,3 +1,5 @@
+// src/features/chat/components/ChatHeader.tsx
+
 //src/features/chat/components/ChatHeader.tsx
 import React from 'react';
 import { MoreVertical } from 'lucide-react';

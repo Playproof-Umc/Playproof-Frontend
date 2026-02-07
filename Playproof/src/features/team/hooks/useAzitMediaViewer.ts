@@ -1,3 +1,5 @@
+// src/features/team/hooks/useAzitMediaViewer.ts
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { Clip } from "@/types";

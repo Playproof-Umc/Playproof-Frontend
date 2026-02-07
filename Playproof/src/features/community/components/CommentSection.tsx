@@ -1,3 +1,5 @@
+// src/features/community/components/CommentSection.tsx
+
 import React, { useState } from "react";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 import type { Comment } from "@/features/community/types";

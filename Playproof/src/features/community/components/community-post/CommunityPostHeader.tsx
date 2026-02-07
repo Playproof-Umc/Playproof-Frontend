@@ -1,3 +1,5 @@
+// src/features/community/components/community-post/CommunityPostHeader.tsx
+
 import React from "react";
 import { ThreeDotsIcon, UserIcon } from "@/features/community/components/community-post/CommunityPostIcons";
 

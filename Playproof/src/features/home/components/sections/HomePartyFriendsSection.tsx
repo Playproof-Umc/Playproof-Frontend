@@ -1,3 +1,5 @@
+// src/features/home/components/sections/HomePartyFriendsSection.tsx
+
 import React from "react";
 import { HomePartyCard, HomeFriendList } from "@/features/home/components";
 import type { HomePartyFriendsSectionProps } from "@/features/home/components/sections/types";

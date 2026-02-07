@@ -1,6 +1,15 @@
 // src/features/team/types/types.ts
 import type { User } from '@/types'; 
 
+// 아지트 (팀 공간) 타입
+export interface Azit {
+  id: number;
+  name: string;
+  icon?: string;
+  memberCount: number;
+  description?: string;
+}
+
 // 채널 정보
 export interface Channel {
   id: string;
@@ -35,4 +44,13 @@ export interface CustomMatchSchedule {
   currentParticipants: number;
   maxParticipants: number;
   status: '모집중' | '매칭완료';
+}
+
+export interface Clip {
+  id: string;
+  date: string;
+  thumbnailUrl: string;
+  mediaType?: 'image' | 'video';
+  mediaUrl?: string;
+  durationLabel?: string;
 }

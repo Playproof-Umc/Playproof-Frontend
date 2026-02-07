@@ -1,3 +1,5 @@
+// src/features/home/components/sections/HomeMatchingSection.tsx
+
 import React from "react";
 import { MatchingTabs } from "@/features/home/components";
 import { MatchingSearchBar, PartyRequestBanner } from "@/features/matching/components";

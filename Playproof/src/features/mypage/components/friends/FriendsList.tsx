@@ -1,3 +1,5 @@
+// src/features/mypage/components/friends/FriendsList.tsx
+
 import React from 'react';
 import { Search } from 'lucide-react';
 import { getFriends, getBlockedUsers, removeFriend, unblockUser } from '@/features/mypage/api/mypageApi';

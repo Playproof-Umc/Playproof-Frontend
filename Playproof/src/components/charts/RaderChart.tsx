@@ -1,3 +1,5 @@
+// src/components/charts/RaderChart.tsx
+
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 

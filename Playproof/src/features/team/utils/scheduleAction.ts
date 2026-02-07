@@ -1,4 +1,6 @@
-import type { Schedule } from "@/features/team/types/types";
+// src/features/team/utils/scheduleAction.ts
+
+import type { Schedule } from "@/features/team/types";
 
 export type ScheduleActionStatus =
   | "FEEDBACK_DONE"

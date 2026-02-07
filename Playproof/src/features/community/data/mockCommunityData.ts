@@ -1,3 +1,5 @@
+// src/features/community/data/mockCommunityData.ts
+
 import type { HighlightPost, BoardPost, Comment } from '@/features/community/types';
 
 // 하이라이트 게시글 Mock 데이터

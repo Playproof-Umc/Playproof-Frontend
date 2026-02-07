@@ -1,3 +1,5 @@
+// src/features/mypage/components/posts/RecentPosts.tsx
+
 import React from 'react';
 import { getMyPosts } from '@/features/mypage/api/mypageApi';
 import type { MyPostsData } from '@/features/mypage/types';

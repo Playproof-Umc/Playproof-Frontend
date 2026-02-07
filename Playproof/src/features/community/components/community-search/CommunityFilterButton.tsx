@@ -1,6 +1,8 @@
+// src/features/community/components/community-search/CommunityFilterButton.tsx
+
 import React from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { CommunityFilterModal, type CommunityFilterState } from "@/features/community/components/CommunityFilterModal";
+import { CommunityFilterModal, type CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
 type CommunityFilterButtonProps = {
   isOpen?: boolean;

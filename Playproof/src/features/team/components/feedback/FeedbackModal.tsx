@@ -1,3 +1,5 @@
+// src/features/team/components/feedback/FeedbackModal.tsx
+
 import React from "react";
 import { X } from "lucide-react";
 import { ModalShell } from "@/components/ui/ModalShell";

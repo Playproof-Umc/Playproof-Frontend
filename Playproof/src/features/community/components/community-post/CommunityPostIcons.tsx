@@ -1,3 +1,5 @@
+// src/features/community/components/community-post/CommunityPostIcons.tsx
+
 import React from "react";
 
 export function UserIcon() {

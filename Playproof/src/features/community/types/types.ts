@@ -1,3 +1,5 @@
+// src/features/community/types/types.ts
+
 export type CommunityTab = "하이라이트" | "자유게시판";
 
 export type HighlightPost = {

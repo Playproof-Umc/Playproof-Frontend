@@ -1,3 +1,5 @@
+// src/features/auth/pages/SignupGameSelectPageView.tsx
+
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StepDots } from "@/components/auth/StepDots";

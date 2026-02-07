@@ -1,5 +1,7 @@
+// src/features/mypage/pages/MyPageMainView.tsx
+
 import React from 'react';
-import { Navbar } from '@/components/common/Navbar';
+import { Navbar } from "@/components/layout/Navbar";
 import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';

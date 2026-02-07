@@ -1,5 +1,7 @@
-export * from '@/features/profile/components/EditProfileForm';
-export * from '@/features/profile/components/GameTagList';
-export * from '@/features/profile/components/ProfileHeader';
-export * from '@/features/profile/components/StatCard';
-export * from '@/features/profile/components/UserProfileModal';
+// src/features/profile/components/index.ts
+
+export * from '@/features/profile/components/common/EditProfileForm';
+export * from '@/features/profile/components/common/GameTagList';
+export * from '@/features/profile/components/common/ProfileHeader';
+export * from '@/features/profile/components/common/StatCard';
+export * from '@/features/profile/components/modals/UserProfileModal';

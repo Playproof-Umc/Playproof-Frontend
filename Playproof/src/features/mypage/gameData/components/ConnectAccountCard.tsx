@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/ConnectAccountCard.tsx
+
 import { Card } from "@/components/ui/Card";
 
 export const ConnectAccountCard = () => {

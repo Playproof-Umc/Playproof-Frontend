@@ -1,3 +1,5 @@
+// src/features/community/types/index.ts
+
 export type {
   BoardPost,
   Comment,

@@ -1,3 +1,5 @@
+// src/features/auth/find-password/components/VerificationStep.tsx
+
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { usePhoneVerification } from "@/features/auth/signup/hooks/usePhoneVerification";

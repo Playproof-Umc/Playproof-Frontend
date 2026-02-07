@@ -1,3 +1,5 @@
+// src/components/auth/SignupCompleteModal.tsx
+
 import * as React from "react";
 import { cn } from "@/utils/cn";
 

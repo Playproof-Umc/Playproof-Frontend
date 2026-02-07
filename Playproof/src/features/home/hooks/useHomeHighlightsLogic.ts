@@ -1,3 +1,5 @@
+// src/features/home/hooks/useHomeHighlightsLogic.ts
+
 import React from "react";
 import { getHighlights } from "@/features/community/api/communityApi";
 import type { HighlightPost } from "@/features/community/types";

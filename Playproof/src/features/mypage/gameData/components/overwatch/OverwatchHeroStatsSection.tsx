@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/overwatch/OverwatchHeroStatsSection.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { OverwatchHeroStatRow } from "@/features/mypage/gameData/hooks/useOverwatchHeroStats";
 import { useOverwatchHeroes } from "@/features/mypage/gameData/hooks/useOverwatchHeros";

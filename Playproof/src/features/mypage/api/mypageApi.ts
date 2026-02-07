@@ -1,3 +1,5 @@
+// src/features/mypage/api/mypageApi.ts
+
 import type {
   BlockedUserData,
   FeedbackData,

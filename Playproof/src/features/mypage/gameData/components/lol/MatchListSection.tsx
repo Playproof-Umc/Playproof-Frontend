@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/MatchListSection.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { DashboardTabKey, LolMatchItem, PaginationState } from "@/features/mypage/gameData/types/gameDataTypes";
 import { MatchRow } from "./MatchRow";

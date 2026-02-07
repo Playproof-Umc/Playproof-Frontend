@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/utils/lolViewModel.ts
+
 import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "@/features/mypage/gameData/api/riotApi";
 import type {
   ChampionIcon,

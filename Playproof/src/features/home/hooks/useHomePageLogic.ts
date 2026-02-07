@@ -1,3 +1,5 @@
+// src/features/home/hooks/useHomePageLogic.ts
+
 import React from "react";
 import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
 import { useAuthStore } from "@/store/authStore";
