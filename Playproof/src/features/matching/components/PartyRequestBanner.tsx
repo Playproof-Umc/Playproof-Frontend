@@ -72,9 +72,15 @@ export const PartyRequestBanner = () => {
                         <button className="hover:text-black transition-colors"><RefreshCw size={14} /></button>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                    className="grid grid-flow-col auto-cols-[calc((100%-2*var(--gap))/3)] gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
+                    style={{ ["--gap" as string]: "16px" }}
+                >
                     {sortedApplicants.map((applicant) => (
-                        <div key={applicant.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between min-h-[240px]">
+                        <div
+                            key={applicant.id}
+                            className="snap-start bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between min-h-[240px]"
+                        >
                             <div className="font-bold text-sm text-gray-900 mb-4 border-b border-gray-50 pb-2 flex justify-between items-center"><span>{applicant.game}</span></div>
                             <div onClick={(e) => handleProfileClick(e, applicant.user)} className="flex flex-col items-center mb-4 cursor-pointer group">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full mb-3 flex items-center justify-center text-gray-400 group-hover:bg-gray-200 transition-colors"><User size={32} /></div>

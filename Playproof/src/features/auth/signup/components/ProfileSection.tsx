@@ -29,10 +29,6 @@ export const ProfileSection = ({ nicknameProps, avatarIdx, onSelectAvatar }: Pro
     } = nicknameProps;
 
     const canCheck = nickname.length > 0 && nickOk && nickCheckState !== "checking";
-    const showNicknameOutline =
-        nickname.length > 0 &&
-        nickOk &&
-        nickCheckState !== "checking";
 
     return (
         <section>
@@ -62,13 +58,13 @@ export const ProfileSection = ({ nicknameProps, avatarIdx, onSelectAvatar }: Pro
                             <div className="mt-1 text-xs text-red-500">중복된 이름입니다.</div>
                         )}
                         {nickname.length > 0 && nickCheckState === "ok" && (
-                            <div className="mt-1 text-xs text-[#3B59FF]">사용 가능한 이름입니다.</div>
+                            <div className="mt-1 text-xs text-[#1533B6]">사용 가능한 이름입니다.</div>
                         )}
                     </div>
 
                     <Button
                         type="button"
-                        variant={showNicknameOutline ? "outline" : "secondary"}
+                        variant={canCheck ? "primary" : "secondary"}
                         disabled={!canCheck}
                         onClick={onCheckNickname}
                         className="h-[48px] rounded-lg font-semibold text-xs whitespace-nowrap"
@@ -93,8 +89,8 @@ export const ProfileSection = ({ nicknameProps, avatarIdx, onSelectAvatar }: Pro
                                 aria-pressed={selected}
                                 className={[
                                     "aspect-square w-full rounded-lg bg-[#F3F3F3]",
-                                    selected ? "ring-2 ring-black" : "ring-1 ring-transparent",
-                                    "transition hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-black",
+                                    selected ? "ring-2 ring-[#1533B6]" : "ring-1 ring-transparent",
+                                    "transition hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1533B6]",
                                 ].join(" ")}
                             />
                         );

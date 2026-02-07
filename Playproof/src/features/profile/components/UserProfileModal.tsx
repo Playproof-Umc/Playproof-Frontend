@@ -1,7 +1,7 @@
 // src/features/profile/components/UserProfileModal.tsx
 import React, { useEffect, useState } from 'react';
-import { useUserProfile } from '../context/UserProfileContext';
-import { ProfileView } from './detail/ProfileView';
+import { useUserProfile } from '@/features/profile/context/UserProfileContext';
+import { ProfileView } from '@/features/profile/components/detail/ProfileView';
 import type { UserProfile } from '@/features/profile/types';
 
 export const UserProfileModal = () => {

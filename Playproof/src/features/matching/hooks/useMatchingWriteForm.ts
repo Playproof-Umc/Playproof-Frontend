@@ -1,7 +1,8 @@
 //src/features/matching/hooks/useMatchingWriteForm.ts
 import { useState, useMemo } from 'react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { MY_AZITS } from '@/features/matching/constants/matchingConfig';
+import { useAuthStore } from '@/store/authStore';
 
 interface UseMatchingWriteFormProps {
   onUpload: (data: MatchingData, action: 'new' | 'replace' | 'bump') => void;
@@ -10,6 +11,10 @@ interface UseMatchingWriteFormProps {
 }
 
 export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMatchingWriteFormProps) => {
+  const authUserId = useAuthStore((s) => s.userId);
+  const authNickname = useAuthStore((s) => s.nickname);
+  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const currentUserName = authNickname ?? '사용자';
   // 폼 상태
   const [game, setGame] = useState('리그오브레전드');
   const [title, setTitle] = useState('');
@@ -72,7 +77,7 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
       maxMembers: memberCount + 1,
       time: '방금 전', 
       views: 0, likes: 0, comments: 0, tsScore: 50,
-      hostUser: { id: 'me', nickname: '나(Player)', avatarUrl: '' },
+      hostUser: { id: currentUserId, nickname: currentUserName, avatarUrl: '' },
     };
   };
 

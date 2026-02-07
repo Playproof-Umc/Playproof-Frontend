@@ -1,23 +1,24 @@
 // src/features/matching/components/MatchingWriteModal.tsx
 import React from 'react';
 import { X } from 'lucide-react';
-import type { MatchingData } from '@/features/matching/types/types';
+import type { MatchingData } from '@/features/matching/types';
 import { useMatchingWriteForm } from '@/features/matching/hooks/useMatchingWriteForm';
-import { WriteGameSection } from './write/WriteGameSection';
-import { WritePositionSection } from './write/WritePositionSection';
-import { WriteDetailSection } from './write/WriteDetailSection';
-import { WriteTagSection } from './write/WriteTagSection';
-import { DuplicateModal } from './write/DuplicateModal';
+import { WriteGameSection } from '@/features/matching/components/write/WriteGameSection';
+import { WritePositionSection } from '@/features/matching/components/write/WritePositionSection';
+import { WriteDetailSection } from '@/features/matching/components/write/WriteDetailSection';
+import { WriteTagSection } from '@/features/matching/components/write/WriteTagSection';
+import { DuplicateModal } from '@/features/matching/components/write/DuplicateModal';
 
 interface MatchingWriteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (data: MatchingData, action: 'new' | 'replace' | 'bump') => void;
   existingPosts: MatchingData[];
+  initialGame?: string;
 }
 
 export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({ 
-  isOpen, onClose, onUpload, existingPosts 
+  isOpen, onClose, onUpload, existingPosts, initialGame
 }) => {
   const { formState, setters, handlers, isFormValid } = useMatchingWriteForm({ 
     onUpload, onClose, existingPosts 
@@ -27,6 +28,13 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
     game, title, isProMatch, selectedPositions, tier, azit, 
     memberCount, micStatus, selectedTags, memo, showDuplicateModal 
   } = formState;
+
+  React.useEffect(() => {
+    if (!isOpen || !initialGame) return;
+    if (initialGame !== game) {
+      handlers.handleGameChange(initialGame);
+    }
+  }, [game, handlers, initialGame, isOpen]);
 
   if (!isOpen) return null;
 

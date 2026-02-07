@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, UserPlus, Gamepad2, Calendar, XCircle, Info, Check } from 'lucide-react';
-import { MOCK_NOTIFICATIONS } from '../data/mockNotifications';
+import { MOCK_NOTIFICATIONS } from '@/features/notification/data/mockNotifications';
 
 interface NotificationDropdownProps {
   onClose: () => void;

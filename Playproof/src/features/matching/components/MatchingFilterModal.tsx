@@ -2,7 +2,7 @@
 import React, { useState } from 'react'; // useEffect 삭제
 import { X, RotateCcw } from 'lucide-react';
 import { GAME_CONFIG, TAGS } from '@/features/matching/constants/matchingConfig';
-import type { FilterState } from '@/features/matching/types/types';
+import type { FilterState } from '@/features/matching/types';
 
 interface MatchingFilterModalProps {
   isOpen: boolean;

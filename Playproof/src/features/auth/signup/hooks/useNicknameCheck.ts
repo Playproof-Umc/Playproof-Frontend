@@ -1,7 +1,7 @@
 //src/features/auth/signup/hooks/useNicknameCheck.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { NICKNAME_REGEX } from "@/constants/regex";
+import { NICKNAME_REGEX } from "@/features/auth/constants/regex";
 
 export type NickCheckState = "idle" | "checking" | "ok" | "dup" | "invalid";
 

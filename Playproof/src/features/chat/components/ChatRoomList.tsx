@@ -1,7 +1,7 @@
 //src/features/chat/components/ChatRoomList.tsx
 import React from 'react';
 import { Plus, MessageSquare } from 'lucide-react';
-import type { Channel } from '@/features/team/types/types';
+import type { Channel } from '@/features/team/types';
 import { Card } from '@/components/ui/Card';
 
 interface Props {

@@ -1,7 +1,7 @@
 //src/features/auth/signup/hooks/usePasswordRules.ts
 import { useCallback, useMemo, useState } from "react";
 
-import { PASSWORD_REGEX } from "@/constants/regex";
+import { PASSWORD_REGEX } from "@/features/auth/constants/regex";
 
 export const usePasswordRules = () => {
     const [password, setPassword] = useState("");

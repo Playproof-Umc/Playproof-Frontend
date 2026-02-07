@@ -1,12 +1,8 @@
 //src/pages/mypage/MyInfoEditPage.tsx
-import React from 'react';
+import { MyInfoEditPageView } from '@/features/mypage/pages/MyInfoEditPageView';
 
-const MyInfoEditPage: React.FC = () => {
-  return (
-    <main>
-      <div>MyInfoEditPage</div>
-    </main>
-  );
+const MyInfoEditPage = () => {
+  return <MyInfoEditPageView />;
 };
 
 export default MyInfoEditPage;
