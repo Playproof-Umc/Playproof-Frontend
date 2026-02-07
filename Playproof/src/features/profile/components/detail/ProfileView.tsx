@@ -1,5 +1,4 @@
 // src/features/profile/components/detail/ProfileView.tsx
-import React from 'react';
 import { X, User, ThumbsUp, MessageCircle, Gamepad2, Trophy } from 'lucide-react';
 import type { UserProfile } from '@/features/profile/types';
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useLocation } from "react-router-dom";
-import type { User } from "@/features/team/types";
+import type { User } from "@/types";
 import {
   MOCK_MY_AZITS,
   mockMembers,

@@ -1,7 +1,8 @@
 // src/features/team/hooks/useAzitSchedules.ts
 
 import React from "react";
-import type { Schedule, User } from "@/features/team/types";
+import type { Schedule } from "@/features/team/types";
+import type { User } from "@/types";
 
 type TimeSelection = {
   ampm: "AM" | "PM";

@@ -1,6 +1,7 @@
 // src/features/team/hooks/useAzitChat.ts
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 
 export const useAzitChat = () => {
   const [message, setMessage] = useState('');
@@ -24,10 +25,13 @@ export const useAzitChat = () => {
       return [...prev, ...nextFiles];
     });
     if (nextFiles.length > 0) {
-      const newPreviewItems = nextFiles.map((file) => ({
-        url: URL.createObjectURL(file),
-        type: file.type.startsWith("video/") ? "video" : "image",
-      }));
+      const newPreviewItems = nextFiles.map((file) => {
+        const mediaType: "image" | "video" = file.type.startsWith("video/") ? "video" : "image";
+        return {
+          url: URL.createObjectURL(file),
+          type: mediaType,
+        };
+      });
       setPreviewItems((prev) => [...prev, ...newPreviewItems]);
     }
     

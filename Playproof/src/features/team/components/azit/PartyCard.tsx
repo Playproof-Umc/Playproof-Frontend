@@ -1,6 +1,5 @@
 // src/features/team/components/azit/PartyCard.tsx
 
-import * as React from "react";
 
 type PartyCardProps = {
   title: string;

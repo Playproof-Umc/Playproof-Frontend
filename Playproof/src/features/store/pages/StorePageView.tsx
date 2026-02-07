@@ -1,6 +1,6 @@
 // src/features/store/pages/StorePageView.tsx
 
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import {
   StoreLayout,

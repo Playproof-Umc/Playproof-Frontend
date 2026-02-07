@@ -1,12 +1,10 @@
 // src/features/mypage/components/layout/MyPageSidebar.tsx
 
-import React from 'react';
-// src/features/mypage/components/layout/MyPageSidebar.tsx
-import { MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS } from "@/features/mypage/constants/labels";
+import { MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS, type MyPageSectionId } from "@/features/mypage/constants/labels";
 
 interface MyPageSidebarProps {
-  activeSection: string;
-  onSectionChange: (section: string) => void;
+  activeSection: MyPageSectionId;
+  onSectionChange: (section: MyPageSectionId) => void;
 }
 
 export function MyPageSidebar({ activeSection, onSectionChange }: MyPageSidebarProps) {

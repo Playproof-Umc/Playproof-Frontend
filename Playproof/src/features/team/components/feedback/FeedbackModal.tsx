@@ -48,7 +48,6 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
   const toggleTag = (
     target: string,
-    list: string[],
     setList: React.Dispatch<React.SetStateAction<string[]>>,
     limit: number
   ) => {
@@ -100,7 +99,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   <input
                     type="checkbox"
                     checked={positive.includes(tag)}
-                    onChange={() => toggleTag(tag, positive, setPositive, 3)}
+                    onChange={() => toggleTag(tag, setPositive, 3)}
                     className="h-4 w-4"
                   />
                   {tag}
@@ -117,7 +116,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   <input
                     type="checkbox"
                     checked={negative.includes(tag)}
-                    onChange={() => toggleTag(tag, negative, setNegative, 3)}
+                    onChange={() => toggleTag(tag, setNegative, 3)}
                     className="h-4 w-4"
                   />
                   {tag}

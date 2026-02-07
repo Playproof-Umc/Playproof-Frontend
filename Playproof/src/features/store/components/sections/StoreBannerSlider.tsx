@@ -1,5 +1,5 @@
 // src/features/store/components/sections/StoreBannerSlider.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { STORE_BANNERS } from '@/features/store/data/mockStoreData';
 
 export const StoreBannerSlider = () => {

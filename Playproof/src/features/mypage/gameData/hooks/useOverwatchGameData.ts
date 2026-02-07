@@ -32,7 +32,9 @@ export function useOverwatchGameData(params: {
     queryKey: ["gamedata", "overwatch", "stats", overwatchMeta?.battleTag],
     enabled: shouldFetchOverwatch && isOwSelected,
     queryFn: async () => {
-      if (!overwatchMeta?.battleTag) return null as never;
+      if (!overwatchMeta?.battleTag) {
+        throw new Error("BattleTag가 없습니다.");
+      }
       return await getOverwatchStats(overwatchMeta.battleTag);
     },
     retry: 1,

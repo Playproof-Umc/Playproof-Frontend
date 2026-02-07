@@ -1,5 +1,6 @@
 // src/features/team/data/mockTeamData.ts
-import type { Azit, User, Schedule, Channel, Clip } from '../types/types';
+import type { Azit, Schedule, Channel, Clip } from "../types/types";
+import type { User } from "@/types";
 
 // 내 아지트 목록
 export const MOCK_MY_AZITS: Azit[] = [

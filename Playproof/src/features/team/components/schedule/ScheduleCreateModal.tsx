@@ -1,6 +1,6 @@
 // src/features/team/components/schedule/ScheduleCreateModal.tsx
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { X, Calendar as CalendarIcon, Clock, AlertCircle } from "lucide-react"; // AlertCircle 추가
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css"; 

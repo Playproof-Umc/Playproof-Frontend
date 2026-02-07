@@ -26,6 +26,8 @@ export const MYPAGE_SECTION_IDS = {
   friends: "친구목록",
 } as const;
 
+export type MyPageSectionId = (typeof MYPAGE_SECTION_IDS)[keyof typeof MYPAGE_SECTION_IDS];
+
 export const MYPAGE_ACTION_LABELS = {
   viewProfile: "프로필 보기",
   addFriend: "친구추가",

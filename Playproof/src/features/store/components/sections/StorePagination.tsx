@@ -1,5 +1,4 @@
 // src/features/store/components/sections/StorePagination.tsx
-import React from 'react';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
 
 export const StorePagination = () => {

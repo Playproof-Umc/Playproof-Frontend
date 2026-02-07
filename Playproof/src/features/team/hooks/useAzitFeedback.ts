@@ -1,7 +1,8 @@
 // src/features/team/hooks/useAzitFeedback.ts
 
 import React from "react";
-import type { Schedule, User } from "@/features/team/types";
+import type { Schedule } from "@/features/team/types";
+import type { User } from "@/types";
 import { getScheduleActionState } from "@/features/team/utils/scheduleAction";
 import {
   addPendingFeedback,

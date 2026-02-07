@@ -1,16 +1,14 @@
 // src/features/mypage/components/layout/SectionContent.tsx
 
-import React from 'react';
-// src/features/mypage/components/layout/SectionContent.tsx
 import type { MyProfileData } from '@/features/mypage/types';
 import { ProfileDetail } from '@/features/mypage/components/profile/ProfileDetail';
 import { FeedbackSection } from '@/features/mypage/components/feedback/FeedbackSection';
 import { RecentPosts } from '@/features/mypage/components/posts/RecentPosts';
 import { FriendsList } from '@/features/mypage/components/friends/FriendsList';
-import { MYPAGE_SECTION_IDS } from '@/features/mypage/constants/labels';
+import { MYPAGE_SECTION_IDS, type MyPageSectionId } from '@/features/mypage/constants/labels';
 
 interface SectionContentProps {
-  activeSection: string;
+  activeSection: MyPageSectionId;
   profileData: MyProfileData;
 }
 
