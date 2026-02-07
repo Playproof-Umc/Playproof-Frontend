@@ -1,6 +1,6 @@
 // src/features/auth/pages/FindPasswordPageView.tsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PhoneStep } from "../find-password/components/PhoneStep";
 import { VerificationStep } from "../find-password/components/VerificationStep";

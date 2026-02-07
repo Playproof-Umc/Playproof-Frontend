@@ -9,7 +9,7 @@ import type {
 } from "@/features/mypage/gameData/types/gameDataTypes";
 import { FilterTabs } from "@/features/mypage/gameData/components/FilterTabs";
 import { LolAccountHeaderCard } from "./LolAccountHeaderCard";
-import { LolStatsCardsRow } from "./LolStatsCardRow";
+import { LolStatsCardRow } from "./LolStatsCardRow";
 import { MatchListSection } from "./MatchListSection";
 
 type Props = {
@@ -28,7 +28,7 @@ export const LolOverviewSection = (props: Props) => {
   return (
     <div className="space-y-4">
       <LolAccountHeaderCard profile={linkedProfile} />
-      <LolStatsCardsRow stats={aggregate} />
+      <LolStatsCardRow stats={aggregate} />
       <FilterTabs activeTab={activeTab} onChangeTab={onChangeTab} />
       <MatchListSection matches={matches} pagination={pagination} activeTab={activeTab} onChangePage={onChangePage} />
     </div>

@@ -121,7 +121,7 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
     state: {
       signupModal: {
         open: isSignupCompleteOpen,
-        username,
+        username: username ?? null,
       },
       highlights: highlightState.highlights,
       bestPosts,

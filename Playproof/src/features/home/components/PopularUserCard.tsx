@@ -1,6 +1,5 @@
 // src/features/home/components/PopularUserCard.tsx
 
-import * as React from "react";
 
 type PopularUserCardProps = {
   name: string;

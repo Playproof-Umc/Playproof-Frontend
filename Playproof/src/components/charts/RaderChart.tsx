@@ -56,10 +56,10 @@ const RadarChart: React.FC<RadarChartProps> = ({
         .data(data)
         .enter()
         .append('line')
-        .attr('x1', (d, j) => levelFactor * Math.cos(angleSlice * j - Math.PI / 2))
-        .attr('y1', (d, j) => levelFactor * Math.sin(angleSlice * j - Math.PI / 2))
-        .attr('x2', (d, j) => levelFactor * Math.cos(angleSlice * (j + 1) - Math.PI / 2))
-        .attr('y2', (d, j) => levelFactor * Math.sin(angleSlice * (j + 1) - Math.PI / 2))
+        .attr('x1', (_d, j) => levelFactor * Math.cos(angleSlice * j - Math.PI / 2))
+        .attr('y1', (_d, j) => levelFactor * Math.sin(angleSlice * j - Math.PI / 2))
+        .attr('x2', (_d, j) => levelFactor * Math.cos(angleSlice * (j + 1) - Math.PI / 2))
+        .attr('y2', (_d, j) => levelFactor * Math.sin(angleSlice * (j + 1) - Math.PI / 2))
         .attr('class', 'grid-line')
         .style('stroke', '#CDCDCD')
         .style('stroke-opacity', '0.5')
@@ -76,8 +76,8 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .append('line')
       .attr('x1', 0)
       .attr('y1', 0)
-      .attr('x2', (d, i) => rScale(100) * Math.cos(angleSlice * i - Math.PI / 2))
-      .attr('y2', (d, i) => rScale(100) * Math.sin(angleSlice * i - Math.PI / 2))
+      .attr('x2', (_d, i) => rScale(100) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('y2', (_d, i) => rScale(100) * Math.sin(angleSlice * i - Math.PI / 2))
       .attr('class', 'line')
       .style('stroke', '#999')
       .style('stroke-width', '1px');
@@ -92,8 +92,8 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .style('font-size', '12px')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
-      .attr('x', (d, i) => rScale(115) * Math.cos(angleSlice * i - Math.PI / 2))
-      .attr('y', (d, i) => rScale(115) * Math.sin(angleSlice * i - Math.PI / 2))
+      .attr('x', (_d, i) => rScale(115) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('y', (_d, i) => rScale(115) * Math.sin(angleSlice * i - Math.PI / 2))
       .text((d) => d.axis)
       .style('fill', '#6B7280'); // gray-500
 
@@ -121,8 +121,8 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .append('circle')
       .attr('class', 'radarCircle')
       .attr('r', 4)
-      .attr('cx', (d, i) => rScale(d.value) * Math.cos(angleSlice * i - Math.PI / 2))
-      .attr('cy', (d, i) => rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
+      .attr('cx', (_d, i) => rScale(data[i]?.value ?? 0) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('cy', (_d, i) => rScale(data[i]?.value ?? 0) * Math.sin(angleSlice * i - Math.PI / 2))
       .style('fill', color)
       .style('fill-opacity', 0.8);
 

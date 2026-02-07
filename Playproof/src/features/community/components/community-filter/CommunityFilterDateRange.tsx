@@ -1,15 +1,14 @@
 // src/features/community/components/community-filter/CommunityFilterDateRange.tsx
 
-import React from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 type CommunityFilterDateRangeProps = {
   rangeLabel: string;
   showCalendar: boolean;
   onToggleCalendar: () => void;
-  range: { from?: Date; to?: Date };
-  onRangeChange: (range: { from?: Date; to?: Date } | undefined) => void;
+  range: DateRange | undefined;
+  onRangeChange: (range: DateRange | undefined) => void;
 };
 
 export function CommunityFilterDateRange({

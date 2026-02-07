@@ -1,5 +1,4 @@
 // src/features/matching/components/write/WritePositionSection.tsx
-import React from 'react';
 import { GAME_CONFIG } from '@/features/matching/constants/matchingConfig';
 
 interface WritePositionSectionProps {

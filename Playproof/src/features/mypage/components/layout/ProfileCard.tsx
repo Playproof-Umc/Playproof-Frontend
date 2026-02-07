@@ -1,6 +1,5 @@
 // src/features/mypage/components/layout/ProfileCard.tsx
 
-import React from 'react';
 import { User } from 'lucide-react';
 // src/features/mypage/components/layout/ProfileCard.tsx
 import type { MyProfileData } from '@/features/mypage/types';

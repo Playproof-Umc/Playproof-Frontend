@@ -1,6 +1,5 @@
 // src/features/community/components/community-post/CommunityPostList.tsx
 
-import React from "react";
 import type { BoardPost } from "@/features/community/types";
 import { CommunityPostListItem } from "@/features/community/components/community-post/CommunityPostListItem";
 

@@ -102,8 +102,8 @@ export const HomePageView = () => {
       </main>
 
       <SignupCompleteModal
-        open={s.isSignupCompleteOpen}
-        username={s.username}
+        open={s.signupModal.open}
+        username={s.signupModal.username}
         onClose={h.closeSignupComplete}
       />
       {highlightModalProps ? <HighlightDetailModal {...highlightModalProps} /> : null}

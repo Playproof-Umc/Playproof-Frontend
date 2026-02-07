@@ -1,14 +1,15 @@
 // src/features/mypage/gameData/hooks/useOverwatchMatches.tsx
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getOverwatchMatches } from "@/features/mypage/gameData/api/overwatchApi";
+import { getOverwatchMatches, type OverwatchMatch } from "@/features/mypage/gameData/api/overwatchApi";
 
 const PAGE_SIZE = 10;
 
 export function useOverwatchMatches(battleTag: string, enabled: boolean) {
-  return useInfiniteQuery({
+  return useInfiniteQuery<OverwatchMatch[], Error, OverwatchMatch[], string[], number>({
     queryKey: ["overwatch-matches", battleTag],
     enabled: enabled && !!battleTag,
+    initialPageParam: 0,
     queryFn: ({ pageParam = 0 }) =>
       getOverwatchMatches({
         battleTag,

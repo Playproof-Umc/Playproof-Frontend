@@ -1,6 +1,5 @@
 // src/features/community/components/community-filter/CommunityFilterMediaSelector.tsx
 
-import React from "react";
 import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
 type CommunityFilterMediaSelectorProps = {

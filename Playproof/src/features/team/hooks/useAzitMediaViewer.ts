@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import type { Clip } from "@/types";
+import type { Clip } from "@/features/team/types";
 
 export const useAzitMediaViewer = (clips: Clip[]) => {
   const [isGalleryOpen, setIsGalleryOpen] = React.useState(false);

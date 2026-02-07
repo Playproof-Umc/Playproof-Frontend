@@ -34,7 +34,7 @@ export function BoardWriteModal({
 function BoardWriteModalContent({
   onClose,
   onSubmit,
-  initialGame,
+  initialGame = "전체글",
 }: Omit<BoardWriteModalProps, "isOpen">) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");

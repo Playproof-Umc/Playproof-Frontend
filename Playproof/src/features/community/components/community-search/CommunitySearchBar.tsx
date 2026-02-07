@@ -1,6 +1,5 @@
 // src/features/community/components/community-search/CommunitySearchBar.tsx
 
-import * as React from "react";
 import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 import { CommunitySearchInput } from "@/features/community/components/community-search/CommunitySearchInput";
 import { CommunityFilterButton } from "@/features/community/components/community-search/CommunityFilterButton";

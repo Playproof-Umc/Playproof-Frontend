@@ -1,5 +1,4 @@
 // src/features/matching/components/write/WriteTagSection.tsx
-import React from 'react';
 import { TAGS } from '@/features/matching/constants/matchingConfig';
 
 interface WriteTagSectionProps {

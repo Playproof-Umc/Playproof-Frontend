@@ -1,6 +1,5 @@
 // src/features/mypage/components/profile/PlayStyleTags.tsx
 
-import React from 'react';
 import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 
 interface PlayStyleTagsProps {

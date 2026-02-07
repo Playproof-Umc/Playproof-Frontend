@@ -2,7 +2,8 @@
 
 /* eslint-disable react-refresh/only-export-components */
 //src/features/matching/context/MatchingDetailContext.tsx
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { MatchingData } from '@/features/matching/types';
 
 type LikeState = {

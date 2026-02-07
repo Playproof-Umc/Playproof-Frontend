@@ -1,6 +1,5 @@
 // src/features/community/components/community-filter/CommunityFilterModal.tsx
 
-import React from "react";
 import { CommunityFilterHeader } from "@/features/community/components/community-filter/CommunityFilterHeader";
 import { CommunityFilterMediaSelector } from "@/features/community/components/community-filter/CommunityFilterMediaSelector";
 import { CommunityFilterDateRange } from "@/features/community/components/community-filter/CommunityFilterDateRange";

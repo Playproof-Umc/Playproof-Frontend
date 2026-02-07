@@ -1,5 +1,5 @@
 // src/features/matching/components/detail/MatchingDetailModal.tsx
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useMatchingDetailLogic } from '@/features/matching/hooks/useMatchingDetailLogic';
 import { MatchingPostInfo } from '@/features/matching/components/detail/MatchingPostInfo';

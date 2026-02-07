@@ -1,7 +1,7 @@
 // src/features/team/hooks/useAzitMedia.ts
 
 import React from "react";
-import type { Clip } from "@/types";
+import type { Clip } from "@/features/team/types";
 
 type MediaItem = { url: string; type: "image" | "video" };
 

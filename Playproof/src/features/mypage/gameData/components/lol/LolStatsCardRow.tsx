@@ -88,7 +88,7 @@ function ChampionIcon({ name }: { name: string }) {
   );
 }
 
-export const LolStatsCardsRow = ({ stats }: Props) => {
+export const LolStatsCardRow = ({ stats }: Props) => {
   const winRate = clampPercent(stats.winRatePercent);
 
   return (

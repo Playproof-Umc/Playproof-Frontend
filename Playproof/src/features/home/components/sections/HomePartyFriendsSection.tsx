@@ -1,6 +1,5 @@
 // src/features/home/components/sections/HomePartyFriendsSection.tsx
 
-import React from "react";
 import { HomePartyCard, HomeFriendList } from "@/features/home/components";
 import type { HomePartyFriendsSectionProps } from "@/features/home/components/sections/types";
 
@@ -26,7 +25,7 @@ export const HomePartyFriendsSection = ({
                   time={slide.timeLabel}
                   location={slide.azit?.name ?? "아지트"}
                   currentPlayers={slide.schedule?.participants.length ?? 0}
-                  maxPlayers={slide.schedule?.maxParticipants ?? 0}
+                  maxPlayers={slide.schedule?.maxMembers ?? 0}
                   memberAvatars={[]}
                   onClick={() => onOpenAzit(slide.azit.id)}
                 />

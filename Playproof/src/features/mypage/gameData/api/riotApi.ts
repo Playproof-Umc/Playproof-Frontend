@@ -42,6 +42,8 @@ export type MatchDto = {
       deaths: number;
       assists: number;
       championName: string;
+      teamPosition?: string;
+      lane?: string;
       item0: number;
       item1: number;
       item2: number;

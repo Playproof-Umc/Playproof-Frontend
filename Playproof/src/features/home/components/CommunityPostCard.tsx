@@ -1,6 +1,5 @@
 // src/features/home/components/CommunityPostCard.tsx
 
-import * as React from "react";
 
 type CommunityPostProps = {
   author: string;

@@ -105,13 +105,13 @@ export const useGameDataDashboard = () => {
 
   // --- linkedAccounts override (연동 카드 데이터 유지 핵심) ---
   const linkedAccounts = useMemo(() => {
-    const overrides = [lol.cardOverride, valorant.cardOverride, overwatch.cardOverride].filter(Boolean) as Array<{
+    const overrides = [lol.cardOverride, overwatch.cardOverride].filter(Boolean) as Array<{
       game: GameKey;
       accounts: LinkedAccount["accounts"];
     }>;
 
     return applyCardOverrides(baseData.linkedAccounts, overrides);
-  }, [baseData.linkedAccounts, lol.cardOverride, overwatch.cardOverride, valorant.cardOverride]);
+  }, [baseData.linkedAccounts, lol.cardOverride, overwatch.cardOverride]);
 
   const data: GameDataDashboardData = useMemo(() => {
     // LoL 전적 로드 시 baseData.lol을 최신으로 주입(기존 동작 유지)
@@ -159,13 +159,8 @@ export const useGameDataDashboard = () => {
       },
       onChangeTab: (tab: DashboardTabKey) => setActiveTab(tab),
       onChangeLolPage: (nextPage: number) => setPage(nextPage),
-
-      // 기존 액션 유지 (다른 컴포넌트에서 쓰고 있을 수 있음)
-      openValorantMatches: valorant.openValorantMatches,
-      closeValorantMatches: valorant.closeValorantMatches,
-      loadMoreValorantMatches: valorant.loadMoreValorantMatches,
     }),
-    [valorant.closeValorantMatches, valorant.loadMoreValorantMatches, valorant.openValorantMatches]
+    []
   );
 
   // --- valorant panel return (기존 return shape 유지) ---
@@ -175,6 +170,5 @@ export const useGameDataDashboard = () => {
     activeTab,
     view,
     actions,
-    valorant: valorant.valorantPanel,
   };
 };

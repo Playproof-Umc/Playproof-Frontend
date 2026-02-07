@@ -1,6 +1,5 @@
 // src/features/mypage/components/profile/GameAccounts.tsx
 
-import React from 'react';
 import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 import type { MyProfileData } from '@/features/mypage/types';
 

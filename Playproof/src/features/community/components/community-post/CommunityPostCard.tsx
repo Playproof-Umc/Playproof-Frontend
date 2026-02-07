@@ -1,6 +1,5 @@
 // src/features/community/components/community-post/CommunityPostCard.tsx
 
-import * as React from "react";
 import { Card } from "@/components/ui/Card";
 import { CommunityPostActions } from "@/features/community/components/community-post/CommunityPostActions";
 import { CommunityPostHeader } from "@/features/community/components/community-post/CommunityPostHeader";

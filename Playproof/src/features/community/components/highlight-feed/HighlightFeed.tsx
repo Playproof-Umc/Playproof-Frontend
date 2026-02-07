@@ -1,6 +1,5 @@
 // src/features/community/components/highlight-feed/HighlightFeed.tsx
 
-import React from "react";
 import type { HighlightPost } from "@/features/community/types";
 import { HighlightCardGrid } from "@/features/community/components/highlight-feed/HighlightCardGrid";
 

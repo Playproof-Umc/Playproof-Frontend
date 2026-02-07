@@ -1,6 +1,5 @@
 // src/components/auth/StepDots.tsx
 
-import * as React from "react";
 import { cn } from "@/utils/cn";
 
 type Step = 1 | 2 | 3;

@@ -24,10 +24,29 @@ export type OverwatchStatsResponse = {
   top3Heroes: OverwatchTopHero[];
 };
 
+export type OverwatchMatch = {
+  id: string;
+  map: string;
+  mode: string;
+  result: "win" | "loss";
+  played_at: string;
+};
+
 export async function getOverwatchStats(battleTag: string) {
   // 호출 URL: /api/overwatch/stats?battleTag=...
   const res = await overwatchClient.get<OverwatchStatsResponse>("/stats", {
     params: { battleTag },
   });
   return res.data;
+}
+
+export async function getOverwatchMatches(params: {
+  battleTag: string;
+  offset: number;
+  limit: number;
+}): Promise<OverwatchMatch[]> {
+  const res = await overwatchClient.get<OverwatchMatch[]>("/matches", {
+    params,
+  });
+  return Array.isArray(res.data) ? res.data : [];
 }

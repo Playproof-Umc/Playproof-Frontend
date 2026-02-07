@@ -1,5 +1,4 @@
 // src/features/matching/components/home/PopularMatchList.tsx
-import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { MatchingCard } from '@/features/matching/components/common/MatchingCard';
 import type { MatchingData } from '@/features/matching/types';

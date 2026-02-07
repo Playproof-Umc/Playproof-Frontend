@@ -11,11 +11,11 @@ export const MOCK_MY_AZITS: Azit[] = [
 
 // 멤버 목록
 export const mockMembers: User[] = [
-  { id: 1, nickname: '레나', statusMessage: '즐겜 유저', isOnline: true },
-  { id: 2, nickname: '엘릭', statusMessage: 'FE 개발 중...', isOnline: true },
-  { id: 3, nickname: '카이', statusMessage: '밥 먹으러 감', isOnline: false },
-  { id: 4, nickname: '제이', statusMessage: '', isOnline: false },
-  { id: 5, nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
+  { id: "1", nickname: '레나', statusMessage: '즐겜 유저', isOnline: true },
+  { id: "2", nickname: '엘릭', statusMessage: 'FE 개발 중...', isOnline: true },
+  { id: "3", nickname: '카이', statusMessage: '밥 먹으러 감', isOnline: false },
+  { id: "4", nickname: '제이', statusMessage: '', isOnline: false },
+  { id: "5", nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
 ];
 
 // 아지트별 멤버 매핑

@@ -1,6 +1,5 @@
 // src/features/home/components/UserSummaryCard.tsx
 
-import * as React from "react";
 
 type Stat = {
   label: string;
