@@ -77,8 +77,8 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
     const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
     return MOCK_MY_AZITS.map((azit, idx) => {
       const schedule = schedules[idx % schedules.length];
-      const timeLabel = schedule
-        ? schedule.date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
+      const timeLabel = schedule?.fullDate
+        ? schedule.fullDate.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
         : "시간 미정";
       return { azit, schedule, timeLabel };
     });

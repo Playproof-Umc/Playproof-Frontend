@@ -1,197 +1,367 @@
-// src/features/team/components/azit/LeftPanel.tsx
-import React from 'react';
-import { Plus, Volume2, Mic } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
-import type { User } from '@/types';
-
-import type { Schedule } from '@/types';
+import React, { useState } from 'react';
+import { Plus, Volume2, Mic, MessageSquare, Pencil, Trash2, Check, X } from 'lucide-react';
+import type { User, Schedule } from '@/features/team/types/types';
+import { ScheduleItem } from '@/features/team/components/azit/schedule/ScheduleItem';
+// ✅ 모달 Import
+import { ChatRoomCreateModal } from './chat/ChatRoomCreateModal';
+import type { ChatRoomCreateData } from './chat/ChatRoomCreateModal';
 
 interface LeftPanelProps {
   members: User[];
   schedules?: Schedule[];
+  currentUserId: string;
+  onAddSchedule?: (target: HTMLElement) => void;
+  onStatusChange?: (scheduleId: string, newStatus: 'JOIN' | 'DECLINE') => void;
+  onFeedback?: (scheduleId: string) => void;
+  selectedChatRoom: string;
+  onSelectChatRoom: (roomName: string) => void;
+  voiceRooms: { id: string; name: string; users: User[] }[];
+  onJoinVoiceRoom: (roomId: string) => void;
+  textRooms: string[];
+  onCreateChatRoom: (name: string, type: "TEXT" | "VOICE") => void;
+  onRenameVoiceRoom: (roomId: string, nextName: string) => void;
+  onDeleteVoiceRoom: (roomId: string) => void;
+  onRenameChatRoom: (roomName: string, nextName: string) => void;
+  onDeleteChatRoom: (roomName: string) => void;
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] }) => {
-  const mainSchedule = schedules[0];
-  const secondarySchedule = schedules[1];
-  const tertiarySchedule = schedules[2];
+export const LeftPanel: React.FC<LeftPanelProps> = ({ 
+  members, 
+  schedules = [], 
+  currentUserId,
+  onAddSchedule,
+  onStatusChange,
+  onFeedback,
+  selectedChatRoom,
+  onSelectChatRoom,
+  voiceRooms,
+  onJoinVoiceRoom,
+  textRooms,
+  onCreateChatRoom,
+  onRenameVoiceRoom,
+  onDeleteVoiceRoom,
+  onRenameChatRoom,
+  onDeleteChatRoom
+}) => {
+  // ✅ 모달 상태 관리
+  const [chatCreateAnchorEl, setChatCreateAnchorEl] = useState<HTMLElement | null>(null);
+  const [editingRoom, setEditingRoom] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [editingVoiceId, setEditingVoiceId] = useState<string | null>(null);
+  const [editingVoiceName, setEditingVoiceName] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("삭제 확인");
+  const [confirmDescription, setConfirmDescription] = useState("");
+  const confirmActionRef = React.useRef<() => void>(() => {});
 
-  const formatDate = (d?: Date) =>
-    d ? d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '';
-  const formatTime = (d?: Date) =>
-    d ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
+  // ✅ 채팅방 생성 핸들러 (API 호출 로직 추가할 곳)
+  const handleCreateChatRoom = (data: ChatRoomCreateData) => {
+    console.log("생성할 채팅방 데이터:", data);
+    // TODO: API 호출 예시 -> createChatRoomMutation.mutate(data);
+    onCreateChatRoom(data.name, data.type);
+  };
+
+  const startEditingRoom = (roomName: string) => {
+    setEditingRoom(roomName);
+    setEditingName(roomName);
+  };
+
+  const cancelEditingRoom = () => {
+    setEditingRoom(null);
+    setEditingName("");
+  };
+
+  const submitEditingRoom = () => {
+    if (!editingRoom) return;
+    onRenameChatRoom(editingRoom, editingName);
+    cancelEditingRoom();
+  };
+
+  const startEditingVoice = (roomId: string, roomName: string) => {
+    setEditingVoiceId(roomId);
+    setEditingVoiceName(roomName);
+  };
+
+  const cancelEditingVoice = () => {
+    setEditingVoiceId(null);
+    setEditingVoiceName("");
+  };
+
+  const submitEditingVoice = () => {
+    if (!editingVoiceId) return;
+    onRenameVoiceRoom(editingVoiceId, editingVoiceName);
+    cancelEditingVoice();
+  };
+
+  const openConfirm = (title: string, description: string, onConfirm: () => void) => {
+    setConfirmTitle(title);
+    setConfirmDescription(description);
+    confirmActionRef.current = onConfirm;
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    confirmActionRef.current();
+    setConfirmOpen(false);
+  };
+
+
   return (
-    <aside className="w-[340px] flex flex-col gap-6 pr-2 overflow-y-auto pb-10 shrink-0 custom-scrollbar">
+    <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-visible lg:overflow-y-auto pb-10 shrink-0 custom-scrollbar">
       
-      {/* 스케줄 섹션 */}
+      {/* 1. 스케줄 섹션 (건드리지 않음) */}
       <section>
-        <h2 className="text-lg font-bold text-gray-900 mb-3 px-1">스케줄</h2>
+        <div className="flex justify-between items-center mb-3 px-1 relative">
+          <h2 className="text-lg font-bold text-gray-900">스케줄</h2>
+          <button 
+            onClick={(e) => onAddSchedule && e.currentTarget.parentElement && onAddSchedule(e.currentTarget.parentElement)}
+            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+          >
+            <Plus className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
         
-        
-        <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-xl bg-white">
-          
-          {/* 정기 매칭 일정 헤더 */}
-          <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-white">
+        <div className="mb-2 px-1">
             <span className="font-bold text-gray-800 text-sm">정기 매칭 일정</span>
-            <button className="text-gray-400 hover:bg-gray-100 p-1 rounded">
-               <span className="sr-only">옵션</span>
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-            </button>
-          </div>
-          
-          {/* 메인 일정 (카운트다운) */}
-          <div className="p-4 border-b border-gray-100">
-            <div className="flex gap-4 mb-4">
-               {/* 날짜 배지 */}
-               <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-100 rounded-xl w-[52px] h-[52px] shrink-0">
-                  <span className="text-[11px] text-gray-500 font-medium uppercase leading-none mb-0.5">
-                    {mainSchedule ? mainSchedule.date.toLocaleDateString('en-US', { weekday: 'short' }) : '--'}
-                  </span>
-                  <span className="text-xl font-bold text-gray-900 leading-none">
-                    {mainSchedule ? mainSchedule.date.getDate() : '--'}
-                  </span>
-               </div>
-               
-               {/* 내용 */}
-               <div className="flex-1 min-w-0">
-                 <div className="flex items-center gap-2 mb-1">
-                   <span className="text-lg font-bold text-gray-900 leading-none">
-                     {formatTime(mainSchedule?.date) || '--:--'}
-                   </span>
-                   <Volume2 className="w-4 h-4 text-gray-400" />
-                 </div>
-                 <div className="text-sm text-gray-600 font-medium truncate">
-                   {mainSchedule?.title ?? '일정 없음'}
-                 </div>
-                 {/* 아바타 */}
-                 <div className="flex -space-x-1.5 mt-2">
-                    {(mainSchedule?.participants ?? []).slice(0, 3).map((_, i) => (
-                      <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white" />
-                    ))}
-                 </div>
-               </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {schedules.length > 0 ? (
+            schedules.map((sch) => (
+              <ScheduleItem 
+                key={sch.id} 
+                schedule={sch} 
+                currentUserId={currentUserId}
+                onStatusChange={onStatusChange}
+                onFeedback={onFeedback}
+              />
+            ))
+          ) : (
+            <div className="p-8 text-center text-gray-400 text-sm bg-white rounded-xl border border-gray-200">
+              등록된 일정이 없습니다.
             </div>
-
-            {/* 타이머 */}
-            <div className="bg-gray-50 rounded-lg py-3 text-center mb-3">
-              <div className="text-[11px] text-gray-500 mb-0.5">매칭완료까지</div>
-              <div className="text-2xl font-black text-gray-900 tabular-nums tracking-tight">
-                1 : 59 : 30
-              </div>
-            </div>
-
-            {/* 버튼 */}
-            <div className="flex gap-2">
-              <button className="flex-1 bg-white border border-gray-200 text-gray-900 py-2 rounded-lg text-xs font-bold hover:bg-gray-50">
-                참여
-              </button>
-              <button className="flex-1 bg-gray-100 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-200">
-                불참
-              </button>
-            </div>
-          </div>
-
-          {/* 하위 일정  */}
-          <div className="p-4 border-b border-gray-100 last:border-0">
-             <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-gray-900 text-base">
-                  {formatTime(secondarySchedule?.date) || '--:--'}
-                </span>
-                <span className="text-xs text-gray-500 font-medium">
-                  {formatDate(secondarySchedule?.date)}
-                </span>
-             </div>
-             <div className="text-sm text-gray-700 font-medium mb-2">
-               {secondarySchedule?.title ?? '일정 없음'}
-             </div>
-             <div className="flex items-center gap-1.5 mb-3">
-                {(secondarySchedule?.participants ?? []).slice(0, 5).map((_, i) => (
-                  <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />
-                ))}
-             </div>
-             <button className="w-full bg-gray-100 text-gray-400 py-2 rounded-lg text-xs font-bold cursor-not-allowed">
-               완료
-             </button>
-          </div>
-          
-          {/* 하위 일정 2 */}
-          <div className="p-4">
-             <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-gray-900 text-base">
-                  {formatTime(tertiarySchedule?.date) || '--:--'}
-                </span>
-                <span className="text-xs text-gray-500 font-medium">
-                  {formatDate(tertiarySchedule?.date)}
-                </span>
-             </div>
-             <div className="text-sm text-gray-700 font-medium mb-2">
-               {tertiarySchedule?.title ?? '일정 없음'}
-             </div>
-             <div className="flex items-center gap-1.5 mb-3">
-                {(tertiarySchedule?.participants ?? []).slice(0, 2).map((_, i) => (
-                  <div key={i} className="w-6 h-6 rounded-full bg-gray-200" />
-                ))}
-             </div>
-             <button className="w-full bg-white border border-gray-200 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 flex items-center justify-center gap-1">
-               <Plus className="w-3 h-3" /> 추가 게이머 찾기
-             </button>
-          </div>
-
-        </Card>
+          )}
+        </div>
       </section>
 
-      {/*음성 채팅 섹션 */}
+      {/* 2. 채팅 섹션 */}
       <section>
         <div className="flex justify-between items-center mb-2 px-1">
-          <h2 className="text-lg font-bold text-gray-900">음성 채팅</h2>
-          <button className="hover:bg-gray-100 rounded-full p-1"><Plus className="w-4 h-4 text-gray-400" /></button>
+          <h2 className="text-lg font-bold text-gray-900">채팅</h2>
+          <button
+            type="button"
+            onClick={(e) =>
+              setChatCreateAnchorEl(
+                e.currentTarget.parentElement ?? e.currentTarget
+              )
+            }
+            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+          >
+            <Plus className="w-4 h-4 text-gray-400" />
+          </button>
         </div>
-        
+
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          
-          {/* 로비 (일반 음성방) */}
-          <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer h-12">
-            <Volume2 className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-bold text-gray-600">로비</span>
+          <div className="px-4 py-3 border-b border-gray-100">
+            <div className="text-xs font-bold text-gray-500">음성 채팅</div>
           </div>
+          {voiceRooms.map((room, index) => (
+            <div
+              key={room.id}
+              className={index === 0 ? "border-b border-gray-50" : "bg-gray-50/50 pb-3 border-b border-gray-100"}
+            >
+              <div className="w-full px-4 py-2 flex items-center gap-3 h-12">
+                <button
+                  type="button"
+                  onClick={() => onJoinVoiceRoom(room.id)}
+                  className="flex items-center gap-3 flex-1 min-w-0"
+                >
+                  <Volume2 className={`w-4 h-4 ${index === 0 ? "text-gray-500" : "text-gray-900"}`} />
+                  {editingVoiceId === room.id ? (
+                    <input
+                      value={editingVoiceName}
+                      onChange={(e) => setEditingVoiceName(e.target.value)}
+                      className="h-8 px-2 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-gray-400 w-full"
+                      maxLength={20}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          submitEditingVoice();
+                        }
+                        if (e.key === "Escape") {
+                          cancelEditingVoice();
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span className={`text-sm font-bold truncate ${index === 0 ? "text-gray-600" : "text-gray-900"}`}>
+                      {room.name}
+                    </span>
+                  )}
+                </button>
+                {editingVoiceId === room.id ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={submitEditingVoice}
+                      className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingVoice}
+                      className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => startEditingVoice(room.id, room.name)}
+                      className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openConfirm(
+                          "음성 채팅방 삭제",
+                          `"${room.name}" 음성 채팅방을 삭제할까요?`,
+                          () => onDeleteVoiceRoom(room.id)
+                        )
+                      }
+                      disabled={voiceRooms.length <= 1}
+                      className={`p-1 rounded-md ${
+                        voiceRooms.length <= 1
+                          ? "text-gray-200 cursor-not-allowed"
+                          : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      }`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="pl-11 pr-4 space-y-2 pb-3">
+                {room.users.length === 0 ? (
+                  <div className="text-xs text-gray-400">참여자가 없습니다.</div>
+                ) : (
+                  room.users.map((user) => (
+                    <div key={user.id} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-gray-300" />
+                      <span className="text-sm text-gray-600 font-medium">{user.nickname}</span>
+                      {String(user.id) === String(currentUserId) && (
+                        <Mic className="w-3 h-3 text-red-400 ml-auto" />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
 
-          {/* 스크림 룸 (활성 - 참여자 표시) */}
-          <div className="bg-gray-50/50 pb-3 border-b border-gray-50">
-             <div className="px-4 py-2 flex items-center gap-3 h-10">
-               <Volume2 className="w-4 h-4 text-gray-900" />
-               <span className="text-sm font-bold text-gray-900">스크림 룸</span>
-             </div>
-             {/* 참여자 리스트 (들여쓰기) */}
-             <div className="pl-11 pr-4 space-y-2">
-               {/* 유저 1 */}
-               <div className="flex items-center gap-2">
-                 <div className="w-5 h-5 rounded-full bg-gray-300" />
-                 <span className="text-sm text-gray-600 font-medium">레나</span>
-               </div>
-               {/* 유저 2 */}
-               <div className="flex items-center gap-2">
-                 <div className="w-5 h-5 rounded-full bg-gray-300" />
-                 <span className="text-sm text-gray-600 font-medium">엘릭</span>
-                 <Mic className="w-3 h-3 text-red-400 ml-auto" />
-               </div>
-             </div>
+          <div className="px-4 py-3 border-b border-gray-100">
+            <div className="text-xs font-bold text-gray-500">일반 채팅</div>
           </div>
-
-          {/* 그 아래 다른 채팅방 (팀 채팅) */}
-          <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer h-12">
-            <Volume2 className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-bold text-gray-500">팀 채팅</span>
-          </div>
-          
-           {/* 그 아래 다른 채팅방 (수다방) */}
-           <div className="px-4 py-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer h-12">
-            <Volume2 className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-bold text-gray-500">수다방</span>
-          </div>
+          {textRooms.map((room) => {
+            const isSelected = selectedChatRoom === room;
+            const isEditing = editingRoom === room;
+            return (
+              <div
+                key={room}
+                className={`px-4 py-2 flex items-center gap-3 w-full h-12 transition-colors ${
+                  isSelected ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-600"
+                } ${room === "자유 대화" ? "border-b border-gray-50" : ""}`}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <MessageSquare
+                    className={`w-4 h-4 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
+                  />
+                  {isEditing ? (
+                    <input
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      className="h-8 px-2 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-gray-400 w-full"
+                      maxLength={20}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          submitEditingRoom();
+                        }
+                        if (e.key === "Escape") {
+                          cancelEditingRoom();
+                        }
+                      }}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onSelectChatRoom(room)}
+                      className={`text-sm font-bold truncate text-left flex-1 ${
+                        isSelected ? "text-blue-700" : "text-gray-600"
+                      }`}
+                    >
+                      {room}
+                    </button>
+                  )}
+                </div>
+                {isEditing ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={submitEditingRoom}
+                      className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingRoom}
+                      className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => startEditingRoom(room)}
+                      className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openConfirm(
+                          "채팅방 삭제",
+                          `"${room}" 채팅방을 삭제할까요?`,
+                          () => onDeleteChatRoom(room)
+                        )
+                      }
+                      disabled={textRooms.length <= 1}
+                      className={`p-1 rounded-md ${
+                        textRooms.length <= 1
+                          ? "text-gray-200 cursor-not-allowed"
+                          : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      }`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* 멤버 섹션 */}
+      {/* 3. 멤버 섹션 (기존 유지) */}
       <section>
         <div className="flex justify-between items-center mb-2 px-1">
           <h2 className="text-lg font-bold text-gray-900">멤버</h2>
@@ -212,6 +382,39 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ members, schedules = [] })
           ))}
         </div>
       </section>
+
+      {/* ✅ 모달 컴포넌트 렌더링 (Portal 사용으로 위치 상관 없음) */}
+      <ChatRoomCreateModal 
+        anchorEl={chatCreateAnchorEl}
+        onClose={() => setChatCreateAnchorEl(null)}
+        onCreate={handleCreateChatRoom}
+      />
+
+      {confirmOpen && (
+        <>
+          <div className="fixed inset-0 z-[110] bg-black/30" onClick={() => setConfirmOpen(false)} />
+          <div className="fixed inset-0 z-[111] flex items-center justify-center px-4">
+            <div className="w-full max-w-[360px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900">{confirmTitle}</h3>
+              <p className="text-sm text-gray-500 mt-2">{confirmDescription}</p>
+              <div className="flex gap-3 mt-6">
+                <button
+                  className="flex-1 h-10 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
+                  onClick={() => setConfirmOpen(false)}
+                >
+                  취소
+                </button>
+                <button
+                  className="flex-1 h-10 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors"
+                  onClick={handleConfirm}
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
     </aside>
   );

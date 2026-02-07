@@ -9,6 +9,11 @@ import { GAME_LIST } from '@/features/matching/constants/matchingConfig';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import { useAuthStore } from '@/store/authStore';
+import { FeedbackModal } from "@/features/team/components/feedback/FeedbackModal";
+import {
+  getPendingFeedbacks,
+  removePendingFeedback,
+} from "@/features/team/utils/pendingFeedback";
 
 const FALLBACK_USER_ID = 'user-1';
 
@@ -30,6 +35,9 @@ export const MatchingPageView = () => {
     popularMatches,
     filteredMatches,
   } = state;
+  const [pendingFeedback, setPendingFeedback] = React.useState(
+    getPendingFeedbacks()[0]
+  );
 
   // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
   const recommendedData = useMemo(() => {
@@ -107,6 +115,17 @@ export const MatchingPageView = () => {
         onUpload={actions.handleNewPost}
         existingPosts={allMatches.filter((p) => p.hostUser.id === currentUserId)}
         initialGame={activeGame}
+      />
+
+      <FeedbackModal
+        open={Boolean(pendingFeedback)}
+        required
+        targetName={pendingFeedback?.targetName ?? "상대방"}
+        onSubmit={() => {
+    if (!pendingFeedback) return;
+    removePendingFeedback(pendingFeedback.scheduleId, pendingFeedback.azitId);
+    setPendingFeedback(getPendingFeedbacks()[0]);
+  }}
       />
     </div>
   );

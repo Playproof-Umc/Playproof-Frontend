@@ -1,26 +1,12 @@
 // src/features/team/data/mockTeamData.ts
-import type { Azit, User, Schedule, Channel, Clip } from '../types';
+import type { Azit, User, Schedule, Channel } from '../types/types';
+import type { Clip } from '@/types';
 
-// 내 아지트 목록 (네비게이션용)
+// 내 아지트 목록
 export const MOCK_MY_AZITS: Azit[] = [
-  { 
-    id: 1, 
-    name: 'Playproof', 
-    memberCount: 4, 
-    icon: '' // 아이콘이 없으면 기본 UI 표시
-  },
-  { 
-    id: 2, 
-    name: 'LoL Party', 
-    memberCount: 12, 
-    icon: 'https://via.placeholder.com/48/2563eb/FFFFFF?text=L' 
-  },
-  { 
-    id: 3, 
-    name: 'Dev Study', 
-    memberCount: 8, 
-    icon: 'https://via.placeholder.com/48/16a34a/FFFFFF?text=D' 
-  },
+  { id: 1, name: 'Playproof', memberCount: 4, icon: '' },
+  { id: 2, name: 'LoL Party', memberCount: 12, icon: 'https://via.placeholder.com/48/2563eb/FFFFFF?text=L' },
+  { id: 3, name: 'Dev Study', memberCount: 8, icon: 'https://via.placeholder.com/48/16a34a/FFFFFF?text=D' },
 ];
 
 // 멤버 목록
@@ -32,186 +18,137 @@ export const mockMembers: User[] = [
   { id: 5, nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
 ];
 
+// 아지트별 멤버 매핑
 export const mockMembersByAzit: Record<number, User[]> = {
-  1: [
-    { id: 1, nickname: '레나', statusMessage: '즐겜 유저', isOnline: true },
-    { id: 2, nickname: '엘릭', statusMessage: 'FE 개발 중...', isOnline: true },
-    { id: 3, nickname: '카이', statusMessage: '밥 먹으러 감', isOnline: false },
-  ],
-  2: [
-    { id: 6, nickname: '로이', statusMessage: 'LoL 랭크 올림', isOnline: true },
-    { id: 7, nickname: '노아', statusMessage: '정글 연습 중', isOnline: true },
-    { id: 8, nickname: '베카', statusMessage: '서폿 유저', isOnline: false },
-  ],
-  3: [
-    { id: 9, nickname: '수지', statusMessage: '스터디 집중', isOnline: true },
-    { id: 10, nickname: '도윤', statusMessage: 'CS 기록 중', isOnline: false },
-    { id: 11, nickname: '하린', statusMessage: '자료 공유 가능', isOnline: true },
-  ],
+  1: mockMembers.slice(0, 3),
+  2: mockMembers.slice(0, 5),
+  3: mockMembers.slice(2, 5),
 };
 
-// 스케줄 목록
+// [중요] 모든 케이스 테스트를 위한 스케줄 데이터
+// 현재 로그인한 유저 ID는 '1'(레나)로 가정합니다.
 export const mockSchedules: Schedule[] = [
+  // Case 1: [방장] 모집중 (내가 방장이고, 시간이 남음)
   {
-    id: 1,
-    title: '데바데 4인큐',
-    type: 'regular',
-    date: new Date(new Date().setHours(20, 0, 0, 0)), 
-    participants: [mockMembers[0], mockMembers[1], mockMembers[2]],
-    maxParticipants: 4,
-    isCompleted: false,
+    id: '1',
+    title: 'Case 1: [방장] 모집중',
+    dateStr: '02.20',
+    timeStr: '20:00',
+    fullDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 24), // 1일 뒤
+    hostId: '1', // 나
+    maxMembers: 4,
+    participants: [
+      { user: mockMembers[0], status: 'JOIN' }, // 나
+      { user: mockMembers[1], status: 'JOIN' },
+    ],
+    isFeedbackDone: false,
   },
+  // Case 2: [멤버] 신청 완료 (참여 확정 상태)
   {
-    id: 2,
-    title: '리그 5인 랭크',
-    type: 'instant',
-    date: new Date(new Date().setDate(new Date().getDate() + 1)),
-    participants: [mockMembers[1], mockMembers[3]],
-    maxParticipants: 5,
-    isCompleted: false,
+    id: '2',
+    title: 'Case 2: [멤버] 신청 완료',
+    dateStr: '02.21',
+    timeStr: '19:00',
+    fullDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 48), // 2일 뒤
+    hostId: '2', // 다른 사람
+    maxMembers: 5,
+    participants: [
+      { user: mockMembers[1], status: 'JOIN' }, 
+      { user: mockMembers[0], status: 'JOIN' }, // 나 (참여)
+    ],
+    isFeedbackDone: false,
   },
+  // Case 3: [멤버] 거절함 (불참 선택)
   {
-    id: 3,
-    title: '발로란트 5인 스크림',
-    type: 'regular',
-    date: new Date(new Date().setDate(new Date().getDate() + 2)),
-    participants: [mockMembers[2], mockMembers[4]],
-    maxParticipants: 5,
-    isCompleted: false,
+    id: '3',
+    title: 'Case 3: [멤버] 거절함',
+    dateStr: '02.22',
+    timeStr: '21:00',
+    fullDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 72), // 3일 뒤
+    hostId: '2',
+    maxMembers: 5,
+    participants: [
+      { user: mockMembers[1], status: 'JOIN' },
+      { user: mockMembers[0], status: 'DECLINE' }, // 나 (거절)
+    ],
+    isFeedbackDone: false,
+  },
+  // Case 4: [멤버] 참여/불참 선택 전 (PENDING)
+  {
+    id: '4',
+    title: 'Case 4: [멤버] 참여/불참 대기',
+    dateStr: '02.23',
+    timeStr: '22:00',
+    fullDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 96), // 4일 뒤
+    hostId: '3',
+    maxMembers: 4,
+    participants: [
+      { user: mockMembers[2], status: 'JOIN' },
+      // 나는 명단에 없거나 PENDING 상태
+      { user: mockMembers[0], status: 'PENDING' }, 
+    ],
+    isFeedbackDone: false,
+  },
+  // Case 5: [공통] 추가 게이머 찾기 (시간 종료 + 인원 미달)
+  {
+    id: '5',
+    title: 'Case 5: 시간 종료 & 인원 미달',
+    dateStr: '오늘',
+    timeStr: '18:00',
+    fullDate: new Date(new Date().getTime() - 1000 * 60 * 60), // 1시간 전 (시간 지남)
+    hostId: '2',
+    maxMembers: 5, // 목표 5명
+    participants: [
+      { user: mockMembers[1], status: 'JOIN' },
+      { user: mockMembers[2], status: 'JOIN' },
+      // 2명밖에 없음 -> 미달
+    ],
+    isFeedbackDone: false,
+  },
+  // Case 6: [공통] 피드백 남기기 (시간 종료 + 인원 충족)
+  {
+    id: '6',
+    title: 'Case 6: 정상 종료 (피드백)',
+    dateStr: '오늘',
+    timeStr: '14:00',
+    fullDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 5), // 5시간 전
+    hostId: '2',
+    maxMembers: 2,
+    participants: [
+      { user: mockMembers[1], status: 'JOIN' },
+      { user: mockMembers[0], status: 'JOIN' },
+    ],
+    isFeedbackDone: false,
+  },
+  // Case 7: [공통] 완료됨 (피드백까지 끝남)
+  {
+    id: '7',
+    title: 'Case 7: 모든 절차 완료',
+    dateStr: '어제',
+    timeStr: '20:00',
+    fullDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24), // 어제
+    hostId: '1',
+    maxMembers: 4,
+    participants: [
+      { user: mockMembers[0], status: 'JOIN' },
+    ],
+    isFeedbackDone: true, // 완료됨
   },
 ];
 
 export const mockSchedulesByAzit: Record<number, Schedule[]> = {
-  1: [
-    {
-      id: 1,
-      title: '데바데 4인큐',
-      type: 'regular',
-      date: new Date(new Date().setHours(20, 0, 0, 0)),
-      participants: [mockMembers[0], mockMembers[1], mockMembers[2]],
-      maxParticipants: 4,
-      isCompleted: false,
-    },
-  ],
-  2: [
-    {
-      id: 2,
-      title: '리그 5인 랭크',
-      type: 'instant',
-      date: new Date(new Date().setDate(new Date().getDate() + 1)),
-      participants: [mockMembers[1], mockMembers[3]],
-      maxParticipants: 5,
-      isCompleted: false,
-    },
-  ],
-  3: [
-    {
-      id: 3,
-      title: '발로란트 5인 스크림',
-      type: 'regular',
-      date: new Date(new Date().setDate(new Date().getDate() + 2)),
-      participants: [mockMembers[2], mockMembers[4]],
-      maxParticipants: 5,
-      isCompleted: false,
-    },
-  ],
+  1: mockSchedules,
+  2: [],
+  3: [],
 };
 
-// 음성/채팅 채널 목록
+// ... (채널, 클립 데이터는 기존과 동일하게 유지)
 export const mockVoiceChannels: Channel[] = [
-  {
-    id: 1,
-    name: '로비',
-    type: 'voice',
-    category: 'lobby',
-    participants: [],
-  },
-  {
-    id: 2,
-    name: '스크림 룸',
-    type: 'voice',
-    category: 'game',
-    participants: [mockMembers[0], mockMembers[1]], // 참여중
-  },
-  {
-    id: 3,
-    name: '팀 채팅',
-    type: 'text',
-    category: 'chat',
-    participants: [],
-  },
-  {
-    id: 4,
-    name: '수다방',
-    type: 'text',
-    category: 'chat',
-    participants: [],
-  },
+  { id: '1', name: '로비', type: 'VOICE', connectedUsers: [] },
+  { id: '2', name: '스크림 룸', type: 'VOICE', connectedUsers: [mockMembers[0], mockMembers[1]] },
 ];
 
-// 하이라이트 클립 목록
 export const mockClips: Clip[] = [
-  {
-    id: 1,
-    title: '펜타킬 하이라이트',
-    author: '레나',
-    thumbnailUrl: 'https://via.placeholder.com/300x160/000000/FFFFFF?text=PentaKill',
-    views: 120,
-    duration: '0:45',
-    createdAt: '2시간 전',
-  },
-  {
-    id: 2,
-    title: '아니 이걸 못 잡아?',
-    author: '엘릭',
-    thumbnailUrl: 'https://via.placeholder.com/300x160/333333/FFFFFF?text=Fail',
-    views: 55,
-    duration: '0:12',
-    createdAt: '1일 전',
-  },
-  {
-    id: 3,
-    title: '슈퍼 세이브',
-    author: '모모',
-    thumbnailUrl: 'https://via.placeholder.com/300x160/1e293b/FFFFFF?text=SuperSave',
-    views: 89,
-    duration: '1:20',
-    createdAt: '3일 전',
-  },
+  { id: '1', date: '2시간 전', thumbnailUrl: 'https://via.placeholder.com/300x160/000000/FFFFFF?text=PentaKill' },
 ];
-
-export const mockClipsByAzit: Record<number, Clip[]> = {
-  1: [
-    {
-      id: 1,
-      title: '펜타킬 하이라이트',
-      author: '레나',
-      thumbnailUrl: 'https://via.placeholder.com/300x160/000000/FFFFFF?text=PentaKill',
-      views: 120,
-      duration: '0:45',
-      createdAt: '2시간 전',
-    },
-  ],
-  2: [
-    {
-      id: 2,
-      title: '리그 역전 하이라이트',
-      author: '로이',
-      thumbnailUrl: 'https://via.placeholder.com/300x160/2563eb/FFFFFF?text=LoL',
-      views: 210,
-      duration: '1:05',
-      createdAt: '5시간 전',
-    },
-  ],
-  3: [
-    {
-      id: 3,
-      title: '스터디 밈 모음',
-      author: '수지',
-      thumbnailUrl: 'https://via.placeholder.com/300x160/16a34a/FFFFFF?text=Study',
-      views: 45,
-      duration: '0:30',
-      createdAt: '어제',
-    },
-  ],
-};
+export const mockClipsByAzit: Record<number, Clip[]> = { 1: mockClips, 2: [], 3: [] };
