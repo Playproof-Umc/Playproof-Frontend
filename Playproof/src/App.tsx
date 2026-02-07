@@ -15,7 +15,9 @@ const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
-const CommunityPage = lazy(() => import('@/pages/community/CommunityPage'));
+
+const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const GameDataPage = lazy(() => import('@/pages/mypage/GameData'));
 const PostDetailPage = lazy(() => import('@/pages/community/PostDetailPage'));
 const StorePage = lazy(() => import('@/pages/store/StorePage'));
 
@@ -71,6 +73,7 @@ function App() {
                 
                 {/* 마이페이지 */}
                 <Route path="/mypage/*" element={<MyPageMain />} />
+                <Route path="/mypage/gamedata" element={<GameDataPage />} />
 
                 {/* 스토어 */}
                 <Route path="/store" element={<StorePage />} />
