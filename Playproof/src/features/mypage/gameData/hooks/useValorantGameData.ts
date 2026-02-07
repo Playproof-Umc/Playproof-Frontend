@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+// src/features/mypage/gameData/hooks/useValorantGameData.ts
+
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import type { GameKey, LinkedAccount } from "@/features/mypage/gameData/types/gameDataTypes";
@@ -55,12 +57,6 @@ const DEFAULT_VAL_REGION = "kr" as const;
 
 function findValorantAccount(accounts: LinkedAccount[]) {
   return accounts.find((a) => a.game === "valorant") ?? null;
-}
-
-function chunkArray<T>(array: T[], size: number): T[][] {
-  const chunked: T[][] = [];
-  for (let i = 0; i < array.length; i += size) chunked.push(array.slice(i, i + size));
-  return chunked;
 }
 
 /* =========================
@@ -199,13 +195,6 @@ export function useValorantGameData(params: {
   const shouldFetchValorant = !!valorantMeta;
   const isValSelected = selectedGame === "valorant";
 
-  const [valOffset, setValOffset] = useState(0);
-  const [valMatchIds, setValMatchIds] = useState<string[]>([]);
-  const [valDetails, setValDetails] = useState<ValMatchDetail[]>([]);
-  const [isValMatchesOpen, setIsValMatchesOpen] = useState(false);
-  const [isValLoading, setIsValLoading] = useState(false);
-  const [valError, setValError] = useState<string | null>(null);
-
   const valorantMmrQuery = useQuery({
     queryKey: ["gamedata", "valorant", "mmr", valorantMeta?.riotId, DEFAULT_VAL_REGION],
     enabled: shouldFetchValorant,
@@ -275,16 +264,7 @@ export function useValorantGameData(params: {
     },
   });
 
-  const valAvgKd = useMemo(() => {
-    if (valDetails.length === 0) return valorantStatsQuery.data?.avgKd ?? null;
-    let k = 0;
-    let d = 0;
-    valDetails.forEach((m) => {
-      k += m.me.kills;
-      d += m.me.deaths;
-    });
-    return d === 0 ? k : k / d;
-  }, [valDetails, valorantStatsQuery.data]);
+  const valAvgKd = useMemo(() => valorantStatsQuery.data?.avgKd ?? null, [valorantStatsQuery.data]);
 
   const view: ValorantViewState = useMemo(() => {
     if (!isValSelected) return { kind: "valLoading" };

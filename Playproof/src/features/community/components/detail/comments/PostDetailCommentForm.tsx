@@ -1,3 +1,5 @@
+// src/features/community/components/detail/comments/PostDetailCommentForm.tsx
+
 import React from "react";
 import { User } from "lucide-react";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";

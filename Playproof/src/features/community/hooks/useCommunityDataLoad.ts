@@ -1,3 +1,5 @@
+// src/features/community/hooks/useCommunityDataLoad.ts
+
 import React from "react";
 import { getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";

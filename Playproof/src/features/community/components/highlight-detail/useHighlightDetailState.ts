@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/useHighlightDetailState.ts
+
 import React, { useRef } from "react";
 import type { HighlightPost } from "@/features/community/types";
 

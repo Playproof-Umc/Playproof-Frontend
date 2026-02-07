@@ -1,3 +1,5 @@
+// src/features/community/hooks/useHighlightFeed.ts
+
 import React from "react";
 import type { HighlightPost, Comment } from "@/features/community/types";
 import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";

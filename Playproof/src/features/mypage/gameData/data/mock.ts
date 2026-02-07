@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/data/mock.ts
+
 import type { GameDataDashboardData } from "@/features/mypage/gameData/types/gameDataTypes";
 
 export const MOCK_GAME_DATA_DASHBOARD: GameDataDashboardData = {

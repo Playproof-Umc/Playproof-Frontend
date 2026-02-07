@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/HighlightDetailMediaPanel.tsx
+
 import React from "react";
 import type { HighlightPost } from "@/features/community/types";
 

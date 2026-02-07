@@ -1,3 +1,5 @@
+// src/features/mypage/constants/labels.ts
+
 export const MYPAGE_SECTION_LABELS = {
   profile: "내 프로필",
   activity: "내 활동",

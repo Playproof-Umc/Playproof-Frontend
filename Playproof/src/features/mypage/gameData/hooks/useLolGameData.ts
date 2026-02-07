@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/hooks/useLolGameData.ts
+
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 

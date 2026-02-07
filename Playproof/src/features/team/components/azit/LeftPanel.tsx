@@ -1,6 +1,8 @@
+// src/features/team/components/azit/LeftPanel.tsx
+
 import React, { useState } from 'react';
 import { Plus, Volume2, Mic, MessageSquare, Pencil, Trash2, Check, X } from 'lucide-react';
-import type { User, Schedule } from '@/features/team/types/types';
+import type { User, Schedule } from '@/features/team/types';
 import { ScheduleItem } from '@/features/team/components/azit/schedule/ScheduleItem';
 // ✅ 모달 Import
 import { ChatRoomCreateModal } from './chat/ChatRoomCreateModal';

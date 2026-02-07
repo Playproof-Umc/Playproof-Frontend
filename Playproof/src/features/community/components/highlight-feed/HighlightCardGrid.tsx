@@ -1,5 +1,7 @@
+// src/features/community/components/highlight-feed/HighlightCardGrid.tsx
+
 import React from "react";
-import { HighlightCard } from "@/features/community/components/HighlightCard";
+import { HighlightCard } from "@/features/community/components/highlight-feed/HighlightCard";
 import type { HighlightPost } from "@/features/community/types";
 
 type HighlightCardGridProps = {

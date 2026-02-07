@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/overwatch/OverwatchAccountCard.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { LinkedAccount } from "@/features/mypage/gameData/types/gameDataTypes";
 import { useOverwatchSummary } from "@/features/mypage/gameData/hooks/useOverwatchSummary";

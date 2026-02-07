@@ -1,3 +1,5 @@
+// src/features/auth/find-password/components/CompleteStep.tsx
+
 import { Button } from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
 

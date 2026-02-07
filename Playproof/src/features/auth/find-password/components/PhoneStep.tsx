@@ -1,3 +1,5 @@
+// src/features/auth/find-password/components/PhoneStep.tsx
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";

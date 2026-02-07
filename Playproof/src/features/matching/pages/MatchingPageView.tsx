@@ -1,6 +1,6 @@
 // src/features/matching/pages/MatchingPageView.tsx
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Navbar } from '@/components/common/Navbar';
+import { Navbar } from "@/components/layout/Navbar";
 import { MatchingSearchBar, GameFilter, RecommendedSection, PartyRequestBanner, MatchingWriteModal } from '@/features/matching/components';
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
 import { FilteredMatchList } from '@/features/matching/components/home/FilteredMatchList';

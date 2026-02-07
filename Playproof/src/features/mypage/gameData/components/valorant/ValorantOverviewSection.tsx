@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/valorant/ValorantOverviewSection.tsx
+
 import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 

@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/api/riotApi.ts
+
 import axios from "axios";
 
 const api = axios.create({

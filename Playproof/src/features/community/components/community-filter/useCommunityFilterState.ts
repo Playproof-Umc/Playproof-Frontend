@@ -1,5 +1,7 @@
+// src/features/community/components/community-filter/useCommunityFilterState.ts
+
 import React, { useMemo } from "react";
-import type { CommunityFilterState } from "@/features/community/components/CommunityFilterModal";
+import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
 const INITIAL_FILTERS: CommunityFilterState = {
   mediaType: "photo",

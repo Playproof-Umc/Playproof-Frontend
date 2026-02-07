@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/LolOverviewSection.tsx
+
 import type {
   DashboardTabKey,
   LolAggregateStats,

@@ -1,3 +1,5 @@
+// src/features/auth/signup/hooks/useSignupCompleteModal.ts
+
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { AppLocationState } from "@/features/auth/gameInfoPage/router";

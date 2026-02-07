@@ -1,3 +1,5 @@
+// src/features/auth/pages/SignupUsernamePageView.tsx
+
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";

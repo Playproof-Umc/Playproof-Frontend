@@ -1,7 +1,9 @@
+// src/features/team/components/azit/schedule/ScheduleItem.tsx
+
 import React, { useEffect, useState } from 'react';
 import { Users, Volume2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import type { Schedule } from '@/features/team/types/types';
+import type { Schedule } from '@/features/team/types';
 import { getScheduleActionState } from '@/features/team/utils/scheduleAction';
 
 type ScheduleItemProps = {

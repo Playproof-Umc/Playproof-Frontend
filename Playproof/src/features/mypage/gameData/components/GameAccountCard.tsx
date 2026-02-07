@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/GameAccountCard.tsx
+
 import type { LinkedAccount } from "@/features/mypage/gameData/types/gameDataTypes";
 import { Card } from "@/components/ui/Card";
 

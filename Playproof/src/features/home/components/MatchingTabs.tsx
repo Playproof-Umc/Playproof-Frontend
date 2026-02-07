@@ -1,3 +1,5 @@
+// src/features/home/components/MatchingTabs.tsx
+
 import * as React from "react";
 import { GAME_TABS, MATCHING_TAB_LABELS } from "@/features/home/constants/matchingTabs";
 

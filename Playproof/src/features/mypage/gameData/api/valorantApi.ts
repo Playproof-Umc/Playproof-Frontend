@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/api/valorantApi.ts
+
 import axios from "axios";
 
 type GetMmrParams = { region: string; name: string; tag: string };

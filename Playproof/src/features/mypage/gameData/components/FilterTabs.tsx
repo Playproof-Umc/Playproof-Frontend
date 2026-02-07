@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/FilterTabs.tsx
+
 import type { DashboardTabKey } from "@/features/mypage/gameData/types/gameDataTypes";
 
 type Props = { activeTab: DashboardTabKey; onChangeTab: (tab: DashboardTabKey) => void };

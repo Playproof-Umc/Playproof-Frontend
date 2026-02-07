@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/hooks/useGameDataDashboard.ts
+
 import { useMemo, useState } from "react";
 
 import type {
@@ -11,6 +13,7 @@ import { MOCK_GAME_DATA_DASHBOARD } from "@/features/mypage/gameData/data/mock";
 import { useLolGameData } from "@/features/mypage/gameData/hooks/useLolGameData";
 import { useValorantGameData } from "@/features/mypage/gameData/hooks/useValorantGameData";
 import { useOverwatchGameData } from "@/features/mypage/gameData/hooks/useOverwatchGameData";
+import type { ValorantMatchRowVM } from "@/features/mypage/gameData/utils/valorantHenrikMapper";
 
 type EmptyView = { kind: "empty" };
 type PlaceholderView = { kind: "placeholder"; title: string; subtitle: string };
@@ -26,14 +29,23 @@ type ValView = {
   data: {
     matches: Array<{ matchId: string; me: { name: string; tag: string; kills: number; deaths: number } }>;
     avgKd: number | null;
-    rows: any[];
-    overview: any;
+    rows: ValorantMatchRowVM[];
+    overview: {
+      winRatePercent: number;
+      avgKills: number;
+      avgDeaths: number;
+      avgAssists: number;
+      matchCount: number;
+      wins: number;
+      losses: number;
+      draws: number;
+    };
   };
 };
 
 type OwLoadingView = { kind: "owLoading" };
 type OwErrorView = { kind: "owError"; message: string };
-type OwView = { kind: "overwatch"; data: any };
+type OwView = { kind: "overwatch"; data: Record<string, unknown> | null };
 
 type DashboardView =
   | EmptyView

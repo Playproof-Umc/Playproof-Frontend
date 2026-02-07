@@ -1,3 +1,5 @@
+// src/features/chat/components/MessageList.tsx
+
 //src/features/chat/components/MessageList.tsx
 import React from 'react';
 

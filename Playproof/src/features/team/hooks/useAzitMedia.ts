@@ -1,3 +1,5 @@
+// src/features/team/hooks/useAzitMedia.ts
+
 import React from "react";
 import type { Clip } from "@/types";
 

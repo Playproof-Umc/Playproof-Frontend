@@ -1,3 +1,5 @@
+// src/features/home/components/sections/types.ts
+
 import type { HighlightPost, BoardPost } from "@/features/community/types";
 import type { UserSummary } from "@/features/home/data/userSummaryMock";
 import type { FilterState, MatchingData } from "@/features/matching/types";

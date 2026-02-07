@@ -1,3 +1,5 @@
+// src/features/mypage/data/mockMyPageData.ts
+
 import type {
   BlockedUserData,
   FeedbackData,

@@ -1,6 +1,8 @@
+// src/features/community/pages/PostDetailPageView.tsx
+
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Navbar } from "@/components/common/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import { MOCK_BOARD_POSTS } from "@/features/community/data/mockCommunityData";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";

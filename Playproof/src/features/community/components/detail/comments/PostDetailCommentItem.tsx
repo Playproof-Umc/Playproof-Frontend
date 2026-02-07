@@ -1,3 +1,5 @@
+// src/features/community/components/detail/comments/PostDetailCommentItem.tsx
+
 import React from "react";
 import { CornerDownRight } from "lucide-react";
 import type { Comment } from "@/features/community/types";

@@ -1,3 +1,5 @@
+// src/features/community/hooks/useCommunityDetailLogic.ts
+
 import { useCallback, useMemo, useState } from "react";
 import type { BoardPost, Comment, CommentReply } from "@/features/community/types";
 import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";

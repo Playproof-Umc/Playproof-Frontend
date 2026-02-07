@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/api/overwatchApi.ts
+
 import { overwatchClient } from "@/services/axios"; // default import 아님 주의
 
 export type OverwatchRoleDetail = {

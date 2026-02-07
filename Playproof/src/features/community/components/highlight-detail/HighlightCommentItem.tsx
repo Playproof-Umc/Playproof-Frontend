@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/HighlightCommentItem.tsx
+
 import React from "react";
 import { CornerDownRight } from "lucide-react";
 import type { Comment } from "@/features/community/types";

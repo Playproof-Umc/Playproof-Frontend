@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/UserProfileCard.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { SiteUserProfile } from "@/features/mypage/gameData/types/gameDataTypes";
 

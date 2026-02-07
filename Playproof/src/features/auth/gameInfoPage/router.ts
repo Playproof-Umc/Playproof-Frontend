@@ -1,3 +1,5 @@
+// src/features/auth/gameInfoPage/router.ts
+
 export type AuthRedirectState = {
   from?: {
     pathname: string;

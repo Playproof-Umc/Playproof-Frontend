@@ -1,3 +1,5 @@
+// src/features/auth/signup/components/SignupCompleteModal.tsx
+
 import React from "react";
 
 interface SignupCompleteModalProps {

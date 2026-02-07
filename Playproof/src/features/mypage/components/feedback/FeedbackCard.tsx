@@ -1,3 +1,5 @@
+// src/features/mypage/components/feedback/FeedbackCard.tsx
+
 import React from 'react';
 import { User, ThumbsUp, ThumbsDown, UserPlus, Siren } from 'lucide-react';
 import type { FeedbackData } from '@/features/mypage/types';

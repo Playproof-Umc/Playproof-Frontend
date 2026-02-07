@@ -1,3 +1,5 @@
+// src/features/home/constants/matchingTabs.ts
+
 import { GAME_LIST } from "@/features/matching/constants/matchingConfig";
 
 export const GAME_TABS = GAME_LIST;

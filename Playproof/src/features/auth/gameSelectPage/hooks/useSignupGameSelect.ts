@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/hooks/useSignupGameSelect.ts
+
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AuthKind, GameOption } from "@/features/auth/gameSelectPage/types";

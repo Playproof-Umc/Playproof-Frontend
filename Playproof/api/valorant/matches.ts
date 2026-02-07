@@ -1,7 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const API_BASE = "https://api.henrikdev.xyz";
-const PLATFORM = "pc";
+
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(v: unknown): UnknownRecord | null {
+  return v && typeof v === "object" ? (v as UnknownRecord) : null;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -34,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { Authorization: apiKey },
     });
 
-    const accountJson = await accountRes.json();
+    const accountJson: unknown = await accountRes.json();
 
     // 계정을 못 찾으면 바로 에러 반환
     if (!accountRes.ok) {
@@ -42,7 +47,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // PUUID와 정확한 리전 추출
-    const { puuid, region: accountRegion } = accountJson.data;
+    const accountData = asRecord(asRecord(accountJson)?.data);
+    const puuid = typeof accountData?.puuid === "string" ? accountData.puuid : "";
+    const accountRegion =
+      typeof accountData?.region === "string" ? accountData.region : null;
+    if (!puuid) {
+      return res.status(502).json({ message: "Invalid account response" });
+    }
     const targetRegion = accountRegion || region;
 
     /**
@@ -55,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { Authorization: apiKey },
     });
 
-    const matchesJson = await matchesRes.json();
+    const matchesJson: unknown = await matchesRes.json();
 
     if (!matchesRes.ok) {
       // 매치 기록이 아예 없는 경우 빈 배열 반환
@@ -63,10 +74,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 3️⃣ 매치 ID만 추출하여 반환
-    const matchIds: string[] = Array.isArray(matchesJson?.data)
-      ? matchesJson.data
-          .map((m: any) => m?.metadata?.matchid)
-          .filter((v: any) => typeof v === "string")
+    const matchData = asRecord(matchesJson)?.data;
+    const matchIds: string[] = Array.isArray(matchData)
+      ? matchData
+          .map((m) => {
+            const meta = asRecord(asRecord(m)?.metadata);
+            return typeof meta?.matchid === "string" ? meta.matchid : null;
+          })
+          .filter((v): v is string => typeof v === "string")
       : [];
 
     return res.status(200).json({ matchIds });

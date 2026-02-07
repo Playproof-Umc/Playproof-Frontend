@@ -1,3 +1,5 @@
+// src/features/home/components/sections/HotTopicsSection.tsx
+
 import * as React from "react";
 import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";
 

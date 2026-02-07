@@ -1,6 +1,8 @@
+// src/features/community/pages/CommunityPageView.tsx
+
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/common/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import {
   CommunityTabs,
   CommunitySearchBar,

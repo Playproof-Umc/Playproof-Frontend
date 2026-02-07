@@ -1,3 +1,5 @@
+// src/features/community/components/WriteModalUploadBox.tsx
+
 import React from "react";
 
 type WriteModalUploadBoxProps = {

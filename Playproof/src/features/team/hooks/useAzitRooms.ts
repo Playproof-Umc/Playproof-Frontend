@@ -1,5 +1,7 @@
+// src/features/team/hooks/useAzitRooms.ts
+
 import React from "react";
-import type { User } from "@/features/team/types/types";
+import type { User } from "@/features/team/types";
 
 type ChatMessage = {
   id: string;

@@ -1,3 +1,5 @@
+// src/features/mypage/gameData/components/lol/LolAccountHeaderCard.tsx
+
 import { Card } from "@/components/ui/Card";
 import type { LolLinkedProfile } from "@/features/mypage/gameData/types/gameDataTypes";
 

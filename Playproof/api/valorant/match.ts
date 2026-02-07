@@ -45,42 +45,55 @@ function pickCharacterName(raw: unknown): string {
   return "Unknown";
 }
 
-function pickAgentIconUrlFromAssets(p: any): string {
-  const a = p?.assets?.agent;
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(v: unknown): UnknownRecord | null {
+  return v && typeof v === "object" ? (v as UnknownRecord) : null;
+}
+
+function pickAgentIconUrlFromAssets(p: UnknownRecord): string {
+  const assets = asRecord(p.assets);
+  const agent = assets ? asRecord(assets.agent) : null;
   return (
-    a?.small ||
-    a?.killfeed ||
-    a?.bust ||
-    a?.full ||
-    a?.displayicon ||
-    a?.displayIcon ||
+    (typeof agent?.small === "string" && agent.small) ||
+    (typeof agent?.killfeed === "string" && agent.killfeed) ||
+    (typeof agent?.bust === "string" && agent.bust) ||
+    (typeof agent?.full === "string" && agent.full) ||
+    (typeof agent?.displayicon === "string" && agent.displayicon) ||
+    (typeof agent?.displayIcon === "string" && agent.displayIcon) ||
     ""
   );
 }
 
 async function fetchJson(url: string, headers?: Record<string, string>) {
   const r = await fetch(url, { headers });
-  const json = await r.json();
+  const json: unknown = await r.json();
   return { ok: r.ok, status: r.status, json };
 }
 
-function pickMetadata(json: any) {
+function pickMetadata(json: unknown): UnknownRecord {
   // HenrikDev 응답은 보통 { status, data: {...} }
-  return json?.data?.metadata ?? json?.metadata ?? {};
+  const root = asRecord(json);
+  const data = root ? asRecord(root.data) : null;
+  return (data ? asRecord(data.metadata) : null) ?? (root ? asRecord(root.metadata) : null) ?? {};
 }
 
-function pickTeamsRoot(json: any) {
-  return json?.data?.teams ?? json?.teams ?? null;
+function pickTeamsRoot(json: unknown): unknown {
+  const root = asRecord(json);
+  const data = root ? asRecord(root.data) : null;
+  return data?.teams ?? root?.teams ?? null;
 }
 
-function pickPlayersRoot(json: any) {
-  return json?.data?.players ?? json?.players ?? null;
+function pickPlayersRoot(json: unknown): unknown {
+  const root = asRecord(json);
+  const data = root ? asRecord(root.data) : null;
+  return data?.players ?? root?.players ?? null;
 }
 
 /**
  * teams 형태가 (1) 객체(red/blue) or (2) 배열 로 올 수 있어서 둘 다 처리
  */
-function extractTeams(teamsRoot: any): {
+function extractTeams(teamsRoot: unknown): {
   redHasWon: boolean | null;
   blueHasWon: boolean | null;
   redRoundsWon: number | null;
@@ -90,17 +103,29 @@ function extractTeams(teamsRoot: any): {
 } {
   // (1) 객체형
   if (teamsRoot && typeof teamsRoot === "object" && !Array.isArray(teamsRoot)) {
-    const red = teamsRoot.red ?? teamsRoot.Red;
-    const blue = teamsRoot.blue ?? teamsRoot.Blue;
+    const root = teamsRoot as UnknownRecord;
+    const red = root.red ?? root.Red;
+    const blue = root.blue ?? root.Blue;
 
     return {
-      redHasWon: pickBoolOrNull(red?.has_won),
-      blueHasWon: pickBoolOrNull(blue?.has_won),
-      redRoundsWon: typeof red?.rounds_won === "number" ? red.rounds_won : null,
-      redRoundsLost: typeof red?.rounds_lost === "number" ? red.rounds_lost : null,
-      blueRoundsWon: typeof blue?.rounds_won === "number" ? blue.rounds_won : null,
+      redHasWon: pickBoolOrNull(asRecord(red)?.has_won),
+      blueHasWon: pickBoolOrNull(asRecord(blue)?.has_won),
+      redRoundsWon:
+        typeof asRecord(red)?.rounds_won === "number"
+          ? (asRecord(red)?.rounds_won as number)
+          : null,
+      redRoundsLost:
+        typeof asRecord(red)?.rounds_lost === "number"
+          ? (asRecord(red)?.rounds_lost as number)
+          : null,
+      blueRoundsWon:
+        typeof asRecord(blue)?.rounds_won === "number"
+          ? (asRecord(blue)?.rounds_won as number)
+          : null,
       blueRoundsLost:
-        typeof blue?.rounds_lost === "number" ? blue.rounds_lost : null,
+        typeof asRecord(blue)?.rounds_lost === "number"
+          ? (asRecord(blue)?.rounds_lost as number)
+          : null,
     };
   }
 
@@ -145,26 +170,27 @@ function extractTeams(teamsRoot: any): {
  * - 2순위: players.all_players
  * - 3순위: players (배열)
  */
-function pickPlayersWithTeam(playersRoot: any): any[] {
+function pickPlayersWithTeam(playersRoot: unknown): UnknownRecord[] {
   if (!playersRoot) return [];
 
-  const redArr = playersRoot.red;
-  const blueArr = playersRoot.blue;
+  const root = playersRoot as UnknownRecord;
+  const redArr = root.red;
+  const blueArr = root.blue;
 
   if (Array.isArray(redArr) && Array.isArray(blueArr)) {
     return [
-      ...redArr.map((p: any) => ({
+      ...redArr.map((p) => ({
         ...p,
         team: p?.team ?? p?.team_id ?? p?.teamId ?? "Red",
       })),
-      ...blueArr.map((p: any) => ({
+      ...blueArr.map((p) => ({
         ...p,
         team: p?.team ?? p?.team_id ?? p?.teamId ?? "Blue",
       })),
     ];
   }
 
-  const allPlayers = playersRoot.all_players;
+  const allPlayers = root.all_players;
   if (Array.isArray(allPlayers)) return allPlayers;
 
   if (Array.isArray(playersRoot)) return playersRoot;
@@ -176,7 +202,6 @@ function pickPlayersWithTeam(playersRoot: any): any[] {
 // Agent Icon URL cache via valorant-api.com
 // --------------------
 declare global {
-  // eslint-disable-next-line no-var
   var __pp_val_agents_cache:
     | { fetchedAt: number; byName: Record<string, string> }
     | undefined;
@@ -199,7 +224,8 @@ async function getAgentIconUrlByName(agentName: string): Promise<string> {
     if (!r.ok) return "";
 
     const json = await r.json();
-    const list = Array.isArray(json?.data) ? json.data : [];
+    const jsonRecord = asRecord(json);
+    const list = Array.isArray(jsonRecord?.data) ? jsonRecord?.data : [];
 
     const byName: Record<string, string> = {};
     for (const a of list) {
@@ -272,26 +298,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rawPlayers = pickPlayersWithTeam(playersRoot);
 
     const players = await Promise.all(
-      rawPlayers.map(async (p: any) => {
-        const name = String(p?.name ?? "");
-        const tag = String(p?.tag ?? "");
+      rawPlayers.map(async (p: UnknownRecord) => {
+        const name = String(p.name ?? "");
+        const tag = String(p.tag ?? "");
         if (!name || !tag) return null;
 
         // team 후보 키를 넓게 커버
         const team =
-          normalizeTeamFromUnknown(p?.team) ??
-          normalizeTeamFromUnknown(p?.team_id) ??
-          normalizeTeamFromUnknown(p?.teamId) ??
-          normalizeTeamFromUnknown(p?.team?.team_id) ??
-          normalizeTeamFromUnknown(p?.team?.teamId) ??
-          normalizeTeamFromUnknown(p?.team?.name) ??
+          normalizeTeamFromUnknown(p.team) ??
+          normalizeTeamFromUnknown(p.team_id) ??
+          normalizeTeamFromUnknown(p.teamId) ??
+          normalizeTeamFromUnknown(asRecord(p.team)?.team_id) ??
+          normalizeTeamFromUnknown(asRecord(p.team)?.teamId) ??
+          normalizeTeamFromUnknown(asRecord(p.team)?.name) ??
           null;
 
-        const agent = pickCharacterName(p?.character ?? p?.agent ?? p?.agent_name);
+        const agent = pickCharacterName(p.character ?? p.agent ?? p.agent_name);
 
-        const kills = safeNum(p?.stats?.kills, safeNum(p?.kills, 0));
-        const deaths = safeNum(p?.stats?.deaths, safeNum(p?.deaths, 0));
-        const assists = safeNum(p?.stats?.assists, safeNum(p?.assists, 0));
+        const stats = asRecord(p.stats);
+        const kills = safeNum(stats?.kills, safeNum(p.kills, 0));
+        const deaths = safeNum(stats?.deaths, safeNum(p.deaths, 0));
+        const assists = safeNum(stats?.assists, safeNum(p.assists, 0));
 
         // 1) Henrik assets 우선
         let agentIconUrl = pickAgentIconUrlFromAssets(p);
@@ -325,7 +352,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       agentIconUrl: string;
     }>;
 
-    const out: any = {
+    const out: {
+      matchId: string;
+      region: string;
+      mode: string | null;
+      modeId: string | null;
+      durationMs: number;
+      teams: {
+        red: { has_won: boolean | null; rounds_won: number | null; rounds_lost: number | null };
+        blue: { has_won: boolean | null; rounds_won: number | null; rounds_lost: number | null };
+      };
+      players: typeof normalizedPlayers;
+      _debug?: {
+        usedEndpoint: "v4" | "v2";
+        metadataKeys: string[];
+        teamsType: string;
+        playersRootType: string;
+        playersRootKeys: string[];
+        firstPlayerKeys: string[];
+        firstPlayer_team_raw: unknown;
+        firstPlayer_has_assets_agent: boolean;
+        cacheState:
+          | { ageMs: number; size: number }
+          | null;
+      };
+    } = {
       matchId,
       region,
       mode: typeof metadata?.mode === "string" ? metadata.mode : null,
@@ -347,7 +398,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     if (debug) {
-      const first = rawPlayers?.[0];
+      const first = rawPlayers?.[0] as UnknownRecord | undefined;
       out._debug = {
         usedEndpoint: used,
         metadataKeys:
@@ -361,7 +412,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         firstPlayerKeys:
           first && typeof first === "object" ? Object.keys(first) : [],
         firstPlayer_team_raw: first?.team ?? null,
-        firstPlayer_has_assets_agent: !!first?.assets?.agent,
+        firstPlayer_has_assets_agent: !!asRecord(first?.assets)?.agent,
         cacheState: globalThis.__pp_val_agents_cache
           ? {
               ageMs: Date.now() - globalThis.__pp_val_agents_cache.fetchedAt,

@@ -1,3 +1,5 @@
+// src/components/ui/ModalShell.tsx
+
 import React from "react";
 
 type ModalShellProps = {

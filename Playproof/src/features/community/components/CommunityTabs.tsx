@@ -1,3 +1,5 @@
+// src/features/community/components/CommunityTabs.tsx
+
 import * as React from "react";
 
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";

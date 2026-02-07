@@ -1,3 +1,5 @@
+// src/features/mypage/components/feedback/FeedbackSection.tsx
+
 import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { fetchMyFeedbacks } from '@/features/mypage/data/mockMyPageData';

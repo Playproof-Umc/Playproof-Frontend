@@ -1,3 +1,5 @@
+// src/features/auth/gameInfoPage/components/SignupGameInfoForm.tsx
+
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/utils/cn";

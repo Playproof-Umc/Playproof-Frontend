@@ -1,3 +1,5 @@
+// src/features/auth/pages/SignupPageView.tsx
+
 import SignupForm from "@/features/auth/signup/components/SignupForm";
 import { StepDots } from "@/components/auth/StepDots";
 import { AppLayout } from "@/components/layout/AppLayout";

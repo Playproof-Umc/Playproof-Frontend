@@ -1,3 +1,5 @@
+// src/features/mypage/components/friends/BlockedUserCard.tsx
+
 import React from 'react';
 import { User } from 'lucide-react';
 import type { BlockedUserData } from '@/features/mypage/types';
