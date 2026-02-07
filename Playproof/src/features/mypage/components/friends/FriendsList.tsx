@@ -5,6 +5,7 @@ import type { FriendData, BlockedUserData } from '@/features/mypage/types';
 import { FriendCard } from '@/features/mypage/components/friends/FriendCard';
 import { BlockedUserCard } from '@/features/mypage/components/friends/BlockedUserCard';
 import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
+import { AddFriendModal } from '@/features/mypage/components/feedback/AddFriendModal';
 
 export function FriendsList() {
   const [friends, setFriends] = React.useState<FriendData[]>([]);
@@ -12,6 +13,7 @@ export function FriendsList() {
   const [friendSearchQuery, setFriendSearchQuery] = React.useState('');
   const [blockedSearchQuery, setBlockedSearchQuery] = React.useState('');
   const [loading, setLoading] = React.useState(true);
+  const [isAddFriendOpen, setIsAddFriendOpen] = React.useState(false);
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -81,7 +83,11 @@ export function FriendsList() {
           <h2 className="text-xl font-bold text-gray-900">
             {MYPAGE_SECTION_LABELS.friends} ({friends.length}명)
           </h2>
-          <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
+          <button
+            type="button"
+            onClick={() => setIsAddFriendOpen(true)}
+            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+          >
             {MYPAGE_ACTION_LABELS.addFriend}
           </button>
         </div>
@@ -156,6 +162,11 @@ export function FriendsList() {
           )}
         </div>
       </div>
+
+      <AddFriendModal
+        isOpen={isAddFriendOpen}
+        onClose={() => setIsAddFriendOpen(false)}
+      />
     </div>
   );
 }

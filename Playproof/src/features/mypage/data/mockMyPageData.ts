@@ -179,7 +179,7 @@ export const MOCK_MATCHING_POSTS: MatchingData[] = [
 
 export const MOCK_MY_POSTS: MyPostsData = {
   matchingPosts: MOCK_MATCHING_POSTS,
-  highlightPosts: MOCK_HIGHLIGHT_POSTS.slice(0, 3),
+  highlightPosts: MOCK_HIGHLIGHT_POSTS.slice(0, 4),
   communityPosts: MOCK_BOARD_POSTS.slice(0, 5),
 };
 

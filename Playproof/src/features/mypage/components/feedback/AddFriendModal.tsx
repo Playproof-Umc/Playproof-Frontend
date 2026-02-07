@@ -5,7 +5,7 @@ import { MYPAGE_ACTION_LABELS } from '@/features/mypage/constants/labels';
 interface AddFriendModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userNickname: string;
+  userNickname?: string;
   userTier?: string;
   userTS?: number;
 }
@@ -17,19 +17,36 @@ export function AddFriendModal({
   userTier = 'platinum',
   userTS = 98 
 }: AddFriendModalProps) {
-  const [message, setMessage] = React.useState('');
+  const [step, setStep] = React.useState<'search' | 'confirm'>('search');
+  const [nickname, setNickname] = React.useState('');
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    if (userNickname) {
+      setStep('confirm');
+      setNickname(userNickname);
+      return;
+    }
+    setStep('search');
+    setNickname('');
+  }, [isOpen, userNickname]);
 
   if (!isOpen) return null;
 
   const handleCancel = () => {
-    setMessage('');
     onClose();
   };
 
+  const handleSearchConfirm = () => {
+    if (!nickname.trim()) return;
+    setStep('confirm');
+  };
+
   const handleConfirm = () => {
+    const targetNickname = nickname.trim();
+    if (!targetNickname) return;
     // TODO: 친구 추가 API 호출
-    console.log('친구 추가:', { userNickname, message });
-    setMessage('');
+    console.log('친구 추가:', { userNickname: targetNickname });
     onClose();
   };
 
@@ -50,63 +67,70 @@ export function AddFriendModal({
           <X className="h-5 w-5" />
         </button>
 
-        {/* 제목 */}
-        <h2 className="mb-6 text-center text-lg font-bold text-gray-900">
-          {MYPAGE_ACTION_LABELS.addFriendConfirmTitle}
-        </h2>
-
-        {/* 프로필 영역 */}
-        <div className="mb-6 flex flex-col items-center">
-          {/* 프로필 이미지 */}
-          <div className="mb-3 h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center text-white">
-            <User size={40} />
-          </div>
-
-          {/* 닉네임 */}
-          <h3 className="text-base font-bold text-gray-900">{userNickname}</h3>
-          
-          {/* TS 점수 */}
-          <div className="mt-1 flex items-center gap-1">
-            <span className="text-sm text-gray-500">TS</span>
-            <span className="text-sm font-semibold text-gray-900">{userTS}</span>
-            <img 
-              src={`/icons/tiers/icon_tear_${userTier.toLowerCase()}.svg`}
-              alt="tier" 
-              className="h-4 w-4"
-            />
-          </div>
-        </div>
-
-        {/* 메시지 입력 (선택사항) */}
-        <div className="mb-6">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder={MYPAGE_ACTION_LABELS.addFriendPlaceholder}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm resize-none focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            rows={3}
-            maxLength={100}
-          />
-          <p className="mt-1 text-right text-xs text-gray-400">
-            {message.length}/100
-          </p>
-        </div>
-
-        {/* 버튼 영역 */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleCancel}
-            className="flex-1 rounded-lg bg-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-300 transition-colors"
-          >
-            {MYPAGE_ACTION_LABELS.cancel}
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="flex-1 rounded-lg bg-blue-500 py-3 text-sm font-medium text-white hover:bg-blue-600 transition-colors"
-          >
-            {MYPAGE_ACTION_LABELS.confirm}
-          </button>
-        </div>
+        {step === 'search' ? (
+          <>
+            <h2 className="mb-6 text-center text-lg font-bold text-gray-900">
+              {MYPAGE_ACTION_LABELS.addFriendPrompt}
+            </h2>
+            <div className="mb-8">
+              <input
+                value={nickname}
+                onChange={(event) => setNickname(event.target.value)}
+                placeholder={MYPAGE_ACTION_LABELS.addFriendInputPlaceholder}
+                className="w-full rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancel}
+                className="flex-1 rounded-lg bg-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-300 transition-colors"
+              >
+                {MYPAGE_ACTION_LABELS.cancel}
+              </button>
+              <button
+                onClick={handleSearchConfirm}
+                className="flex-1 rounded-lg bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                {MYPAGE_ACTION_LABELS.confirm}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="mb-6 text-center text-lg font-bold text-gray-900">
+              {MYPAGE_ACTION_LABELS.addFriendConfirmTitle}
+            </h2>
+            <div className="mb-8 flex flex-col items-center">
+              <div className="mb-3 h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center text-white">
+                <User size={40} />
+              </div>
+              <h3 className="text-base font-bold text-gray-900">{nickname}</h3>
+              <div className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                <span>TS</span>
+                <span className="font-semibold text-gray-900">{userTS}</span>
+                <img
+                  src={`/icons/tiers/icon_tear_${userTier.toLowerCase()}.svg`}
+                  alt="tier"
+                  className="h-4 w-4"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancel}
+                className="flex-1 rounded-lg bg-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-300 transition-colors"
+              >
+                {MYPAGE_ACTION_LABELS.cancel}
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="flex-1 rounded-lg bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                {MYPAGE_ACTION_LABELS.confirm}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

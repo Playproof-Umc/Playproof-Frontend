@@ -26,13 +26,17 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImages([...images, ...Array.from(e.target.files)]);
+      const nextFiles = Array.from(e.target.files);
+      setImages((prev) => [...prev, ...nextFiles]);
+      e.target.value = "";
     }
   };
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setVideos([...videos, ...Array.from(e.target.files)]);
+      const nextFiles = Array.from(e.target.files);
+      setVideos((prev) => [...prev, ...nextFiles]);
+      e.target.value = "";
     }
   };
 
@@ -192,7 +196,7 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
               <label className="text-sm font-medium text-gray-900">
                 {MYPAGE_REPORT_LABELS.imageUpload}
               </label>
-              <span className="text-xs text-gray-400">{images.length}/0</span>
+              <span className="text-xs text-gray-400">{images.length}/20</span>
             </div>
             <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
               <ImageIcon className="h-6 w-6 text-gray-400" />
@@ -204,6 +208,15 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
                 className="hidden"
               />
             </label>
+            {images.length > 0 && (
+              <div className="mt-2 space-y-1 text-xs text-gray-500">
+                {images.map((file, index) => (
+                  <div key={`${file.name}-${index}`} className="truncate">
+                    {file.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 영상 등록 */}
@@ -215,18 +228,26 @@ export function ReportModal({ isOpen, onClose, targetUserNickname }: ReportModal
                   {MYPAGE_REPORT_LABELS.videoLimit}
                 </span>
               </label>
-              <span className="text-xs text-gray-400">{videos.length}/0</span>
+              <span className="text-xs text-gray-400">{videos.length}/1</span>
             </div>
             <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
               <Video className="h-6 w-6 text-gray-400" />
               <input
                 type="file"
                 accept="video/*"
-                multiple
                 onChange={handleVideoUpload}
                 className="hidden"
               />
             </label>
+            {videos.length > 0 && (
+              <div className="mt-2 space-y-1 text-xs text-gray-500">
+                {videos.map((file, index) => (
+                  <div key={`${file.name}-${index}`} className="truncate">
+                    {file.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
