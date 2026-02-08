@@ -1,35 +1,42 @@
 // src/features/team/components/azit/RightPanel.tsx
-import React from 'react';
+import React from "react";
 import { useAzitMediaViewer } from "@/features/team/hooks/useAzitMediaViewer";
-import type { Clip } from '@/features/team/types';
-import { ClipList } from '@/features/team/components/azit/ClipList';
+import type { Clip } from "@/types";
+import { ClipList } from "@/features/team/components/azit/ClipList";
 import { ModalShell } from "@/components/ui/ModalShell";
 
 interface RightPanelProps {
-  clips: Clip[];
+  clips: Clip[] | unknown; // 런타임 방어 (상위에서 잘못 내려와도 크래시 방지)
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
+  // ✅ 핵심: clips가 배열이 아니면 빈 배열로 강제
+  const safeClips: Clip[] = Array.isArray(clips) ? (clips as Clip[]) : [];
+
   const {
     isGalleryOpen,
     activeMedia,
     hasMedia,
-    openGallery,
     closeGallery,
     openMedia,
     closeMedia,
     goPrev,
     goNext,
+    goHighlight,
     shareToHighlight,
-  } = useAzitMediaViewer(clips);
+  } = useAzitMediaViewer(safeClips);
+
   return (
     <aside className="w-full lg:w-[320px] bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 p-5 gap-6">
-      
+      <div className="text-xs text-gray-500">
+        clips isArray: {String(Array.isArray(clips))} / type: {typeof clips}
+      </div>
+
       <ClipList
-        clips={clips}
-        onViewAll={openGallery}
+        clips={safeClips}
+        onViewAll={goHighlight}
         onSelectClip={openMedia}
-        viewAllLabel="클립 전체보기"
+        viewAllLabel="하이라이트 전체보기"
       />
 
       <ModalShell
@@ -50,13 +57,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
           </button>
         </div>
 
-        {clips.length === 0 ? (
+        {safeClips.length === 0 ? (
           <div className="text-sm text-gray-400 py-20 text-center">
             보낸 미디어가 없습니다.
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-            {clips.map((clip, index) => (
+            {safeClips.map((clip, index) => (
               <button
                 key={clip.id}
                 type="button"
@@ -79,6 +86,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
                 ) : (
                   <div className="w-full aspect-video bg-gray-100" />
                 )}
+
                 {clip.mediaType === "video" && (
                   <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[11px] font-semibold px-2 py-1 rounded-md">
                     {clip.durationLabel ?? "0:00"}
@@ -116,6 +124,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
             </button>
           </div>
         </div>
+
         <div className="w-full aspect-video bg-black rounded-xl overflow-hidden relative flex items-center justify-center">
           <button
             type="button"
@@ -125,6 +134,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
           >
             ‹
           </button>
+
           {activeMedia?.mediaType === "video" && activeMedia.mediaUrl ? (
             <video
               src={activeMedia.mediaUrl}
@@ -141,6 +151,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
           ) : (
             <div className="text-gray-400 text-sm">미디어가 없습니다.</div>
           )}
+
           <button
             type="button"
             disabled={!hasMedia}
@@ -151,7 +162,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
           </button>
         </div>
       </ModalShell>
-
     </aside>
   );
 };
