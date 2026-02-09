@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Settings, Users } from 'lucide-react';
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 import { AzitNavigation } from '@/features/team/components/azit/AzitNavigation';
 import { LeftPanel } from '@/features/team/components/azit/LeftPanel';
@@ -51,11 +51,7 @@ export const AzitPageView = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <div className="flex-none z-50 border-b border-gray-100">
-        <Navbar />
-      </div>
-
+    <AppLayout className="bg-white" containerClassName="pp-container--fluid">
       <div className="flex flex-col flex-1 overflow-y-auto lg:overflow-hidden w-full max-w-[1920px] mx-auto">
         {/* Navigation */}
         <div className="flex-none">
@@ -161,6 +157,6 @@ export const AzitPageView = () => {
           actions.submitFeedback(feedbackModal.scheduleId);
         }}
       />
-    </div>
+    </AppLayout>
   );
 };
