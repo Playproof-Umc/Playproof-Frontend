@@ -1,7 +1,7 @@
 // src/features/home/pages/HomePageView.tsx
 
 import { useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import {
   HomeCommunityHighlightSection,
   HomeHotTopicSection,
@@ -78,10 +78,8 @@ export const HomePageView = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
-
-      <main className="mx-auto w-full max-w-7xl px-6 py-6">
+    <AppLayout className="bg-zinc-50">
+      <main className="py-6">
         <div className="space-y-8">
           <HomeUserSummarySection {...userSummaryProps} />
 
@@ -107,6 +105,6 @@ export const HomePageView = () => {
         onClose={h.closeSignupComplete}
       />
       {highlightModalProps ? <HighlightDetailModal {...highlightModalProps} /> : null}
-    </div>
+    </AppLayout>
   );
 };

@@ -1,7 +1,7 @@
 // src/features/mypage/pages/MyPageMainView.tsx
 
 import React from 'react';
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
@@ -43,8 +43,7 @@ export const MyPageMainView = () => {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
+      <AppLayout>
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent"></div>
@@ -53,14 +52,13 @@ export const MyPageMainView = () => {
             </p>
           </div>
         </div>
-      </>
+      </AppLayout>
     );
   }
 
   if (error) {
     return (
-      <>
-        <Navbar />
+      <AppLayout>
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <div className="text-center">
             <p className="text-sm text-red-600">{error}</p>
@@ -72,20 +70,19 @@ export const MyPageMainView = () => {
             </button>
           </div>
         </div>
-      </>
+      </AppLayout>
     );
   }
 
   if (!profileData) {
     return (
-      <>
-        <Navbar />
+      <AppLayout>
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <p className="text-sm text-gray-500">
             {MYPAGE_SECTION_LABELS.profile} 데이터가 없습니다
           </p>
         </div>
-      </>
+      </AppLayout>
     );
   }
 
@@ -95,32 +92,29 @@ export const MyPageMainView = () => {
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="bg-gray-50 py-8">
-        <div className="mx-auto max-w-7xl px-4">
-          {/* 상단: 프로필 카드(좌) + 프로필 헤더(우) */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-1">
-              <ProfileCard profileData={displayProfileData} />
-            </div>
-            <div className="lg:col-span-3">
-              <ProfileHeader profileData={displayProfileData} />
-            </div>
+    <AppLayout className="bg-gray-50">
+      <div className="py-8">
+        {/* 상단: 프로필 카드(좌) + 프로필 헤더(우) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
+            <ProfileCard profileData={displayProfileData} />
           </div>
-
-          {/* 하단: 사이드바(좌) + 메인 컨텐츠(우) */}
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <aside className="lg:col-span-1">
-              <MyPageSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-            </aside>
-
-            <main className="lg:col-span-3">
-              <SectionContent activeSection={activeSection} profileData={displayProfileData} />
-            </main>
+          <div className="lg:col-span-3">
+            <ProfileHeader profileData={displayProfileData} />
           </div>
         </div>
+
+        {/* 하단: 사이드바(좌) + 메인 컨텐츠(우) */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <aside className="lg:col-span-1">
+            <MyPageSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+          </aside>
+
+          <main className="lg:col-span-3">
+            <SectionContent activeSection={activeSection} profileData={displayProfileData} />
+          </main>
+        </div>
       </div>
-    </>
+    </AppLayout>
   );
 };

@@ -109,7 +109,7 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
                 disabled={!name.trim()}
                 className={`flex-1 h-12 rounded-xl font-semibold transition-colors ${
                   name.trim()
-                    ? "bg-gray-900 text-white hover:bg-black"
+                    ? "bg-[var(--color-primary-800)] text-white hover:bg-[var(--color-primary-700)]"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >

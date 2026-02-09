@@ -101,7 +101,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
 
       {/* Content Section: Left Aligned */}
       <div className="mt-auto w-full">
-        <div className="flex items-center gap-1 text-blue-500 text-xs font-bold mb-1">
+        <div className="flex items-center gap-1 text-[#00AE4C] text-xs font-bold mb-1">
             <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
             <span className="text-[10px]">&gt;</span>
         </div>
@@ -113,7 +113,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         {/* Action Button */}
         <button 
             onClick={handleRequestClick}
-            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-black text-white text-sm font-bold rounded-xl mb-4 hover:bg-gray-800 transition-colors"
+            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-[var(--color-primary-800)] text-white text-sm font-bold rounded-xl mb-4 hover:bg-[var(--color-primary-700)] transition-colors"
         >
             매칭 요청
         </button>

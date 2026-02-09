@@ -37,7 +37,7 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
           <button
             type="submit"
             disabled={!newComment.trim()}
-            className="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+            className="bg-[var(--color-primary-800)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors"
           >
             작성하기
           </button>

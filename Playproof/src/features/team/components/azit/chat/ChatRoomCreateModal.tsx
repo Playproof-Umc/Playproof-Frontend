@@ -176,7 +176,7 @@ export const ChatRoomCreateModal = ({ anchorEl, onClose, onCreate }: ChatRoomCre
             className={cn(
               "h-14 rounded-xl text-base font-bold transition-colors",
               name.trim() 
-                ? "bg-black hover:bg-gray-900 text-white" 
+                ? "bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-700)] text-white" 
                 : "bg-[#C6C6C6] text-white cursor-not-allowed"
             )}
           >
