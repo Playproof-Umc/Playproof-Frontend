@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Loader2 } from 'lucide-react';
 import { usePartyComments } from '@/features/matching/hooks/usePartyComments';
 import type { PartyComment } from '@/services/partyApi';
 
@@ -182,17 +182,39 @@ export const PartyComments = ({ partyId, currentUserId }: PartyCommentsProps) =>
   };
 
   if (isLoading) {
-    return <div className="p-6 text-center text-sm text-gray-500">댓글을 불러오는 중...</div>;
+    return (
+      <div className="p-6 flex flex-col h-full">
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="font-bold text-gray-900">댓글</h3>
+          <div className="h-5 w-8 bg-gray-200 rounded animate-pulse" />
+        </div>
+        
+        {/* 스켈레톤 UI */}
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-3 animate-pulse">
+              <div className="w-10 h-10 bg-gray-200 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+                <div className="h-3 w-full bg-gray-200 rounded" />
+                <div className="h-3 w-3/4 bg-gray-200 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="border-t border-gray-200 bg-white p-6">
-      <h3 className="mb-4 text-sm font-semibold text-gray-900">
-        댓글 {meta?.totalComments ?? 0}
-      </h3>
+    <div className="p-6 flex flex-col h-full">
+      <div className="flex items-center gap-2 mb-4">
+        <h3 className="font-bold text-gray-900">댓글</h3>
+        <span className="text-sm font-bold text-gray-500">{meta?.totalComments ?? 0}</span>
+      </div>
 
       {/* 댓글 작성 폼 */}
-      <form onSubmit={(e) => { e.preventDefault(); handleSubmitComment(); }} className="mb-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmitComment(); }} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4">
         {replyTo && (
           <div className="mb-2 flex items-center gap-2 text-xs text-gray-600">
             <span>답글 작성 중</span>
@@ -205,46 +227,58 @@ export const PartyComments = ({ partyId, currentUserId }: PartyCommentsProps) =>
             </button>
           </div>
         )}
-        <div className="flex items-center gap-3">
-          {/* 아바타 */}
-          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
-          
-          {/* 입력 필드 */}
-          <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder={replyTo ? '답글을 입력하세요...' : '댓글을 입력하세요...'}
-              className="flex-1 bg-transparent text-sm focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={isCreating || !newComment.trim()}
-              className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-300"
-            >
-              {isCreating ? '작성 중...' : '등록'}
-            </button>
-          </div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 bg-gray-100 rounded-full" />
+          <span className="text-xs font-bold text-gray-900">나</span>
+        </div>
+        <textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder={replyTo ? '답글을 입력하세요...' : '댓글을 입력해주세요.'}
+          className="w-full text-xs font-medium text-gray-700 placeholder-gray-400 resize-none outline-none min-h-[60px]"
+        />
+        <div className="flex justify-end mt-2">
+          <button
+            type="submit"
+            disabled={isCreating || !newComment.trim()}
+            className="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                작성 중...
+              </>
+            ) : (
+              '작성하기'
+            )}
+          </button>
         </div>
       </form>
 
       {/* 댓글 목록 */}
-      <div>
-        {comments.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">
+      <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scrollbar">
+        {isCreating && comments.length === 0 && (
+          <div className="flex gap-3 opacity-50 animate-pulse">
+            <div className="w-10 h-10 bg-gray-200 rounded-full" />
+            <div className="flex-1">
+              <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
+              <div className="h-3 w-full bg-gray-200 rounded" />
+            </div>
+          </div>
+        )}
+        
+        {comments.length === 0 && !isCreating ? (
+          <p className="text-center py-8 text-sm text-gray-400">
             첫 번째 댓글을 작성해보세요!
           </p>
         ) : (
-          <div className="space-y-1">
-            {comments.map((comment) => renderComment(comment))}
-          </div>
+          comments.map((comment) => renderComment(comment))
         )}
       </div>
 
       {/* 페이지네이션 정보 */}
       {meta && meta.totalPages > 1 && (
-        <div className="mt-6 text-center text-xs text-gray-500">
+        <div className="mt-4 text-center text-xs text-gray-500">
           {meta.currentPage} / {meta.totalPages} 페이지
         </div>
       )}

@@ -27,6 +27,7 @@ export type PartyListItem = {
   status: string;
   viewCount: number;
   likeCount?: number;
+  isLike?: boolean;
   commentCount?: number;
   tags: Array<{ id: number; name: string }>;
   positions: Array<{ positionId: number; positionName: string }>;

@@ -3,6 +3,8 @@ import React from 'react';
 import { MoreHorizontal, User, UserPlus, Home, AlertTriangle, Eye, Heart, MessageCircle } from 'lucide-react';
 import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
 import type { MatchingData } from '@/features/matching/types';
+import { usePartyLike } from '@/features/matching/hooks/usePartyLike';
+import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication';
 
 interface MatchingPostInfoProps {
   post: MatchingData;
@@ -13,6 +15,17 @@ interface MatchingPostInfoProps {
 }
 
 export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu, onMoveToProfile }: MatchingPostInfoProps) => {
+  const { toggleLike, isLiking } = usePartyLike();
+  const { applyToParty, isApplying } = usePartyApplication();
+
+  const handleLikeClick = () => {
+    toggleLike(post.id);
+  };
+
+  const handleApplyClick = () => {
+    applyToParty(post.id);
+  };
+
   return (
     <div className="w-[60%] p-8 flex flex-col h-full overflow-y-auto border-r border-gray-100 relative scrollbar-hide">
       {/* Header & Menu */}
@@ -73,9 +86,26 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
             return (<div key={posId} className="w-16 h-16 bg-gray-50 rounded-xl flex flex-col items-center justify-center text-gray-500 text-[11px] font-bold gap-1.5">{icon}<span>{label}</span></div>);
           })}
         </div>
+        
+        {/* 매칭 요청 버튼 */}
+        <button
+          onClick={handleApplyClick}
+          disabled={isApplying}
+          className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isApplying ? '신청 중...' : '매칭 요청'}
+        </button>
+        
         <div className="flex items-center gap-4 text-xs font-medium text-gray-400 border-t border-gray-50 pt-4">
           <div className="flex items-center gap-1"><Eye size={14} /> <span>{post.views}</span></div>
-          <div className="flex items-center gap-1"><Heart size={14} /> <span>{post.likes}</span></div>
+          <button
+            onClick={handleLikeClick}
+            disabled={isLiking}
+            className="flex items-center gap-1 hover:text-red-500 transition-colors disabled:opacity-50"
+          >
+            <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} /> 
+            <span>{post.likes}</span>
+          </button>
           <div className="flex items-center gap-1"><MessageCircle size={14} /> <span>{commentCount}</span></div>
         </div>
       </div>

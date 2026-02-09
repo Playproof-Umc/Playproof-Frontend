@@ -59,6 +59,7 @@ export const useMatchingBoard = () => {
       time: new Date(party.createdAt).toLocaleString('ko-KR'),
       views: party.viewCount,
       likes: party.likeCount ?? 0,
+      liked: party.isLike ?? false,
       comments: party.commentCount ?? 0,
       tsScore: party.host.trustScore,
       mic: party.isMic,

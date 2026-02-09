@@ -1,13 +1,14 @@
 // src/features/matching/components/MatchingDetailModal.tsx
-import React from 'react';
 import { X } from 'lucide-react';
 import { useMatchingDetailLogic } from '@/features/matching/hooks/useMatchingDetailLogic';
 import { MatchingPostInfo } from '@/features/matching/components/detail/MatchingPostInfo';
-import { MatchingComments } from '@/features/matching/components/detail/MatchingComments';
+import { PartyComments } from '@/features/matching/components/PartyComments';
+import { useAuthStore } from '@/store/authStore';
 
 export const MatchingDetailModal = () => {
   const { state, setters, handlers } = useMatchingDetailLogic();
-  const { shouldRender, selectedPost, isMenuOpen, commentText, comments } = state;
+  const { shouldRender, selectedPost, isMenuOpen } = state;
+  const userId = useAuthStore(state => state.userId);
 
   if (!shouldRender || !selectedPost) return null;
 
@@ -26,20 +27,19 @@ export const MatchingDetailModal = () => {
         {/* Left Panel: Post Info */}
         <MatchingPostInfo 
           post={selectedPost} 
-          commentCount={comments.length}
+          commentCount={0}
           isMenuOpen={isMenuOpen}
           onToggleMenu={() => setters.setIsMenuOpen(!isMenuOpen)}
           onMoveToProfile={handlers.handleMoveToProfile}
         />
 
-        {/* Right Panel: Comments */}
-        <MatchingComments 
-          comments={comments}
-          commentText={commentText}
-          onCommentChange={setters.setCommentText}
-          onCommentSubmit={handlers.handleCommentSubmit}
-          onMoveToProfile={handlers.handleMoveToProfile}
-        />
+        {/* Right Panel: Comments with API */}
+        <div className="w-[40%] bg-gray-50 flex flex-col h-full overflow-hidden">
+          <PartyComments 
+            partyId={selectedPost.id}
+            currentUserId={userId ?? undefined}
+          />
+        </div>
       </div>
     </div>
   );

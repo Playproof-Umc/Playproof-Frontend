@@ -3,7 +3,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import type { MatchingData } from '@/features/matching/types';
-import { User, MessageCircle, Eye, Settings, Mic } from 'lucide-react'; 
+import { User, MessageCircle, Eye, Settings, Mic, Heart } from 'lucide-react';
+import { usePartyLike } from '@/features/matching/hooks/usePartyLike';
+import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication'; 
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -12,6 +14,8 @@ interface MatchingCardProps {
 export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
   const navigate = useNavigate();
   const { openMatchingDetail } = useMatchingDetail();
+  const { toggleLike, isLiking } = usePartyLike();
+  const { applyToParty, isApplying } = usePartyApplication();
 
   const handleCardClick = () => {
     openMatchingDetail(data);
@@ -22,10 +26,16 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
     navigate(`/user/${data.hostUser.id}`);
   };
 
-  // 요청 버튼 클릭 (상세 모달 열기 또는 별도 로직)
+  // 좋아요 버튼 클릭
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleLike(data.id);
+  };
+
+  // 파티 신청 버튼 클릭
   const handleRequestClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    openMatchingDetail(data);
+    applyToParty(data.id);
   };
 
   return (
@@ -101,9 +111,10 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
         {/* Action Button */}
         <button 
             onClick={handleRequestClick}
-            className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors"
+            disabled={isApplying}
+            className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            매칭 요청
+            {isApplying ? '신청 중...' : '매칭 요청'}
         </button>
 
         {/* Footer: Meta Info */}
@@ -114,8 +125,14 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
                     <Eye size={14} />
                     <span>{data.views}</span>
                 </div>
-                {/* 하트 아이콘 (데이터에 없으므로 레이아웃만 유지하거나 주석 처리) */}
-                {/* <div className="flex items-center gap-1"><Heart size={14} /><span>12</span></div> */}
+                <button
+                  onClick={handleLikeClick}
+                  disabled={isLiking}
+                  className="flex items-center gap-1 hover:text-red-500 transition-colors disabled:opacity-50"
+                >
+                  <Heart size={14} fill={data.liked ? 'currentColor' : 'none'} />
+                  <span>{data.likes}</span>
+                </button>
                 <div className="flex items-center gap-1">
                     <MessageCircle size={14} />
                     <span>{data.comments}</span>
