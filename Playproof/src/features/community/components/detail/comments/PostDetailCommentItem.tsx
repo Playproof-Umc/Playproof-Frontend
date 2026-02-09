@@ -116,7 +116,7 @@ export function PostDetailCommentItem({
                 <button
                   type="button"
                   onClick={onEditSubmit}
-                  className="rounded-full bg-black px-3 py-1 text-[10px] font-semibold text-white hover:bg-gray-800"
+                  className="rounded-full bg-[var(--color-primary-800)] px-3 py-1 text-[10px] font-semibold text-white hover:bg-[var(--color-primary-700)]"
                 >
                   저장
                 </button>
@@ -198,7 +198,7 @@ export function PostDetailCommentItem({
                       <button
                         type="button"
                         onClick={onEditSubmit}
-                        className="rounded-full bg-black px-3 py-1 text-[10px] font-semibold text-white hover:bg-gray-800"
+                        className="rounded-full bg-[var(--color-primary-800)] px-3 py-1 text-[10px] font-semibold text-white hover:bg-[var(--color-primary-700)]"
                       >
                         저장
                       </button>
@@ -231,7 +231,7 @@ export function PostDetailCommentItem({
                 type="button"
                 onClick={() => onReplySubmit(comment.id)}
                 disabled={!replyText.trim()}
-                className="rounded-lg bg-black px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-gray-800"
+                className="rounded-lg bg-[var(--color-primary-800)] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary-700)]"
               >
                 답글 작성
               </button>

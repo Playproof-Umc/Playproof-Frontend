@@ -84,7 +84,7 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
               disabled={!isFormValid} 
               className={`w-full py-4 rounded-xl text-base font-bold transition-colors ${
                 isFormValid 
-                  ? 'bg-gray-900 hover:bg-black text-white cursor-pointer' 
+                  ? 'bg-gray-900 hover:bg-[var(--color-primary-800)] text-white cursor-pointer' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

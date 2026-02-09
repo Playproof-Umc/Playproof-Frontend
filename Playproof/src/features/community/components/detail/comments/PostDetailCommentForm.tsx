@@ -44,7 +44,7 @@ export function PostDetailCommentForm({
           <button
             type="submit"
             disabled={!commentText.trim()}
-            className="rounded-lg bg-black px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-gray-800"
+            className="rounded-lg bg-[var(--color-primary-800)] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary-700)]"
           >
             작성하기
           </button>

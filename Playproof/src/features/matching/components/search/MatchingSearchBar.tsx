@@ -124,7 +124,7 @@ export const MatchingSearchBar: React.FC<MatchingSearchBarProps> = ({
 
       <button 
         onClick={onWriteClick}
-        className="bg-black text-white px-5 py-3 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-800 transition-colors whitespace-nowrap"
+        className="bg-[var(--color-primary-800)] text-white px-5 py-3 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[var(--color-primary-700)] transition-colors whitespace-nowrap"
       >
         <Edit size={14} /> <span className="hidden sm:inline">글쓰기</span>
       </button>
