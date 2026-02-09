@@ -26,25 +26,6 @@ export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailB
             />
           </div>
 
-          {post.images && post.images.length > 0 && (
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {post.images.map((url, index) => (
-                <div
-                  key={`${url}-${index}`}
-                  className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
-                >
-                  <img
-                    src={url || "/no-image.png"}
-                    alt=""
-                    className="h-auto w-full object-cover"
-                    onError={(event) => {
-                      event.currentTarget.src = "/no-image.png";
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 

@@ -41,7 +41,7 @@ export function HighlightCard({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onToggleLike(post.id ?? post.highlight_id);
+    onToggleLike(post.id);
   };
 
   const handleComment = (e: React.MouseEvent) => {
@@ -114,7 +114,7 @@ export function HighlightCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onDeletePost(post.id ?? post.highlight_id);
+              onDeletePost(post.id);
             }}
             className="ml-auto rounded-lg px-2 py-1 text-[10px] font-semibold text-gray-500 hover:text-gray-700"
           >

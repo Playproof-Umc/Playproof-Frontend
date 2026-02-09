@@ -84,16 +84,18 @@ export function useHighlightDetailState(post: HighlightPost) {
     }
   };
 
+  const getImageCount = () => (post.medias ?? post.images ?? []).length;
+
   const nextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === post.images.length - 1 ? 0 : prev + 1
-    );
+    const count = getImageCount();
+    if (count === 0) return;
+    setCurrentImageIndex((prev) => (prev === count - 1 ? 0 : prev + 1));
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? post.images.length - 1 : prev - 1
-    );
+    const count = getImageCount();
+    if (count === 0) return;
+    setCurrentImageIndex((prev) => (prev === 0 ? count - 1 : prev - 1));
   };
 
   return {

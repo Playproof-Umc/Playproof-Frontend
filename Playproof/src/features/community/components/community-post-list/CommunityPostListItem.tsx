@@ -1,4 +1,3 @@
-import React from "react";
 import { Eye, Heart, MessageCircle, MoreVertical } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";
 

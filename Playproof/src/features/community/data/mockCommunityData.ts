@@ -1,4 +1,4 @@
-import type { HighlightPost, BoardPost, Comment } from '@/features/community/types';
+import type { HighlightPost, BoardPost } from '@/features/community/types';
 
 // 하이라이트 게시글 Mock 데이터
 export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
