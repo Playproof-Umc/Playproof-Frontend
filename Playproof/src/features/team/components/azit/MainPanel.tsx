@@ -85,7 +85,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
                     <div
                       className={`rounded-xl px-3 py-2 text-sm shadow-sm w-fit max-w-[75%] ${
                         isMine
-                          ? "bg-blue-500 text-white"
+                          ? "bg-[var(--color-primary-800)] text-white"
                           : "bg-white border border-gray-200 text-gray-800"
                       }`}
                     >
@@ -180,7 +180,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
              <button 
                onClick={handleSend}
                disabled={!hasContent}
-               className={`absolute right-3 transition-colors ${hasContent ? 'text-blue-500 hover:text-blue-600' : 'text-gray-300'}`}
+               className={`absolute right-3 transition-colors ${hasContent ? 'text-[var(--color-primary-800)] hover:text-[var(--color-primary-700)]' : 'text-gray-300'}`}
              >
                <Send className="w-5 h-5" />
              </button>

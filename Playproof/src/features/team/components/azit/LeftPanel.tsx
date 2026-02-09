@@ -207,7 +207,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                     <button
                       type="button"
                       onClick={submitEditingVoice}
-                      className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                      className="p-1 rounded-md hover:bg-[rgba(11,26,91,0.12)] text-[var(--color-primary-800)]"
                     >
                       <Check className="w-4 h-4" />
                     </button>
@@ -277,12 +277,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
               <div
                 key={room}
                 className={`px-4 py-2 flex items-center gap-3 w-full h-12 transition-colors ${
-                  isSelected ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-600"
+                  isSelected ? "bg-[rgba(11,26,91,0.12)] text-[var(--color-primary-800)]" : "hover:bg-gray-50 text-gray-600"
                 } ${room === "자유 대화" ? "border-b border-gray-50" : ""}`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <MessageSquare
-                    className={`w-4 h-4 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
+                    className={`w-4 h-4 ${isSelected ? "text-[var(--color-primary-800)]" : "text-gray-500"}`}
                   />
                   {isEditing ? (
                     <input
@@ -305,7 +305,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                       type="button"
                       onClick={() => onSelectChatRoom(room)}
                       className={`text-sm font-bold truncate text-left flex-1 ${
-                        isSelected ? "text-blue-700" : "text-gray-600"
+                        isSelected ? "text-[var(--color-primary-800)]" : "text-gray-600"
                       }`}
                     >
                       {room}
@@ -317,7 +317,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                     <button
                       type="button"
                       onClick={submitEditingRoom}
-                      className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                      className="p-1 rounded-md hover:bg-[rgba(11,26,91,0.12)] text-[var(--color-primary-800)]"
                     >
                       <Check className="w-4 h-4" />
                     </button>

@@ -101,7 +101,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
 
       {/* Content Section: Left Aligned */}
       <div className="mt-auto w-full">
-        <div className="flex items-center gap-1 text-blue-500 text-xs font-bold mb-1">
+        <div className="flex items-center gap-1 text-[#00AE4C] text-xs font-bold mb-1">
             <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
             <span className="text-[10px]">&gt;</span>
         </div>
