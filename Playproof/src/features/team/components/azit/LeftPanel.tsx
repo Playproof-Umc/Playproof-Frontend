@@ -408,7 +408,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                   취소
                 </button>
                 <button
-                  className="flex-1 h-10 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors"
+                  className="flex-1 h-10 rounded-xl bg-[var(--color-primary-800)] text-white font-semibold hover:bg-[var(--color-primary-700)] transition-colors"
                   onClick={handleConfirm}
                 >
                   삭제

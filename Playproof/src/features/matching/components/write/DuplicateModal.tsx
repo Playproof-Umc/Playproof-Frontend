@@ -19,7 +19,7 @@ export const DuplicateModal = ({ game, onClose, onAction }: DuplicateModalProps)
           <h3 className="text-base font-bold text-gray-900 leading-snug">[{game}] 매칭글이 이미 등록되어 있습니다.</h3>
         </div>
         <div className="space-y-3">
-          <button onClick={() => onAction('bump')} className="w-full p-4 bg-[var(--color-primary-600)] text-white rounded-2xl hover:bg-[var(--color-primary-700)] transition-colors text-left group shadow-md">
+          <button onClick={() => onAction('bump')} className="w-full p-4 bg-[var(--color-primary-800)] text-white rounded-2xl hover:bg-[var(--color-primary-700)] transition-colors text-left group shadow-md">
             <div className="font-bold text-[15px] mb-1">기존 게시글 끌어올리기</div>
             <div className="text-[11px] text-gray-300 font-normal leading-relaxed">내용은 그대로, 매칭 글의 최상단으로 이동합니다.</div>
           </button>

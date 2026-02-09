@@ -19,7 +19,7 @@ export function CommunityFilterFooter({ onReset, onApply }: CommunityFilterFoote
       </button>
       <button
         onClick={onApply}
-        className="h-12 flex-1 rounded-xl bg-[var(--color-primary-600)] text-sm font-bold text-white shadow-lg shadow-gray-200 transition-colors hover:bg-[var(--color-primary-700)]"
+        className="h-12 flex-1 rounded-xl bg-[var(--color-primary-800)] text-sm font-bold text-white shadow-lg shadow-gray-200 transition-colors hover:bg-[var(--color-primary-700)]"
       >
         필터 적용하기
       </button>

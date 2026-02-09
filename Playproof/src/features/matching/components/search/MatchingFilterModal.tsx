@@ -211,7 +211,7 @@ export const MatchingFilterModal: React.FC<MatchingFilterModalProps> = ({
           </button>
           <button 
             onClick={handleApply}
-            className="flex-1 h-12 bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)] text-white font-bold rounded-xl transition-colors text-sm shadow-lg shadow-gray-200"
+            className="flex-1 h-12 bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-700)] text-white font-bold rounded-xl transition-colors text-sm shadow-lg shadow-gray-200"
           >
             필터 적용하기 {selectedCount > 0 && `(${selectedCount})`}
           </button>

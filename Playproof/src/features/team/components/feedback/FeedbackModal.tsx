@@ -147,7 +147,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
           <button
             type="button"
-            className="mt-6 w-full h-12 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors"
+            className="mt-6 w-full h-12 rounded-xl bg-[var(--color-primary-800)] text-white font-semibold hover:bg-[var(--color-primary-700)] transition-colors"
             onClick={() => onSubmit({ positive, negative, memo, blockUser })}
           >
             피드백 제출하기

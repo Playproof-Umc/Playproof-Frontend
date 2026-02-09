@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --color-primary-600: #1533b6;
-  --color-primary-700: #122ca3;
+  --color-primary-700: #1533b6;
+  --color-primary-800: #122ca3;
 }
 
 button.bg-black {
-  background-color: var(--color-primary-600) !important;
+  background-color: var(--color-primary-800) !important;
 }
 
 button.bg-black:hover {
@@ -14,7 +14,7 @@ button.bg-black:hover {
 }
 
 button.bg-gray-900 {
-  background-color: var(--color-primary-600) !important;
+  background-color: var(--color-primary-800) !important;
 }
 
 button.bg-gray-900:hover {
