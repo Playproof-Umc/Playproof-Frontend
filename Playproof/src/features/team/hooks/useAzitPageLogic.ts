@@ -14,6 +14,7 @@ import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
 import { useAzitMedia } from "@/features/team/hooks/useAzitMedia";
 import { useAzitRooms } from "@/features/team/hooks/useAzitRooms";
+import { getAzits } from "@/features/team/api/azitApi";
 
 const FALLBACK_USER_ID = "1";
 export function useAzitPageLogic() {
@@ -83,12 +84,42 @@ export function useAzitPageLogic() {
   } = useAzitRooms(currentAzitId, currentUser);
 
   React.useEffect(() => {
-    if (state?.azitId) {
-      setCurrentAzitId(state.azitId);
-    }
-  }, [state?.azitId, setCurrentAzitId]);
+    let isActive = true;
 
-  const currentAzit = azits.find((azit) => azit.id === currentAzitId) ?? azits[0];
+    const fetchAzits = async () => {
+      try {
+        const list = await getAzits();
+        if (!isActive) return;
+        if (list.length > 0) {
+          setAzits(list);
+        }
+      } catch {
+        // 실패 시 기존 mock 데이터 유지
+      }
+    };
+
+    fetchAzits();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!azits.length) return;
+    if (state?.azitId && azits.some((azit) => azit.id === state.azitId)) {
+      setCurrentAzitId(state.azitId);
+      return;
+    }
+    if (!azits.some((azit) => azit.id === currentAzitId)) {
+      setCurrentAzitId(azits[0].id);
+    }
+  }, [azits, currentAzitId, setCurrentAzitId, state?.azitId]);
+
+  const currentAzit =
+    azits.find((azit) => azit.id === currentAzitId) ??
+    azits[0] ??
+    { id: 0, name: "", memberCount: 0, icon: "" };
   const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
   const currentClips = clipsByAzit[currentAzitId]?.[selectedChatRoom] ?? [];
   const addChatMessage = React.useCallback(
