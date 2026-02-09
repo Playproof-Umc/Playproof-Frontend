@@ -5,6 +5,7 @@ import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
 import type { MatchingData } from '@/features/matching/types';
 import { usePartyLike } from '@/features/matching/hooks/usePartyLike';
 import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication';
+import { useFriendRequest } from '@/features/matching/hooks/useFriendRequest';
 
 interface MatchingPostInfoProps {
   post: MatchingData;
@@ -17,6 +18,7 @@ interface MatchingPostInfoProps {
 export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu, onMoveToProfile }: MatchingPostInfoProps) => {
   const { toggleLike, isLiking } = usePartyLike();
   const { applyToParty, isApplying } = usePartyApplication();
+  const { sendRequest, isSending } = useFriendRequest();
 
   const handleLikeClick = () => {
     toggleLike(post.id);
@@ -24,6 +26,13 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
 
   const handleApplyClick = () => {
     applyToParty(post.id);
+  };
+
+  const handleFriendRequest = () => {
+    // hostUser.id는 string이므로 number로 변환
+    const userId = Number(post.hostUser.id);
+    sendRequest(userId);
+    onToggleMenu(); // 메뉴 닫기
   };
 
   return (
@@ -37,7 +46,13 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           </button>
           {isMenuOpen && (
             <div className="absolute right-0 top-6 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden py-1">
-              <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><UserPlus size={14} /> 친구추가</button>
+              <button 
+                onClick={handleFriendRequest}
+                disabled={isSending}
+                className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left disabled:opacity-50"
+              >
+                <UserPlus size={14} /> {isSending ? '신청 중...' : '친구추가'}
+              </button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><Home size={14} /> 아지트 초대</button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 text-left"><AlertTriangle size={14} /> 신고하기</button>
             </div>
@@ -101,9 +116,9 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           <button
             onClick={handleLikeClick}
             disabled={isLiking}
-            className="flex items-center gap-1 hover:text-red-500 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} /> 
+            <Heart size={14} fill="none" /> 
             <span>{post.likes}</span>
           </button>
           <div className="flex items-center gap-1"><MessageCircle size={14} /> <span>{commentCount}</span></div>

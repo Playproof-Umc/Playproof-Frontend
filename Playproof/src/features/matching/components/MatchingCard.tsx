@@ -18,7 +18,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
   const { applyToParty, isApplying } = usePartyApplication();
 
   const handleCardClick = () => {
-    openMatchingDetail(data);
+    openMatchingDetail(data.id);
   };
 
   const handleProfileClick = (e: React.MouseEvent) => {
@@ -128,9 +128,9 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
                 <button
                   onClick={handleLikeClick}
                   disabled={isLiking}
-                  className="flex items-center gap-1 hover:text-red-500 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
                 >
-                  <Heart size={14} fill={data.liked ? 'currentColor' : 'none'} />
+                  <Heart size={14} fill="none" />
                   <span>{data.likes}</span>
                 </button>
                 <div className="flex items-center gap-1">

@@ -1,12 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 //src/features/matching/context/MatchingDetailContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { MatchingData } from '@/features/matching/types';
 
 interface MatchingDetailContextType {
   isOpen: boolean;
-  selectedPost: MatchingData | null;
-  openMatchingDetail: (post: MatchingData) => void;
+  selectedPartyId: number | null;
+  openMatchingDetail: (partyId: number) => void;
   closeMatchingDetail: () => void;
 }
 
@@ -22,22 +21,22 @@ export const useMatchingDetail = () => {
 
 export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ children } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
+  const [selectedPartyId, setSelectedPartyId] = useState<number | null>(null);
 
-  const openMatchingDetail = (post: MatchingData) => {
-    setSelectedPost(post);
+  const openMatchingDetail = (partyId: number) => {
+    setSelectedPartyId(partyId);
     setIsOpen(true);
     document.body.style.overflow = 'hidden';
   };
 
   const closeMatchingDetail = () => {
     setIsOpen(false);
-    setSelectedPost(null);
+    setSelectedPartyId(null);
     document.body.style.overflow = 'unset';
   };
 
   return (
-    <MatchingDetailContext.Provider value={{ isOpen, selectedPost, openMatchingDetail, closeMatchingDetail }}>
+    <MatchingDetailContext.Provider value={{ isOpen, selectedPartyId, openMatchingDetail, closeMatchingDetail }}>
       {children}
     </MatchingDetailContext.Provider>
   );
