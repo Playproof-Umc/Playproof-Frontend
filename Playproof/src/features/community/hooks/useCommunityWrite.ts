@@ -13,6 +13,18 @@ type UseCommunityWriteArgs = {
   setBoardPosts: React.Dispatch<React.SetStateAction<BoardPost[]>>;
 };
 
+const BOARD_GAME_ID_MAP: Record<string, number> = {
+  "리그오브레전드": 1,
+  "발로란트": 2,
+  "오버워치": 3,
+};
+
+const BOARD_GAME_NAME_MAP: Record<number, string> = {
+  1: "리그오브레전드",
+  2: "발로란트",
+  3: "오버워치",
+};
+
 export const useCommunityWrite = ({
   activeTab,
   currentUserName,
@@ -21,18 +33,6 @@ export const useCommunityWrite = ({
   setBoardPosts,
 }: UseCommunityWriteArgs) => {
   const [isWriteOpen, setIsWriteOpen] = React.useState(false);
-
-  const BOARD_GAME_ID_MAP: Record<string, number> = {
-    "리그오브레전드": 1,
-    "발로란트": 2,
-    "오버워치": 3,
-  };
-
-  const BOARD_GAME_NAME_MAP: Record<number, string> = {
-    1: "리그오브레전드",
-    2: "발로란트",
-    3: "오버워치",
-  };
 
   const handleWritePost = () => {
     setIsWriteOpen(true);

@@ -122,7 +122,7 @@ export const CommunityPageView = () => {
       {modal.selectedPost && (
         <HighlightDetailModal
           post={modal.selectedPost}
-          comments={actions.highlight.getComments(modal.selectedPost.id)}
+          comments={actions.highlight.getComments(modal.selectedPost!.id)}
           likeCount={actions.highlight.getLikeState(modal.selectedPost).count}
           isLiked={actions.highlight.getLikeState(modal.selectedPost).isLiked}
           totalCommentCount={actions.highlight.getCommentCount(modal.selectedPost)}

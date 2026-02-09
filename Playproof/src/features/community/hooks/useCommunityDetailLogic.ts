@@ -33,23 +33,17 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
       setComments(res);
     };
     fetchComments();
-  }, [post]);
+  }, [post, baseLikeState]);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
   const [editingParentId, setEditingParentId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
-  const [likeState, setLikeState] = useState<LikeState>({
-    count: post?.likes ?? 0,
-    isLiked: post?.isLiked ?? false,
-  });
-
-  useEffect(() => {
-    if (!post) return;
-    setLikeState({
-      count: post.likes ?? 0,
-      isLiked: post.isLiked ?? false,
-    });
-  }, [post]);
+  const [likeStateMap, setLikeStateMap] = useState<Record<number, LikeState>>({});
+  const baseLikeState = useMemo(
+    () => ({ count: post?.likes ?? 0, isLiked: post?.isLiked ?? false }),
+    [post?.likes, post?.isLiked]
+  );
+  const likeState = post ? (likeStateMap[post.id] ?? baseLikeState) : baseLikeState;
 
   const totalCommentCount = useMemo(
     () => comments.reduce((sum, comment) => sum + 1 + comment.replies.length, 0),
@@ -183,19 +177,20 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
       const nextCount = res?.like_count ?? res?.likeCount;
       const nextLiked = res?.is_liked ?? res?.isLiked;
       if (typeof nextCount === "number" && typeof nextLiked === "boolean") {
-        setLikeState({ count: nextCount, isLiked: nextLiked });
+        setLikeStateMap((prev) => ({ ...prev, [post.id]: { count: nextCount, isLiked: nextLiked } }));
         return;
       }
     } catch {
       // ignore and fall back to optimistic toggle
     }
-    setLikeState((prev) => {
-      const next = prev.isLiked
-        ? { count: Math.max(0, prev.count - 1), isLiked: false }
-        : { count: prev.count + 1, isLiked: true };
-      return next;
+    setLikeStateMap((prev) => {
+      const current = prev[post.id] ?? baseLikeState;
+      const next = current.isLiked
+        ? { count: Math.max(0, current.count - 1), isLiked: false }
+        : { count: current.count + 1, isLiked: true };
+      return { ...prev, [post.id]: next };
     });
-  }, [post]);
+  }, [post, baseLikeState]);
 
   return {
     state: {

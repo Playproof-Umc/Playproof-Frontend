@@ -46,7 +46,7 @@ export interface CreateHighlightResponse {
     content: string;
     created_at: string;
   };
-  error: any;
+  error: unknown;
 }
 
 export async function createHighlight(

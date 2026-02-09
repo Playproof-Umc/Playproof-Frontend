@@ -154,7 +154,7 @@ export function RecentPosts() {
                 likeCount={likeState.count}
                 isLiked={likeState.isLiked}
                 commentCount={commentCount}
-                onToggleLike={(postId) => toggleLike(postId, post.likes)}
+                onToggleLike={(postId) => toggleLike(postId, post.likes ?? 0)}
                 onPostClick={(post) => {
                   setSelectedHighlightId(post.id);
                 }}

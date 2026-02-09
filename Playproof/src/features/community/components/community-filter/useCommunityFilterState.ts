@@ -1,6 +1,6 @@
 // src/features/community/components/community-filter/useCommunityFilterState.ts
 
-import React, { useMemo } from "react";
+import React from "react";
 import type { DateRange } from "react-day-picker";
 import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
@@ -32,15 +32,11 @@ export function useCommunityFilterState({ onApply, onClose }: UseCommunityFilter
     onClose();
   };
 
-  const rangeLabel = useMemo(() => {
-    if (range?.from && range?.to) {
-      return `${range.from.toLocaleDateString("ko-KR")} ~ ${range.to.toLocaleDateString("ko-KR")}`;
-    }
-    if (range?.from) {
-      return `${range.from.toLocaleDateString("ko-KR")} 선택됨`;
-    }
-    return "날자선택";
-  }, [range?.from, range?.to]);
+  const rangeLabel = range?.from && range?.to
+    ? `${range.from.toLocaleDateString("ko-KR")} ~ ${range.to.toLocaleDateString("ko-KR")}`
+    : range?.from
+      ? `${range.from.toLocaleDateString("ko-KR")} 선택됨`
+      : "날자선택";
 
   return {
     state: {

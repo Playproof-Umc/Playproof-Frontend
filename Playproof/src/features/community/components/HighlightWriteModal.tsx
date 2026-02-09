@@ -46,7 +46,7 @@ function HighlightWriteModalContent({
     try {
       await onSubmit({ content: content.trim(), images });
       onClose();
-    } catch (e: any) {
+    } catch {
       setError("업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setLoading(false);

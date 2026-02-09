@@ -64,7 +64,7 @@ export const HomePageView = () => {
         likeCount: h.handleHighlightLikeState(s.selectedHighlight).count,
         isLiked: h.handleHighlightLikeState(s.selectedHighlight).isLiked,
         totalCommentCount: h.handleHighlightCommentCount(s.selectedHighlight),
-        onToggleLike: (postId: number) => h.toggleHighlightLike(postId, s.selectedHighlight!.likes),
+        onToggleLike: (postId: number) => h.toggleHighlightLike(postId, s.selectedHighlight!.likes ?? 0),
         onAddComment: h.addHighlightComment,
         onAddReply: h.addHighlightReply,
         onEditComment: h.editHighlightComment,
