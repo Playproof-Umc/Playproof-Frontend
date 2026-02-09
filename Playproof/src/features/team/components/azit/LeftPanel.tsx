@@ -110,7 +110,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
 
   return (
-    <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-visible lg:overflow-y-auto pb-10 shrink-0 custom-scrollbar">
+    <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-y-auto pb-10 shrink-0 custom-scrollbar min-h-0">
       
       {/* 1. 스케줄 섹션 (건드리지 않음) */}
       <section>

@@ -51,8 +51,8 @@ export const AzitPageView = () => {
   };
 
   return (
-    <AppLayout className="bg-white" containerClassName="pp-container--fluid">
-      <div className="flex flex-col flex-1 overflow-y-auto lg:overflow-hidden w-full max-w-[1920px] mx-auto">
+    <AppLayout className="bg-white" containerClassName="pp-container--fluid h-[calc(100vh-64px)] overflow-hidden">
+      <div className="flex flex-col h-full w-full max-w-[1920px] mx-auto overflow-hidden">
         {/* Navigation */}
         <div className="flex-none">
           <AzitNavigation 
@@ -87,7 +87,7 @@ export const AzitPageView = () => {
         </div>
 
         {/* Content Layout */}
-        <div className="flex flex-1 flex-col lg:flex-row px-4 sm:px-6 pb-6 gap-6 lg:gap-8 overflow-visible lg:overflow-hidden">
+        <div className="flex flex-1 min-h-0 flex-col lg:flex-row px-4 sm:px-6 pb-6 gap-6 lg:gap-8 overflow-hidden">
           <LeftPanel 
             members={currentMembers} 
             schedules={schedules}  // State 전달
@@ -106,16 +106,17 @@ export const AzitPageView = () => {
             onRenameChatRoom={actions.renameChatRoom}
             onDeleteChatRoom={actions.deleteChatRoom}
           />
+          <div className="flex flex-1 min-h-0">
+            <MainPanel
+              key={currentAzitId}
+              roomName={selectedChatRoom}
+              messages={messages}
+              onSendMessage={actions.addChatMessage}
+              currentUserName={currentUser.nickname}
+            />
+          </div>
           
-          <MainPanel
-            key={currentAzitId}
-            roomName={selectedChatRoom}
-            messages={messages}
-            onSendMessage={actions.addChatMessage}
-            currentUserName={currentUser.nickname}
-          />
-          
-          <div className="w-full lg:w-[300px] flex flex-col shrink-0 gap-4">
+          <div className="w-full lg:w-[300px] flex flex-col shrink-0 gap-4 min-h-0">
              <div className="flex justify-between items-center px-1">
                <h2 className="text-lg font-bold text-gray-900">하이라이트</h2>
                <button
