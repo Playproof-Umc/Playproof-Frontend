@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           </button>
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/home')}>
             <img
-              src="/Playproof로고GNB.svg"
+              src="/playproof-gnb.svg"
               alt="PLAYPROOF"
               className="h-7 w-auto"
             />
