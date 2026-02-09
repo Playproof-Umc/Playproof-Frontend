@@ -33,7 +33,7 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
       setComments(res);
     };
     fetchComments();
-  }, [post, baseLikeState]);
+  }, [post]);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
   const [editingParentId, setEditingParentId] = useState<number | null>(null);

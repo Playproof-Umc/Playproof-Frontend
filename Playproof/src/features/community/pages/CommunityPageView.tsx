@@ -126,7 +126,7 @@ export const CommunityPageView = () => {
           likeCount={actions.highlight.getLikeState(modal.selectedPost).count}
           isLiked={actions.highlight.getLikeState(modal.selectedPost).isLiked}
           totalCommentCount={actions.highlight.getCommentCount(modal.selectedPost)}
-          onToggleLike={(postId) => actions.highlight.toggleLike(postId, modal.selectedPost!.likes)}
+          onToggleLike={(postId) => actions.highlight.toggleLike(postId, modal.selectedPost!.likes ?? 0)}
           onAddComment={actions.highlight.addComment}
           onAddReply={actions.highlight.addReply}
           onEditComment={actions.highlight.editComment}

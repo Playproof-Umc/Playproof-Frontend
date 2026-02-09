@@ -58,9 +58,9 @@ const normalizeComment = (raw: unknown): CommunityComment => {
     createdAt: toStringValue(readValue(item, ["createdAt", "created_at"])) ?? "",
     updatedAt: toStringValue(readValue(item, ["updatedAt", "updated_at"])) ?? "",
     user: user ?? fallbackUser,
-    highlight: readValue(item, ["highlight"]),
-    post: readValue(item, ["post"]),
-    parent: readValue(item, ["parent"]),
+    highlight: undefined,
+    post: undefined,
+    parent: undefined,
     replies: Array.isArray(readValue(item, ["replies"]))
       ? (readValue(item, ["replies"]) as unknown[]).map((reply) => normalizeComment(reply))
       : [],
@@ -196,7 +196,7 @@ export async function getBoardPosts(gameId: number, page: number = 1, limit: num
   const res = await api.get(`/community/games/${gameId}/posts`, { params: { page, limit } });
   const data = res.data.data;
   const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-  return posts.map((item) => mapBoardPost(item));
+  return posts.map((item: unknown) => mapBoardPost(item));
 }
 
 /**
@@ -206,7 +206,7 @@ export async function getAllBoardPosts(page: number = 1, limit: number = 10): Pr
   const res = await api.get("/community/posts", { params: { page, limit } });
   const data = res.data.data;
   const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-  return posts.map((item) => mapBoardPost(item));
+  return posts.map((item: unknown) => mapBoardPost(item));
 }
 
 // 자유게시판 글 작성
@@ -275,7 +275,7 @@ export async function getBestPosts(limit: number = 5): Promise<BoardPost[]> {
     const res = await api.get('/community/posts/best', { params: { limit } });
     const data = res.data.data;
     const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-    return posts.map((item) => mapBoardPost(item));
+    return posts.map((item: unknown) => mapBoardPost(item));
   } catch {
     return [];
   }
