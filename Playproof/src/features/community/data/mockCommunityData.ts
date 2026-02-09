@@ -1,6 +1,6 @@
 // src/features/community/data/mockCommunityData.ts
 
-import type { HighlightPost, BoardPost, Comment } from '@/features/community/types';
+import type { HighlightPost, BoardPost } from '@/features/community/types';
 
 // 하이라이트 게시글 Mock 데이터
 export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
@@ -13,7 +13,7 @@ export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
     content: "안녕하세요! 오늘 랭크 게임에서 미친 플레이 나와서 공유합니다~",
     likes: 200,
     views: 1500,
-    comments: 60,
+    comments: 0,
     mediaType: "photo",
     images: [
       "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800",
@@ -29,7 +29,7 @@ export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
     content: "1대5 에이스 성공! 진짜 손 떨렸어요 ㅋㅋㅋ",
     likes: 200,
     views: 980,
-    comments: 60,
+    comments: 0,
     mediaType: "photo",
     images: [
       "https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=800",
@@ -44,7 +44,7 @@ export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
     content: "팀원들 다 죽고 혼자서 역전했어요 ㅠㅠ",
     likes: 200,
     views: 850,
-    comments: 60,
+    comments: 0,
     mediaType: "photo",
     images: [
       "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=800",
@@ -59,7 +59,7 @@ export const MOCK_HIGHLIGHT_POSTS: HighlightPost[] = [
     content: "이거 보고 다들 놀라셨을 거예요 ㅋㅋ",
     likes: 200,
     views: 1200,
-    comments: 60,
+    comments: 0,
     mediaType: "photo",
     images: [
       "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=800",
@@ -170,38 +170,3 @@ export const MOCK_BOARD_POSTS: BoardPost[] = [
 ];
 
 // 댓글 Mock 데이터
-export const MOCK_COMMENTS: Comment[] = [
-  {
-    id: "1",
-    author: "게이머1",
-    avatarUrl: "",
-    content: "저랑 듀오 하실래요~? 저랑하실분~?",
-    date: "5분전",
-    replies: [
-      {
-        id: "1-1",
-        author: "작성자",
-        avatarUrl: "",
-        content: "좋아요! 시간 맞춰볼게요.",
-        date: "방금 전",
-        parentId: "1",
-      },
-    ],
-  },
-  {
-    id: "2",
-    author: "게이머2",
-    avatarUrl: "",
-    content: "저랑 듀오 하실래요~? 친추할게요",
-    date: "6분전",
-    replies: [],
-  },
-  {
-    id: "3",
-    author: "게이머3",
-    avatarUrl: "",
-    content: "저랑 듀오 하실래요~? 친추할게요",
-    date: "5분전",
-    replies: [],
-  },
-];

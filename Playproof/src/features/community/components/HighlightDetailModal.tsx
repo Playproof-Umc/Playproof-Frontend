@@ -1,5 +1,3 @@
-// src/features/community/components/highlight-detail/HighlightDetailModal.tsx
-
 import React from "react";
 import { X } from "lucide-react";
 import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
@@ -55,14 +53,6 @@ function HighlightDetailModalContent({
   const { state, refs, actions } = useHighlightDetailState(post);
   const resolvedProfileUserId = profileUserId ?? "user-1";
 
-  React.useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
-
   const handleMoveToProfile = (event: React.MouseEvent, userId: string) => {
     event.stopPropagation();
     navigate(`/user/${userId}`);
@@ -108,7 +98,7 @@ function HighlightDetailModalContent({
       onClick={handleBackdropClick}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
-      <div className="relative flex h-[90vh] w-full max-w-6xl flex-col overflow-y-auto md:overflow-hidden rounded-2xl bg-white shadow-2xl md:flex-row">
+      <div className="relative flex h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900"

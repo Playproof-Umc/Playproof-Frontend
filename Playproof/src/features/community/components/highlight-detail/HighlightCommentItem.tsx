@@ -1,31 +1,46 @@
 // src/features/community/components/highlight-detail/HighlightCommentItem.tsx
 
+// 날짜를 '10분전', '1일전' 등으로 변환하는 함수
+function formatRelativeTime(dateString: string): string {
+  if (!dateString || isNaN(Date.parse(dateString))) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const rawDiff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const diff = Math.max(0, rawDiff);
+  if (diff < 60) return `${diff}초 전`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+  if (diff < 31536000) return `${Math.floor(diff / 2592000)}개월 전`;
+  return `${Math.floor(diff / 31536000)}년 전`;
+}
 import React from "react";
 import { CornerDownRight } from "lucide-react";
-import type { Comment } from "@/features/community/types";
 
-interface HighlightCommentItemProps {
-  comment: Comment;
+import type { CommunityComment } from "@/features/community/types/types";
+
+export interface HighlightCommentItemProps {
+  comment: CommunityComment;
   currentUserName: string;
-  replyingToId: string | null;
+  replyingToId: number | null;
   replyText: string;
   onReplyTextChange: (value: string) => void;
-  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: string) => void;
-  onReplySubmit: (commentId: string) => void;
-  onReplyToggle: (commentId: string) => void;
+  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: number) => void;
+  onReplySubmit: (commentId: number) => void;
+  onReplyToggle: (commentId: number) => void;
   replyInputRef: React.RefObject<HTMLTextAreaElement>;
-  editingCommentId: string | null;
-  editingReplyId: string | null;
-  editingParentId: string | null;
+  editingCommentId: number | null;
+  editingReplyId: number | null;
+  editingParentId: number | null;
   editText: string;
   onEditTextChange: (value: string) => void;
   onEditKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  onEditStart: (commentId: string, content: string) => void;
-  onReplyEditStart: (commentId: string, replyId: string, content: string) => void;
+  onEditStart: (commentId: number, content: string) => void;
+  onReplyEditStart: (commentId: number, replyId: number, content: string) => void;
   onEditCancel: () => void;
   onEditSubmit: () => void;
-  onDeleteComment: (commentId: string) => void;
-  onDeleteReply: (commentId: string, replyId: string) => void;
+  onDeleteComment: (commentId: number) => void;
+  onDeleteReply: (commentId: number, replyId: number) => void;
   editInputRef: React.RefObject<HTMLTextAreaElement>;
   onMoveToProfile: (event: React.MouseEvent, userId: string) => void;
   profileUserId: string;
@@ -70,22 +85,24 @@ export function HighlightCommentItem({
               onClick={(event) => onMoveToProfile(event, profileUserId)}
               className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
             >
-              {comment.author}
+              {comment.user && comment.user.nickname ? comment.user.nickname : '알 수 없음'}
             </span>
-            <span className="text-xs text-gray-500">{comment.date}</span>
+            <span className="text-xs text-gray-500">
+              {comment.createdAt ? formatRelativeTime(comment.createdAt) : ''}
+            </span>
             <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-gray-400">
-              {comment.author === currentUserName ? (
+              {comment.user?.nickname === currentUserName ? (
                 <>
                   <button
                     type="button"
-                    onClick={() => onEditStart(comment.id, comment.content)}
+                    onClick={() => onEditStart(Number(comment.id), comment.content)}
                     className="hover:text-gray-600"
                   >
                     수정
                   </button>
                   <button
                     type="button"
-                    onClick={() => onDeleteComment(comment.id)}
+                    onClick={() => onDeleteComment(Number(comment.id))}
                     className="hover:text-gray-600"
                   >
                     삭제
@@ -136,7 +153,7 @@ export function HighlightCommentItem({
             <button
               type="button"
               className="hover:text-gray-700"
-              onClick={() => onReplyToggle(comment.id)}
+              onClick={() => onReplyToggle(Number(comment.id))}
             >
               답글달기
             </button>
@@ -144,10 +161,10 @@ export function HighlightCommentItem({
         </div>
       </div>
 
-      {comment.replies.length > 0 && (
+      {(comment.replies?.length ?? 0) > 0 && (
         <div className="space-y-3 pl-6">
-          {comment.replies.map((reply) => (
-            <div key={reply.id} className="flex gap-3">
+          {(comment.replies ?? []).map((reply, index) => (
+            <div key={reply.id ?? `reply-${comment.id}-${index}`} className="flex gap-3">
               <CornerDownRight className="mt-2 h-4 w-4 text-gray-300" />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
@@ -155,22 +172,24 @@ export function HighlightCommentItem({
                     onClick={(event) => onMoveToProfile(event, profileUserId)}
                     className="cursor-pointer text-xs font-semibold text-gray-900 hover:underline"
                   >
-                    {reply.author}
+                    {reply.user && reply.user.nickname ? reply.user.nickname : '알 수 없음'}
                   </span>
-                  <span className="text-[10px] text-gray-500">{reply.date}</span>
+                  <span className="text-[10px] text-gray-500">
+                    {reply.createdAt ? formatRelativeTime(reply.createdAt) : ''}
+                  </span>
                   <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-gray-400">
-                    {reply.author === currentUserName ? (
+                    {reply.user?.nickname === currentUserName ? (
                       <>
                         <button
                           type="button"
-                          onClick={() => onReplyEditStart(comment.id, reply.id, reply.content)}
+                          onClick={() => onReplyEditStart(Number(comment.id), Number(reply.id), reply.content)}
                           className="hover:text-gray-600"
                         >
                           수정
                         </button>
                         <button
                           type="button"
-                          onClick={() => onDeleteReply(comment.id, reply.id)}
+                          onClick={() => onDeleteReply(Number(comment.id), Number(reply.id))}
                           className="hover:text-gray-600"
                         >
                           삭제
@@ -231,7 +250,7 @@ export function HighlightCommentItem({
               ref={replyInputRef}
               value={replyText}
               onChange={(event) => onReplyTextChange(event.target.value)}
-              onKeyDown={(event) => onReplyKeyDown(event, comment.id)}
+              onKeyDown={(event) => onReplyKeyDown(event, Number(comment.id))}
               placeholder="답글을 입력해주세요."
               rows={2}
               className="w-full resize-none text-xs text-gray-700 placeholder-gray-400 focus:outline-none"
@@ -239,7 +258,7 @@ export function HighlightCommentItem({
             <div className="mt-2 flex justify-end">
               <button
                 type="button"
-                onClick={() => onReplySubmit(comment.id)}
+                onClick={() => onReplySubmit(Number(comment.id))}
                 disabled={!replyText.trim()}
                 className="rounded-lg bg-black px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-gray-800"
               >

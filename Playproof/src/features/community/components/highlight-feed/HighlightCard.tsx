@@ -37,7 +37,7 @@ export function HighlightCard({
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("공유하기:", post.title);
+    console.log("공유하기:", post.content);
     // TODO: 공유 기능 구현
   };
 
@@ -73,19 +73,45 @@ export function HighlightCard({
 
   const needsTruncate = post.content.length > 20;
 
+  function getRelativeTime(dateString: string) {
+    if (!dateString) return '';
+    const now = new Date();
+    const date = new Date(dateString);
+    const diff = (now.getTime() - date.getTime()) / 1000; // 초 단위
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString('ko-KR');
+  }
+
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
-      {/* 프로필 영역 */}
+      {/* 프로필/상단 영역 */}
       <div
-        onClick={handleProfileClick}
-        className="flex cursor-pointer items-center gap-3 p-4 transition hover:bg-gray-50 relative"
+        onClick={() => onPostClick(post)}
+        className="flex items-center gap-3 p-4 transition hover:bg-gray-50 relative cursor-pointer"
       >
-        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-gray-900">{post.author}</p>
-          <p className="text-xs text-gray-500">{post.date}</p>
+        <div
+          className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleProfileClick(e);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {/* 프로필 이미지 */}
+          {post.profileUrl && (
+            <img src={post.profileUrl} alt="프로필" className="h-10 w-10 rounded-full object-cover" />
+          )}
         </div>
-        {post.author === currentUserName && onDeletePost ? (
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-gray-900">{post.nickname}</p>
+          <p className="text-xs text-gray-500">
+            {post.createdAt ? getRelativeTime(post.createdAt) : '날짜 없음'}
+          </p>
+        </div>
+        {(post.nickname ?? post.author) === currentUserName && onDeletePost ? (
           <button
             type="button"
             onClick={(e) => {
@@ -104,21 +130,26 @@ export function HighlightCard({
         onClick={() => onPostClick(post)}
         className="relative aspect-square cursor-pointer bg-gray-200"
       >
-        {post.images.length > 0 ? (
+        {(post.medias ?? post.images ?? []).length > 0 ? (
           <>
             <img
-              src={post.images[currentImageIndex]}
+              src={
+                (post.medias ?? post.images ?? [])[currentImageIndex].startsWith('http')
+                  ? (post.medias ?? post.images ?? [])[currentImageIndex]
+                  : `${import.meta.env.VITE_API_BASE_URL}/uploads/${(post.medias ?? post.images ?? [])[currentImageIndex]}`
+              }
               alt=""
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/no-image.png'; // public 폴더에 no-image.png 추가 필요
+              }}
             />
-            
             {/* 이미지 개수 표시 */}
-            {post.images.length > 1 && (
+            {(post.medias ?? post.images ?? []).length > 1 && (
               <>
                 <div className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white">
-                  {currentImageIndex + 1} / {post.images.length}
+                  {currentImageIndex + 1} / {(post.medias ?? post.images ?? []).length}
                 </div>
-                
                 {/* 이미지 네비게이션 */}
                 <div className="absolute inset-0 flex items-center justify-between px-2">
                   {currentImageIndex > 0 && (
@@ -131,7 +162,7 @@ export function HighlightCard({
                       </svg>
                     </button>
                   )}
-                  {currentImageIndex < post.images.length - 1 && (
+                  {currentImageIndex < (post.medias ?? post.images ?? []).length - 1 && (
                     <button
                       onClick={handleNextImage}
                       className="ml-auto rounded-full bg-white/80 p-1.5 text-gray-800 shadow-md hover:bg-white"
@@ -182,7 +213,7 @@ export function HighlightCard({
         {/* 제목/내용 영역 */}
         <div className="text-sm">
           <p className="text-gray-900">
-            <span className="font-semibold">{post.author}</span>{" "}
+            <span className="font-semibold">{post.nickname ?? post.author ?? ""}</span>{" "}
             {isExpanded || !needsTruncate
               ? post.content
               : truncateText(post.content)}
