@@ -168,7 +168,24 @@ export async function createBoardPost(payload: {
   title: string;
   content: string;
   medias?: { media_url: string; order: number }[];
+  files?: File[];
 }) {
+  if (payload.files && payload.files.length > 0) {
+    const formData = new FormData();
+    formData.append("game_id", String(payload.game_id));
+    formData.append("title", payload.title);
+    formData.append("content", payload.content);
+    payload.files.forEach((file, index) => {
+      formData.append("medias", file);
+      formData.append("orders", String(index + 1));
+    });
+
+    const res = await api.post('/community/posts', formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  }
+
   const res = await api.post('/community/posts', {
     game_id: payload.game_id,
     title: payload.title,

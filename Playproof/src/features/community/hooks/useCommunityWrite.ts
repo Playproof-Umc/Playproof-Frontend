@@ -55,16 +55,11 @@ export const useCommunityWrite = ({
 
       const resolvedGame = game ?? boardGame;
       const gameId = BOARD_GAME_ID_MAP[resolvedGame] ?? 0;
-      const medias = images.map((file, idx) => ({
-        media_url: file.name,
-        order: idx + 1,
-      }));
-
       const res = await createBoardPost({
         game_id: gameId,
         title: title?.trim() || "제목 없음",
         content: content || "내용 없음",
-        medias,
+        files: images,
       });
 
       const newBoardPost: BoardPost = {

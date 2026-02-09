@@ -9,7 +9,7 @@ export interface CreateHighlightMedia {
 export interface CreateHighlightRequest {
   content: string;
   is_public: boolean;
-  medias: CreateHighlightMedia[];
+  medias?: CreateHighlightMedia[] | File[];
 }
 
 export interface CreateHighlightResponse {
@@ -26,6 +26,21 @@ export interface CreateHighlightResponse {
 export async function createHighlight(
   payload: CreateHighlightRequest
 ): Promise<CreateHighlightResponse> {
+  const medias = payload.medias ?? [];
+  if (medias.length > 0 && medias[0] instanceof File) {
+    const formData = new FormData();
+    formData.append("content", payload.content);
+    formData.append("is_public", String(payload.is_public));
+    (medias as File[]).forEach((file, index) => {
+      formData.append("medias", file);
+      formData.append("orders", String(index + 1));
+    });
+    const res = await api.post("/community/highlights", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  }
+
   const res = await api.post("/community/highlights", payload);
   return res.data;
 }

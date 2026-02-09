@@ -3,12 +3,6 @@ import { X } from "lucide-react";
 import { WriteModalUploadBox } from "@/features/community/components/WriteModalUploadBox";
 import { createHighlight } from "@/services/api";
 
-// 타입을 직접 정의하여 import 오류 방지
-interface CreateHighlightMedia {
-  media_url: string;
-  order: number;
-}
-
 type HighlightWriteModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -25,28 +19,16 @@ function HighlightWriteModalContent({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 실제 서비스에서는 S3 업로드 후 media_url을 받아야 함
-  // 여기서는 File 객체의 name을 임시 URL로 사용 (실제 구현 시 S3 업로드 필요)
-  const getMediaUrls = async (files: File[]): Promise<CreateHighlightMedia[]> => {
-    // TODO: S3 업로드 로직 필요
-    // 임시로 파일명을 media_url로 사용
-    return files.map((file, idx) => ({
-      media_url: file.name, // 실제는 S3 업로드 후 URL
-      order: idx + 1,
-    }));
-  };
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
     if (!content.trim() && images.length === 0) return;
     setLoading(true);
     try {
-      const medias = await getMediaUrls(images);
       await createHighlight({
         content: content.trim(),
         is_public: true,
-        medias,
+        medias: images,
       });
       onClose();
     } catch (e: any) {
