@@ -88,6 +88,18 @@ export function useScheduleCreateState({
     if (!gameDate) return { isValid: false, msg: "게임 일정을 선택해주세요." };
     if (!recruitRange?.from) return { isValid: false, msg: "모집 기간을 선택해주세요." };
 
+    const gameStart = new Date(gameDate);
+    const gameStartHour = gameStartTime.hour % 12 + (gameStartTime.ampm === "PM" ? 12 : 0);
+    gameStart.setHours(gameStartHour, gameStartTime.minute, 0, 0);
+
+    const gameEnd = new Date(gameDate);
+    const gameEndHour = gameEndTime.hour % 12 + (gameEndTime.ampm === "PM" ? 12 : 0);
+    gameEnd.setHours(gameEndHour, gameEndTime.minute, 0, 0);
+
+    if (gameEnd <= gameStart) {
+      return { isValid: false, msg: "게임 종료 시간은 시작 시간보다 이후여야 합니다." };
+    }
+
     const game = new Date(gameDate);
     game.setHours(0, 0, 0, 0);
 
