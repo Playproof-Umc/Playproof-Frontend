@@ -26,6 +26,18 @@ export const PostDetailHeader = ({
   onShare,
   onReport,
 }: PostDetailHeaderProps) => {
+  const getRelativeTime = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "";
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString("ko-KR");
+  };
   return (
     <div className="border-b border-gray-200 p-6">
       <div className="mb-4 flex items-start justify-between">
@@ -77,7 +89,7 @@ export const PostDetailHeader = ({
           <div className="h-10 w-10 rounded-full bg-gray-300" />
           <div>
             <p className="text-sm font-semibold text-gray-900">{post.author}</p>
-            <p className="text-xs text-gray-500">{post.date}</p>
+            <p className="text-xs text-gray-500">{getRelativeTime(post.createdAt || post.date)}</p>
           </div>
         </div>
 

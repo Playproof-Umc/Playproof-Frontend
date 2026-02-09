@@ -33,15 +33,24 @@ function HighlightWriteModalContent({
   onSubmit,
   initialImages = [],
 }: Omit<HighlightWriteModalProps, "isOpen">) {
-  const [title] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<File[]>(initialImages);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!content.trim() && images.length === 0 && !title.trim()) return;
-    onSubmit({ title: title.trim() || undefined, content: content.trim(), images });
-    onClose();
+    setError(null);
+    if (!content.trim() && images.length === 0) return;
+    setLoading(true);
+    try {
+      await onSubmit({ content: content.trim(), images });
+      onClose();
+    } catch (e: any) {
+      setError("업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,14 +85,17 @@ function HighlightWriteModalContent({
                 className="w-full resize-none rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:border-gray-400 focus:outline-none"
               />
             </div>
+            {error && <div className="text-red-500 text-xs mt-2">{error}</div>}
           </div>
 
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full bg-[var(--color-primary-800)] text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors"
+              // [해결] 색상은 내 브랜치(primary-800) + 기능은 develop(disabled) 합침
+              className="w-full bg-[var(--color-primary-800)] text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
-              업로드
+              {loading ? "업로드 중..." : "업로드"}
             </button>
           </div>
         </form>

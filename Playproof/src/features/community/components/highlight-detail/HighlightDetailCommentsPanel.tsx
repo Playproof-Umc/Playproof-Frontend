@@ -1,12 +1,12 @@
 // src/features/community/components/highlight-detail/HighlightDetailCommentsPanel.tsx
 
 import React from "react";
-import type { Comment } from "@/features/community/types";
+import type { CommunityComment } from "@/features/community/types/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 import { HighlightCommentItem } from "@/features/community/components/highlight-detail/HighlightCommentItem";
 
 interface HighlightDetailCommentsPanelProps {
-  comments: Comment[];
+  comments: CommunityComment[];
   totalCommentCount: number;
   currentUserName: string;
   commentText: string;
@@ -14,25 +14,25 @@ interface HighlightDetailCommentsPanelProps {
   onCommentKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onCommentSubmit: () => void;
   commentInputRef: React.RefObject<HTMLInputElement>;
-  replyingToId: string | null;
+  replyingToId: number | null;
   replyText: string;
   onReplyTextChange: (value: string) => void;
-  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: string) => void;
-  onReplySubmit: (commentId: string) => void;
-  onReplyToggle: (commentId: string) => void;
+  onReplyKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>, commentId: number) => void;
+  onReplySubmit: (commentId: number) => void;
+  onReplyToggle: (commentId: number) => void;
   replyInputRef: React.RefObject<HTMLTextAreaElement>;
-  editingCommentId: string | null;
-  editingReplyId: string | null;
-  editingParentId: string | null;
+  editingCommentId: number | null;
+  editingReplyId: number | null;
+  editingParentId: number | null;
   editText: string;
   onEditTextChange: (value: string) => void;
   onEditKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  onEditStart: (commentId: string, content: string) => void;
-  onReplyEditStart: (commentId: string, replyId: string, content: string) => void;
+  onEditStart: (commentId: number, content: string) => void;
+  onReplyEditStart: (commentId: number, replyId: number, content: string) => void;
   onEditCancel: () => void;
   onEditSubmit: () => void;
-  onDeleteComment: (commentId: string) => void;
-  onDeleteReply: (commentId: string, replyId: string) => void;
+  onDeleteComment: (commentId: number) => void;
+  onDeleteReply: (commentId: number, replyId: number) => void;
   editInputRef: React.RefObject<HTMLTextAreaElement>;
   onMoveToProfile: (event: React.MouseEvent, userId: string) => void;
   profileUserId: string;
@@ -77,9 +77,9 @@ export function HighlightDetailCommentsPanel({
           {COMMUNITY_SECTION_LABELS.comments} {totalCommentCount}
         </h3>
         <div className="space-y-4">
-          {comments.map((comment) => (
+          {comments.map((comment, index) => (
             <HighlightCommentItem
-              key={comment.id}
+              key={comment.id ?? `comment-${index}`}
               comment={comment}
               currentUserName={currentUserName}
               replyingToId={replyingToId}
