@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Lazy Load Pages
@@ -8,13 +8,13 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const SignupGameSelectPage = lazy(() => import('@/pages/auth/SignupGameSelectPage'));
 const SignupGameInfoPage = lazy(() => import('@/pages/auth/SignupGameInfoPage'));
-const HomePage = lazy(() => import('@/pages/home/HomePage'));
+const HomePage = lazy(() => import('@/pages/Home/HomePage'));
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
-const CommunityPage = lazy(() => import('@/pages/community/CommunityPage'));
-const PostDetailPage = lazy(() => import('@/pages/community/PostDetailPage'));
+const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const PostDetailPage = lazy(() => import('@/pages/Community/PostDetailPage'));
 const StorePage = lazy(() => import('@/pages/store/StorePage'));
 
 // Context Providers

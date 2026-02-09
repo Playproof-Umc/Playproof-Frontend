@@ -4,7 +4,7 @@
 export interface User {
   id: string;
   nickname: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
   isOnline?: boolean;
 }
 

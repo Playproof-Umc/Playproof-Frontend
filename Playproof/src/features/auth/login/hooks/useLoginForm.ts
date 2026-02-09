@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
-import { login } from "@/services/loginApi";
+import { login } from "@/services/authApi";
+import { getMyProfile } from "@/services/userApi";
 import { useAuthStore } from "@/store/authStore";
 import { usePasswordRules } from "@/features/auth/signup/hooks/usePasswordRules";
 import { PHONE_REGEX } from "@/features/auth/constants/regex";
@@ -31,6 +32,19 @@ const GENERIC_ERROR_MSG = "일시적인 오류입니다. 다시 시도해 주세
 
 function normalizeDigitsOnly(v: string) {
   return v.replace(/\D/g, "");
+}
+
+function formatPhoneNumber(phone: string): string {
+  // 숫자만 추출
+  const digits = phone.replace(/\D/g, "");
+  
+  // 010-1234-5678 형식으로 변환
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  }
+  
+  // 형식이 맞지 않으면 그대로 반환
+  return phone;
 }
 
 function getRedirectPath(locationState: unknown): string {
@@ -74,15 +88,33 @@ export function useLoginForm() {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
+      // 1. 토큰 저장
       auth.setAuth({
-        accessToken: res.data.accessToken,
-        userId: res.data.userId,
-        nickname: res.data.nickname,
+        accessToken: res.accessToken,
+        userId: 0, // 임시값 (곧 /users/me에서 가져올 것)
+        nickname: '', // 임시값
       });
 
-      const redirect = getRedirectPath(location.state);
-      navigate(redirect, { replace: true });
+      try {
+        // 2. /users/me API로 사용자 정보 가져오기
+        const userProfile = await getMyProfile();
+        
+        // 3. 사용자 정보 업데이트
+        auth.setAuth({
+          accessToken: res.accessToken,
+          userId: userProfile.id,
+          nickname: userProfile.nickname,
+        });
+
+        // 4. 리다이렉트
+        const redirect = getRedirectPath(location.state);
+        navigate(redirect, { replace: true });
+      } catch (error) {
+        console.error('사용자 정보 조회 실패:', error);
+        // 토큰은 있지만 사용자 정보를 못 가져온 경우에도 일단 홈으로
+        navigate('/home', { replace: true });
+      }
     },
     onError: (err: AxiosError<ApiErrorResponse>) => {
       const status = err.response?.status;
@@ -130,9 +162,8 @@ export function useLoginForm() {
     if (!ok) return;
 
     mutation.mutate({
-      phoneNumber: normalizedPhone,
+      phone: formatPhoneNumber(normalizedPhone), // 010-1234-5678 형식
       password,
-      keepLoggedIn,
     });
   };
 

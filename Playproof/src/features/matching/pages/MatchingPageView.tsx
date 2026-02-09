@@ -21,6 +21,7 @@ export const MatchingPageView = () => {
     matchesByGame,
     popularMatches,
     filteredMatches,
+    isLoading,
   } = state;
 
   // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
@@ -56,11 +57,22 @@ export const MatchingPageView = () => {
       </div>
 
       <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
-        <PartyRequestBanner />
-        {/* 추천 섹션 */}
-        <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
-        <PopularMatchList matches={popularMatches} />
-        <FilteredMatchList matches={filteredMatches} searchText={searchText} />
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent"></div>
+              <p className="mt-4 text-sm text-gray-500">매칭 글 불러오는 중...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <PartyRequestBanner />
+            {/* 추천 섹션 */}
+            <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
+            <PopularMatchList matches={popularMatches} />
+            <FilteredMatchList matches={filteredMatches} searchText={searchText} />
+          </>
+        )}
       </main>
 
       <MatchingWriteModal

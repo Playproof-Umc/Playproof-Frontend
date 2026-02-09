@@ -2,8 +2,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { NotificationDropdown } from '@/features/notification/components';
 import { NAV_LINKS } from '@/constants/navigation';
+import { getMyProfile } from '@/services/userApi';
+import { useAuthStore } from '@/store/authStore';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -13,12 +16,30 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { accessToken, clearAuth } = useAuthStore();
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   // 드롭다운 외부 클릭 감지를 위한 Ref
   const profileRef = useRef<HTMLDivElement>(null);
+
+  // 사용자 프로필 정보 조회 (로그인 상태일 때만)
+  const { data: userProfile, isLoading, error } = useQuery({
+    queryKey: ['myProfile'],
+    queryFn: getMyProfile,
+    enabled: !!accessToken, // 토큰이 있을 때만 호출
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+  });
+
+  // 🔍 디버깅: 상태 확인
+  useEffect(() => {
+    console.log('🔍 [Navbar Debug]');
+    console.log('  - accessToken:', accessToken ? '✅ 있음' : '❌ 없음');
+    console.log('  - isLoading:', isLoading);
+    console.log('  - error:', error);
+    console.log('  - userProfile:', userProfile);
+  }, [accessToken, isLoading, error, userProfile]);
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -83,7 +104,10 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
     // 3. 기본(매칭 등) 페이지 메뉴
     return (
       <>
-        <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => navigate('/mypage')}>
+        <div 
+          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+          onClick={() => navigate('/mypage')}
+        >
           <User size={16} className="text-gray-400" />
           <span>마이페이지</span>
         </div>
@@ -92,7 +116,13 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           <span>내 파티 관리</span>
         </div>
         <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
-        <div className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors">
+        <div 
+          className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+          onClick={() => {
+            clearAuth();
+            navigate('/login');
+          }}
+        >
           <LogOut size={16} />
           <span>로그아웃</span>
         </div>
@@ -151,7 +181,9 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               </div>
               
               {/* 닉네임 & 뱃지 */}
-              <span className="font-bold text-sm text-gray-800">플루</span>
+              <span className="font-bold text-sm text-gray-800">
+                {userProfile?.nickname || '플루'}
+              </span>
               <span className="bg-zinc-200 text-[10px] font-bold px-1.5 py-0.5 rounded text-gray-600">Pro</span>
 
               {/* 스크롤 버튼 (화살표) */}
@@ -169,8 +201,12 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
                       <User size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">플루</p>
-                      <p className="text-xs text-gray-500">playproof12@gmail.com</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {userProfile?.nickname || '플루'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {userProfile?.phone || '전화번호 없음'}
+                      </p>
                     </div>
                   </div>
                 </div>
