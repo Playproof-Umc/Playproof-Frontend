@@ -162,6 +162,16 @@ export async function getBoardPosts(gameId: number, page: number = 1, limit: num
   return posts.map((item: any) => mapBoardPost(item));
 }
 
+/**
+ * 게시판 전체 글 목록 조회
+ */
+export async function getAllBoardPosts(page: number = 1, limit: number = 10): Promise<BoardPost[]> {
+  const res = await api.get("/community/posts", { params: { page, limit } });
+  const data = res.data.data;
+  const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
+  return posts.map((item: any) => mapBoardPost(item));
+}
+
 // 자유게시판 글 작성
 export async function createBoardPost(payload: {
   game_id: number;

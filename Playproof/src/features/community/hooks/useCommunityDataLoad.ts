@@ -1,5 +1,5 @@
 import React from "react";
-import { getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
+import { getAllBoardPosts, getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import type { BoardPost, HighlightPost } from "@/features/community/types";
 
@@ -33,7 +33,9 @@ export const useCommunityDataLoad = ({
           setBestPosts(bestData);
         } else {
           const [boardData, bestData] = await Promise.all([
-            getBoardPosts(boardGameId, currentPage),
+            boardGameId === 0
+              ? getAllBoardPosts(currentPage)
+              : getBoardPosts(boardGameId, currentPage),
             getBestPosts(),
           ]);
           setBoardPosts(boardData);
