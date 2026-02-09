@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/home/components/sections/HighlightCommunitySection.tsx
+
 import { useNavigate } from "react-router-dom";
 import { CommunityPostCard } from "@/features/home/components/CommunityPostCard";
 import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";

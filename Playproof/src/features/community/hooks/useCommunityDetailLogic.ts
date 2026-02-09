@@ -1,3 +1,5 @@
+// src/features/community/hooks/useCommunityDetailLogic.ts
+
 import { useCallback, useMemo, useState, useEffect } from "react";
 import type { BoardPost } from "@/features/community/types/types";
 import type { CommunityComment } from "@/features/community/types/types";
@@ -22,15 +24,16 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
   const [replyText, setReplyText] = useState("");
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [comments, setComments] = useState<CommunityComment[]>([]);
-    // 댓글 목록 불러오기
-    useEffect(() => {
-      if (!post) return;
-      const fetchComments = async () => {
-        const res = await getComments({ postId: post.id });
-        setComments(res);
-      };
-      fetchComments();
-    }, [post]);
+
+  // 댓글 목록 불러오기
+  useEffect(() => {
+    if (!post) return;
+    const fetchComments = async () => {
+      const res = await getComments({ postId: post.id });
+      setComments(res);
+    };
+    fetchComments();
+  }, [post]);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
   const [editingParentId, setEditingParentId] = useState<number | null>(null);

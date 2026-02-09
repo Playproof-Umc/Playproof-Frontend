@@ -1,3 +1,5 @@
+// src/features/auth/signup/components/PasswordSection.tsx
+
 //src/features/auth/signup/components/PasswordSection.tsx
 type Props = {
   password: string;

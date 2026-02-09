@@ -1,13 +1,9 @@
-import React from "react";
+// src/features/home/components/sections/HomeMatchingSection.tsx
+
 import { MatchingTabs } from "@/features/home/components";
 import { MatchingSearchBar, PartyRequestBanner } from "@/features/matching/components";
 import { PopularMatchList } from "@/features/matching/components/home/PopularMatchList";
 import type { HomeMatchingSectionProps } from "@/features/home/components/sections/types";
-
-const MOCK_REQUESTS = [
-  { id: 1, user: { nickname: "뉴비1", mannerTier: "TS 50" }, message: "껴주세요!" },
-  { id: 2, user: { nickname: "고수2", mannerTier: "TS 99" }, message: "캐리해드림" },
-];
 
 export const HomeMatchingSection = ({
   activeGameTab,
@@ -26,7 +22,7 @@ export const HomeMatchingSection = ({
 }: HomeMatchingSectionProps) => {
   return (
     <section className="space-y-4">
-      <PartyRequestBanner count={MOCK_REQUESTS.length} />
+      <PartyRequestBanner />
 
       <div className="flex flex-col gap-4">
         <MatchingTabs activeTab={activeGameTab} onTabChange={onTabChange} onMoreClick={onMoreClick} />
@@ -45,7 +41,6 @@ export const HomeMatchingSection = ({
         />
       </div>
 
-      {/* @ts-expect-error : Mock 데이터 타입 호환용 */}
       <PopularMatchList matches={matches} onCardClick={onCardClick} />
     </section>
   );

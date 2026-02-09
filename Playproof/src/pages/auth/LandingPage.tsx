@@ -1,3 +1,5 @@
+// src/pages/auth/LandingPage.tsx
+
 //src/pages/auth/LandingPage.tsx
 import { LandingPageView } from "@/features/auth/pages/LandingPageView";
 

@@ -1,3 +1,5 @@
+// src/features/mypage/constants/labels.ts
+
 export const MYPAGE_SECTION_LABELS = {
   profile: "내 프로필",
   activity: "내 활동",
@@ -24,6 +26,8 @@ export const MYPAGE_SECTION_IDS = {
   friends: "친구목록",
 } as const;
 
+export type MyPageSectionId = (typeof MYPAGE_SECTION_IDS)[keyof typeof MYPAGE_SECTION_IDS];
+
 export const MYPAGE_ACTION_LABELS = {
   viewProfile: "프로필 보기",
   addFriend: "친구추가",
@@ -44,7 +48,8 @@ export const MYPAGE_ACTION_LABELS = {
   profileLoadError: "프로필 데이터를 불러올 수 없습니다",
   profileFetchFail: "프로필을 불러오는데 실패했습니다",
   addFriendTitle: "친구 추가",
-  addFriendPlaceholder: "친구 추가 메시지를 입력하세요 (선택사항)",
+  addFriendPrompt: "친구로 추가할 유저의 닉네임을 입력해주세요.",
+  addFriendInputPlaceholder: "닉네임을 입력해주세요",
   addFriendConfirmTitle: "해당 유저를 추가하시겠습니까?",
   cancel: "취소",
   confirm: "확인",

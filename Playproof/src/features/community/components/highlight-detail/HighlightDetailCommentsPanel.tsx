@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/HighlightDetailCommentsPanel.tsx
+
 import React from "react";
 import type { CommunityComment } from "@/features/community/types/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
@@ -69,7 +71,7 @@ export function HighlightDetailCommentsPanel({
   profileUserId,
 }: HighlightDetailCommentsPanelProps) {
   return (
-    <div className="flex w-2/5 flex-col">
+    <div className="flex w-full md:w-2/5 flex-col border-t border-gray-200 md:border-t-0 md:border-l min-h-0">
       <div className="flex-1 overflow-y-auto p-4">
         <h3 className="mb-4 text-sm font-semibold text-gray-900">
           {COMMUNITY_SECTION_LABELS.comments} {totalCommentCount}
@@ -112,7 +114,7 @@ export function HighlightDetailCommentsPanel({
           event.preventDefault();
           onCommentSubmit();
         }}
-        className="border-t border-gray-200 p-4"
+        className="border-t border-gray-200 p-4 bg-white md:static md:bg-transparent sticky bottom-0"
       >
         <div className="flex items-center gap-2">
           <input

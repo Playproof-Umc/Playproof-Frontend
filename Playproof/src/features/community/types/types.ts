@@ -1,3 +1,5 @@
+// src/features/community/types/types.ts
+
 // Prisma 모델 기반 커뮤니티 타입 정의
 
 // User, Game, Azit 등은 실제 프로젝트 타입에 맞게 import 또는 정의 필요

@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/community/components/community-search/CommunityWriteButton.tsx
+
 import { Edit } from "lucide-react";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 

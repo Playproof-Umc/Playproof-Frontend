@@ -1,3 +1,5 @@
+// src/features/community/components/detail/PostDetailBody.tsx
+
 import { Heart } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";
 

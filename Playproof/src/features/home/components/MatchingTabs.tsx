@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/home/components/MatchingTabs.tsx
+
 import { GAME_TABS, MATCHING_TAB_LABELS } from "@/features/home/constants/matchingTabs";
 
 type MatchingTabsProps = {

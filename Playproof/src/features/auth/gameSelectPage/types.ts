@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/types.ts
+
 export type AuthKind = "riot" | "steam" | "battlenet";
 
 export type GameOption = {

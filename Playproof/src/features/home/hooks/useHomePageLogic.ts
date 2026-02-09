@@ -1,3 +1,5 @@
+// src/features/home/hooks/useHomePageLogic.ts
+
 import React from "react";
 import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
 import { useAuthStore } from "@/store/authStore";
@@ -77,8 +79,8 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
     const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
     return MOCK_MY_AZITS.map((azit, idx) => {
       const schedule = schedules[idx % schedules.length];
-      const timeLabel = schedule
-        ? schedule.date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
+      const timeLabel = schedule?.fullDate
+        ? schedule.fullDate.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
         : "시간 미정";
       return { azit, schedule, timeLabel };
     });
@@ -119,7 +121,7 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
     state: {
       signupModal: {
         open: isSignupCompleteOpen,
-        username,
+        username: username ?? null,
       },
       highlights: highlightState.highlights,
       bestPosts,

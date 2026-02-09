@@ -1,3 +1,5 @@
+// src/features/community/components/detail/PostDetailComments.tsx
+
 import React, { useRef } from "react";
 import type { CommunityComment } from "@/features/community/types/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";

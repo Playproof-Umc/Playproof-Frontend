@@ -1,3 +1,5 @@
+// src/features/home/data/userSummaryMock.ts
+
 export type UserStat = {
   label: string;
   value: string | number;

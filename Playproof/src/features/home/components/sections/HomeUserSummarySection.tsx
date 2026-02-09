@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/home/components/sections/HomeUserSummarySection.tsx
+
 import { UserSummaryCard } from "@/features/home/components";
 import type { HomeUserSummarySectionProps } from "@/features/home/components/sections/types";
 

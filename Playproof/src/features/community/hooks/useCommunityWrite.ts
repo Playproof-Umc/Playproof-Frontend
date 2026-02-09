@@ -1,3 +1,5 @@
+// src/features/community/hooks/useCommunityWrite.ts
+
 import React from "react";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import type { BoardPost } from "@/features/community/types";

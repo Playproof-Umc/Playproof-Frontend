@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/auth/signup/components/SignupCompleteModal.tsx
+
 
 interface SignupCompleteModalProps {
   isOpen: boolean;

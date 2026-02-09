@@ -1,3 +1,5 @@
+// src/features/chat/components/VoiceRoomList.tsx
+
 //src/features/chat/components/VoiceRoomList.tsx
 import React from 'react';
 import { Plus, Users, Volume2 } from 'lucide-react';

@@ -1,3 +1,5 @@
+// src/features/matching/hooks/useMatchingDetailLogic.ts
+
 //src/features/matching/hooks/useMatchingDetailLogic.ts
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -54,10 +56,14 @@ export const useMatchingDetailLogic = () => {
   const [editText, setEditText] = useState('');
   const [comments, setComments] = useState(MOCK_COMMENTS);
   const prevPathRef = useRef(location.pathname);
+  const fromSource = new URLSearchParams(location.search).get('from');
 
   // 홈에서도 상세 모달 노출
-  const allowPaths = ['/matching', '/home'];
-  const shouldRender = isOpen && selectedPost && allowPaths.includes(location.pathname);
+  const allowPaths = ['/matching', '/home', '/mypage'];
+  const shouldRender =
+    isOpen &&
+    selectedPost &&
+    (allowPaths.includes(location.pathname) || location.pathname.startsWith('/mypage'));
 
   useEffect(() => {
     if (isOpen && prevPathRef.current !== location.pathname) {
@@ -65,6 +71,13 @@ export const useMatchingDetailLogic = () => {
     }
     prevPathRef.current = location.pathname;
   }, [isOpen, location.pathname, closeMatchingDetail]);
+
+  const handleClose = () => {
+    closeMatchingDetail();
+    if (fromSource === 'mypage') {
+      navigate(-1);
+    }
+  };
 
   const handleMoveToProfile = (userId: string | number) => {
     navigate(`/user/${userId}`);
@@ -201,7 +214,7 @@ export const useMatchingDetailLogic = () => {
     },
     setters: { setIsMenuOpen, setCommentText, setReplyText, setEditText },
     handlers: {
-      closeMatchingDetail,
+      closeMatchingDetail: handleClose,
       handleMoveToProfile,
       handleCommentSubmit,
       handleReplyToggle,

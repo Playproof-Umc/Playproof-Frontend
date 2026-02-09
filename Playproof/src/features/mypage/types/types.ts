@@ -1,3 +1,5 @@
+// src/features/mypage/types/types.ts
+
 import type { MatchingData } from '@/features/matching/types';
 import type { HighlightPost, BoardPost } from '@/features/community/types';
 

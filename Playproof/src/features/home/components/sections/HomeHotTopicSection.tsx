@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/home/components/sections/HomeHotTopicSection.tsx
+
 import type { HomeHotTopicSectionProps } from "@/features/home/components/sections/types";
 import { HOME_ACTION_LABELS, HOME_SECTION_LABELS } from "@/features/home/constants/labels";
 

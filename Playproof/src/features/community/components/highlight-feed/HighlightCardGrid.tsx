@@ -1,4 +1,6 @@
-import { HighlightCard } from "@/features/community/components/HighlightCard";
+// src/features/community/components/highlight-feed/HighlightCardGrid.tsx
+
+import { HighlightCard } from "@/features/community/components/highlight-feed/HighlightCard";
 import type { HighlightPost } from "@/features/community/types";
 
 type HighlightCardGridProps = {

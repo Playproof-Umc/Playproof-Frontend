@@ -1,3 +1,5 @@
+// src/features/auth/signup/hooks/usePasswordRules.ts
+
 //src/features/auth/signup/hooks/usePasswordRules.ts
 import { useCallback, useMemo, useState } from "react";
 

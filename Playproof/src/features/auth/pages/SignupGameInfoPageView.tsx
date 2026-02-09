@@ -1,3 +1,5 @@
+// src/features/auth/pages/SignupGameInfoPageView.tsx
+
 import { StepDots } from "@/components/auth/StepDots";
 import { SignupGameInfoForm } from "@/features/auth/gameInfoPage/components";
 import { AppLayout } from "@/components/layout/AppLayout";

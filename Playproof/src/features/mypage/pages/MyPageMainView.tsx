@@ -1,15 +1,15 @@
+// src/features/mypage/pages/MyPageMainView.tsx
+
 import React from 'react';
-import { Navbar } from '@/components/common/Navbar';
+import { Navbar } from "@/components/layout/Navbar";
 import { ProfileCard, ProfileHeader, MyPageSidebar, SectionContent } from '@/features/mypage/components';
 import { getMyProfile } from '@/features/mypage/api/mypageApi';
 import type { MyProfileData } from '@/features/mypage/types';
-import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
+import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_IDS, MYPAGE_SECTION_LABELS, type MyPageSectionId } from '@/features/mypage/constants/labels';
 import { useAuthStore } from '@/store/authStore';
 
 export const MyPageMainView = () => {
-  const [activeSection, setActiveSection] = React.useState(
-    MYPAGE_SECTION_IDS.profile
-  );
+  const [activeSection, setActiveSection] = React.useState<MyPageSectionId>(MYPAGE_SECTION_IDS.profile);
   const authNickname = useAuthStore((s) => s.nickname);
   const displayNickname = authNickname ?? '사용자';
   const [profileData, setProfileData] = React.useState<MyProfileData | null>(null);

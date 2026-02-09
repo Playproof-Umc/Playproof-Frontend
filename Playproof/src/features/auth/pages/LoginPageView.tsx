@@ -1,3 +1,5 @@
+// src/features/auth/pages/LoginPageView.tsx
+
 import { LoginForm } from "@/features/auth/login/components";
 import { AppLayout } from "@/components/layout/AppLayout";
 

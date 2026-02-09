@@ -1,3 +1,5 @@
+// src/features/community/components/WriteModalUploadBox.tsx
+
 import React from "react";
 
 type WriteModalUploadBoxProps = {
@@ -6,6 +8,7 @@ type WriteModalUploadBoxProps = {
   accept?: string;
   multiple?: boolean;
   onFilesChange: (files: File[]) => void;
+  initialFiles?: File[];
 };
 
 export const WriteModalUploadBox = ({
@@ -14,6 +17,7 @@ export const WriteModalUploadBox = ({
   accept = "image/*",
   multiple = true,
   onFilesChange,
+  initialFiles = [],
 }: WriteModalUploadBoxProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = React.useState<string[]>([]);
@@ -64,9 +68,17 @@ export const WriteModalUploadBox = ({
   };
 
   React.useEffect(() => {
-    clearPreviews();
+    if (!initialFiles.length) {
+      clearPreviews();
+      return;
+    }
+    previews.forEach((url) => URL.revokeObjectURL(url));
+    const nextPreviews = initialFiles.map((file) => URL.createObjectURL(file));
+    setSelectedFiles(initialFiles);
+    setPreviews(nextPreviews);
+    onFilesChange(initialFiles);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialFiles]);
 
   return (
     <div>

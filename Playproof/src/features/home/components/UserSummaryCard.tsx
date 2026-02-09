@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/home/components/UserSummaryCard.tsx
+
 
 type Stat = {
   label: string;

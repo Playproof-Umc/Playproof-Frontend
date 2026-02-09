@@ -1,3 +1,5 @@
+// src/features/community/hooks/useHighlightFeed.ts
+
 import React from "react";
 import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
 import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi } from "@/features/community/api/communityApi";

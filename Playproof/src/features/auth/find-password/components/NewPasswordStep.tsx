@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/features/auth/find-password/components/NewPasswordStep.tsx
+
+import { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { PASSWORD_REGEX } from "@/features/auth/constants/regex";

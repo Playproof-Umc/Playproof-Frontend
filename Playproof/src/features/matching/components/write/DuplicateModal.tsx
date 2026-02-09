@@ -1,5 +1,4 @@
 // src/features/matching/components/write/DuplicateModal.tsx
-import React from 'react';
 import { X, Lightbulb } from 'lucide-react';
 
 interface DuplicateModalProps {

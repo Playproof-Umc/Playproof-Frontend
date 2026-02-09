@@ -1,3 +1,5 @@
+// src/features/mypage/types/index.ts
+
 export type {
   BlockedUserData,
   FeedbackData,

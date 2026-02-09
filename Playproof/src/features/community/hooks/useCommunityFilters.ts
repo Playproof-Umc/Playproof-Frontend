@@ -1,6 +1,8 @@
+// src/features/community/hooks/useCommunityFilters.ts
+
 import React from "react";
 import type { BoardPost, HighlightPost } from "@/features/community/types";
-import type { CommunityFilterState } from "@/features/community/components/CommunityFilterModal";
+import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 import { filterBoardPosts, filterHighlights } from "@/features/community/hooks/communityFilterUtils";
 
 const DEFAULT_FILTERS: CommunityFilterState = {

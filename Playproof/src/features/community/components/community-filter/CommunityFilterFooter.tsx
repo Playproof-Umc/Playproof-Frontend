@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/community/components/community-filter/CommunityFilterFooter.tsx
+
 import { RotateCcw } from "lucide-react";
 
 type CommunityFilterFooterProps = {

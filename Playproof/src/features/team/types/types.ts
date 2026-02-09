@@ -1,7 +1,16 @@
-// src/features/team/types.ts
+// src/features/team/types/types.ts
 import type { User } from '@/types'; 
 
-// 채널 정보 (Team/Azit 전용)
+// 아지트 (팀 공간) 타입
+export interface Azit {
+  id: number;
+  name: string;
+  icon?: string;
+  memberCount: number;
+  description?: string;
+}
+
+// 채널 정보
 export interface Channel {
   id: string;
   name: string;
@@ -9,24 +18,39 @@ export interface Channel {
   connectedUsers?: User[];
 }
 
-// 일정 정보 (Team/Azit 전용)
+// 일정 정보 (UI 조건 처리를 위한 필드 추가)
 export interface Schedule {
   id: string;
   title: string;
   dateStr: string;
   timeStr: string;
-  fullDate: Date;
-  isCompleted?: boolean;
-  needMembers?: boolean;
+  fullDate: Date; // 마감/게임 시간
+  
+  hostId: string;       // 방장 ID (모집중 상태 판단용)
+  maxMembers: number;   // 목표 인원 (추가 게이머 찾기 조건용)
+  isFeedbackDone?: boolean; // 피드백 완료 여부 (완료됨 상태용)
+
   participants: {
     user: User | null;
     status: 'JOIN' | 'DECLINE' | 'PENDING';
   }[];
 }
 
-// 클립 정보 (Team/Azit 전용)
+export interface CustomMatchSchedule {
+  id: string;
+  title: string;
+  startTime: string;
+  targetDate: Date;
+  currentParticipants: number;
+  maxParticipants: number;
+  status: '모집중' | '매칭완료';
+}
+
 export interface Clip {
   id: string;
   date: string;
   thumbnailUrl: string;
+  mediaType?: 'image' | 'video';
+  mediaUrl?: string;
+  durationLabel?: string;
 }

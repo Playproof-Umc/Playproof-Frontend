@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/user/components/list/FriendList.tsx
+
 import type { UserBasicInfo } from "@/features/user/types";
 import { cn } from "@/utils/cn"; 
 

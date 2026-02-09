@@ -1,5 +1,7 @@
+// src/features/community/hooks/communityFilterUtils.ts
+
 import type { BoardPost, HighlightPost } from "@/features/community/types";
-import type { CommunityFilterState } from "@/features/community/components/CommunityFilterModal";
+import type { CommunityFilterState } from "@/features/community/components/community-filter/CommunityFilterModal";
 
 const normalizeQuery = (value: string) => value.trim().toLowerCase();
 

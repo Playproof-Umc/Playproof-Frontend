@@ -1,3 +1,5 @@
+// src/pages/mypage/MyInfoEditPage.tsx
+
 //src/pages/mypage/MyInfoEditPage.tsx
 import { MyInfoEditPageView } from '@/features/mypage/pages/MyInfoEditPageView';
 

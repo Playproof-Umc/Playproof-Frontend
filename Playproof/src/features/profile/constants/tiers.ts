@@ -1,3 +1,5 @@
+// src/features/profile/constants/tiers.ts
+
 // constants/tiers.ts
 export const TIER_ICONS = {
 //   BRONZE: '/icons/tiers/icon_tear_bronze.svg',

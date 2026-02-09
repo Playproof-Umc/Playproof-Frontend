@@ -1,7 +1,7 @@
 // src/features/home/pages/HomePageView.tsx
 
 import { useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/common/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import {
   HomeCommunityHighlightSection,
   HomeHotTopicSection,
@@ -102,8 +102,8 @@ export const HomePageView = () => {
       </main>
 
       <SignupCompleteModal
-        open={s.isSignupCompleteOpen}
-        username={s.username}
+        open={s.signupModal.open}
+        username={s.signupModal.username ?? undefined}
         onClose={h.closeSignupComplete}
       />
       {highlightModalProps ? <HighlightDetailModal {...highlightModalProps} /> : null}

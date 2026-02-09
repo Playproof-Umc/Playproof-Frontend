@@ -1,3 +1,5 @@
+// src/features/store/types/types.ts
+
 // src/features/store/types.ts
 export type ProductCategory = 'ITEM' | 'PROFILE' | 'MEMBERSHIP';
 export type SortOption = 'RECOMMEND' | 'LOW_PRICE' | 'HIGH_PRICE';

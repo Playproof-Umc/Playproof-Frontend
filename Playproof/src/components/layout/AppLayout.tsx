@@ -1,5 +1,7 @@
+// src/components/layout/AppLayout.tsx
+
 import type { ReactNode } from "react";
-import { Navbar } from "@/components/common/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 
 type AppLayoutProps = {
   children: ReactNode;

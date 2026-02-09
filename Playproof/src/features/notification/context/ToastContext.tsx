@@ -1,3 +1,5 @@
+// src/features/notification/context/ToastContext.tsx
+
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { X, MessageCircle } from 'lucide-react';
@@ -18,7 +20,7 @@ const ToastContext = createContext<ToastContextType | null>(null);
 
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toast, setToast] = useState<ToastData | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 

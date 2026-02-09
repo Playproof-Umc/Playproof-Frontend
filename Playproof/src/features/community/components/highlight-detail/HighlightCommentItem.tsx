@@ -1,3 +1,5 @@
+// src/features/community/components/highlight-detail/HighlightCommentItem.tsx
+
 // 날짜를 '10분전', '1일전' 등으로 변환하는 함수
 function formatRelativeTime(dateString: string): string {
   if (!dateString || isNaN(Date.parse(dateString))) return '';

@@ -1,5 +1,4 @@
 // src/features/matching/components/write/WriteDetailSection.tsx
-import React from 'react';
 import { ChevronDown, Mic, MicOff } from 'lucide-react';
 import { GAME_CONFIG, MY_AZITS } from '@/features/matching/constants/matchingConfig';
 

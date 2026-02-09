@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/community/components/community-filter/CommunityFilterHeader.tsx
+
 import { X } from "lucide-react";
 
 type CommunityFilterHeaderProps = {

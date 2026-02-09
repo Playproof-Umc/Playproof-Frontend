@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/community/components/community-post/CommunityPostActions.tsx
+
 import {
   CommentIcon,
   HeartIcon,

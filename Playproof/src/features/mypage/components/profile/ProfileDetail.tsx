@@ -1,4 +1,5 @@
-import React from 'react';
+// src/features/mypage/components/profile/ProfileDetail.tsx
+
 import { Card } from '@/components/ui/Card';
 import { User } from 'lucide-react';
 import type { MyProfileData } from '@/features/mypage/types';

@@ -1,3 +1,5 @@
+// src/features/matching/hooks/useMatchingWriteForm.ts
+
 //src/features/matching/hooks/useMatchingWriteForm.ts
 import { useState, useMemo } from 'react';
 import type { MatchingData } from '@/features/matching/types';
@@ -77,6 +79,7 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
       maxMembers: memberCount + 1,
       time: '방금 전', 
       views: 0, likes: 0, comments: 0, tsScore: 50,
+      mic: micStatus === "on",
       hostUser: { id: currentUserId, nickname: currentUserName, avatarUrl: '' },
     };
   };

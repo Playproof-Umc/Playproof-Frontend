@@ -1,3 +1,5 @@
+// src/components/ui/OnboardingPlaceholder.tsx
+
 //src/components/ui/OnboardingPlaceholder.tsx
 export const OnboardingPlaceholder = () => {
 	return (

@@ -1,21 +1,40 @@
+// src/features/community/components/HighlightWriteModal.tsx
+
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { WriteModalUploadBox } from "@/features/community/components/WriteModalUploadBox";
-import { createHighlight } from "@/services/api";
 
 type HighlightWriteModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (payload: { title?: string; content: string; images: File[] }) => void;
+  initialImages?: File[];
 };
 
-export function HighlightWriteModal({ isOpen, onClose }: HighlightWriteModalProps) {
+export function HighlightWriteModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialImages,
+}: HighlightWriteModalProps) {
   if (!isOpen) return null;
-  return <HighlightWriteModalContent onClose={onClose} />;
+
+  return (
+    <HighlightWriteModalContent
+      onClose={onClose}
+      onSubmit={onSubmit}
+      initialImages={initialImages}
+    />
+  );
 }
 
-function HighlightWriteModalContent({ onClose }: { onClose: () => void }) {
+function HighlightWriteModalContent({
+  onClose,
+  onSubmit,
+  initialImages = [],
+}: Omit<HighlightWriteModalProps, "isOpen">) {
   const [content, setContent] = useState("");
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<File[]>(initialImages);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,11 +44,7 @@ function HighlightWriteModalContent({ onClose }: { onClose: () => void }) {
     if (!content.trim() && images.length === 0) return;
     setLoading(true);
     try {
-      await createHighlight({
-        content: content.trim(),
-        is_public: true,
-        medias: images,
-      });
+      await onSubmit({ content: content.trim(), images });
       onClose();
     } catch (e: any) {
       setError("업로드에 실패했습니다. 다시 시도해주세요.");
@@ -57,7 +72,7 @@ function HighlightWriteModalContent({ onClose }: { onClose: () => void }) {
         <form onSubmit={handleSubmit} className="px-6 py-5 max-h-[calc(90vh-96px)] overflow-y-auto">
           <div className="space-y-4">
             <div>
-              <WriteModalUploadBox onFilesChange={setImages} />
+              <WriteModalUploadBox onFilesChange={setImages} initialFiles={initialImages} />
             </div>
 
             <div>
