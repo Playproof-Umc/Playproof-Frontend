@@ -5,9 +5,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
-import { login } from "@/services/loginApi";
+import { login } from "@/services/authApi";
+import { getMyProfile } from "@/services/userApi";
 import { useAuthStore } from "@/store/authStore";
-import { usePasswordRules } from "@/features/auth/signup/hooks/usePasswordRules";
 import { PHONE_REGEX } from "@/features/auth/constants/regex";
 
 type FieldError = {
@@ -35,8 +35,7 @@ function normalizeDigitsOnly(v: string) {
   return v.replace(/\D/g, "");
 }
 
-// ✅ [추가] 하이픈 포맷팅 헬퍼 함수
-function formatPhoneNumber(str: string) {
+function formatPhoneNumber(str: string): string {
   // 숫자만 있는 문자열을 010-0000-0000 형식으로 변환
   return str.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
 }
@@ -53,12 +52,9 @@ export function useLoginForm() {
   const auth = useAuthStore();
 
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [showPw, setShowPw] = useState(false);
-
-  // ✅ 비밀번호는 기존 규칙 훅 재사용
-  const pw = usePasswordRules();
-  const password = pw.uiProps.password;
 
   // 에러는 "시작하기" 클릭 이후에만 노출
   const [submittedOnce, setSubmittedOnce] = useState(false);
@@ -76,26 +72,70 @@ export function useLoginForm() {
     [normalizedPhone]
   );
 
-  const pwOk = useMemo(() => pw.isValid, [pw.isValid]);
+  // 로그인에서는 비밀번호 규칙 검증하지 않음 (길이만 체크)
+  const pwOk = useMemo(() => password.length > 0, [password]);
 
   const canSubmit = useMemo(() => phoneOk && pwOk, [phoneOk, pwOk]);
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
+      console.log('✅ 로그인 성공:', res);
+      
+      // 1. 토큰 저장
       auth.setAuth({
+<<<<<<< HEAD
+        accessToken: res.data.accessToken,
+        userId: 0, // 임시값 (곧 /users/my-profile에서 가져올 것)
+        nickname: '', // 임시값
+=======
         accessToken: res.accessToken, // loginApi 응답 구조에 따라 res.data.accessToken일 수도 있음 (수정된 loginApi.ts 기준이면 res.accessToken)
         userId: res.userId,
         nickname: res.nickname,
+>>>>>>> develop
       });
 
-      const redirect = getRedirectPath(location.state);
-      navigate(redirect, { replace: true });
+      try {
+        // 2. /users/my-profile API로 사용자 정보 가져오기
+        const userProfile = await getMyProfile();
+        console.log('✅ 프로필 정보 로드:', userProfile);
+        
+        // 3. 사용자 정보 업데이트
+        auth.setAuth({
+          accessToken: res.data.accessToken,
+          userId: userProfile.id,
+          nickname: userProfile.nickname,
+        });
+
+        // 4. 리다이렉트
+        const redirect = getRedirectPath(location.state);
+        navigate(redirect, { replace: true });
+      } catch (error) {
+        console.error('❌ 사용자 정보 조회 실패:', error);
+        // 토큰은 있지만 사용자 정보를 못 가져온 경우에도 일단 홈으로
+        navigate('/home', { replace: true });
+      }
     },
     onError: (err: AxiosError<ApiErrorResponse>) => {
+      console.error('❌ 로그인 실패:', {
+        status: err.response?.status,
+        code: err.response?.data?.error?.code,
+        message: err.response?.data?.error?.message,
+        errors: err.response?.data?.error?.errors,
+        fullResponse: err.response?.data,
+      });
+
+      // errors 배열을 하나씩 출력
+      const errors = err.response?.data?.error?.errors ?? [];
+      if (errors.length > 0) {
+        console.error('🔍 상세 에러:', JSON.stringify(errors, null, 2));
+        errors.forEach((e, idx) => {
+          console.error(`  [${idx}] field: ${e.field}, reason: ${e.reason}`);
+        });
+      }
+
       const status = err.response?.status;
       const code = err.response?.data?.error?.code;
-      const errors = err.response?.data?.error?.errors ?? [];
 
       // 등록되지 않은 번호
       if (status === 404 && code === "USER_NOT_FOUND") {
@@ -143,14 +183,21 @@ export function useLoginForm() {
     const ok = validateOnSubmit();
     if (!ok) return;
 
+<<<<<<< HEAD
+    const requestBody = {
+      phone: formatPhoneNumber(normalizedPhone), // 010-1234-5678 형식
+=======
     // ✅ [수정] normalizedPhone(숫자만)을 하이픈 형식으로 변환해서 전송
     const formattedPhone = formatPhoneNumber(normalizedPhone);
 
     mutation.mutate({
       phoneNumber: formattedPhone, // "01012345678" -> "010-1234-5678"
+>>>>>>> develop
       password,
-      keepLoggedIn,
-    });
+    };
+
+    console.log('📞 로그인 요청 바디:', requestBody);
+    mutation.mutate(requestBody);
   };
 
   const onChangePhoneNumber = (v: string) => {
@@ -163,7 +210,7 @@ export function useLoginForm() {
   };
 
   const onChangePassword = (v: string) => {
-    pw.uiProps.onPasswordChange(v);
+    setPassword(v);
     setServerError(null);
     if (submittedOnce) setFieldError((prev) => ({ ...prev, password: undefined }));
   };

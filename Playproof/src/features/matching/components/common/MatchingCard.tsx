@@ -21,6 +21,9 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
   const displayName = data.hostUser.id === currentUserId ? (authNickname ?? data.hostUser.nickname) : data.hostUser.nickname;
+  
+  // 본인이 작성한 글인지 확인
+  const isMyPost = data.hostUser.id === currentUserId;
 
   const handleCardClick = () => {
     if (onOpen) {
@@ -119,7 +122,18 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         </h3>
 
         {/* Action Button */}
-        <button 
+        {isMyPost ? (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              openMatchingDetail(data);
+            }}
+            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-gray-200 text-gray-600 text-sm font-bold rounded-xl mb-4 cursor-default"
+          >
+            내 파티
+          </button>
+        ) : (
+          <button 
             onClick={handleRequestClick}
             className={`w-full flex items-center justify-center gap-2 h-12 px-4 py-2 text-sm font-bold rounded-xl mb-4 transition-colors ${
               requestState === 'accepted'
@@ -136,6 +150,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
               ? "요청취소"
               : "매칭 요청"}
         </button>
+        )}
 
       {/* Footer: Meta Info */}
       <div className="flex items-center justify-between text-gray-400 text-xs pt-1">

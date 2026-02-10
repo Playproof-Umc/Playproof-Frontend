@@ -4,6 +4,8 @@ import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
 import type { MatchingData } from '@/features/matching/types';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import { useAuthStore } from '@/store/authStore';
+import { useMutation } from '@tanstack/react-query';
+import { sendFriendRequest } from '@/services/friendApi';
 
 interface MatchingPostInfoProps {
   post: MatchingData;
@@ -20,6 +22,40 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
   const displayName = post.hostUser.id === currentUserId ? (authNickname ?? post.hostUser.nickname) : post.hostUser.nickname;
+  
+  // 친구 추가 Mutation
+  const addFriendMutation = useMutation({
+    mutationFn: (toUserId: number) => sendFriendRequest(toUserId),
+    onSuccess: (data) => {
+      console.log('✅ 친구 신청 성공:', data);
+      alert('친구 신청이 완료되었습니다!');
+      onToggleMenu(); // 메뉴 닫기
+    },
+    onError: (error) => {
+      console.error('❌ 친구 신청 실패:', error);
+      alert('친구 신청에 실패했습니다.');
+    },
+  });
+
+  const handleAddFriend = () => {
+    // post.hostUser.id가 "user-1" 형식이므로 숫자만 추출
+    const userIdMatch = post.hostUser.id.match(/\d+/);
+    const toUserId = userIdMatch ? Number(userIdMatch[0]) : null;
+    
+    if (!toUserId) {
+      console.error('유효하지 않은 사용자 ID:', post.hostUser.id);
+      alert('사용자 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    console.log('👥 친구 추가 요청:', {
+      대상사용자: post.hostUser.nickname,
+      toUserId,
+      현재사용자: currentUserId,
+    });
+
+    addFriendMutation.mutate(toUserId);
+  };
   return (
     <div className="w-[60%] p-8 flex flex-col h-full overflow-y-auto border-r border-gray-100 relative scrollbar-hide">
       {/* Header & Menu */}
@@ -31,7 +67,13 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           </button>
           {isMenuOpen && (
             <div className="absolute right-0 top-6 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden py-1">
-              <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><UserPlus size={14} /> 친구추가</button>
+              <button 
+                onClick={handleAddFriend}
+                disabled={addFriendMutation.isPending}
+                className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left disabled:opacity-50"
+              >
+                <UserPlus size={14} /> {addFriendMutation.isPending ? '요청 중...' : '친구추가'}
+              </button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><Home size={14} /> 아지트 초대</button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 text-left"><AlertTriangle size={14} /> 신고하기</button>
             </div>
