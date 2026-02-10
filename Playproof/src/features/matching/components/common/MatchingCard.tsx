@@ -5,6 +5,7 @@ import { useMatchingDetail } from '@/features/matching/context/MatchingDetailCon
 import type { MatchingData } from '@/features/matching/types';
 import { User, MessageCircle, Eye, Settings, Mic, Heart } from 'lucide-react'; 
 import { useAuthStore } from '@/store/authStore';
+import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication';
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -14,12 +15,16 @@ interface MatchingCardProps {
 export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const navigate = useNavigate();
   const { openMatchingDetail, toggleLike, getLikeState, getCommentCount } = useMatchingDetail();
+  const { applyToParty, isApplying } = usePartyApplication();
   const likeState = getLikeState(data);
   const commentCount = getCommentCount(data);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
   const displayName = data.hostUser.id === currentUserId ? (authNickname ?? data.hostUser.nickname) : data.hostUser.nickname;
+  
+  // 본인이 작성한 글인지 확인
+  const isMyPost = data.hostUser.id === currentUserId;
 
   const handleCardClick = () => {
     if (onOpen) {
@@ -34,10 +39,25 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
     navigate(`/user/${data.hostUser.id}`);
   };
 
-  // 요청 버튼 클릭 (상세 모달 열기 또는 별도 로직)
+  // 매칭 요청 버튼 클릭
   const handleRequestClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    openMatchingDetail(data);
+    
+    console.log('🎯 매칭 요청 클릭:', {
+      파티ID: data.id,
+      파티제목: data.title,
+      작성자: data.hostUser.nickname,
+      본인글여부: isMyPost,
+    });
+    
+    if (isMyPost) {
+      console.log('⚠️ 본인이 작성한 파티입니다.');
+      alert('본인이 작성한 파티에는 신청할 수 없습니다.');
+      return;
+    }
+    
+    console.log('📤 파티 신청 API 호출 시작...');
+    applyToParty(data.id);
   };
 
   return (
@@ -111,12 +131,25 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         </h3>
 
         {/* Action Button */}
-        <button 
+        {isMyPost ? (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              openMatchingDetail(data);
+            }}
+            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-gray-200 text-gray-600 text-sm font-bold rounded-xl mb-4 cursor-default"
+          >
+            내 파티
+          </button>
+        ) : (
+          <button 
             onClick={handleRequestClick}
-            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-[var(--color-primary-800)] text-white text-sm font-bold rounded-xl mb-4 hover:bg-[var(--color-primary-700)] transition-colors"
-        >
-            매칭 요청
-        </button>
+            disabled={isApplying}
+            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-[var(--color-primary-800)] text-white text-sm font-bold rounded-xl mb-4 hover:bg-[var(--color-primary-700)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isApplying ? '신청 중...' : '매칭 요청'}
+          </button>
+        )}
 
       {/* Footer: Meta Info */}
       <div className="flex items-center justify-between text-gray-400 text-xs pt-1">

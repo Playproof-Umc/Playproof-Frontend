@@ -21,8 +21,11 @@ export const POSITION_MAP: Record<number, Record<string, number>> = {
     '탱커': 301,
     '딜러': 302,
     '힐러': 303,
-  },
-} as const;
+  },  7: { // 배틀그라운드
+    '뉴비': 701,
+    '일반': 702,
+    '고인물': 703,
+  },} as const;
 
 /**
  * 게임 ID와 포지션 이름으로 포지션 ID 조회

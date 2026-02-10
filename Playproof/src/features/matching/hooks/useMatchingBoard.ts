@@ -4,7 +4,9 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import type { MatchingData, FilterState } from '@/features/matching/types';
 import { getParties, createParty, type CreatePartyRequest } from '@/services/partyApi';
 import { filterMatches } from '@/features/matching/utils/matchingUtils';
-import { getGameName } from '@/constants/games';
+import { getGameName, getGameId } from '@/constants/games';
+import { getTierId } from '@/constants/tiers';
+import { getPositionIds } from '@/constants/positions';
 
 export const useMatchingBoard = () => {
   const queryClient = useQueryClient();
@@ -92,18 +94,41 @@ export const useMatchingBoard = () => {
   const handleNewPost = useCallback((newPost: MatchingData, action: 'new' | 'replace' | 'bump') => {
     console.log('새 파티 생성:', newPost, action);
     
+    // 게임 이름 → ID 변환
+    const gameId = getGameId(newPost.game);
+    if (!gameId) {
+      console.error('게임 ID를 찾을 수 없습니다:', newPost.game);
+      return;
+    }
+
+    // 티어 이름 → ID 변환
+    const tierId = getTierId(gameId, newPost.tier);
+    
+    // 포지션 이름들 → ID 배열 변환
+    const positionIds = getPositionIds(gameId, newPost.position);
+    
+    console.log('🔄 변환된 데이터:', {
+      게임: newPost.game,
+      gameId,
+      티어: newPost.tier,
+      tierId,
+      포지션: newPost.position,
+      positionIds,
+    });
+    
     // MatchingData를 CreatePartyRequest로 변환
-    // TODO: 실제 게임ID, 티어ID, 포지션ID 매핑 필요
     const partyData: CreatePartyRequest = {
-      gameId: 1, // 임시: 게임 이름 → ID 매핑 필요
+      gameId,
       title: newPost.title,
       memo: newPost.memo,
       recruitmentPeople: newPost.maxMembers,
-      tierId: 1, // 임시: 티어 이름 → ID 매핑 필요
-      positionIds: [1], // 임시: 포지션 이름 → ID 매핑 필요
+      tierId,
+      positionIds,
       isMicUse: newPost.mic ?? false,
-      azitId: 1, // 임시: 아지트 이름 → ID 매핑 필요
+      azitId: 1, // TODO: 아지트 이름 → ID 매핑 필요
     };
+
+    console.log('📤 전송할 API 데이터:', partyData);
 
     createPartyMutation.mutate(partyData);
   }, [createPartyMutation]);

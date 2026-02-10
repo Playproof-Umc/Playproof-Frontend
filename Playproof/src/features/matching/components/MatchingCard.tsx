@@ -6,6 +6,7 @@ import type { MatchingData } from '@/features/matching/types';
 import { User, MessageCircle, Eye, Settings, Mic, Heart } from 'lucide-react';
 import { usePartyLike } from '@/features/matching/hooks/usePartyLike';
 import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication'; 
+import { useAuthStore } from '@/store/authStore';
 
 interface MatchingCardProps {
   data: MatchingData;
@@ -16,6 +17,11 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
   const { openMatchingDetail } = useMatchingDetail();
   const { toggleLike, isLiking } = usePartyLike();
   const { applyToParty, isApplying } = usePartyApplication();
+  const authUserId = useAuthStore((s) => s.userId);
+  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  
+  // 본인이 작성한 글인지 확인
+  const isMyPost = data.hostUser.id === currentUserId;
 
   const handleCardClick = () => {
     openMatchingDetail(data);
@@ -109,13 +115,26 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data }) => {
         </h3>
 
         {/* Action Button */}
-        <button 
+        {isMyPost ? (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              // TODO: 내 파티 관리 페이지로 이동 또는 다른 액션
+              alert('내가 작성한 파티입니다.');
+            }}
+            className="w-full bg-gray-200 text-gray-600 text-sm font-bold py-3 rounded-xl mb-4 cursor-default"
+          >
+            내 파티
+          </button>
+        ) : (
+          <button 
             onClick={handleRequestClick}
             disabled={isApplying}
             className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+          >
             {isApplying ? '신청 중...' : '매칭 요청'}
-        </button>
+          </button>
+        )}
 
         {/* Footer: Meta Info */}
         <div className="flex items-center justify-between text-gray-400 text-xs pt-1">

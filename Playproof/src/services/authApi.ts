@@ -27,6 +27,9 @@ export type LoginResponse = {
   statusCode: number;
   data: {
     accessToken: string;
+    refreshToken: string;
+    userId: number;
+    nickname: string;
   };
   error: null | unknown;
 };
@@ -76,14 +79,14 @@ export async function signup(body: SignupRequest): Promise<SignupResponse['data'
  * 로그인
  * POST /auth/login
  */
-export async function login(body: LoginRequest): Promise<LoginResponse['data']> {
+export async function login(body: LoginRequest): Promise<LoginResponse> {
   const res = await api.post<LoginResponse>("/auth/login", body);
 
   if (res.data.error || res.data.statusCode !== 200) {
     throw new Error('로그인 처리 중 오류가 발생했습니다.');
   }
 
-  return res.data.data;
+  return res.data;
 }
 
 /**

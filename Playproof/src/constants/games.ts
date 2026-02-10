@@ -9,8 +9,8 @@ export const GAME_MAP: Record<number, string> = {
   3: '오버워치',
   4: 'Steam',
   5: '로스트아크',
-  6: '메이플 스토리',
-  7: '배틀 그라운드',
+  6: '메이플스토리',
+  7: '배틀그라운드',
 } as const;
 
 /**
