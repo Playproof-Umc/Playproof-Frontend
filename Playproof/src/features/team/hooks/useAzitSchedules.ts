@@ -60,6 +60,12 @@ export function useAzitSchedules(
 
   const handleStatusChange = React.useCallback(
     async (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
+      const current = schedules.find((sch) => sch.id === scheduleId);
+      const myCurrentStatus =
+        current?.participants.find(
+          (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
+        )?.status ?? "PENDING";
+
       if (newStatus === "JOIN") {
         const target = schedules.find((sch) => sch.id === scheduleId);
         if (target?.recruitmentEndAt) {
@@ -93,6 +99,12 @@ export function useAzitSchedules(
         })
       );
 
+      const shouldCallApi =
+        (newStatus === "JOIN" && myCurrentStatus !== "JOIN") ||
+        (newStatus === "DECLINE" && myCurrentStatus === "JOIN");
+
+      if (!shouldCallApi) return;
+
       try {
         if (newStatus === "JOIN") {
           await joinAzitScheduleParticipant(currentAzitId, scheduleId);
@@ -100,9 +112,12 @@ export function useAzitSchedules(
           await leaveAzitScheduleParticipant(currentAzitId, scheduleId);
         }
       } catch (error) {
-        if (newStatus === "JOIN" && axios.isAxiosError(error)) {
+        if (axios.isAxiosError(error)) {
           const code = error.response?.data?.error?.code;
-          if (code === "PARTICIPATION_ALREADY_PARTICIPATED") {
+          if (
+            (newStatus === "JOIN" && code === "PARTICIPATION_ALREADY_PARTICIPATED") ||
+            (newStatus === "DECLINE" && code === "PARTICIPATION_NOT_FOUND")
+          ) {
             return;
           }
         }
