@@ -1,3 +1,5 @@
+// src/features/team/hooks/useAzitPageLogic.ts
+
 import React from "react";
 import { useLocation } from "react-router-dom";
 
@@ -53,24 +55,35 @@ export function useAzitPageLogic() {
   const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
-  const { accessToken, setAuth } = useAuthStore();
+  // Auth Store 정보 가져오기
+  const { accessToken, userId: authUserId, nickname: authNickname, setAuth } = useAuthStore();
   const isAutoLoggingIn = React.useRef(false);
 
   const apiBaseUrl =
     ((import.meta as unknown as { env?: Record<string, unknown> }).env?.VITE_API_BASE_URL as string | undefined)?.trim() ||
     "https://myfit.my";
 
-  const currentUserId = useAuthStore((s) => s.userId ? String(s.userId) : FALLBACK_USER_ID);
-  const userNickname = useAuthStore((s) => s.nickname) || "사용자";
+  const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
 
-  const currentUser =
-    mockMembers.find((m) => String(m.id) === String(currentUserId)) ??
-    ({
-      id: String(currentUserId),
-      nickname: userNickname,
-      avatarUrl: "",
-      isOnline: true,
-    } as User);
+  const currentUser = React.useMemo(() => {
+    if (accessToken) {
+      return {
+        id: String(authUserId),
+        nickname: authNickname || "알 수 없음",
+        avatarUrl: "", 
+        isOnline: true,
+      } as User;
+    }
+    const foundMock = mockMembers.find((m) => String(m.id) === FALLBACK_USER_ID);
+    return (
+      foundMock ?? {
+        id: FALLBACK_USER_ID,
+        nickname: "게스트",
+        avatarUrl: "",
+        isOnline: true,
+      }
+    );
+  }, [accessToken, authUserId, authNickname]);
 
   // 자동 로그인 로직
   React.useEffect(() => {
@@ -85,17 +98,14 @@ export function useAzitPageLogic() {
       try {
         isAutoLoggingIn.current = true;
         console.log(`🔐 [AutoLogin] 시도 중...`);
-        
         const digits = devPhone.replace(/\D/g, "");
         const formattedPhone = digits.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
-
         const res = await login({
           phoneNumber: formattedPhone,
           password: devPassword,
           keepLoggedIn: true,
         });
-
-        console.log("✅ [AutoLogin] 성공!");
+        console.log("✅ [AutoLogin] 성공! 닉네임:", res.nickname);
         setAuth({
           accessToken: res.accessToken,
           userId: res.userId,
@@ -146,7 +156,6 @@ export function useAzitPageLogic() {
     replaceMessagesForRoom,
     appendMessageToRoom,
     voiceRooms,
-    // ✅ [수정] UI 상태 업데이트 함수 이름을 충돌 방지를 위해 변경 (joinVoiceRoomUI)
     joinVoiceRoom: joinVoiceRoomUI, 
     toggleMyMic,
     initAzitRooms,
@@ -175,7 +184,7 @@ export function useAzitPageLogic() {
   const { requestVoiceToken } = useAzitVoiceToken({ apiBaseUrl, accessToken });
   const { connect: connectLiveKit, disconnect: disconnectLiveKit } = useAzitLivekitVoice();
 
-  // ✅ [수정] 실제 로직 함수 (UI 업데이트 호출 추가)
+  // 음성 방 입장 로직
   const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
     const roomId = Number(roomIdStr);
     if (!roomId) return;
@@ -187,27 +196,41 @@ export function useAzitPageLogic() {
       }
 
       console.log(`🎤 [Voice] 방(${roomId}) 입장 프로세스 시작`);
-
-      // 1. 소켓 알림
       await socketVoiceJoin(roomId);
       console.log("   Step 1: 소켓 입장 알림 완료");
 
-      // 2. 토큰 발급
+      // 토큰 발급 (여기서 내 진짜 닉네임과 ID를 알 수 있음!)
       const tokenData = await requestVoiceToken(roomId);
       if (!tokenData) {
         console.error("❌ Voice Token 발급 실패");
         return;
       }
-      console.log("   Step 2: 토큰 발급 완료", tokenData.roomName);
+      console.log("   Step 2: 토큰 발급 완료. 내 정보:", tokenData.name);
 
-      // 3. LiveKit 연결
+      // ✅ [핵심 수정] 토큰에서 받은 정보로 내 정보(Auth Store)를 즉시 복구/갱신
+      if (tokenData.name && tokenData.identity) {
+        setAuth({
+          accessToken: accessToken, // 기존 토큰 유지
+          userId: Number(tokenData.identity),
+          nickname: tokenData.name
+        });
+      }
+
       const success = await connectLiveKit(tokenData);
       
       if (success) {
         console.log("✅ Step 3: LiveKit 연결 성공!");
         
-        // 4. [추가됨] UI 상태 업데이트 (화면에 내 캐릭터 표시)
-        joinVoiceRoomUI(roomIdStr); 
+        // ✅ [핵심 수정] UI 업데이트 시, 갱신된 유저 정보를 직접 만들어서 전달
+        // (Store 업데이트가 비동기라 UI에 바로 반영 안 될 수 있으므로)
+        const updatedMe: User = {
+          id: tokenData.identity,
+          nickname: tokenData.name, // "홍길동"
+          avatarUrl: "",
+          isOnline: true
+        };
+        
+        joinVoiceRoomUI(roomIdStr, updatedMe); 
       } else {
         console.error("❌ LiveKit 연결 실패");
       }
@@ -215,7 +238,7 @@ export function useAzitPageLogic() {
     } catch (err) {
       console.error("🔥 음성 채팅 연결 중 에러:", err);
     }
-  }, [socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI]); // dependency에 joinVoiceRoomUI 추가
+  }, [socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
 
   React.useEffect(() => {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);

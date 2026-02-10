@@ -1,3 +1,5 @@
+// src/features/team/hooks/useAzitRooms.ts
+
 import React from "react";
 import type { User } from "@/features/team/types/types";
 
@@ -45,7 +47,6 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     3: {},
   });
 
-  // voice (UI 상태)
   const [voiceRoomsByAzit, setVoiceRoomsByAzit] = React.useState<Record<number, VoiceRoom[]>>({
     1: createDefaultVoiceRooms(),
     2: createDefaultVoiceRooms(),
@@ -71,7 +72,6 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
       ? messagesByAzit[currentAzitId][selectedChatRoomId]
       : [];
 
-  // ✅ 텍스트 채팅방 목록 업데이트
   const setChatRoomsFromServer = React.useCallback(
     (rooms: ChatRoomSummary[]) => {
       setChatRoomsByAzit((prev) => ({ ...prev, [currentAzitId]: rooms }));
@@ -87,14 +87,12 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
       setSelectedChatRoomIdByAzit((prev) => {
         const cur = prev[currentAzitId] ?? null;
         if (cur && rooms.some((r) => r.id === cur)) return prev;
-        // 방이 있으면 첫 번째 방 선택, 없으면 null
         return { ...prev, [currentAzitId]: rooms[0]?.id ?? null };
       });
     },
     [currentAzitId]
   );
 
-  // ✅ [추가됨] 음성 채팅방 목록 업데이트 함수
   const setVoiceRoomsFromServer = React.useCallback(
     (rooms: VoiceRoom[]) => {
       setVoiceRoomsByAzit((prev) => ({ ...prev, [currentAzitId]: rooms }));
@@ -135,25 +133,25 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     [currentAzitId]
   );
 
-  // voice (목업 + 상태 관리)
+  // voice
   const voiceRooms = voiceRoomsByAzit[currentAzitId] ?? createDefaultVoiceRooms();
   const myVoiceRoomId = myVoiceRoomIdByAzit[currentAzitId] ?? null;
 
+  // ✅ [수정됨] userOverride 파라미터 추가
   const joinVoiceRoom = React.useCallback(
-    (roomId: string) => {
-      const me = currentUser;
+    (roomId: string, userOverride?: User) => {
+      // 전달받은 user 정보가 있으면 그것을 쓰고, 없으면 currentUser(store/mock) 사용
+      const me = userOverride ?? currentUser;
 
       setVoiceRoomsByAzit((prev) => {
         const nextState: Record<number, VoiceRoom[]> = {};
         Object.entries(prev).forEach(([azitKey, rooms]) => {
-          // 다른 방에서 나를 제거
           nextState[Number(azitKey)] = rooms.map((room) => ({
             ...room,
             users: room.users.filter((m) => String(m.user.id) !== String(me.id)),
           }));
         });
 
-        // 현재 방에 나를 추가
         const targetRooms = nextState[currentAzitId] ?? createDefaultVoiceRooms();
         nextState[currentAzitId] = targetRooms.map((room) =>
           room.id === roomId ? { ...room, users: [...room.users, { user: me, micOn: true }] } : room
@@ -199,18 +197,16 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
   }, []);
 
   return {
-    // chat
     chatRooms,
     selectedChatRoomId,
     selectedChatRoomName,
     messages,
     setChatRoomsFromServer,
-    setVoiceRoomsFromServer, // ✅ 외부로 내보내기
+    setVoiceRoomsFromServer,
     setSelectedChatRoom,
     replaceMessagesForRoom,
     appendMessageToRoom,
 
-    // voice
     voiceRooms,
     myVoiceRoomId,
     joinVoiceRoom,

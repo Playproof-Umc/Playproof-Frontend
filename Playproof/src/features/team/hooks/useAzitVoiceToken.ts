@@ -1,12 +1,11 @@
-// src/features/team/hooks/useAzitVoiceToken.ts
-
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getVoiceToken, type VoiceTokenResDto } from "@/features/team/api/chatRoomsApi";
 
-type VoiceTokenState = {
+export type VoiceTokenState = {
   status: "idle" | "loading" | "success" | "error";
   data: VoiceTokenResDto | null;
   error: string | null;
+  roomId: string | number | null;
 };
 
 type Params = {
@@ -19,39 +18,52 @@ export const useAzitVoiceToken = ({ apiBaseUrl, accessToken }: Params) => {
     status: "idle",
     data: null,
     error: null,
+    roomId: null,
   });
 
   const requestVoiceToken = useCallback(
     async (roomId: string | number) => {
       if (!accessToken) {
-        console.error("❌ 토큰 없음: 음성 채널 접속 불가");
+        setState({
+          status: "error",
+          data: null,
+          error: "voice-token 요청 실패: accessToken이 없습니다.",
+          roomId,
+        });
         return null;
       }
 
-      setState({ status: "loading", data: null, error: null });
+      setState({ status: "loading", data: null, error: null, roomId });
 
       try {
-        // ✅ chatRoomsApi.ts의 함수 사용
         const data = await getVoiceToken({
           apiBaseUrl,
           roomId,
           accessToken,
         });
 
-        setState({ status: "success", data, error: null });
+        setState({ status: "success", data, error: null, roomId });
         return data;
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Voice token error";
-        console.error("❌ Voice Token Error:", msg);
-        setState({ status: "error", data: null, error: msg });
+        const msg =
+          e instanceof Error ? e.message : typeof e === "string" ? e : "Unknown error";
+        setState({ status: "error", data: null, error: msg, roomId });
         return null;
       }
     },
     [apiBaseUrl, accessToken]
   );
 
-  return {
-    voiceTokenState: state,
-    requestVoiceToken,
-  };
+  const reset = useCallback(() => {
+    setState({ status: "idle", data: null, error: null, roomId: null });
+  }, []);
+
+  return useMemo(
+    () => ({
+      voiceToken: state,
+      requestVoiceToken,
+      resetVoiceToken: reset,
+    }),
+    [state, requestVoiceToken, reset]
+  );
 };
