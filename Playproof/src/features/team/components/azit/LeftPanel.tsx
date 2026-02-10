@@ -211,6 +211,47 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
         </div>
       </section>
 
+      {/* 3. 멤버 섹션 */}
+      <section>
+        <div className="flex justify-between items-center mb-2 px-1">
+          <h2 className="text-lg font-bold text-gray-900">멤버</h2>
+          <button className="hover:bg-gray-100 rounded-full p-1">
+            <Plus className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+        <div className="space-y-1">
+          {members.map((member) => (
+            <div
+              key={member.id}
+              className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+            >
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-100 overflow-hidden">
+                  {member.avatarUrl ? (
+                    <img
+                      src={member.avatarUrl}
+                      alt={member.nickname}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                </div>
+                {member.isOnline ? (
+                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+                ) : null}
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-sm text-gray-900 truncate">
+                  {member.nickname || "Member"}
+                </div>
+                <div className="text-[11px] text-gray-400 font-medium truncate">
+                  {member.statusMessage || "상태메세지"}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <ChatRoomCreateModal
         anchorEl={chatCreateAnchorEl}
         onClose={() => setChatCreateAnchorEl(null)}
