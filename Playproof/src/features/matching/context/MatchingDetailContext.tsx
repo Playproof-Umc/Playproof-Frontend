@@ -15,8 +15,6 @@ type RequestState = 'none' | 'pending' | 'accepted';
 type RequestStateMap = Record<number, RequestState>;
 
 type CommentCountMap = Record<number, number>;
-type RequestStatus = 'pending' | 'accepted';
-type RequestMap = Record<number, RequestStatus>;
 
 interface MatchingDetailContextType {
   isOpen: boolean;
@@ -31,12 +29,7 @@ interface MatchingDetailContextType {
   updateCommentCount: (postId: number, count: number) => void;
   requestMatch: (post: MatchingData) => void;
   cancelMatchRequest: (post: MatchingData) => void;
-<<<<<<< HEAD
   getRequestState: (post: MatchingData) => RequestState;
-=======
-  markMatchAccepted: (postId: number) => void;
-  getRequestState: (post: MatchingData) => RequestStatus | 'none';
->>>>>>> develop
 }
 
 const MatchingDetailContext = createContext<MatchingDetailContextType | undefined>(undefined);
@@ -54,11 +47,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
   const [likeMap, setLikeMap] = useState<Record<number, LikeState>>({});
   const [commentCountMap, setCommentCountMap] = useState<CommentCountMap>({});
-<<<<<<< HEAD
   const [requestStateMap, setRequestStateMap] = useState<RequestStateMap>({});
-=======
-  const [requestMap, setRequestMap] = useState<RequestMap>({});
->>>>>>> develop
 
   useEffect(() => {
     if (isOpen) {
@@ -171,7 +160,6 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   }, []);
 
   const getRequestState = useCallback(
-<<<<<<< HEAD
     (post: MatchingData): RequestState => {
       return requestStateMap[post.id] ?? 'none';
     },
@@ -204,33 +192,6 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     console.log('❌ 매칭 요청 취소:', { postId: post.id });
     setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
     // TODO: 취소 API 추가 시 여기서 호출
-=======
-    (post: MatchingData) => {
-      if (post.isMatched) return 'accepted';
-      return requestMap[post.id] ?? 'none';
-    },
-    [requestMap]
-  );
-
-  const requestMatch = useCallback((post: MatchingData) => {
-    setRequestMap((prev) => {
-      if (prev[post.id] === 'pending' || prev[post.id] === 'accepted') return prev;
-      return { ...prev, [post.id]: 'pending' };
-    });
-  }, []);
-
-  const cancelMatchRequest = useCallback((post: MatchingData) => {
-    setRequestMap((prev) => {
-      if (!prev[post.id]) return prev;
-      const next = { ...prev };
-      delete next[post.id];
-      return next;
-    });
-  }, []);
-
-  const markMatchAccepted = useCallback((postId: number) => {
-    setRequestMap((prev) => ({ ...prev, [postId]: 'accepted' }));
->>>>>>> develop
   }, []);
 
   const contextValue = useMemo(
@@ -247,10 +208,6 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       updateCommentCount,
       requestMatch,
       cancelMatchRequest,
-<<<<<<< HEAD
-=======
-      markMatchAccepted,
->>>>>>> develop
       getRequestState,
     }),
     [
@@ -266,10 +223,6 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       updateCommentCount,
       requestMatch,
       cancelMatchRequest,
-<<<<<<< HEAD
-=======
-      markMatchAccepted,
->>>>>>> develop
       getRequestState,
     ]
   );
