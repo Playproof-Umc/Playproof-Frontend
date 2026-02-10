@@ -8,7 +8,6 @@ import {
   mockMembers,
   mockClipsByAzit,
   mockMembersByAzit,
-  mockSchedulesByAzit,
 } from "@/features/team/data/mockTeamData";
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -41,7 +40,7 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser);
+  } = useAzitSchedules(currentUserId, currentUser);
 
   const {
     feedbackModal,

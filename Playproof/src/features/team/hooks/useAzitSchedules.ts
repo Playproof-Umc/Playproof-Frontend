@@ -4,7 +4,7 @@ import React from "react";
 import type { Schedule } from "@/features/team/types";
 import type { User } from "@/types";
 import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCreateState";
-import { createAzitSchedule } from "@/features/team/api/azitScheduleApi";
+import { createAzitSchedule, getAzitSchedules } from "@/features/team/api/azitScheduleApi";
 
 const coerceUserId = (value: string | number) => String(value);
 
@@ -26,17 +26,31 @@ const applyTimeToDate = (baseDate: Date, time: ScheduleCreatePayload["gameStartT
 
 export function useAzitSchedules(
   currentUserId: string,
-  schedulesByAzit: Record<number, Schedule[]>,
-  membersByAzit: Record<number, User[]>,
   currentUser: User
 ) {
   const [currentAzitId, setCurrentAzitId] = React.useState<number>(1);
   const [schedules, setSchedules] = React.useState<Schedule[]>([]);
 
   React.useEffect(() => {
-    const initialSchedules = schedulesByAzit[currentAzitId] ?? [];
-    setSchedules(initialSchedules);
-  }, [currentAzitId, schedulesByAzit]);
+    let isActive = true;
+
+    const fetchSchedules = async () => {
+      try {
+        const list = await getAzitSchedules(currentAzitId);
+        if (!isActive) return;
+        setSchedules(list);
+      } catch {
+        if (!isActive) return;
+        setSchedules([]);
+      }
+    };
+
+    fetchSchedules();
+
+    return () => {
+      isActive = false;
+    };
+  }, [currentAzitId]);
 
   const handleStatusChange = React.useCallback(
     (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
@@ -56,20 +70,14 @@ export function useAzitSchedules(
               status: newStatus,
             };
           } else {
-            const members = membersByAzit[currentAzitId] ?? [];
-            const me = members.find(
-              (member) => coerceUserId(member.id) === coerceUserId(currentUserId)
-            );
-            if (me) {
-              nextParticipants.push({ user: me, status: newStatus });
-            }
+            nextParticipants.push({ user: currentUser, status: newStatus });
           }
 
           return { ...sch, participants: nextParticipants };
         })
       );
     },
-    [currentUserId, currentAzitId, membersByAzit]
+    [currentUser, currentUserId]
   );
 
   const addSchedule = React.useCallback(
