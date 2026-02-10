@@ -12,6 +12,7 @@ type LikeState = {
 };
 
 type CommentCountMap = Record<number, number>;
+type RequestMap = Record<number, boolean>;
 
 interface MatchingDetailContextType {
   isOpen: boolean;
@@ -24,6 +25,8 @@ interface MatchingDetailContextType {
   getLikeState: (post: MatchingData) => LikeState;
   getCommentCount: (post: MatchingData) => number;
   updateCommentCount: (postId: number, count: number) => void;
+  requestMatch: (post: MatchingData) => void;
+  getRequestState: (post: MatchingData) => boolean;
 }
 
 const MatchingDetailContext = createContext<MatchingDetailContextType | undefined>(undefined);
@@ -41,6 +44,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
   const [likeMap, setLikeMap] = useState<Record<number, LikeState>>({});
   const [commentCountMap, setCommentCountMap] = useState<CommentCountMap>({});
+  const [requestMap, setRequestMap] = useState<RequestMap>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -128,6 +132,20 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     });
   }, []);
 
+  const getRequestState = useCallback(
+    (post: MatchingData) => {
+      return requestMap[post.id] ?? false;
+    },
+    [requestMap]
+  );
+
+  const requestMatch = useCallback((post: MatchingData) => {
+    setRequestMap((prev) => {
+      if (prev[post.id]) return prev;
+      return { ...prev, [post.id]: true };
+    });
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       isOpen,
@@ -140,6 +158,8 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      getRequestState,
     }),
     [
       isOpen,
@@ -152,6 +172,8 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      getRequestState,
     ]
   );
 

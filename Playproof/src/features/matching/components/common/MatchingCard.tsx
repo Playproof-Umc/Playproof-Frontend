@@ -13,9 +13,10 @@ interface MatchingCardProps {
 
 export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const navigate = useNavigate();
-  const { openMatchingDetail, toggleLike, getLikeState, getCommentCount } = useMatchingDetail();
+  const { openMatchingDetail, toggleLike, getLikeState, getCommentCount, requestMatch, getRequestState } = useMatchingDetail();
   const likeState = getLikeState(data);
   const commentCount = getCommentCount(data);
+  const isRequested = getRequestState(data);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
@@ -34,10 +35,10 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
     navigate(`/user/${data.hostUser.id}`);
   };
 
-  // 요청 버튼 클릭 (상세 모달 열기 또는 별도 로직)
+  // 요청 버튼 클릭 (상세 모달 열기 대신 요청 처리)
   const handleRequestClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    openMatchingDetail(data);
+    requestMatch(data);
   };
 
   return (
@@ -113,9 +114,14 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         {/* Action Button */}
         <button 
             onClick={handleRequestClick}
-            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-[var(--color-primary-800)] text-white text-sm font-bold rounded-xl mb-4 hover:bg-[var(--color-primary-700)] transition-colors"
+            className={`w-full flex items-center justify-center gap-2 h-12 px-4 py-2 text-sm font-bold rounded-xl mb-4 transition-colors ${
+              isRequested
+                ? "bg-gray-200 text-gray-500 cursor-default"
+                : "bg-[var(--color-primary-800)] text-white hover:bg-[var(--color-primary-700)]"
+            }`}
+            disabled={isRequested}
         >
-            매칭 요청
+            {isRequested ? "요청됨" : "매칭 요청"}
         </button>
 
       {/* Footer: Meta Info */}
