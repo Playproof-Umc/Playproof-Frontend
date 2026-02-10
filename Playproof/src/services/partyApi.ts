@@ -133,6 +133,27 @@ export type DeletePartyResponse = {
 
 // ==================== Party Interaction Types ====================
 
+export type PartyApplication = {
+  applicationId: number;
+  userId: number;
+  nickname: string;
+  avatarUrl: string | null;
+  trustScore: number;
+  partyId: number;
+  partyTitle: string;
+  gameId: number;
+  status: string;
+  createdAt: string;
+};
+
+export type GetPartyApplicationsResponse = {
+  statusCode: number;
+  data: {
+    applications: PartyApplication[];
+  };
+  error: null | unknown;
+};
+
 export type ApplyPartyResponse = {
   statusCode: number;
   data: {
@@ -317,6 +338,20 @@ export async function deleteParty(id: number): Promise<DeletePartyResponse['data
 }
 
 // ==================== Party Interaction API Functions ====================
+
+/**
+ * 파티 신청자 목록 조회
+ * GET /parties/{partyId}/applications
+ */
+export async function getPartyApplications(partyId: number): Promise<PartyApplication[]> {
+  const res = await api.get<GetPartyApplicationsResponse>(`/parties/${partyId}/applications`);
+
+  if (res.data.error || res.data.statusCode !== 200) {
+    throw new Error('파티 신청자 목록을 불러오는 중 오류가 발생했습니다.');
+  }
+
+  return res.data.data.applications;
+}
 
 /**
  * 파티 신청
