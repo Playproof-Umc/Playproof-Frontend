@@ -10,6 +10,7 @@ interface HighlightFeedProps {
   getCommentCount: (post: HighlightPost) => number;
   onToggleLike: (postId: number, fallbackLikes: number) => void;
   currentUserName: string;
+  currentUserId?: number | null;
   onDeletePost?: (postId: number) => void;
 }
 
@@ -20,6 +21,7 @@ export function HighlightFeed({
   getCommentCount,
   onToggleLike,
   currentUserName,
+  currentUserId,
   onDeletePost,
 }: HighlightFeedProps) {
   return (
@@ -31,6 +33,7 @@ export function HighlightFeed({
         getCommentCount={getCommentCount}
         onToggleLike={onToggleLike}
         currentUserName={currentUserName}
+        currentUserId={currentUserId}
         onDeletePost={onDeletePost}
       />
     </section>

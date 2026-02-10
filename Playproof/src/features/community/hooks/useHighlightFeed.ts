@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
-import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi } from "@/features/community/api/communityApi";
+import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi, deleteHighlight as deleteHighlightApi } from "@/features/community/api/communityApi";
 import { useAuthStore } from "@/store/authStore";
 
 type HighlightLikeMap = Record<number, { count: number; isLiked: boolean }>;
@@ -169,7 +169,10 @@ export const useHighlightFeed = ({
     []
   );
 
-  const deletePost = React.useCallback((postId: number) => {
+  const deletePost = React.useCallback(async (postId: number) => {
+    console.log("highlight delete request start", { postId });
+    await deleteHighlightApi(postId);
+    console.log("highlight delete request success", { postId });
     setMediaMap((prev) => {
       const urls = prev[postId];
       if (urls) {

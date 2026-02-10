@@ -14,6 +14,7 @@ import {
   mockSchedulesByAzit,
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
+import { getAzits } from "@/features/team/api/azitApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -64,6 +65,23 @@ export function useAzitPageLogic() {
     "https://myfit.my";
 
   const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const data = await getAzits();
+        if (!alive) return;
+        if (data.length > 0) setAzits(data);
+      } catch (err) {
+        console.error("아지트 목록 로드 실패:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken]);
 
   const currentUser = React.useMemo(() => {
     if (accessToken) {

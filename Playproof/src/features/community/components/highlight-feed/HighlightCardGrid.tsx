@@ -10,6 +10,7 @@ type HighlightCardGridProps = {
   getCommentCount: (post: HighlightPost) => number;
   onToggleLike: (postId: number, fallbackLikes: number) => void;
   currentUserName: string;
+  currentUserId?: number | null;
   onDeletePost?: (postId: number) => void;
 };
 
@@ -20,6 +21,7 @@ export function HighlightCardGrid({
   getCommentCount,
   onToggleLike,
   currentUserName,
+  currentUserId,
   onDeletePost,
 }: HighlightCardGridProps) {
   return (
@@ -34,6 +36,7 @@ export function HighlightCardGrid({
           onToggleLike={(postId) => onToggleLike(postId, post.likeCount ?? post.likes ?? 0)}
           onPostClick={onPostClick}
           currentUserName={currentUserName}
+          currentUserId={currentUserId}
           onDeletePost={onDeletePost}
         />
       ))}

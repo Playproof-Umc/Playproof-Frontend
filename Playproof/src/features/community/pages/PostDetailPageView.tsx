@@ -9,6 +9,7 @@ import { PostDetailHeader } from "@/features/community/components/detail/PostDet
 import { PostDetailBody } from "@/features/community/components/detail/PostDetailBody";
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
 import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
+import { deleteBoardPost } from "@/features/community/api/communityApi";
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export const PostDetailPageView = () => {
     replyingToId,
     comments,
     currentUserName,
+    currentUserId,
     likeState,
     totalCommentCount,
     editingCommentId,
@@ -57,8 +59,15 @@ export const PostDetailPageView = () => {
     console.log("게시글 수정");
   };
 
-  const handleDeletePost = () => {
-    console.log("게시글 삭제");
+  const handleDeletePost = async () => {
+    if (!post) return;
+    try {
+      await deleteBoardPost(post.id);
+      navigate(`/community?tab=${fromTab}`, { replace: true });
+    } catch (error) {
+      console.error("게시글 삭제 실패:", error);
+      alert("게시글 삭제에 실패했습니다.");
+    }
   };
 
   return (
@@ -80,6 +89,7 @@ export const PostDetailPageView = () => {
               commentCount={totalCommentCount}
               isLiked={likeState.isLiked}
               currentUserName={currentUserName}
+              currentUserId={currentUserId}
               onEdit={handleEditPost}
               onDelete={handleDeletePost}
               onShare={handleShare}

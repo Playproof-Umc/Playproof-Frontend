@@ -3,7 +3,9 @@ import { io, Socket } from "socket.io-client";
 import { useAuthStore } from "@/store/authStore";
 
 const SOCKET_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my";
+  import.meta.env.VITE_SOCKET_URL ??
+  import.meta.env.VITE_API_BASE_URL ??
+  "https://myfit.my";
 
 export type SocketAck<TData> =
   | { ok: true; data: TData }
@@ -118,7 +120,7 @@ export const useAzitSocket = (params: {
     disconnect();
 
     const socket = io(SOCKET_BASE_URL, {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       auth: { token: token || null },
       reconnection: true,
       reconnectionAttempts: Infinity,

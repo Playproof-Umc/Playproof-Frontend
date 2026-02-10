@@ -101,6 +101,7 @@ export const CommunityPageView = () => {
                   getCommentCount={actions.highlight.getCommentCount}
                   onToggleLike={actions.highlight.toggleLike}
                   currentUserName={user.currentUserName}
+                  currentUserId={user.userId ? Number(user.userId.replace("user-", "")) : null}
                   onDeletePost={actions.highlight.deletePost}
                 />
               </div>

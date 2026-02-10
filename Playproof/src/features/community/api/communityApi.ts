@@ -243,6 +243,15 @@ export async function createBoardPost(payload: {
 }
 
 /**
+ * 자유게시판 글 삭제
+ * DELETE /community/posts/{postId}
+ */
+export async function deleteBoardPost(postId: number) {
+  const res = await api.delete(`/community/posts/${postId}`);
+  return res.data.data;
+}
+
+/**
  * 하이라이트 목록 조회 (실제 API 연동)
  */
 export async function getHighlights(page: number = 1, limit: number = 10): Promise<HighlightPost[]> {
@@ -301,4 +310,13 @@ export async function getHighlightDetail(highlightId: number) {
     createdAt: toStringValue(readValue(item, ["created_at"])),
     updatedAt: toStringValue(readValue(item, ["updated_at"])),
   };
+}
+
+/**
+ * 하이라이트 삭제 (커뮤니티)
+ * DELETE /community/highlights/{highlightId}
+ */
+export async function deleteHighlight(highlightId: number) {
+  const res = await api.delete(`/community/highlights/${highlightId}`);
+  return res.data.data;
 }

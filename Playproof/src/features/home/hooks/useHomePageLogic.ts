@@ -5,6 +5,8 @@ import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCo
 import { useAuthStore } from "@/store/authStore";
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
 import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
+import type { Azit } from "@/features/team/types/types";
+import { getAzits } from "@/features/team/api/azitApi";
 import { getBestPosts } from "@/features/community/api/communityApi";
 import type { FilterState, MatchingData } from "@/features/matching/types";
 import type { HighlightPost, BoardPost, CommunityComment } from "@/features/community/types";
@@ -25,7 +27,7 @@ type UseHomePageLogicReturn = {
     user: UserSummary | null;
     loading: boolean;
     azitSlides: {
-      azit: (typeof MOCK_MY_AZITS)[number];
+      azit: Azit;
       schedule: (typeof mockSchedules)[number] | undefined;
       timeLabel: string;
     }[];
@@ -71,20 +73,37 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
   const [loading, setLoading] = React.useState(true);
   const [bestPosts, setBestPosts] = React.useState<BoardPost[]>([]);
   const [azitIndex, setAzitIndex] = React.useState(0);
+  const [azits, setAzits] = React.useState<Azit[]>(MOCK_MY_AZITS);
+
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const data = await getAzits();
+        if (!alive) return;
+        if (data.length > 0) setAzits(data);
+      } catch (err) {
+        console.error("home azit load error:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const { state: matchingState, handlers: matchingHandlers } = useHomeMatchingLogic();
   const { state: highlightState, handlers: highlightHandlers } = useHomeHighlightsLogic(displayName);
 
   const azitSlides = React.useMemo(() => {
     const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
-    return MOCK_MY_AZITS.map((azit, idx) => {
+    return azits.map((azit, idx) => {
       const schedule = schedules[idx % schedules.length];
       const timeLabel = schedule?.fullDate
         ? schedule.fullDate.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
         : "시간 미정";
       return { azit, schedule, timeLabel };
     });
-  }, []);
+  }, [azits]);
 
   React.useEffect(() => {
     let alive = true;
