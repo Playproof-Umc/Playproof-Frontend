@@ -1,69 +1,83 @@
+// src/features/matching/hooks/useMatchingDetailLogic.ts
+
 //src/features/matching/hooks/useMatchingDetailLogic.ts
-import { useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
-import { useQuery } from '@tanstack/react-query';
-import { getParties } from '@/services/partyApi';
-import { getGameName } from '@/constants/games';
-import type { MatchingData } from '@/features/matching/types';
+import { useAuthStore } from '@/store/authStore';
+
+const FALLBACK_USER_ID = 'user-1';
+const FALLBACK_USER_NAME = '사용자';
 
 const MOCK_COMMENTS = [
-  { id: 1, userId: 'user-2', user: '플루', text: '저랑 듀오하실래요~? 친추할게요', time: '방금 전', isReply: false },
-  { id: 2, userId: 'user-3', user: '게이머1', text: '저요저요!', time: '1분 전', isReply: false },
+  {
+    id: 1,
+    userId: 'user-2',
+    user: '플루',
+    text: '저랑 듀오하실래요~? 친추할게요',
+    time: '방금 전',
+    replies: [
+      {
+        id: 11,
+        userId: 'user-1',
+        user: '엘릭',
+        text: '좋아요! 언제 가능하세요?',
+        time: '방금 전',
+        parentId: 1,
+      },
+    ],
+  },
+  {
+    id: 2,
+    userId: 'user-3',
+    user: '게이머1',
+    text: '저요저요!',
+    time: '1분 전',
+    replies: [],
+  },
 ];
 
 export const useMatchingDetailLogic = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isOpen, selectedPartyId, closeMatchingDetail } = useMatchingDetail();
+  const { isOpen, selectedPost, closeMatchingDetail } = useMatchingDetail();
+  const authUserId = useAuthStore((s) => s.userId);
+  const authNickname = useAuthStore((s) => s.nickname);
+  const currentUserId = authUserId ? `user-${authUserId}` : FALLBACK_USER_ID;
+  const currentUserName = authNickname ?? FALLBACK_USER_NAME;
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [replyText, setReplyText] = useState('');
+  const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editingParentId, setEditingParentId] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
   const [comments, setComments] = useState(MOCK_COMMENTS);
+  const prevPathRef = useRef(location.pathname);
+  const fromSource = new URLSearchParams(location.search).get('from');
 
-  // React Query에서 파티 목록 가져오기
-  const { data: partyData } = useQuery({
-    queryKey: ['parties', { sort: 'latest' }],
-    queryFn: () => getParties({ page: 1, size: 100, sort: 'latest' }),
-    staleTime: 30 * 1000,
-  });
+  // 홈에서도 상세 모달 노출
+  const allowPaths = ['/matching', '/home', '/mypage'];
+  const shouldRender =
+    isOpen &&
+    selectedPost &&
+    (allowPaths.includes(location.pathname) || location.pathname.startsWith('/mypage'));
 
-  // 선택된 파티 데이터 찾기
-  const selectedPost = useMemo<MatchingData | null>(() => {
-    if (!selectedPartyId || !partyData?.parties) return null;
-    
-    const party = partyData.parties.find(p => p.partyId === selectedPartyId);
-    if (!party) return null;
+  useEffect(() => {
+    if (isOpen && prevPathRef.current !== location.pathname) {
+      closeMatchingDetail();
+    }
+    prevPathRef.current = location.pathname;
+  }, [isOpen, location.pathname, closeMatchingDetail]);
 
-    return {
-      id: party.partyId,
-      game: getGameName(party.gameId),
-      title: party.title,
-      tier: party.tierName,
-      tags: party.tags.map(tag => tag.name),
-      azit: party.azitName,
-      position: party.positions.map(pos => pos.positionName),
-      memo: party.memo,
-      currentMembers: party.currentParticipants,
-      maxMembers: party.participants,
-      time: new Date(party.createdAt).toLocaleString('ko-KR'),
-      views: party.viewCount,
-      likes: party.likeCount ?? 0,
-      liked: party.isLike ?? false,
-      comments: party.commentCount ?? 0,
-      tsScore: party.host.trustScore,
-      mic: party.isMic,
-      hostUser: {
-        id: String(party.host.id),
-        nickname: party.host.nickname,
-        avatarUrl: party.host.avatarUrl,
-        isOnline: party.status === 'active',
-      }
-    };
-  }, [selectedPartyId, partyData]);
-
-  // 현재 경로가 /matching이 아니면 모달을 숨김
-  const shouldRender = isOpen && selectedPost && location.pathname === '/matching';
+  const handleClose = () => {
+    closeMatchingDetail();
+    if (fromSource === 'mypage') {
+      navigate(-1);
+    }
+  };
 
   const handleMoveToProfile = (userId: string | number) => {
     navigate(`/user/${userId}`);
@@ -73,19 +87,144 @@ export const useMatchingDetailLogic = () => {
     if (!commentText.trim()) return;
     const newComment = { 
         id: Date.now(), 
-        userId: 'me', 
-        user: '나(Player)', 
+        userId: currentUserId, 
+        user: currentUserName, 
         text: commentText, 
         time: '방금 전', 
-        isReply: false 
+        replies: []
     };
     setComments([newComment, ...comments]);
     setCommentText('');
   };
 
+  const handleReplyToggle = (commentId: number) => {
+    setReplyingToId((prev) => (prev === commentId ? null : commentId));
+    setReplyText('');
+  };
+
+  const handleEditCommentStart = (commentId: number, text: string) => {
+    setEditingCommentId(commentId);
+    setEditingReplyId(null);
+    setEditingParentId(null);
+    setEditText(text);
+  };
+
+  const handleEditReplyStart = (commentId: number, replyId: number, text: string) => {
+    setEditingCommentId(null);
+    setEditingReplyId(replyId);
+    setEditingParentId(commentId);
+    setEditText(text);
+  };
+
+  const handleEditCancel = () => {
+    setEditingCommentId(null);
+    setEditingReplyId(null);
+    setEditingParentId(null);
+    setEditText('');
+  };
+
+  const handleEditSubmit = () => {
+    const nextText = editText.trim();
+    if (!nextText) return;
+
+    if (editingCommentId) {
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === editingCommentId ? { ...comment, text: nextText } : comment
+        )
+      );
+      handleEditCancel();
+      return;
+    }
+
+    if (editingReplyId && editingParentId) {
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === editingParentId
+            ? {
+                ...comment,
+                replies: comment.replies.map((reply) =>
+                  reply.id === editingReplyId ? { ...reply, text: nextText } : reply
+                ),
+              }
+            : comment
+        )
+      );
+      handleEditCancel();
+    }
+  };
+
+  const handleDeleteComment = (commentId: number) => {
+    setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+    if (editingCommentId === commentId) {
+      handleEditCancel();
+    }
+  };
+
+  const handleDeleteReply = (commentId: number, replyId: number) => {
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, replies: comment.replies.filter((reply) => reply.id !== replyId) }
+          : comment
+      )
+    );
+    if (editingReplyId === replyId) {
+      handleEditCancel();
+    }
+  };
+
+  const handleReplySubmit = (commentId: number) => {
+    if (!replyText.trim()) return;
+    const newReply = {
+      id: Date.now(),
+      userId: currentUserId,
+      user: currentUserName,
+      text: replyText,
+      time: '방금 전',
+      parentId: commentId,
+    };
+
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, replies: [...comment.replies, newReply] }
+          : comment
+      )
+    );
+    setReplyText('');
+    setReplyingToId(null);
+  };
+
   return {
-    state: { shouldRender, selectedPost, isMenuOpen, commentText, comments },
-    setters: { setIsMenuOpen, setCommentText },
-    handlers: { closeMatchingDetail, handleMoveToProfile, handleCommentSubmit }
+    state: {
+      shouldRender,
+      selectedPost,
+      isMenuOpen,
+      commentText,
+      replyText,
+      replyingToId,
+      comments,
+      editingCommentId,
+      editingReplyId,
+      editingParentId,
+      editText,
+      currentUserId,
+      currentUserName,
+    },
+    setters: { setIsMenuOpen, setCommentText, setReplyText, setEditText },
+    handlers: {
+      closeMatchingDetail: handleClose,
+      handleMoveToProfile,
+      handleCommentSubmit,
+      handleReplyToggle,
+      handleReplySubmit,
+      handleEditCommentStart,
+      handleEditReplyStart,
+      handleEditCancel,
+      handleEditSubmit,
+      handleDeleteComment,
+      handleDeleteReply,
+    }
   };
 };

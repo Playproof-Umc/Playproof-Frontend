@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/community/components/Pagination.tsx
+
 
 type PaginationProps = {
   currentPage: number;

@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/components/auth/StepDots.tsx
+
 import { cn } from "@/utils/cn";
 
 type Step = 1 | 2 | 3;
@@ -13,7 +14,7 @@ const Dot = ({ active, label }: { active?: boolean; label: string }) => {
     <div
       className={cn(
         "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-        active ? "bg-black text-white" : "bg-[#D9D9D9] text-white"
+        active ? "bg-[#1533B6] text-white" : "bg-[#D9D9D9] text-white"
       )}
     >
       {label}

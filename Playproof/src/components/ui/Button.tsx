@@ -1,3 +1,5 @@
+// src/components/ui/Button.tsx
+
 //src/components/ui/Button.tsx
 //src/components/ui/Button.tsx
 import React from "react";
@@ -42,7 +44,7 @@ export function Button({
     "bg-[#C6C6C6] text-white cursor-not-allowed pointer-events-none";
 
   const variants: Record<ButtonVariant, string> = {
-    primary: "bg-black text-white hover:bg-black/90",
+    primary: "bg-[var(--color-primary-800)] text-white hover:bg-[var(--color-primary-700)]",
     secondary: "bg-[#C6C6C6] text-white hover:bg-[#B5B5B5]",
     outline: "bg-white text-black border border-black hover:bg-black hover:text-white",
     blue: "bg-[#4562D6] text-white hover:brightness-95",

@@ -1,3 +1,5 @@
+// src/features/chat/components/ChatRoomList.tsx
+
 //src/features/chat/components/ChatRoomList.tsx
 import React from 'react';
 import { Plus, MessageSquare } from 'lucide-react';

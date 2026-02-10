@@ -1,3 +1,5 @@
+// src/main.tsx
+
 //src/main.tsx
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

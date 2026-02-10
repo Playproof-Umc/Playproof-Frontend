@@ -1,3 +1,5 @@
+// src/features/matching/types/types.ts
+
 // src/features/matching/types.ts
 
 import type { User } from '@/types'; 
@@ -16,7 +18,7 @@ export interface MatchingData {
   time: string;
   views: number;
   likes: number;
-  liked: boolean;
+  isLiked?: boolean;
   comments: number;
   tsScore: number;
   mic: boolean;

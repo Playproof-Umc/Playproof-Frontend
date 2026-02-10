@@ -2,18 +2,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, UserPlus, Gamepad2, Calendar, XCircle, Info, Check } from 'lucide-react';
-import { MOCK_NOTIFICATIONS } from '@/features/notification/data/mockNotifications';
+import type { Notification } from '@/features/notification/data/mockNotifications';
 
 interface NotificationDropdownProps {
   onClose: () => void;
+  notifications: Notification[];
+  onUpdateNotifications: (next: Notification[]) => void;
 }
 
-export const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => {
+export const NotificationDropdown = ({
+  onClose,
+  notifications,
+  onUpdateNotifications,
+}: NotificationDropdownProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'ALL' | 'FRIEND'>('ALL');
 
   // 탭에 따라 리스트 필터링
-  const filteredList = MOCK_NOTIFICATIONS.filter(noti => {
+  const filteredList = notifications.filter(noti => {
     if (activeTab === 'FRIEND') return noti.type === 'FRIEND_REQUEST';
     return noti.type !== 'FRIEND_REQUEST';
   });
@@ -38,14 +44,33 @@ export const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => 
     }
   };
 
+  const markAsRead = (id: number) => {
+    onUpdateNotifications(
+      notifications.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))
+    );
+  };
+
+  const markAllAsRead = () => {
+    onUpdateNotifications(
+      notifications
+        .filter((noti) => noti.type === "FRIEND_REQUEST")
+        .map((noti) => ({ ...noti, isRead: true }))
+    );
+  };
+
+  const removeNotification = (id: number) => {
+    onUpdateNotifications(notifications.filter((noti) => noti.id !== id));
+  };
+
   // 알림 항목 클릭 핸들러
-  const handleItemClick = (noti: typeof MOCK_NOTIFICATIONS[0]) => {
+  const handleItemClick = (noti: Notification) => {
+    markAsRead(noti.id);
     onClose();
 
     switch (noti.type) {
       case 'MATCH_REQUEST': 
-        // 매칭 요청 -> 보낸 사람 프로필 페이지로 이동
-        if (noti.sender) navigate(`/user/${noti.sender.id}`); 
+        // 매칭 요청 -> 매칭 페이지 신청자 목록으로 이동
+        navigate('/matching', { state: { openApplicants: true } });
         break;
       case 'FRIEND_REQUEST': 
         // 친구 요청 -> 보낸 사람 프로필 페이지로 이동
@@ -55,7 +80,7 @@ export const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => 
         navigate('/matching'); 
         break;
       case 'AZIT_SCHEDULE': 
-        navigate('/azit'); 
+        navigate('/azit', { state: { azitId: noti.azitId, scheduleId: noti.scheduleId } }); 
         break;
       default:
         break;
@@ -75,7 +100,10 @@ export const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => 
             <h2 className="text-[15px] font-bold text-gray-900 flex items-center gap-2">
               <Bell size={16} className="text-black" /> 알림
             </h2>
-            <button className="text-[11px] font-bold text-gray-400 hover:text-black transition-colors flex items-center gap-1">
+            <button
+              onClick={markAllAsRead}
+              className="text-[11px] font-bold text-gray-400 hover:text-black transition-colors flex items-center gap-1"
+            >
               <Check size={12} /> 모두 읽음
             </button>
           </div>
@@ -146,13 +174,21 @@ export const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => 
                   {noti.type === 'FRIEND_REQUEST' && (
                     <div className="flex gap-2 mt-2">
                       <button 
-                        onClick={(e) => { e.stopPropagation(); /* 수락 로직 */ }}
-                        className="px-3 py-1.5 bg-black text-white text-[11px] font-bold rounded-lg hover:bg-gray-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(noti.id);
+                          removeNotification(noti.id);
+                        }}
+                        className="px-3 py-1.5 bg-[var(--color-primary-800)] text-white text-[11px] font-bold rounded-lg hover:bg-[var(--color-primary-700)]"
                       >
                         수락
                       </button>
                       <button 
-                        onClick={(e) => { e.stopPropagation(); /* 거절 로직 */ }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(noti.id);
+                          removeNotification(noti.id);
+                        }}
                         className="px-3 py-1.5 bg-gray-100 text-gray-600 text-[11px] font-bold rounded-lg hover:bg-gray-200"
                       >
                         거절

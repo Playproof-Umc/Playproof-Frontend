@@ -1,18 +1,27 @@
-import { Outlet } from "react-router-dom";
-import { SignupCompleteModal } from "@/components/auth/SignupCompleteModal";
-import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
+// src/components/layout/AppLayout.tsx
 
-export default function AppLayout() {
-  const { open, username, close } = useSignupCompleteModal();
+import type { ComponentProps, ReactNode } from "react";
+import { Navbar } from "@/components/layout/Navbar";
 
+type AppLayoutProps = {
+  children: ReactNode;
+  navbarProps?: ComponentProps<typeof Navbar>;
+  className?: string;
+  containerClassName?: string;
+};
+
+export const AppLayout = ({
+  children,
+  navbarProps,
+  className,
+  containerClassName,
+}: AppLayoutProps) => {
   return (
-    <div className="min-h-screen bg-white text-black">
-      {/* TODO: App 영역 Navbar가 있으면 여기 */}
-      {/* <Navbar /> */}
-
-      <Outlet />
-
-      <SignupCompleteModal open={open} username={username} onClose={close} />
+    <div className={["min-h-screen bg-white text-black relative", className].filter(Boolean).join(" ")}>
+      <Navbar {...navbarProps} />
+      <div className={["pp-container", containerClassName].filter(Boolean).join(" ")}>
+        {children}
+      </div>
     </div>
   );
-}
+};

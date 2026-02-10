@@ -1,4 +1,5 @@
-import React from 'react';
+// src/features/mypage/components/profile/FavoriteGames.tsx
+
 import { MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
 import type { MyProfileData } from '@/features/mypage/types';
 

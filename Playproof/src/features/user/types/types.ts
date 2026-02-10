@@ -1,3 +1,5 @@
+// src/features/user/types/types.ts
+
 // src/features/user/types.ts
 
 export interface UserBasicInfo {

@@ -1,11 +1,9 @@
 // src/features/matching/components/detail/MatchingPostInfo.tsx
-import React from 'react';
 import { MoreHorizontal, User, UserPlus, Home, AlertTriangle, Eye, Heart, MessageCircle } from 'lucide-react';
 import { getPositionInfo } from '@/features/matching/utils/matchingUtils';
 import type { MatchingData } from '@/features/matching/types';
-import { usePartyLike } from '@/features/matching/hooks/usePartyLike';
-import { usePartyApplication } from '@/features/matching/hooks/usePartyApplication';
-import { useFriendRequest } from '@/features/matching/hooks/useFriendRequest';
+import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
+import { useAuthStore } from '@/store/authStore';
 
 interface MatchingPostInfoProps {
   post: MatchingData;
@@ -16,25 +14,12 @@ interface MatchingPostInfoProps {
 }
 
 export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu, onMoveToProfile }: MatchingPostInfoProps) => {
-  const { toggleLike, isLiking } = usePartyLike();
-  const { applyToParty, isApplying } = usePartyApplication();
-  const { sendRequest, isSending } = useFriendRequest();
-
-  const handleLikeClick = () => {
-    toggleLike(post.id);
-  };
-
-  const handleApplyClick = () => {
-    applyToParty(post.id);
-  };
-
-  const handleFriendRequest = () => {
-    // hostUser.id는 string이므로 number로 변환
-    const userId = Number(post.hostUser.id);
-    sendRequest(userId);
-    onToggleMenu(); // 메뉴 닫기
-  };
-
+  const { toggleLike, getLikeState } = useMatchingDetail();
+  const likeState = getLikeState(post);
+  const authUserId = useAuthStore((s) => s.userId);
+  const authNickname = useAuthStore((s) => s.nickname);
+  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const displayName = post.hostUser.id === currentUserId ? (authNickname ?? post.hostUser.nickname) : post.hostUser.nickname;
   return (
     <div className="w-[60%] p-8 flex flex-col h-full overflow-y-auto border-r border-gray-100 relative scrollbar-hide">
       {/* Header & Menu */}
@@ -46,13 +31,7 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           </button>
           {isMenuOpen && (
             <div className="absolute right-0 top-6 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden py-1">
-              <button 
-                onClick={handleFriendRequest}
-                disabled={isSending}
-                className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left disabled:opacity-50"
-              >
-                <UserPlus size={14} /> {isSending ? '신청 중...' : '친구추가'}
-              </button>
+              <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><UserPlus size={14} /> 친구추가</button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><Home size={14} /> 아지트 초대</button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 text-left"><AlertTriangle size={14} /> 신고하기</button>
             </div>
@@ -66,7 +45,7 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
           {post.hostUser.avatarUrl ? <img src={post.hostUser.avatarUrl} alt="" className="w-full h-full rounded-full object-cover"/> : <User size={32} />}
         </div>
         <div>
-          <h2 onClick={() => onMoveToProfile(post.hostUser.id)} className="text-xl font-bold text-gray-900 cursor-pointer hover:underline underline-offset-2">{post.hostUser.nickname}</h2>
+          <h2 onClick={() => onMoveToProfile(post.hostUser.id)} className="text-xl font-bold text-gray-900 cursor-pointer hover:underline underline-offset-2">{displayName}</h2>
           <p className="text-xs font-medium text-gray-500 mt-1">TS {post.tsScore}</p>
         </div>
       </div>
@@ -101,25 +80,18 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
             return (<div key={posId} className="w-16 h-16 bg-gray-50 rounded-xl flex flex-col items-center justify-center text-gray-500 text-[11px] font-bold gap-1.5">{icon}<span>{label}</span></div>);
           })}
         </div>
-        
-        {/* 매칭 요청 버튼 */}
-        <button
-          onClick={handleApplyClick}
-          disabled={isApplying}
-          className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl mb-4 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isApplying ? '신청 중...' : '매칭 요청'}
-        </button>
-        
         <div className="flex items-center gap-4 text-xs font-medium text-gray-400 border-t border-gray-50 pt-4">
           <div className="flex items-center gap-1"><Eye size={14} /> <span>{post.views}</span></div>
           <button
-            onClick={handleLikeClick}
-            disabled={isLiking}
-            className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+            type="button"
+            onClick={() => toggleLike(post)}
+            className={`flex items-center gap-1 transition-colors ${
+              likeState.isLiked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+            }`}
+            aria-label="좋아요"
           >
-            <Heart size={14} fill="none" /> 
-            <span>{post.likes}</span>
+            <Heart size={14} fill={likeState.isLiked ? "currentColor" : "none"} />
+            <span>{likeState.count}</span>
           </button>
           <div className="flex items-center gap-1"><MessageCircle size={14} /> <span>{commentCount}</span></div>
         </div>

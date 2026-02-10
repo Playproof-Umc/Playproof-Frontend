@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/components/GameSelectGrid.tsx
+
 import { cn } from "@/utils/cn";
 import type { GameOption } from "@/features/auth/gameSelectPage/types";
 
@@ -19,10 +21,10 @@ export function GameSelectGrid({ games, selectedId, onSelect }: Props) {
             type="button"
             onClick={() => onSelect(g.id)}
             className={cn(
-              "h-12 w-full rounded-md border text-xs font-medium transition-colors",
+              "h-12 w-full rounded-lg border text-sm font-semibold transition-colors",
               selected
-                ? "border-black bg-black text-white"
-                : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                ? "border-[#1533B6] bg-[#1533B6] text-white"
+                : "border-black bg-white text-black hover:border-[#1533B6] hover:bg-[#1533B6] hover:text-white"
             )}
           >
             {g.name}

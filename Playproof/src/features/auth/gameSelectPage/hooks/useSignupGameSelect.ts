@@ -1,3 +1,5 @@
+// src/features/auth/gameSelectPage/hooks/useSignupGameSelect.ts
+
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AuthKind, GameOption } from "@/features/auth/gameSelectPage/types";
@@ -72,11 +74,11 @@ export function useSignupGameSelect() {
     try {
       // TODO(API 연동): Step2 선택 저장
 
-      navigate("/gameinfo", {
+      navigate("/signup/username", {
         state: {
-          step: 3,
           gameId: selectedGame.id,
           mode: "manual",
+          nextPath: "/gameinfo",
         },
       });
     } finally {

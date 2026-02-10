@@ -1,6 +1,9 @@
+// src/features/profile/context/UserProfileContext.tsx
+
 //src/features/profile/context/UserProfileContext.tsx
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 // 프로필 데이터 타입 정의
 export interface UserProfileData {
@@ -31,7 +34,7 @@ export const useUserProfile = () => {
 };
 
 // Provider 컴포넌트
-export const UserProfileProvider: React.FC<{ children?: ReactNode }> = ({ children } = {}) => {
+export const UserProfileProvider = ({ children }: { children?: ReactNode } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeUserId, setActiveUserId] = useState<string | number | null>(null);
 

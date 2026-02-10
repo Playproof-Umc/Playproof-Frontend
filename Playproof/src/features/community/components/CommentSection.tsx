@@ -1,14 +1,8 @@
+// src/features/community/components/CommentSection.tsx
+
 import React, { useState } from "react";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
-
-interface Comment {
-  id: string;
-  author: string;
-  avatarUrl: string;
-  content: string;
-  date: string;
-  replies: number;
-}
+import type { Comment } from "@/features/community/types";
 
 interface CommentSectionProps {
   comments: Comment[];
@@ -43,9 +37,9 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
           <button
             type="submit"
             disabled={!newComment.trim()}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="bg-[var(--color-primary-800)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors"
           >
-            {COMMUNITY_SECTION_LABELS.commentSubmit}
+            작성하기
           </button>
         </div>
       </form>
@@ -62,9 +56,9 @@ export function CommentSection({ comments, totalCount }: CommentSectionProps) {
                   <span className="text-xs text-gray-500">{comment.date}</span>
                 </div>
                 <p className="mt-1 text-sm text-gray-700">{comment.content}</p>
-                {comment.replies > 0 && (
+                {comment.replies.length > 0 && (
                   <button className="mt-2 text-xs text-blue-600 hover:underline">
-                    답글 {comment.replies}개 보기
+                    답글 {comment.replies.length}개 보기
                   </button>
                 )}
               </div>

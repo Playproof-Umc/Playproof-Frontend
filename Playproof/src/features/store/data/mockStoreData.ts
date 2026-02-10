@@ -31,7 +31,7 @@ export const MOCK_PRODUCTS: Product[] = [
   },
   {
     id: 2,
-    title: '비싼 아이템 (포인트 부족)',
+    title: '비싼 아이템 (금액 부족)',
     price: 999999,
     category: 'ITEM',
     imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Expensive',

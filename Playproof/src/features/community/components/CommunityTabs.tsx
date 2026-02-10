@@ -1,4 +1,5 @@
-import * as React from "react";
+// src/features/community/components/CommunityTabs.tsx
+
 
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 

@@ -1,22 +1,32 @@
+// src/features/auth/gameSelectPage/components/SignupGameSelectForm.tsx
+
 import { Button } from "@/components/ui/Button";
 import { GameSelectGrid } from "@/features/auth/gameSelectPage/components/GameSelectGrid";
-import { useSignupGameSelect } from "@/features/auth/gameSelectPage/hooks/useSignupGameSelect";
+import type { GameOption } from "@/features/auth/gameSelectPage/types";
 
-export function SignupGameSelectForm() {
-  const {
-    games,
-    selectedGame,
-    isPending,
+type SignupGameSelectFormProps = {
+  games: GameOption[];
+  selectedGame: GameOption | null;
+  isPending: boolean;
+  hasAuthCta: boolean;
+  authCtaLabel: string;
+  authCtaClassName: string;
+  onSelectGame: (id: string) => void;
+  onClickManual: () => void;
+  onClickAuth: () => void;
+};
 
-    hasAuthCta,
-    authCtaLabel,
-    authCtaClassName,
-
-    onSelectGame,
-    onClickManual,
-    onClickAuth,
-  } = useSignupGameSelect();
-
+export function SignupGameSelectForm({
+  games,
+  selectedGame,
+  isPending,
+  hasAuthCta,
+  authCtaLabel,
+  authCtaClassName,
+  onSelectGame,
+  onClickManual,
+  onClickAuth,
+}: SignupGameSelectFormProps) {
   return (
     <div className="space-y-5">
       <div className="space-y-2 text-center">
@@ -53,7 +63,7 @@ export function SignupGameSelectForm() {
           {hasAuthCta ? (
             <Button
               type="button"
-              variant="blue"
+              variant="primary"
               fullWidth
               className={`h-10 text-xs ${authCtaClassName}`}
               disabled={isPending}

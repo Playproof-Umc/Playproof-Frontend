@@ -1,6 +1,6 @@
 // src/App.tsx
-import { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 // Lazy Load Pages
 const LandingPage = lazy(() => import('@/pages/auth/LandingPage'));
@@ -8,12 +8,15 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const SignupGameSelectPage = lazy(() => import('@/pages/auth/SignupGameSelectPage'));
 const SignupGameInfoPage = lazy(() => import('@/pages/auth/SignupGameInfoPage'));
+const SignupUsernamePage = lazy(() => import('@/pages/auth/SignupUsernamePage'));
+const FindPasswordPage = lazy(() => import('@/pages/auth/FindPasswordPage'));
 const HomePage = lazy(() => import('@/pages/Home/HomePage'));
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
 const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const GameDataPage = lazy(() => import('@/pages/mypage/GameData'));
 const PostDetailPage = lazy(() => import('@/pages/Community/PostDetailPage'));
 const StorePage = lazy(() => import('@/pages/store/StorePage'));
 
@@ -36,6 +39,7 @@ const LoadingFallback = () => (
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ToastProvider>
         <UserProfileProvider>
           <MatchingDetailProvider>
@@ -47,6 +51,8 @@ function App() {
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup/username" element={<SignupUsernamePage />} />
+                <Route path="/find-password" element={<FindPasswordPage />} />
                 
                 {/* Game Select */}
                 <Route path="/gameselect" element={<SignupGameSelectPage />} />
@@ -60,12 +66,14 @@ function App() {
                 {/* Community Routes */}
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/community/:postId" element={<PostDetailPage />} />
+                <Route path="/community/highlights/:highlightId" element={<PostDetailPage />} />
                 
                 {/* 유저 프로필 페이지 */}
                 <Route path="/user/:userId" element={<UserProfilePage />} />
                 
                 {/* 마이페이지 */}
                 <Route path="/mypage/*" element={<MyPageMain />} />
+                <Route path="/mypage/gamedata" element={<GameDataPage />} />
 
                 {/* 스토어 */}
                 <Route path="/store" element={<StorePage />} />
@@ -82,5 +90,13 @@ function App() {
     </BrowserRouter>
   );
 }
+
+const ScrollToTop = () => {
+  const location = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [location.pathname, location.search]);
+  return null;
+};
 
 export default App;

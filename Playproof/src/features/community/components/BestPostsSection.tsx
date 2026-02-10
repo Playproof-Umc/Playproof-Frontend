@@ -1,4 +1,5 @@
-import React from "react";
+// src/features/community/components/BestPostsSection.tsx
+
 import { Heart, MessageCircle, Eye, MoreVertical } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
@@ -11,6 +12,19 @@ interface BestPostsSectionProps {
 export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) {
   // 상위 3개만 표시
   const topPosts = posts.slice(0, 3);
+
+  const getRelativeTime = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "";
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString("ko-KR");
+  };
 
   return (
     <section className="mb-8 mt-6">
@@ -38,21 +52,22 @@ export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) 
             }`}
           >
             {/* 좋아요 */}
-            <div className="flex flex-col items-center gap-1 text-gray-600">
-              <Heart className="h-5 w-5" />
+            <div className={`flex flex-col items-center gap-1 ${post.isLiked ? "text-red-500" : "text-gray-600"}`}>
+              <Heart className="h-5 w-5" fill={post.isLiked ? "currentColor" : "none"} />
               <span className="text-xs font-medium">{post.likes}</span>
             </div>
 
             {/* 썸네일 */}
-            {post.thumbnail && (
-              <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-                <img
-                  src={post.thumbnail}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
+            <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+              <img
+                src={post.thumbnail || "/no-image.png"}
+                alt=""
+                className="h-full w-full object-cover"
+                onError={(event) => {
+                  event.currentTarget.src = "/no-image.png";
+                }}
+              />
+            </div>
 
             {/* 게시글 정보 */}
             <div className="flex-1">
@@ -67,7 +82,7 @@ export function BestPostsSection({ posts, onPostClick }: BestPostsSectionProps) 
 
             {/* 날짜 및 통계 */}
             <div className="flex flex-col items-end gap-1 text-right">
-              <span className="text-xs text-gray-500">{post.date}</span>
+              <span className="text-xs text-gray-500">{getRelativeTime(post.createdAt || post.date)}</span>
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <Eye className="h-3.5 w-3.5" />

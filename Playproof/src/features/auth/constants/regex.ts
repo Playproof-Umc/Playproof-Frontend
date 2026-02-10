@@ -1,3 +1,5 @@
+// src/features/auth/constants/regex.ts
+
 //src/constants/regex.ts
 export const NICKNAME_REGEX = /^[A-Za-z0-9가-힣]{1,5}$/;
 

@@ -1,3 +1,5 @@
+// src/features/community/constants/labels.ts
+
 export const COMMUNITY_PAGE_LABELS = {
   title: "Community",
   highlightTab: "하이라이트",

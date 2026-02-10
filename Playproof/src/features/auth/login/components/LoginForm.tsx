@@ -1,3 +1,5 @@
+// src/features/auth/login/components/LoginForm.tsx
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { X, Eye, EyeOff } from "lucide-react";
@@ -47,6 +49,8 @@ export function LoginForm() {
         <Input
           variant="light"
           inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={11}
           autoComplete="tel"
           placeholder="전화번호를 입력해주세요."
           value={phoneNumber}
@@ -117,7 +121,7 @@ export function LoginForm() {
       {/* 시작하기 */}
       <Button
         type="submit"
-        variant="blue"
+        variant="primary"
         fullWidth
         disabled={!isFilled || isPending}
         className="h-11"

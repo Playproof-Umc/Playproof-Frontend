@@ -1,3 +1,5 @@
+// src/features/auth/gameInfoPage/types.ts
+
 export type GameId =
   | "lol"
   | "valo"

@@ -1,12 +1,14 @@
-import * as React from "react";
+// src/features/home/components/MatchingTabs.tsx
+
 import { GAME_TABS, MATCHING_TAB_LABELS } from "@/features/home/constants/matchingTabs";
 
 type MatchingTabsProps = {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onMoreClick?: () => void;
 };
 
-export function MatchingTabs({ activeTab, onTabChange }: MatchingTabsProps) {
+export function MatchingTabs({ activeTab, onTabChange, onMoreClick }: MatchingTabsProps) {
   return (
     <section className="space-y-4">
       {/* 타이틀과 전체보기 버튼 등은 필요하면 유지, 여기서는 타이틀만 남김 */}
@@ -33,7 +35,11 @@ export function MatchingTabs({ activeTab, onTabChange }: MatchingTabsProps) {
           </button>
         ))}
         {/* 우측 '매칭 내역' 버튼 등은 필요시 유지 */}
-        <button className="ml-auto text-sm text-zinc-500 hover:text-zinc-900">
+        <button
+          type="button"
+          onClick={onMoreClick}
+          className="ml-auto text-sm text-zinc-500 hover:text-zinc-900"
+        >
           {MATCHING_TAB_LABELS.history}
         </button>
       </div>

@@ -1,3 +1,5 @@
+// src/features/auth/signup/hooks/useTermsAgreement.ts
+
 //src/features/auth/signup/hooks/useTermsAgreement.ts
 import { useMemo, useState } from "react";
 

@@ -1,3 +1,5 @@
+// src/features/chat/components/ChatInput.tsx
+
 //src/features/chat/components/ChatInput.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, X, SquareArrowUp } from 'lucide-react'; 
@@ -113,7 +115,7 @@ export const ChatInput: React.FC = () => {
           className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-transparent rounded-full focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 transition-all text-sm outline-none placeholder:text-gray-400"
         />
         
-        <button className="absolute right-3 bg-gray-900 hover:bg-black text-white p-2 rounded-full shadow-sm transition-colors">
+        <button className="absolute right-3 bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-700)] text-white p-2 rounded-full shadow-sm transition-colors">
           <Send className="w-4 h-4 ml-0.5" />
         </button>
       </div>
