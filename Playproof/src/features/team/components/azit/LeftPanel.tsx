@@ -371,7 +371,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
           <button className="hover:bg-gray-100 rounded-full p-1"><Plus className="w-4 h-4 text-gray-400" /></button>
         </div>
         <div className="space-y-1">
-          {members.slice(0, 3).map((member, i) => (
+          {members.map((member, i) => (
              <div key={i} className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                <div className="relative">
                  <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-100" />

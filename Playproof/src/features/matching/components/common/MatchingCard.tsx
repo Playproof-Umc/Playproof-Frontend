@@ -13,9 +13,10 @@ interface MatchingCardProps {
 
 export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const navigate = useNavigate();
-  const { openMatchingDetail, toggleLike, getLikeState, getCommentCount } = useMatchingDetail();
+  const { openMatchingDetail, toggleLike, getLikeState, getCommentCount, requestMatch, cancelMatchRequest, getRequestState } = useMatchingDetail();
   const likeState = getLikeState(data);
   const commentCount = getCommentCount(data);
+  const requestState = getRequestState(data);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
@@ -34,10 +35,15 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
     navigate(`/user/${data.hostUser.id}`);
   };
 
-  // 요청 버튼 클릭 (상세 모달 열기 또는 별도 로직)
+  // 요청 버튼 클릭 (상세 모달 열기 대신 요청 처리)
   const handleRequestClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    openMatchingDetail(data);
+    if (requestState === 'pending') {
+      cancelMatchRequest(data);
+      return;
+    }
+    if (requestState === 'accepted') return;
+    requestMatch(data);
   };
 
   return (
@@ -46,10 +52,11 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
       className="bg-white rounded-2xl px-4 py-2 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col items-center w-[320px] h-[470px]"
     >
       {/* Header: Game Name */}
-      <div className="flex justify-between items-start mb-6">
-        <span className="text-sm font-bold text-gray-900">{data.game}</span>
+      <div className="flex justify-between items-center w-full pt-2 pb-4">
+        <span className="text-sm font-bold text-gray-900 text-left">{data.game}</span>
         {/* 옵션: 모집중 배지 등을 우측에 배치하거나 생략 가능 */}
       </div>
+      <div className="w-[calc(100%+2rem)] -mx-4 border-t border-gray-200 mb-4" />
 
       {/* Profile Section: Centered */}
       <div className="flex flex-col items-center mb-5">
@@ -101,6 +108,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
 
       {/* Content Section: Left Aligned */}
       <div className="mt-auto w-full">
+        <div className="w-[calc(100%+2rem)] -mx-4 border-t border-gray-200 mb-4" />
         <div className="flex items-center gap-1 text-[#00AE4C] text-xs font-bold mb-1">
             <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
             <span className="text-[10px]">&gt;</span>
@@ -113,9 +121,20 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
         {/* Action Button */}
         <button 
             onClick={handleRequestClick}
-            className="w-full flex items-center justify-center gap-2 h-12 px-4 py-2 bg-[var(--color-primary-800)] text-white text-sm font-bold rounded-xl mb-4 hover:bg-[var(--color-primary-700)] transition-colors"
+            className={`w-full flex items-center justify-center gap-2 h-12 px-4 py-2 text-sm font-bold rounded-xl mb-4 transition-colors ${
+              requestState === 'accepted'
+                ? "bg-emerald-100 text-emerald-700 cursor-default"
+                : requestState === 'pending'
+                ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                : "bg-[var(--color-primary-800)] text-white hover:bg-[var(--color-primary-700)]"
+            }`}
+            disabled={requestState === 'accepted'}
         >
-            매칭 요청
+            {requestState === 'accepted'
+              ? "매칭완료"
+              : requestState === 'pending'
+              ? "요청취소"
+              : "매칭 요청"}
         </button>
 
       {/* Footer: Meta Info */}

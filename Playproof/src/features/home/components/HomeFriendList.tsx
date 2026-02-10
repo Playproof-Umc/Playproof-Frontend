@@ -16,6 +16,11 @@ interface HomeFriendListProps {
 
 export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
   const onlineCount = friends.filter((f) => f.isOnline).length;
+  const sortedFriends = [...friends].sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
+  const pages: Friend[][] = [];
+  for (let i = 0; i < sortedFriends.length; i += 3) {
+    pages.push(sortedFriends.slice(i, i + 3));
+  }
 
   return (
     <div className="flex h-full flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
@@ -29,37 +34,75 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
       </div>
 
       {/* 친구 리스트 */}
-      <ul className="flex-1 space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-        {friends.map((friend) => (
-          <li key={friend.id} className="flex items-center gap-3 group cursor-pointer">
-            {/* 아바타 + 온라인 표시 */}
-            <div className="relative">
-              <div className="h-10 w-10 flex-shrink-0 rounded-full bg-zinc-100 overflow-hidden ring-1 ring-black/5">
-                {friend.avatarUrl ? (
-                  <img src={friend.avatarUrl} alt={friend.nickname} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                    <User size={20} />
-                  </div>
+      {pages.length <= 1 ? (
+        <ul className="flex-1 space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+          {sortedFriends.map((friend) => (
+            <li key={friend.id} className="flex items-center gap-3 group cursor-pointer">
+              {/* 아바타 + 온라인 표시 */}
+              <div className="relative">
+                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-zinc-100 overflow-hidden ring-1 ring-black/5">
+                  {friend.avatarUrl ? (
+                    <img src={friend.avatarUrl} alt={friend.nickname} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                      <User size={20} />
+                    </div>
+                  )}
+                </div>
+                {friend.isOnline && (
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
                 )}
               </div>
-              {friend.isOnline && (
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
-              )}
-            </div>
 
-            {/* 정보 */}
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">
-                {friend.nickname}
+              {/* 정보 */}
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">
+                  {friend.nickname}
+                </div>
+                <div className="truncate text-xs font-medium text-zinc-500">
+                  {friend.statusMessage || (friend.isOnline ? "온라인" : "오프라인")}
+                </div>
               </div>
-              <div className="truncate text-xs font-medium text-zinc-500">
-                {friend.statusMessage || (friend.isOnline ? "온라인" : "오프라인")}
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="flex-1 overflow-hidden">
+          <div className="flex h-full gap-4 overflow-x-auto snap-x snap-mandatory pr-1 custom-scrollbar">
+            {pages.map((page, pageIndex) => (
+              <ul key={`page-${pageIndex}`} className="min-w-full snap-start space-y-4">
+                {page.map((friend) => (
+                  <li key={friend.id} className="flex items-center gap-3 group cursor-pointer">
+                    <div className="relative">
+                      <div className="h-10 w-10 flex-shrink-0 rounded-full bg-zinc-100 overflow-hidden ring-1 ring-black/5">
+                        {friend.avatarUrl ? (
+                          <img src={friend.avatarUrl} alt={friend.nickname} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                            <User size={20} />
+                          </div>
+                        )}
+                      </div>
+                      {friend.isOnline && (
+                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">
+                        {friend.nickname}
+                      </div>
+                      <div className="truncate text-xs font-medium text-zinc-500">
+                        {friend.statusMessage || (friend.isOnline ? "온라인" : "오프라인")}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

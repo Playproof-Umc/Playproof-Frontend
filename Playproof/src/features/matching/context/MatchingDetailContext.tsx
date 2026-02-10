@@ -12,6 +12,8 @@ type LikeState = {
 };
 
 type CommentCountMap = Record<number, number>;
+type RequestStatus = 'pending' | 'accepted';
+type RequestMap = Record<number, RequestStatus>;
 
 interface MatchingDetailContextType {
   isOpen: boolean;
@@ -24,6 +26,10 @@ interface MatchingDetailContextType {
   getLikeState: (post: MatchingData) => LikeState;
   getCommentCount: (post: MatchingData) => number;
   updateCommentCount: (postId: number, count: number) => void;
+  requestMatch: (post: MatchingData) => void;
+  cancelMatchRequest: (post: MatchingData) => void;
+  markMatchAccepted: (postId: number) => void;
+  getRequestState: (post: MatchingData) => RequestStatus | 'none';
 }
 
 const MatchingDetailContext = createContext<MatchingDetailContextType | undefined>(undefined);
@@ -41,6 +47,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
   const [likeMap, setLikeMap] = useState<Record<number, LikeState>>({});
   const [commentCountMap, setCommentCountMap] = useState<CommentCountMap>({});
+  const [requestMap, setRequestMap] = useState<RequestMap>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -128,6 +135,34 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     });
   }, []);
 
+  const getRequestState = useCallback(
+    (post: MatchingData) => {
+      if (post.isMatched) return 'accepted';
+      return requestMap[post.id] ?? 'none';
+    },
+    [requestMap]
+  );
+
+  const requestMatch = useCallback((post: MatchingData) => {
+    setRequestMap((prev) => {
+      if (prev[post.id] === 'pending' || prev[post.id] === 'accepted') return prev;
+      return { ...prev, [post.id]: 'pending' };
+    });
+  }, []);
+
+  const cancelMatchRequest = useCallback((post: MatchingData) => {
+    setRequestMap((prev) => {
+      if (!prev[post.id]) return prev;
+      const next = { ...prev };
+      delete next[post.id];
+      return next;
+    });
+  }, []);
+
+  const markMatchAccepted = useCallback((postId: number) => {
+    setRequestMap((prev) => ({ ...prev, [postId]: 'accepted' }));
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       isOpen,
@@ -140,6 +175,10 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      cancelMatchRequest,
+      markMatchAccepted,
+      getRequestState,
     }),
     [
       isOpen,
@@ -152,6 +191,10 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      cancelMatchRequest,
+      markMatchAccepted,
+      getRequestState,
     ]
   );
 

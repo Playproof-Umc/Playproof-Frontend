@@ -5,7 +5,7 @@ export const STORE_BANNERS: StoreBanner[] = [
   { 
     id: 1, 
     title: '배너 1', 
-    imageUrl: 'https://placehold.co/1200x300/2563eb/ffffff?text=Banner+1' 
+    imageUrl: '/store/banner.svg' 
   },
   { 
     id: 2, 
@@ -22,42 +22,40 @@ export const STORE_BANNERS: StoreBanner[] = [
 export const MOCK_PRODUCTS: Product[] = [
   {
     id: 1,
-    title: '체크메이트 프로필 (보유중)',
-    price: 3000,
+    title: '외각플레이트-화이트',
+    price: 15000,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Profile',
-    isOwned: true,
+    imageSrc: '/store/plate-white.svg',
     isRecommended: true,
   },
   {
     id: 2,
-    title: '비싼 아이템 (금액 부족)',
-    price: 999999,
+    title: '외각플레이트-블랙',
+    price: 15000,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Expensive',
-    isRecommended: false,
-  },
-  {
-    id: 3,
-    title: '멤버십 전용 아이템',
-    price: 1000,
-    category: 'ITEM',
-    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=VIP',
-    requiredMembership: true,
-  },
-  {
-    id: 4,
-    title: '일반 아이템 (추천)',
-    price: 500,
-    category: 'ITEM',
-    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Normal',
+    imageSrc: '/store/plate-black.svg',
     isRecommended: true,
   },
   {
-    id: 5,
-    title: '저렴한 아이템',
-    price: 100,
+    id: 3,
+    title: '아이콘-흰색말',
+    price: 8000,
     category: 'ITEM',
-    imageSrc: 'https://placehold.co/400x400/f1f5f9/cbd5e1?text=Cheap',
+    imageSrc: '/store/icon-whitenight.svg',
+    isRecommended: false,
+  },
+  {
+    id: 4,
+    title: '네임플레이트-화이트-글자없음',
+    price: 12000,
+    category: 'ITEM',
+    imageSrc: '/store/nameplate-white-noname.svg',
+  },
+  {
+    id: 5,
+    title: '네임플레이트-블랙-글자없음',
+    price: 12000,
+    category: 'ITEM',
+    imageSrc: '/store/nameplate-black-noname.svg',
   },
 ];

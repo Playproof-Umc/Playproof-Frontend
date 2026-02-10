@@ -135,6 +135,27 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
+  const updateAzitIcon = React.useCallback(
+    (azitId: number, iconUrl: string) => {
+      if (!iconUrl) return;
+      azitIconUrlsRef.current.push(iconUrl);
+      setAzits((prev) =>
+        prev.map((azit) =>
+          azit.id === azitId ? { ...azit, icon: iconUrl } : azit
+        )
+      );
+    },
+    []
+  );
+
+  const updateAzitName = React.useCallback((azitId: number, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setAzits((prev) =>
+      prev.map((azit) => (azit.id === azitId ? { ...azit, name: trimmed } : azit))
+    );
+  }, []);
+
   const handleAddChatRoom = React.useCallback(
     (name: string, type: "TEXT" | "VOICE") => {
       addChatRoom(name, type);
@@ -194,6 +215,8 @@ export function useAzitPageLogic() {
       deleteChatRoom: handleDeleteChatRoom,
       addChatMessage,
       addAzit,
+      updateAzitIcon,
+      updateAzitName,
       openFeedbackModal,
       closeFeedbackModal,
       submitFeedback,
