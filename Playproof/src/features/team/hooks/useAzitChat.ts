@@ -1,83 +1,121 @@
-// src/features/team/hooks/useAzitChat.ts
+// playproof/src/features/azit/hooks/useAzitChat.ts
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useAzitSocket, type ChatMessage, type ApiError } from "./useAzitSocket";
+import { getChatMessages } from "@/features/team/api/chatApi";
+import { useAuthStore } from "@/store/authStore";
 
-import { useState, useRef } from 'react';
-import type { ChangeEvent } from 'react';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my";
 
-export const useAzitChat = () => {
-  const [message, setMessage] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewItems, setPreviewItems] = useState<{ url: string; type: "image" | "video" }[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const MAX_FILES = 10;
+export const useAzitChat = (
+  params: {
+    roomId?: number;
+  } = {} // ✅ 방법 A: 기본값 추가
+) => {
+  const { roomId } = params;
 
-  // 파일 선택
-  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const accessToken = useAuthStore((s) => s.accessToken);
 
-    let nextFiles: File[] = [];
-    setSelectedFiles((prev) => {
-      const remaining = MAX_FILES - prev.length;
-      if (remaining <= 0) {
-        return prev;
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  const messageIdSetRef = useRef<Set<number>>(new Set());
+
+  const {
+    isConnected,
+    currentRoomId,
+    sendMessage,
+  } = useAzitSocket({
+    roomId,
+    onMessage: (msg) => {
+      if (msg.chatRoomId !== roomId) return;
+      if (messageIdSetRef.current.has(msg.id)) return;
+
+      messageIdSetRef.current.add(msg.id);
+      setMessages((prev) => [...prev, msg]);
+    },
+    onError: (err) => setError(err),
+  });
+
+  useEffect(() => {
+    setMessages([]);
+    setNextCursor(null);
+    setError(null);
+    messageIdSetRef.current.clear();
+  }, [roomId]);
+
+  const loadMessages = useCallback(
+    async (opts?: { initial?: boolean }) => {
+      if (!roomId || !accessToken) return;
+      if (isLoading) return;
+      if (!opts?.initial && nextCursor === null) return;
+
+      setIsLoading(true);
+      try {
+        const res = await getChatMessages({
+          apiBaseUrl: API_BASE_URL,
+          accessToken,
+          roomId,
+          cursor: opts?.initial ? undefined : nextCursor,
+        });
+
+        const fetched = res.messages ?? [];
+        const newOnes: ChatMessage[] = [];
+
+        for (const m of fetched) {
+          if (!messageIdSetRef.current.has(m.id)) {
+            messageIdSetRef.current.add(m.id);
+            newOnes.push(m);
+          }
+        }
+
+        if (newOnes.length > 0) {
+          setMessages((prev) => [...newOnes, ...prev]);
+        }
+
+        setNextCursor(res.nextCursor);
+      } catch (e) {
+        setError({
+          code: "FETCH_MESSAGES_FAILED",
+          message: e instanceof Error ? e.message : "Failed to fetch messages",
+        });
+      } finally {
+        setIsLoading(false);
       }
-      nextFiles = files.slice(0, remaining);
-      return [...prev, ...nextFiles];
-    });
-    if (nextFiles.length > 0) {
-      const newPreviewItems = nextFiles.map((file) => {
-        const mediaType: "image" | "video" = file.type.startsWith("video/") ? "video" : "image";
-        return {
-          url: URL.createObjectURL(file),
-          type: mediaType,
-        };
-      });
-      setPreviewItems((prev) => [...prev, ...newPreviewItems]);
-    }
-    
-    // 같은 파일 재선택 가능하도록 초기화
-    e.target.value = '';
-  };
+    },
+    [roomId, accessToken, nextCursor, isLoading]
+  );
 
-  // 이미지 삭제
-  const handleRemoveImage = (indexToRemove: number) => {
-    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-    setPreviewItems((prev) => {
-      URL.revokeObjectURL(prev[indexToRemove].url); // 메모리 해제
-      return prev.filter((_, index) => index !== indexToRemove);
-    });
-  };
+  useEffect(() => {
+    if (!roomId) return;
+    loadMessages({ initial: true });
+  }, [roomId, loadMessages]);
 
-  // 파일 선택창 열기
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
+  const onSendMessage = useCallback(
+    async (content: string) => {
+      if (!roomId) return;
+      if (!isConnected || currentRoomId !== roomId) {
+        throw new Error("Socket not ready");
+      }
 
-  // 메시지 전송 (API 호출 로직이 들어갈 곳)
-  const sendMessage = () => {
-    if (!message.trim() && selectedFiles.length === 0) return;
-    
-    console.log('Send:', { message, selectedFiles });
-    
-    // 초기화
-    setMessage('');
-    setSelectedFiles([]);
-    setPreviewItems((prev) => {
-      prev.forEach((item) => URL.revokeObjectURL(item.url));
-      return [];
-    });
-  };
+      const msg = await sendMessage(roomId, content);
+
+      if (!messageIdSetRef.current.has(msg.id)) {
+        messageIdSetRef.current.add(msg.id);
+        setMessages((prev) => [...prev, msg]);
+      }
+    },
+    [roomId, isConnected, currentRoomId, sendMessage]
+  );
 
   return {
-    message,
-    setMessage,
-    selectedFiles,
-    previewItems,
-    fileInputRef,
-    handleFileSelect,
-    handleRemoveImage,
-    triggerFileInput,
-    sendMessage,
-    hasContent: message.trim() !== '' || selectedFiles.length > 0
+    messages,
+    isLoading,
+    error,
+    hasMore: nextCursor !== null,
+    loadMore: () => loadMessages(),
+    sendMessage: onSendMessage,
   };
 };

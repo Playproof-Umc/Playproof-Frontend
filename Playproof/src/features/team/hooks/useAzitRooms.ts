@@ -1,283 +1,217 @@
 // src/features/team/hooks/useAzitRooms.ts
 
 import React from "react";
-import type { User } from "@/types";
+import type { User } from "@/features/team/types/types";
 
-type ChatMessage = {
+export type ChatRoomSummary = {
+  id: number;        // chatRoomId
+  roomName: string;
+};
+
+export type ChatMessageUI = {
   id: string;
   author: string;
   content: string;
   createdAt: string;
-  media?: { url: string; type: "image" | "video" }[];
 };
 
-const createDefaultVoiceRooms = () => [
-  { id: "voice-lobby", name: "로비", users: [] as User[] },
-];
+export type VoiceRoomMember = {
+  user: User;
+  micOn: boolean;
+};
 
-const createDefaultTextRooms = () => ["자유 대화"];
+export type VoiceRoom = {
+  id: string;
+  name: string;
+  users: VoiceRoomMember[];
+};
+
+const createDefaultVoiceRooms = (): VoiceRoom[] => [{ id: "voice-lobby", name: "로비", users: [] }];
 
 export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
-  const [selectedChatRoomByAzit, setSelectedChatRoomByAzit] = React.useState<
-    Record<number, string>
-  >({
-    1: "자유 대화",
-    2: "자유 대화",
-    3: "자유 대화",
+  const [chatRoomsByAzit, setChatRoomsByAzit] = React.useState<Record<number, ChatRoomSummary[]>>({
+    1: [],
+    2: [],
+    3: [],
   });
-  const [textRoomsByAzit, setTextRoomsByAzit] = React.useState<Record<number, string[]>>({
-    1: createDefaultTextRooms(),
-    2: createDefaultTextRooms(),
-    3: createDefaultTextRooms(),
+
+  const [selectedChatRoomIdByAzit, setSelectedChatRoomIdByAzit] = React.useState<Record<number, number | null>>({
+    1: null,
+    2: null,
+    3: null,
   });
-  const [messagesByAzit, setMessagesByAzit] = React.useState<
-    Record<number, Record<string, ChatMessage[]>>
-  >({
-    1: { "자유 대화": [] },
-    2: { "자유 대화": [] },
-    3: { "자유 대화": [] },
+
+  const [messagesByAzit, setMessagesByAzit] = React.useState<Record<number, Record<number, ChatMessageUI[]>>>({
+    1: {},
+    2: {},
+    3: {},
   });
-  const [voiceRoomsByAzit, setVoiceRoomsByAzit] = React.useState<
-    Record<number, { id: string; name: string; users: User[] }[]>
-  >({
+
+  const [voiceRoomsByAzit, setVoiceRoomsByAzit] = React.useState<Record<number, VoiceRoom[]>>({
     1: createDefaultVoiceRooms(),
     2: createDefaultVoiceRooms(),
     3: createDefaultVoiceRooms(),
   });
 
-  const selectedChatRoom = selectedChatRoomByAzit[currentAzitId] ?? "자유 대화";
-  const voiceRooms = voiceRoomsByAzit[currentAzitId] ?? createDefaultVoiceRooms();
-  const textRooms = textRoomsByAzit[currentAzitId] ?? createDefaultTextRooms();
-  const messages = messagesByAzit[currentAzitId]?.[selectedChatRoom] ?? [];
+  const [myVoiceRoomIdByAzit, setMyVoiceRoomIdByAzit] = React.useState<Record<number, string | null>>({
+    1: null,
+    2: null,
+    3: null,
+  });
+
+  const chatRooms = chatRoomsByAzit[currentAzitId] ?? [];
+  const selectedChatRoomId = selectedChatRoomIdByAzit[currentAzitId] ?? null;
+
+  const selectedChatRoomName = React.useMemo(() => {
+    if (!selectedChatRoomId) return "";
+    return chatRooms.find((r) => r.id === selectedChatRoomId)?.roomName ?? "";
+  }, [chatRooms, selectedChatRoomId]);
+
+  const messages =
+    selectedChatRoomId && messagesByAzit[currentAzitId]?.[selectedChatRoomId]
+      ? messagesByAzit[currentAzitId][selectedChatRoomId]
+      : [];
+
+  const setChatRoomsFromServer = React.useCallback(
+    (rooms: ChatRoomSummary[]) => {
+      setChatRoomsByAzit((prev) => ({ ...prev, [currentAzitId]: rooms }));
+
+      setMessagesByAzit((prev) => {
+        const byAzit = { ...(prev[currentAzitId] ?? {}) };
+        for (const r of rooms) {
+          if (!byAzit[r.id]) byAzit[r.id] = [];
+        }
+        return { ...prev, [currentAzitId]: byAzit };
+      });
+
+      setSelectedChatRoomIdByAzit((prev) => {
+        const cur = prev[currentAzitId] ?? null;
+        if (cur && rooms.some((r) => r.id === cur)) return prev;
+        return { ...prev, [currentAzitId]: rooms[0]?.id ?? null };
+      });
+    },
+    [currentAzitId]
+  );
+
+  const setVoiceRoomsFromServer = React.useCallback(
+    (rooms: VoiceRoom[]) => {
+      setVoiceRoomsByAzit((prev) => ({ ...prev, [currentAzitId]: rooms }));
+    },
+    [currentAzitId]
+  );
 
   const setSelectedChatRoom = React.useCallback(
-    (roomName: string) => {
-      setSelectedChatRoomByAzit((prev) => ({ ...prev, [currentAzitId]: roomName }));
-    },
-    [currentAzitId]
-  );
-
-  const addChatRoom = React.useCallback(
-    (name: string, type: "TEXT" | "VOICE") => {
-      if (!name.trim()) return;
-      if (type === "TEXT") {
-        setTextRoomsByAzit((prev) => {
-          const currentRooms = prev[currentAzitId] ?? [];
-          if (currentRooms.includes(name)) return prev;
-          return { ...prev, [currentAzitId]: [name, ...currentRooms] };
-        });
-        setMessagesByAzit((prev) => {
-          const currentAzitMessages = prev[currentAzitId] ?? {};
-          if (currentAzitMessages[name]) return prev;
-          return {
-            ...prev,
-            [currentAzitId]: { ...currentAzitMessages, [name]: [] },
-          };
-        });
-        setSelectedChatRoomByAzit((prev) => ({ ...prev, [currentAzitId]: name }));
-        return;
-      }
-
-      setVoiceRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
-        if (currentRooms.some((room) => room.name === name)) return prev;
-        const nextRooms = [
-          { id: `voice-${Date.now()}`, name, users: [] as User[] },
-          ...currentRooms,
-        ];
-        return { ...prev, [currentAzitId]: nextRooms };
-      });
-    },
-    [currentAzitId]
-  );
-
-  const renameVoiceRoom = React.useCallback(
-    (roomId: string, nextName: string) => {
-      const trimmed = nextName.trim();
-      if (!trimmed) return;
-      setVoiceRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
-        if (currentRooms.some((room) => room.name === trimmed)) {
-          return prev;
-        }
-        const nextRooms = currentRooms.map((room) =>
-          room.id === roomId ? { ...room, name: trimmed } : room
-        );
-        return { ...prev, [currentAzitId]: nextRooms };
-      });
-    },
-    [currentAzitId]
-  );
-
-  const deleteVoiceRoom = React.useCallback(
-    (roomId: string) => {
-      setVoiceRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
-        if (currentRooms.length <= 1) return prev;
-        const nextRooms = currentRooms.filter((room) => room.id !== roomId);
-        return { ...prev, [currentAzitId]: nextRooms };
-      });
-    },
-    [currentAzitId]
-  );
-
-  const renameChatRoom = React.useCallback(
-    (roomName: string, nextName: string) => {
-      const trimmed = nextName.trim();
-      if (!trimmed || trimmed === roomName) return;
-
-      let duplicate = false;
-      setTextRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? [];
-        if (currentRooms.includes(trimmed)) {
-          duplicate = true;
-          return prev;
-        }
-        const updatedRooms = currentRooms.map((room) =>
-          room === roomName ? trimmed : room
-        );
-        return { ...prev, [currentAzitId]: updatedRooms };
-      });
-      if (duplicate) return;
-
+    (roomId: number) => {
+      setSelectedChatRoomIdByAzit((prev) => ({ ...prev, [currentAzitId]: roomId }));
       setMessagesByAzit((prev) => {
-        const currentAzitMessages = prev[currentAzitId] ?? {};
-        if (currentAzitMessages[trimmed]) return prev;
-        const { [roomName]: roomMessages, ...rest } = currentAzitMessages;
-        return {
-          ...prev,
-          [currentAzitId]: {
-            ...rest,
-            [trimmed]: roomMessages ?? [],
-          },
-        };
+        const byAzit = prev[currentAzitId] ?? {};
+        if (byAzit[roomId]) return prev;
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [] } };
       });
-
-      setSelectedChatRoomByAzit((prev) =>
-        prev[currentAzitId] === roomName
-          ? { ...prev, [currentAzitId]: trimmed }
-          : prev
-      );
     },
     [currentAzitId]
   );
 
-  const deleteChatRoom = React.useCallback(
-    (roomName: string) => {
-      setTextRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? [];
-        if (currentRooms.length <= 1) return prev;
-        const nextRooms = currentRooms.filter((room) => room !== roomName);
-        return { ...prev, [currentAzitId]: nextRooms };
-      });
-
+  const replaceMessagesForRoom = React.useCallback(
+    (roomId: number, next: ChatMessageUI[]) => {
       setMessagesByAzit((prev) => {
-        const currentAzitMessages = prev[currentAzitId] ?? {};
-        const nextMessages = { ...currentAzitMessages };
-        delete nextMessages[roomName];
-        return {
-          ...prev,
-          [currentAzitId]:
-            Object.keys(nextMessages).length > 0 ? nextMessages : { "자유 대화": [] },
-        };
-      });
-
-      setSelectedChatRoomByAzit((prev) => {
-        if (prev[currentAzitId] !== roomName) return prev;
-        const rooms = textRoomsByAzit[currentAzitId] ?? [];
-        const nextRooms = rooms.filter((room) => room !== roomName);
-        const fallback = nextRooms[0] ?? "자유 대화";
-        return { ...prev, [currentAzitId]: fallback };
+        const byAzit = prev[currentAzitId] ?? {};
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: next } };
       });
     },
-    [currentAzitId, textRoomsByAzit]
+    [currentAzitId]
   );
 
-  const addChatMessage = React.useCallback(
-    (
-      roomName: string,
-      content: string,
-      media: { url: string; type: "image" | "video" }[]
-    ) => {
-      const text = content.trim();
-      if (!text && media.length === 0) return;
-
-      const newMessage: ChatMessage = {
-        id: `${Date.now()}`,
-        author: currentUser.nickname,
-        content: text,
-        createdAt: "방금 전",
-        media: media.length > 0 ? media : undefined,
-      };
-
+  const appendMessageToRoom = React.useCallback(
+    (roomId: number, msg: ChatMessageUI) => {
       setMessagesByAzit((prev) => {
-        const currentAzitMessages = prev[currentAzitId] ?? {};
-        const roomMessages = currentAzitMessages[roomName] ?? [];
-        return {
-          ...prev,
-          [currentAzitId]: {
-            ...currentAzitMessages,
-            [roomName]: [newMessage, ...roomMessages],
-          },
-        };
+        const byAzit = prev[currentAzitId] ?? {};
+        const list = byAzit[roomId] ?? [];
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [msg, ...list] } };
       });
     },
-    [currentAzitId, currentUser.nickname]
+    [currentAzitId]
   );
 
+  // voice
+  const voiceRooms = voiceRoomsByAzit[currentAzitId] ?? createDefaultVoiceRooms();
+  const myVoiceRoomId = myVoiceRoomIdByAzit[currentAzitId] ?? null;
+
+  // ✅ [수정됨] userOverride 파라미터 추가
   const joinVoiceRoom = React.useCallback(
-    (roomId: string) => {
-      const me = currentUser;
+    (roomId: string, userOverride?: User) => {
+      // 전달받은 user 정보가 있으면 그것을 쓰고, 없으면 currentUser(store/mock) 사용
+      const me = userOverride ?? currentUser;
+
       setVoiceRoomsByAzit((prev) => {
-        const currentRooms = prev[currentAzitId] ?? [];
-        const hadMeInTarget = currentRooms.some(
-          (room) =>
-            room.id === roomId &&
-            room.users.some((user) => String(user.id) === String(me.id))
-        );
-
-        const nextState: Record<number, { id: string; name: string; users: User[] }[]> = {};
-
+        const nextState: Record<number, VoiceRoom[]> = {};
         Object.entries(prev).forEach(([azitKey, rooms]) => {
           nextState[Number(azitKey)] = rooms.map((room) => ({
             ...room,
-            users: room.users.filter((user) => String(user.id) !== String(me.id)),
+            users: room.users.filter((m) => String(m.user.id) !== String(me.id)),
           }));
         });
 
-        if (!hadMeInTarget) {
-          const targetRooms = nextState[currentAzitId] ?? createDefaultVoiceRooms();
-          nextState[currentAzitId] = targetRooms.map((room) =>
-            room.id === roomId ? { ...room, users: [...room.users, me] } : room
-          );
-        }
+        const targetRooms = nextState[currentAzitId] ?? createDefaultVoiceRooms();
+        nextState[currentAzitId] = targetRooms.map((room) =>
+          room.id === roomId ? { ...room, users: [...room.users, { user: me, micOn: true }] } : room
+        );
 
         return nextState;
       });
+
+      setMyVoiceRoomIdByAzit((prev) => ({ ...prev, [currentAzitId]: roomId }));
     },
     [currentAzitId, currentUser]
   );
 
+  const toggleMyMic = React.useCallback(
+    (roomId?: string) => {
+      const me = currentUser;
+      const target = roomId ?? myVoiceRoomIdByAzit[currentAzitId] ?? null;
+      if (!target) return;
+
+      setVoiceRoomsByAzit((prev) => {
+        const rooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
+        const nextRooms = rooms.map((room) => {
+          if (room.id !== target) return room;
+          return {
+            ...room,
+            users: room.users.map((m) =>
+              String(m.user.id) === String(me.id) ? { ...m, micOn: !m.micOn } : m
+            ),
+          };
+        });
+        return { ...prev, [currentAzitId]: nextRooms };
+      });
+    },
+    [currentAzitId, currentUser, myVoiceRoomIdByAzit]
+  );
+
   const initAzitRooms = React.useCallback((azitId: number) => {
-    setSelectedChatRoomByAzit((prev) => ({ ...prev, [azitId]: "자유 대화" }));
-    setTextRoomsByAzit((prev) => ({ ...prev, [azitId]: createDefaultTextRooms() }));
-    setMessagesByAzit((prev) => ({ ...prev, [azitId]: { "자유 대화": [] } }));
+    setChatRoomsByAzit((prev) => ({ ...prev, [azitId]: [] }));
+    setSelectedChatRoomIdByAzit((prev) => ({ ...prev, [azitId]: null }));
+    setMessagesByAzit((prev) => ({ ...prev, [azitId]: {} }));
     setVoiceRoomsByAzit((prev) => ({ ...prev, [azitId]: createDefaultVoiceRooms() }));
+    setMyVoiceRoomIdByAzit((prev) => ({ ...prev, [azitId]: null }));
   }, []);
 
   return {
-    selectedChatRoom,
-    voiceRooms,
-    textRooms,
+    chatRooms,
+    selectedChatRoomId,
+    selectedChatRoomName,
     messages,
+    setChatRoomsFromServer,
+    setVoiceRoomsFromServer,
     setSelectedChatRoom,
-    addChatRoom,
-    renameVoiceRoom,
-    deleteVoiceRoom,
-    renameChatRoom,
-    deleteChatRoom,
-    addChatMessage,
+    replaceMessagesForRoom,
+    appendMessageToRoom,
+
+    voiceRooms,
+    myVoiceRoomId,
     joinVoiceRoom,
+    toggleMyMic,
+
     initAzitRooms,
   };
 };
