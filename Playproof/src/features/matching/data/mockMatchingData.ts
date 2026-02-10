@@ -17,6 +17,7 @@ export const MOCK_MATCHING_DATA: MatchingData[] = [
     views: 120,
     likes: 55, // 인기 매칭 테스트용 (likes >= 50)
     isLiked: false,
+    isMatched: true,
     comments: 2,
     tsScore: 95,
     mic: true,
@@ -185,6 +186,27 @@ export const MOCK_MATCHING_DATA: MatchingData[] = [
   {
     id: 10,
     game: '발로란트',
+    title: '매칭 완료된 파티',
+    tier: '플래티넘',
+    tags: ['완료', '모집 종료'],
+    azit: '신규 생성',
+    position: ['all'],
+    memo: '요청이 수락되어 매칭이 완료된 상태입니다.',
+    currentMembers: 5,
+    maxMembers: 5,
+    time: '방금 전',
+    views: 30,
+    likes: 6,
+    isLiked: false,
+    isMatched: true,
+    comments: 1,
+    tsScore: 88,
+    mic: true,
+    hostUser: { id: 'user-10', nickname: '레이나', avatarUrl: '' }
+  },
+  {
+    id: 13,
+    game: '발로란트',
     title: '일반전 하실 분',
     tier: '골드',
     tags: ['소통', '즐겜'],
@@ -200,10 +222,10 @@ export const MOCK_MATCHING_DATA: MatchingData[] = [
     comments: 0,
     tsScore: 82,
     mic: true,
-    hostUser: { id: 'user-10', nickname: '레이나', avatarUrl: '' }
+    hostUser: { id: 'user-13', nickname: '레이나', avatarUrl: '' }
   },
   {
-    id: 11,
+    id: 14,
     game: '리그오브레전드',
     title: '듀오 구함 서폿 유저',
     tier: '플래티넘',
@@ -220,10 +242,10 @@ export const MOCK_MATCHING_DATA: MatchingData[] = [
     comments: 1,
     tsScore: 85,
     mic: true,
-    hostUser: { id: 'user-11', nickname: '룰루', avatarUrl: '' }
+    hostUser: { id: 'user-14', nickname: '룰루', avatarUrl: '' }
   },
   {
-    id: 12,
+    id: 15,
     game: '오버워치',
     title: '그마 구간 빡겜',
     tier: '그랜드마스터',
@@ -240,6 +262,6 @@ export const MOCK_MATCHING_DATA: MatchingData[] = [
     comments: 8,
     tsScore: 96,
     mic: true,
-    hostUser: { id: 'user-12', nickname: '윈스턴', avatarUrl: '' }
+    hostUser: { id: 'user-15', nickname: '윈스턴', avatarUrl: '' }
   }
 ];

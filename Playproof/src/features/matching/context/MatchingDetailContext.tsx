@@ -12,7 +12,8 @@ type LikeState = {
 };
 
 type CommentCountMap = Record<number, number>;
-type RequestMap = Record<number, boolean>;
+type RequestStatus = 'pending' | 'accepted';
+type RequestMap = Record<number, RequestStatus>;
 
 interface MatchingDetailContextType {
   isOpen: boolean;
@@ -26,7 +27,9 @@ interface MatchingDetailContextType {
   getCommentCount: (post: MatchingData) => number;
   updateCommentCount: (postId: number, count: number) => void;
   requestMatch: (post: MatchingData) => void;
-  getRequestState: (post: MatchingData) => boolean;
+  cancelMatchRequest: (post: MatchingData) => void;
+  markMatchAccepted: (postId: number) => void;
+  getRequestState: (post: MatchingData) => RequestStatus | 'none';
 }
 
 const MatchingDetailContext = createContext<MatchingDetailContextType | undefined>(undefined);
@@ -134,16 +137,30 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
 
   const getRequestState = useCallback(
     (post: MatchingData) => {
-      return requestMap[post.id] ?? false;
+      if (post.isMatched) return 'accepted';
+      return requestMap[post.id] ?? 'none';
     },
     [requestMap]
   );
 
   const requestMatch = useCallback((post: MatchingData) => {
     setRequestMap((prev) => {
-      if (prev[post.id]) return prev;
-      return { ...prev, [post.id]: true };
+      if (prev[post.id] === 'pending' || prev[post.id] === 'accepted') return prev;
+      return { ...prev, [post.id]: 'pending' };
     });
+  }, []);
+
+  const cancelMatchRequest = useCallback((post: MatchingData) => {
+    setRequestMap((prev) => {
+      if (!prev[post.id]) return prev;
+      const next = { ...prev };
+      delete next[post.id];
+      return next;
+    });
+  }, []);
+
+  const markMatchAccepted = useCallback((postId: number) => {
+    setRequestMap((prev) => ({ ...prev, [postId]: 'accepted' }));
   }, []);
 
   const contextValue = useMemo(
@@ -159,6 +176,8 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getCommentCount,
       updateCommentCount,
       requestMatch,
+      cancelMatchRequest,
+      markMatchAccepted,
       getRequestState,
     }),
     [
@@ -173,6 +192,8 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getCommentCount,
       updateCommentCount,
       requestMatch,
+      cancelMatchRequest,
+      markMatchAccepted,
       getRequestState,
     ]
   );
