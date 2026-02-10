@@ -3,17 +3,17 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import type { User } from "@/types";
+import { useAuthStore } from "@/store/authStore";
 import {
   MOCK_MY_AZITS,
   mockMembers,
   mockClipsByAzit,
-  mockMembersByAzit,
 } from "@/features/team/data/mockTeamData";
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
 import { useAzitMedia } from "@/features/team/hooks/useAzitMedia";
 import { useAzitRooms } from "@/features/team/hooks/useAzitRooms";
-import { getAzits } from "@/features/team/api/azitApi";
+import { getAzits, getAzitMembers } from "@/features/team/api/azitApi";
 
 const FALLBACK_USER_ID = "1";
 export function useAzitPageLogic() {
@@ -21,14 +21,16 @@ export function useAzitPageLogic() {
   const state = location.state as { azitId?: number } | null;
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
   const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
+  const [currentMembers, setCurrentMembers] = React.useState<User[]>([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
-  const currentUserId = FALLBACK_USER_ID;
+  const { userId, nickname } = useAuthStore();
+  const currentUserId = userId ? String(userId) : FALLBACK_USER_ID;
 
   const currentUser =
     mockMembers.find((member) => String(member.id) === String(currentUserId)) ??
     ({
       id: String(currentUserId),
-      nickname: "사용자",
+      nickname: nickname ?? "사용자",
       avatarUrl: "",
       isOnline: true,
     } as User);
@@ -119,7 +121,35 @@ export function useAzitPageLogic() {
     azits.find((azit) => azit.id === currentAzitId) ??
     azits[0] ??
     { id: 0, name: "", memberCount: 0, icon: "" };
-  const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
+  React.useEffect(() => {
+    let isActive = true;
+
+    const fetchMembers = async () => {
+      try {
+        const members = await getAzitMembers(currentAzitId);
+        if (!isActive) return;
+        setCurrentMembers(members);
+        setAzits((prev) =>
+          prev.map((azit) =>
+            azit.id === currentAzitId
+              ? { ...azit, memberCount: members.length }
+              : azit
+          )
+        );
+      } catch {
+        if (!isActive) return;
+        setCurrentMembers([]);
+      }
+    };
+
+    if (currentAzitId) {
+      fetchMembers();
+    }
+
+    return () => {
+      isActive = false;
+    };
+  }, [currentAzitId]);
   const currentClips = clipsByAzit[currentAzitId]?.[selectedChatRoom] ?? [];
   const addChatMessage = React.useCallback(
     (roomName: string, content: string, files: File[]) => {
