@@ -84,15 +84,9 @@ export function useLoginForm() {
       
       // 1. 토큰 저장
       auth.setAuth({
-<<<<<<< HEAD
         accessToken: res.data.accessToken,
-        userId: 0, // 임시값 (곧 /users/my-profile에서 가져올 것)
-        nickname: '', // 임시값
-=======
-        accessToken: res.accessToken, // loginApi 응답 구조에 따라 res.data.accessToken일 수도 있음 (수정된 loginApi.ts 기준이면 res.accessToken)
-        userId: res.userId,
-        nickname: res.nickname,
->>>>>>> develop
+        userId: res.data.userId ?? 0, // /users/me에서 갱신됨
+        nickname: res.data.nickname ?? "",
       });
 
       try {
@@ -183,16 +177,8 @@ export function useLoginForm() {
     const ok = validateOnSubmit();
     if (!ok) return;
 
-<<<<<<< HEAD
     const requestBody = {
       phone: formatPhoneNumber(normalizedPhone), // 010-1234-5678 형식
-=======
-    // ✅ [수정] normalizedPhone(숫자만)을 하이픈 형식으로 변환해서 전송
-    const formattedPhone = formatPhoneNumber(normalizedPhone);
-
-    mutation.mutate({
-      phoneNumber: formattedPhone, // "01012345678" -> "010-1234-5678"
->>>>>>> develop
       password,
     };
 
