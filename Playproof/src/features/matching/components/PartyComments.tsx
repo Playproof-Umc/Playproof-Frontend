@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { User, CornerDownRight, Loader2, X } from 'lucide-react';
 import { usePartyComments } from '@/features/matching/hooks/usePartyComments';
-import type { PartyComment } from '@/services/partyApi';
 
 interface PartyCommentsProps {
   partyId: number;
@@ -33,24 +32,12 @@ export const PartyComments = ({ partyId, currentUserId, currentUserName = '나' 
     isDeleting,
   } = usePartyComments(partyId);
 
-  const focusCommentInput = () => {
-    requestAnimationFrame(() => {
-      commentInputRef.current?.focus();
-    });
-  };
-
   // 댓글 작성
   const handleCommentSubmit = () => {
-    console.log('📝 댓글 제출 시작, 내용:', newComment);
-    if (!newComment.trim()) {
-      console.log('⚠️ 댓글 내용 없음, 제출 취소');
-      return;
-    }
+    if (!newComment.trim()) return;
 
     const content = newComment.trim();
-    console.log('✅ 댓글 초기화 전, 내용:', content);
     setNewComment(''); // 즉시 초기화
-    console.log('🔄 댓글 폼 초기화됨');
 
     createComment({
       content,
@@ -135,7 +122,6 @@ export const PartyComments = ({ partyId, currentUserId, currentUserName = '나' 
     if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      console.log('💬 댓글 엔터 제출, 현재 내용:', newComment);
       handleCommentSubmit();
     }
   };

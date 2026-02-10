@@ -19,7 +19,7 @@ export const usePartyApplications = (partyId?: number) => {
   const updateMutation = useMutation({
     mutationFn: ({ applicationId, isAccepted }: { applicationId: number; isAccepted: boolean }) =>
       updateApplication(applicationId, { isAccepted }),
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       const action = variables.isAccepted ? '수락' : '거절';
       alert(`신청을 ${action}했습니다.`);
       // 신청자 목록 새로고침

@@ -68,7 +68,7 @@ export const useMatchingBoard = () => {
       hostUser: {
         id: String(party.host.id),
         nickname: party.host.nickname,
-        avatarUrl: party.host.avatarUrl,
+        avatarUrl: party.host.avatarUrl ?? undefined,
         isOnline: party.status === 'active',
       }
     }));
