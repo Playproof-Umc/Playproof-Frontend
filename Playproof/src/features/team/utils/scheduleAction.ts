@@ -5,6 +5,7 @@ import type { Schedule } from "@/features/team/types";
 export type ScheduleActionStatus =
   | "FEEDBACK_DONE"
   | "RECRUITMENT_FAILED"
+  | "RECRUITMENT_ENDED"
   | "TIME_OVER"
   | "CREATOR"
   | "JOINED"
@@ -18,6 +19,7 @@ type ScheduleActionState = {
   myStatus: "JOIN" | "DECLINE" | "PENDING";
   isTimeOver: boolean;
   isRecruitmentFailed: boolean;
+  isRecruitmentEnded: boolean;
   isCreator: boolean;
 };
 
@@ -27,6 +29,9 @@ export const getScheduleActionState = (
 ): ScheduleActionState => {
   const now = new Date();
   const isTimeOver = now.getTime() >= schedule.fullDate.getTime();
+  const isRecruitmentEnded = schedule.recruitmentEndAt
+    ? now.getTime() >= schedule.recruitmentEndAt.getTime()
+    : false;
   const joinedParticipants = schedule.participants.filter((p) => p.status === "JOIN");
   const joinedCount = joinedParticipants.length;
   const myInfo = schedule.participants.find(
@@ -44,6 +49,7 @@ export const getScheduleActionState = (
       myStatus,
       isTimeOver,
       isRecruitmentFailed,
+      isRecruitmentEnded,
       isCreator,
     };
   }
@@ -56,6 +62,20 @@ export const getScheduleActionState = (
       myStatus,
       isTimeOver,
       isRecruitmentFailed,
+      isRecruitmentEnded,
+      isCreator,
+    };
+  }
+
+  if (isRecruitmentEnded) {
+    return {
+      status: "RECRUITMENT_ENDED",
+      joinedParticipants,
+      joinedCount,
+      myStatus,
+      isTimeOver,
+      isRecruitmentFailed,
+      isRecruitmentEnded,
       isCreator,
     };
   }
@@ -68,6 +88,7 @@ export const getScheduleActionState = (
       myStatus,
       isTimeOver,
       isRecruitmentFailed,
+      isRecruitmentEnded,
       isCreator,
     };
   }
@@ -80,6 +101,7 @@ export const getScheduleActionState = (
       myStatus,
       isTimeOver,
       isRecruitmentFailed,
+      isRecruitmentEnded,
       isCreator,
     };
   }
@@ -92,6 +114,7 @@ export const getScheduleActionState = (
       myStatus,
       isTimeOver,
       isRecruitmentFailed,
+      isRecruitmentEnded,
       isCreator,
     };
   }
@@ -103,6 +126,7 @@ export const getScheduleActionState = (
     myStatus,
     isTimeOver,
     isRecruitmentFailed,
+    isRecruitmentEnded,
     isCreator,
   };
 };

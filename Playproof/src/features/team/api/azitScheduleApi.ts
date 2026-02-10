@@ -23,7 +23,17 @@ const normalizeUser = (item: Record<string, any> | undefined): User | null => {
   if (!item) return null;
   const id = item.id ?? item.user_id ?? item.userId ?? "";
   const nickname = item.nickname ?? item.name ?? "";
-  const avatarUrl = item.avatarUrl ?? item.avatar_url ?? item.profile_image ?? undefined;
+  const avatarUrl =
+    item.avatarUrl ??
+    item.avatar_url ??
+    item.profile_image ??
+    item.profileImage ??
+    item.profile_url ??
+    item.profileUrl ??
+    item.image_url ??
+    item.imageUrl ??
+    item.avatar ??
+    undefined;
 
   return {
     id: String(id),
@@ -44,6 +54,15 @@ const normalizeSchedule = (item: RawSchedule): Schedule => {
     item.game_start_at ?? item.gameStartAt ?? item.start_at ?? item.startAt ?? item.start_time;
   const startDate = startAtRaw ? new Date(startAtRaw) : new Date();
 
+  const recruitEndRaw =
+    item.recruitment_end_at ??
+    item.recruitmentEndAt ??
+    item.recruit_end_at ??
+    item.recruitEndAt ??
+    item.recruitment_end_time ??
+    item.recruitmentEndTime;
+  const recruitmentEndAt = recruitEndRaw ? new Date(recruitEndRaw) : undefined;
+
   const timeStr = startDate.toLocaleTimeString("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -57,11 +76,32 @@ const normalizeSchedule = (item: RawSchedule): Schedule => {
     ? item.participants
     : Array.isArray(item.members)
       ? item.members
-      : [];
+      : Array.isArray(item.participations)
+        ? item.participations
+        : Array.isArray(item.schedule_participants)
+          ? item.schedule_participants
+          : Array.isArray(item.participant_users)
+            ? item.participant_users
+            : [];
 
   const participants = rawParticipants.map((p: any) => {
-    const user = normalizeUser(p.user ?? p.member ?? p);
-    const statusRaw = p.status ?? p.participation_status ?? p.state ?? "PENDING";
+    const userSource =
+      p.user ??
+      p.member?.user ??
+      p.member ??
+      p.participant?.user ??
+      p.participant ??
+      p;
+    const user = normalizeUser(userSource);
+    const statusRaw =
+      p.status ??
+      p.participation_status ??
+      p.state ??
+      p.join_status ??
+      p.joinStatus ??
+      (p.is_joined === true ? "JOIN" : undefined) ??
+      (rawParticipants.length > 0 ? "JOIN" : undefined) ??
+      "PENDING";
     const status =
       statusRaw === "JOIN" || statusRaw === "DECLINE" || statusRaw === "PENDING"
         ? statusRaw
@@ -75,6 +115,7 @@ const normalizeSchedule = (item: RawSchedule): Schedule => {
     dateStr,
     timeStr,
     fullDate: startDate,
+    recruitmentEndAt,
     hostId: String(hostId),
     maxMembers: Number(maxMembers) || 0,
     participants,
@@ -111,4 +152,24 @@ export async function getAzitSchedules(azitId: number): Promise<Schedule[]> {
 
   if (!Array.isArray(rawList)) return [];
   return rawList.map((item) => normalizeSchedule(item));
+}
+
+export async function joinAzitScheduleParticipant(
+  azitId: number,
+  scheduleId: string | number
+) {
+  const res = await api.post(
+    `/azits/${azitId}/schedules/${scheduleId}/participants`
+  );
+  return res.data?.data ?? res.data;
+}
+
+export async function leaveAzitScheduleParticipant(
+  azitId: number,
+  scheduleId: string | number
+) {
+  const res = await api.delete(
+    `/azits/${azitId}/schedules/${scheduleId}/participants`
+  );
+  return res.data?.data ?? res.data;
 }

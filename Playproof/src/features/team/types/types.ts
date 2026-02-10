@@ -25,6 +25,7 @@ export interface Schedule {
   dateStr: string;
   timeStr: string;
   fullDate: Date; // 마감/게임 시간
+  recruitmentEndAt?: Date; // 모집 마감 시간
   
   hostId: string;       // 방장 ID (모집중 상태 판단용)
   maxMembers: number;   // 목표 인원 (추가 게이머 찾기 조건용)

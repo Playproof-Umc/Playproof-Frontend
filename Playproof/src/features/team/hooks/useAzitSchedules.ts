@@ -1,10 +1,16 @@
 // src/features/team/hooks/useAzitSchedules.ts
 
 import React from "react";
+import axios from "axios";
 import type { Schedule } from "@/features/team/types";
 import type { User } from "@/types";
 import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCreateState";
-import { createAzitSchedule, getAzitSchedules } from "@/features/team/api/azitScheduleApi";
+import {
+  createAzitSchedule,
+  getAzitSchedules,
+  joinAzitScheduleParticipant,
+  leaveAzitScheduleParticipant,
+} from "@/features/team/api/azitScheduleApi";
 
 const coerceUserId = (value: string | number) => String(value);
 
@@ -53,7 +59,17 @@ export function useAzitSchedules(
   }, [currentAzitId]);
 
   const handleStatusChange = React.useCallback(
-    (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
+    async (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
+      if (newStatus === "JOIN") {
+        const target = schedules.find((sch) => sch.id === scheduleId);
+        if (target?.recruitmentEndAt) {
+          const now = Date.now();
+          if (now >= target.recruitmentEndAt.getTime()) {
+            return;
+          }
+        }
+      }
+
       setSchedules((prevSchedules) =>
         prevSchedules.map((sch) => {
           if (sch.id !== scheduleId) return sch;
@@ -76,8 +92,31 @@ export function useAzitSchedules(
           return { ...sch, participants: nextParticipants };
         })
       );
+
+      try {
+        if (newStatus === "JOIN") {
+          await joinAzitScheduleParticipant(currentAzitId, scheduleId);
+        } else {
+          await leaveAzitScheduleParticipant(currentAzitId, scheduleId);
+        }
+      } catch (error) {
+        if (newStatus === "JOIN" && axios.isAxiosError(error)) {
+          const code = error.response?.data?.error?.code;
+          if (code === "PARTICIPATION_ALREADY_PARTICIPATED") {
+            return;
+          }
+        }
+
+        // 실패 시 최신 목록으로 복구
+        try {
+          const list = await getAzitSchedules(currentAzitId);
+          setSchedules(list);
+        } catch {
+          // ignore
+        }
+      }
     },
-    [currentUser, currentUserId]
+    [currentAzitId, currentUser, currentUserId, schedules]
   );
 
   const addSchedule = React.useCallback(
@@ -122,6 +161,7 @@ export function useAzitSchedules(
         dateStr,
         timeStr,
         fullDate: gameStartDate,
+        recruitmentEndAt: recruitEndDate,
         hostId: String(currentUserId),
         maxMembers: data.recruitCount,
         participants: [{ user: currentUser, status: "JOIN" }],
