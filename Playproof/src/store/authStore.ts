@@ -14,16 +14,17 @@ type AuthState = {
 export const useAuthStore = create(
   persist<AuthState>(
     (set) => ({
-      accessToken: null,
-      userId: null,
+      // 개발 환경에서 .env에 설정된 테스트 토큰 사용 (로그인 전 기본값)
+      accessToken: import.meta.env.VITE_DEV_ACCESS_TOKEN ?? null,
+      userId: import.meta.env.VITE_DEV_USER_ID ? Number(import.meta.env.VITE_DEV_USER_ID) : null,
       nickname: null,
       setAuth: ({ accessToken, userId, nickname }) =>
         set({ accessToken, userId, nickname }),
       clearAuth: () => set({ accessToken: null, userId: null, nickname: null }),
     }),
     {
-      name: "auth-storage", // 로컬 스토리지에 저장될 키 이름
-      storage: createJSONStorage(() => localStorage), // ✅ 로컬 스토리지 사용 명시
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

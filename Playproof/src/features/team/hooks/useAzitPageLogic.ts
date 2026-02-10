@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 
 import type { User } from "@/features/team/types/types";
 import { useAuthStore } from "@/store/authStore";
-import { login } from "@/services/loginApi";
+import { login } from "@/services/authApi";
 
 import {
   MOCK_MY_AZITS,
@@ -101,9 +101,8 @@ export function useAzitPageLogic() {
         const digits = devPhone.replace(/\D/g, "");
         const formattedPhone = digits.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
         const res = await login({
-          phoneNumber: formattedPhone,
+          phone: formattedPhone,
           password: devPassword,
-          keepLoggedIn: true,
         });
         console.log("✅ [AutoLogin] 성공! 닉네임:", res.nickname);
         setAuth({

@@ -41,7 +41,7 @@ export interface ChatMessage {
   chatRoomId: number;
   memberId: number;
   userId: number;
-  nickname?: string;
+  nickname?: string | null;
   content: string;
   createdAt: string;
 }

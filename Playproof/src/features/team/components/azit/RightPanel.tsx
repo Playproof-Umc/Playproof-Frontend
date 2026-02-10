@@ -1,7 +1,7 @@
 // src/features/team/components/azit/RightPanel.tsx
 import React from "react";
 import { useAzitMediaViewer } from "@/features/team/hooks/useAzitMediaViewer";
-import type { Clip } from "@/types";
+import type { Clip } from "@/features/team/types";
 import { ClipList } from "@/features/team/components/azit/ClipList";
 import { ModalShell } from "@/components/ui/ModalShell";
 

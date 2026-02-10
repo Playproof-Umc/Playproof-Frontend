@@ -1,5 +1,3 @@
-// src/features/mypage/gameData/types/gameDataTypes.ts
-
 export type GameKey = "lol" | "valorant" | "pubg" | "overwatch" | "steam";
 
 export type LinkedAccountMeta = {
@@ -8,24 +6,12 @@ export type LinkedAccountMeta = {
     tagLine: string;
     riotId: string;
   };
-
-  // ✅ 추가
-  overwatch?: {
-    /**
-     * OverFast에서 player 검색/summary에 쓰는 식별자
-     * - BattleTag 형식: Name#1234
-     * - player_id 형식: Name-1234
-     * 둘 다 들어올 수 있으니 string으로 수용
-     */
-    battleTag: string;
-  };
 };
 
 export type LinkedAccount = {
   game: GameKey;
   title: string;
   subtitle?: string;
-  badge?: string;
   accounts: Array<{
     label: string;
     value: string;
@@ -45,12 +31,9 @@ export type LolLinkedProfile = {
   summonerName: string;
   tagLine?: string;
   riotId?: string;
-
   serverLabel: string;
-
   profileIconId?: number;
   summonerLevel?: number;
-
   currentTier: string;
   mainPosition: string;
   winRatePercent: number;
@@ -72,11 +55,7 @@ export type LolAggregateStats = {
 
 export type MatchResult = "win" | "lose";
 
-export type ChampionIcon = {
-  name: string;
-  iconUrl: string;
-};
-
+// ✅ [수정] MatchRow에서 사용할 데이터 필드 정의 (원본 MatchDto가 아님!)
 export type LolMatchItem = {
   id: string;
   result: MatchResult;
@@ -87,10 +66,10 @@ export type LolMatchItem = {
   pills: string[];
   itemsCount: number;
 
-  /** ✅ MatchRow에서 사용하는 추가 필드(없어도 UI 깨지지 않게 optional) */
-  myChampion?: ChampionIcon;
-  allies?: ChampionIcon[]; // 5
-  enemies?: ChampionIcon[]; // 5
+  // ✨ 디자인 복구를 위해 추가된 필드
+  myChampionName: string;
+  teamChampions: string[];     // 우리팀 챔피언 목록
+  opponentChampions: string[]; // 적팀 챔피언 목록
 };
 
 export type PaginationState = {
