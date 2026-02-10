@@ -35,17 +35,9 @@ function normalizeDigitsOnly(v: string) {
   return v.replace(/\D/g, "");
 }
 
-function formatPhoneNumber(phone: string): string {
-  // 숫자만 추출
-  const digits = phone.replace(/\D/g, "");
-  
-  // 010-1234-5678 형식으로 변환
-  if (digits.length === 11) {
-    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-  }
-  
-  // 형식이 맞지 않으면 그대로 반환
-  return phone;
+function formatPhoneNumber(str: string): string {
+  // 숫자만 있는 문자열을 010-0000-0000 형식으로 변환
+  return str.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
 }
 
 function getRedirectPath(locationState: unknown): string {
@@ -92,9 +84,15 @@ export function useLoginForm() {
       
       // 1. 토큰 저장
       auth.setAuth({
+<<<<<<< HEAD
         accessToken: res.data.accessToken,
         userId: 0, // 임시값 (곧 /users/my-profile에서 가져올 것)
         nickname: '', // 임시값
+=======
+        accessToken: res.accessToken, // loginApi 응답 구조에 따라 res.data.accessToken일 수도 있음 (수정된 loginApi.ts 기준이면 res.accessToken)
+        userId: res.userId,
+        nickname: res.nickname,
+>>>>>>> develop
       });
 
       try {
@@ -141,7 +139,7 @@ export function useLoginForm() {
 
       // 등록되지 않은 번호
       if (status === 404 && code === "USER_NOT_FOUND") {
-        setServerError(" 등록되지 않은 번호입니다.");
+        setServerError("등록되지 않은 번호입니다.");
         return;
       }
 
@@ -149,11 +147,17 @@ export function useLoginForm() {
       if (status === 400 && code === "VALIDATION_FAILED") {
         const next: FieldError = {};
         for (const e of errors) {
-          if (e.field === "phoneNumber") next.phoneNumber = PHONE_FORMAT_MSG;
+          if (e.field === "phoneNumber" || e.field === "phone") next.phoneNumber = PHONE_FORMAT_MSG;
           if (e.field === "password") next.password = e.reason ?? PW_MSG;
         }
         setFieldError(next);
         setServerError(null);
+        return;
+      }
+
+      // 비밀번호 불일치 등 인증 실패
+      if (status === 401) {
+        setServerError("전화번호 또는 비밀번호가 일치하지 않습니다.");
         return;
       }
 
@@ -179,8 +183,16 @@ export function useLoginForm() {
     const ok = validateOnSubmit();
     if (!ok) return;
 
+<<<<<<< HEAD
     const requestBody = {
       phone: formatPhoneNumber(normalizedPhone), // 010-1234-5678 형식
+=======
+    // ✅ [수정] normalizedPhone(숫자만)을 하이픈 형식으로 변환해서 전송
+    const formattedPhone = formatPhoneNumber(normalizedPhone);
+
+    mutation.mutate({
+      phoneNumber: formattedPhone, // "01012345678" -> "010-1234-5678"
+>>>>>>> develop
       password,
     };
 

@@ -1,6 +1,7 @@
 // src/store/authStore.ts
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware"; // ✅ 추가
 
 type AuthState = {
   accessToken: string | null;
@@ -10,12 +11,20 @@ type AuthState = {
   clearAuth: () => void;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  // 개발 환경에서 .env에 설정된 테스트 토큰 사용
-  accessToken: import.meta.env.VITE_DEV_ACCESS_TOKEN ?? null,
-  userId: import.meta.env.VITE_DEV_USER_ID ? Number(import.meta.env.VITE_DEV_USER_ID) : null,
-  nickname: null,
-  setAuth: ({ accessToken, userId, nickname }) =>
-    set({ accessToken, userId, nickname }),
-  clearAuth: () => set({ accessToken: null, userId: null, nickname: null }),
-}));
+export const useAuthStore = create(
+  persist<AuthState>(
+    (set) => ({
+      // 개발 환경에서 .env에 설정된 테스트 토큰 사용 (로그인 전 기본값)
+      accessToken: import.meta.env.VITE_DEV_ACCESS_TOKEN ?? null,
+      userId: import.meta.env.VITE_DEV_USER_ID ? Number(import.meta.env.VITE_DEV_USER_ID) : null,
+      nickname: null,
+      setAuth: ({ accessToken, userId, nickname }) =>
+        set({ accessToken, userId, nickname }),
+      clearAuth: () => set({ accessToken: null, userId: null, nickname: null }),
+    }),
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);

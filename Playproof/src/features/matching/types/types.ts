@@ -19,6 +19,7 @@ export interface MatchingData {
   views: number;
   likes: number;
   isLiked?: boolean;
+  isMatched?: boolean;
   comments: number;
   tsScore: number;
   mic: boolean;

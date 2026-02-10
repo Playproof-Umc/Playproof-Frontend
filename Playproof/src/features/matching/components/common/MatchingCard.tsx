@@ -55,10 +55,11 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
       className="bg-white rounded-2xl px-4 py-2 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative group flex flex-col items-center w-[320px] h-[470px]"
     >
       {/* Header: Game Name */}
-      <div className="flex justify-between items-start mb-6">
-        <span className="text-sm font-bold text-gray-900">{data.game}</span>
+      <div className="flex justify-between items-center w-full pt-2 pb-4">
+        <span className="text-sm font-bold text-gray-900 text-left">{data.game}</span>
         {/* 옵션: 모집중 배지 등을 우측에 배치하거나 생략 가능 */}
       </div>
+      <div className="w-[calc(100%+2rem)] -mx-4 border-t border-gray-200 mb-4" />
 
       {/* Profile Section: Centered */}
       <div className="flex flex-col items-center mb-5">
@@ -110,6 +111,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
 
       {/* Content Section: Left Aligned */}
       <div className="mt-auto w-full">
+        <div className="w-[calc(100%+2rem)] -mx-4 border-t border-gray-200 mb-4" />
         <div className="flex items-center gap-1 text-[#00AE4C] text-xs font-bold mb-1">
             <span>모집 인원 {data.currentMembers}/{data.maxMembers}</span>
             <span className="text-[10px]">&gt;</span>

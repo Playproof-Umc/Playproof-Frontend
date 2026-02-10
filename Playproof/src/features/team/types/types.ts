@@ -1,5 +1,8 @@
 // src/features/team/types/types.ts
-import type { User } from '@/types'; 
+import type { User } from "@/types";
+
+// ✅ 외부에서 "@/features/team/types/types"로 User를 import 할 수 있게 re-export
+export type { User } from "@/types";
 
 // 아지트 (팀 공간) 타입
 export interface Azit {
@@ -10,11 +13,20 @@ export interface Azit {
   description?: string;
 }
 
+export interface Clip {
+  id: string;
+  date: string;
+  thumbnailUrl: string;
+  mediaType?: "image" | "video";
+  mediaUrl?: string;
+  durationLabel?: string;
+}
+
 // 채널 정보
 export interface Channel {
   id: string;
   name: string;
-  type: 'VOICE' | 'TEXT';
+  type: "VOICE" | "TEXT";
   connectedUsers?: User[];
 }
 
@@ -25,14 +37,14 @@ export interface Schedule {
   dateStr: string;
   timeStr: string;
   fullDate: Date; // 마감/게임 시간
-  
-  hostId: string;       // 방장 ID (모집중 상태 판단용)
-  maxMembers: number;   // 목표 인원 (추가 게이머 찾기 조건용)
+
+  hostId: string; // 방장 ID (모집중 상태 판단용)
+  maxMembers: number; // 목표 인원 (추가 게이머 찾기 조건용)
   isFeedbackDone?: boolean; // 피드백 완료 여부 (완료됨 상태용)
 
   participants: {
     user: User | null;
-    status: 'JOIN' | 'DECLINE' | 'PENDING';
+    status: "JOIN" | "DECLINE" | "PENDING";
   }[];
 }
 
@@ -43,14 +55,5 @@ export interface CustomMatchSchedule {
   targetDate: Date;
   currentParticipants: number;
   maxParticipants: number;
-  status: '모집중' | '매칭완료';
-}
-
-export interface Clip {
-  id: string;
-  date: string;
-  thumbnailUrl: string;
-  mediaType?: 'image' | 'video';
-  mediaUrl?: string;
-  durationLabel?: string;
+  status: "모집중" | "매칭완료";
 }
