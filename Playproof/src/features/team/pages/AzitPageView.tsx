@@ -11,6 +11,7 @@ import { RightPanel } from '@/features/team/components/azit/RightPanel';
 import { ScheduleCreateModal } from '@/features/team/components/schedule/ScheduleCreateModal';
 import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCreateState";
 import { AzitCreateModal } from '@/features/team/components/azit/AzitCreateModal';
+import { AzitSettingsModal } from '@/features/team/components/azit/AzitSettingsModal';
 import { FeedbackModal } from "@/features/team/components/feedback/FeedbackModal";
 
 import { useAzitPageLogic } from '@/features/team/hooks/useAzitPageLogic';
@@ -19,6 +20,7 @@ export const AzitPageView = () => {
   const navigate = useNavigate();
   const { state, actions } = useAzitPageLogic();
   const [isAzitCreateOpen, setIsAzitCreateOpen] = React.useState(false);
+  const [isAzitSettingsOpen, setIsAzitSettingsOpen] = React.useState(false);
   const {
     currentAzitId,
     scheduleAnchorEl,
@@ -80,7 +82,11 @@ export const AzitPageView = () => {
                 <span className="text-sm">{currentAzit.memberCount}</span>
               </div>
             </div>
-            <button className="text-gray-400 hover:bg-gray-200 rounded-full p-2 transition-colors self-end sm:self-auto">
+            <button
+              onClick={() => setIsAzitSettingsOpen(true)}
+              className="text-gray-400 hover:bg-gray-200 rounded-full p-2 transition-colors self-end sm:self-auto"
+              aria-label="아지트 설정"
+            >
               <Settings className="w-5 h-5" />
             </button>
           </div>
@@ -144,6 +150,15 @@ export const AzitPageView = () => {
           actions.addAzit(name, iconUrl);
           setIsAzitCreateOpen(false);
         }}
+      />
+
+      <AzitSettingsModal
+        open={isAzitSettingsOpen}
+        onClose={() => setIsAzitSettingsOpen(false)}
+        profileUrl={currentAzit.icon}
+        onUpdateProfile={(url) => actions.updateAzitIcon(currentAzitId, url)}
+        initialName={currentAzit.name}
+        onUpdateName={(nextName) => actions.updateAzitName(currentAzitId, nextName)}
       />
 
       <FeedbackModal
