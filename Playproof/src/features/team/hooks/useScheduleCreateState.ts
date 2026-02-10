@@ -110,12 +110,13 @@ export function useScheduleCreateState({
       return { isValid: false, msg: "모집 기간이 게임 일정보다 늦습니다." };
     }
 
-    if (recruitRange.to) {
-      const recruitEnd = new Date(recruitRange.to);
-      recruitEnd.setHours(0, 0, 0, 0);
-      if (recruitEnd > game) {
-        return { isValid: false, msg: "모집 종료일은 게임 일정 이전이어야 합니다." };
-      }
+    const recruitEndBase = recruitRange.to ?? recruitRange.from;
+    const recruitEnd = new Date(recruitEndBase);
+    const recruitEndHour = recruitEndTime.hour % 12 + (recruitEndTime.ampm === "PM" ? 12 : 0);
+    recruitEnd.setHours(recruitEndHour, recruitEndTime.minute, 0, 0);
+
+    if (recruitEnd >= gameStart) {
+      return { isValid: false, msg: "모집 마감 시간은 게임 시작 시간보다 이전이어야 합니다." };
     }
 
     return { isValid: true, msg: "" };
