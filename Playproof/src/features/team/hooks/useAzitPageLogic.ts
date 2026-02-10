@@ -170,7 +170,6 @@ export function useAzitPageLogic() {
     lastError,
     sendMessage: sendSocketMessage,
     voiceJoin: socketVoiceJoin,
-    voiceLeave: socketVoiceLeave,
   } = useAzitSocket({
     roomId: selectedChatRoomId ?? undefined,
     onMessage: (msg) => {
@@ -182,7 +181,7 @@ export function useAzitPageLogic() {
   });
 
   const { requestVoiceToken } = useAzitVoiceToken({ apiBaseUrl, accessToken });
-  const { connect: connectLiveKit, disconnect: disconnectLiveKit } = useAzitLivekitVoice();
+  const { connect: connectLiveKit } = useAzitLivekitVoice();
 
   // 음성 방 입장 로직
   const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
@@ -303,10 +302,19 @@ export function useAzitPageLogic() {
       const text = content.trim();
       const media = createMediaItems(files);
       if (!text && media.length === 0) return;
-      if (media.length > 0) addClipsFromMedia(currentAzitId, media);
+      if (media.length > 0) {
+        const roomName = selectedChatRoomName ?? "자유 대화";
+        addClipsFromMedia(currentAzitId, roomName, media);
+      }
       await sendSocketMessage(roomId, text);
     },
-    [addClipsFromMedia, createMediaItems, currentAzitId, sendSocketMessage]
+    [
+      addClipsFromMedia,
+      createMediaItems,
+      currentAzitId,
+      sendSocketMessage,
+      selectedChatRoomName,
+    ]
   );
 
   const onCreateChatRoom = React.useCallback(
@@ -363,6 +371,22 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
+  const updateAzitIcon = React.useCallback((azitId: number, iconUrl: string) => {
+    if (!iconUrl) return;
+    azitIconUrlsRef.current.push(iconUrl);
+    setAzits((prev) =>
+      prev.map((azit) => (azit.id === azitId ? { ...azit, icon: iconUrl } : azit))
+    );
+  }, []);
+
+  const updateAzitName = React.useCallback((azitId: number, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setAzits((prev) =>
+      prev.map((azit) => (azit.id === azitId ? { ...azit, name: trimmed } : azit))
+    );
+  }, []);
+
   return {
     state: {
       azits,
@@ -402,6 +426,8 @@ export function useAzitPageLogic() {
       joinVoiceRoom,
       toggleMyMic,
       addAzit,
+      updateAzitIcon,
+      updateAzitName,
     },
   };
 }

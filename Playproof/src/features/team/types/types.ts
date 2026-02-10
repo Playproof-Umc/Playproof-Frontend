@@ -4,6 +4,24 @@ import type { User } from "@/types";
 // ✅ 외부에서 "@/features/team/types/types"로 User를 import 할 수 있게 re-export
 export type { User } from "@/types";
 
+// 아지트 (팀 공간) 타입
+export interface Azit {
+  id: number;
+  name: string;
+  icon?: string;
+  memberCount: number;
+  description?: string;
+}
+
+export interface Clip {
+  id: string;
+  date: string;
+  thumbnailUrl: string;
+  mediaType?: "image" | "video";
+  mediaUrl?: string;
+  durationLabel?: string;
+}
+
 // 채널 정보
 export interface Channel {
   id: string;
