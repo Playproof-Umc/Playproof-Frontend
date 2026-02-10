@@ -1,5 +1,17 @@
+// src/features/team/components/azit/LeftPanel.tsx
+
 import React, { useState } from "react";
-import { Plus, Volume2, Mic, MicOff, MessageSquare } from "lucide-react";
+import {
+  Plus,
+  Volume2,
+  Mic,
+  MicOff,
+  MessageSquare,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+} from "lucide-react";
 import type { User, Schedule } from "@/features/team/types/types";
 import { ScheduleItem } from "@/features/team/components/azit/schedule/ScheduleItem";
 import { ChatRoomCreateModal } from "./chat/ChatRoomCreateModal";
@@ -23,8 +35,8 @@ interface LeftPanelProps {
   onToggleMyMic: (roomId: string) => void;
 
   textRooms: ChatRoomSummary[];
-  
-  onCreateChatRoom: (data: ChatRoomCreateData) => void; // ✅ 객체로 받기
+
+  onCreateChatRoom: (data: ChatRoomCreateData) => void;
 
   onRenameVoiceRoom: (roomId: string, nextName: string) => void;
   onDeleteVoiceRoom: (roomId: string) => void;
@@ -50,213 +62,425 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
   textRooms = [],
   onCreateChatRoom,
+
+  onRenameVoiceRoom,
+  onDeleteVoiceRoom,
+  onRenameChatRoom,
+  onDeleteChatRoom,
 }) => {
   const [chatCreateAnchorEl, setChatCreateAnchorEl] = useState<HTMLElement | null>(null);
 
-  // ✅ 데이터를 그대로 상위로 전달
+  // ===== 편집 상태 =====
+  const [editingChatRoomId, setEditingChatRoomId] = useState<number | null>(null);
+  const [editingChatName, setEditingChatName] = useState("");
+
+  const [editingVoiceId, setEditingVoiceId] = useState<string | null>(null);
+  const [editingVoiceName, setEditingVoiceName] = useState("");
+
+  // ===== 삭제 확인 모달 =====
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("삭제 확인");
+  const [confirmDescription, setConfirmDescription] = useState("");
+  const confirmActionRef = React.useRef<() => void>(() => {});
+
+  const isMe = (u: User) => String(u.id) === String(currentUserId);
+  const isMeInRoom = (roomUsers: VoiceRoomMember[]) => roomUsers?.some((m) => isMe(m.user)) ?? false;
+
+  // 채팅방 생성: 데이터를 그대로 상위로 전달
   const handleCreateChatRoom = (data: ChatRoomCreateData) => {
     onCreateChatRoom(data);
     setChatCreateAnchorEl(null);
   };
 
-  const isMe = (u: User) => String(u.id) === String(currentUserId);
-  const isMeInRoom = (roomUsers: VoiceRoomMember[]) =>
-    roomUsers?.some((m) => isMe(m.user)) ?? false;
+  const openConfirm = (title: string, description: string, onConfirm: () => void) => {
+    setConfirmTitle(title);
+    setConfirmDescription(description);
+    confirmActionRef.current = onConfirm;
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    // ✅ 여기서 onDelete*가 실제로 호출돼야 함
+    confirmActionRef.current();
+    setConfirmOpen(false);
+  };
+
+  // ===== 텍스트 채팅 편집 =====
+  const startEditingChat = (room: ChatRoomSummary) => {
+    setEditingChatRoomId(room.id);
+    setEditingChatName(room.roomName);
+  };
+
+  const cancelEditingChat = () => {
+    setEditingChatRoomId(null);
+    setEditingChatName("");
+  };
+
+  const submitEditingChat = () => {
+    if (editingChatRoomId == null) return;
+    const trimmed = editingChatName.trim();
+    if (!trimmed) return;
+    onRenameChatRoom(editingChatRoomId, trimmed);
+    cancelEditingChat();
+  };
+
+  // ===== 음성 채팅 편집 =====
+  const startEditingVoice = (roomId: string, roomName: string) => {
+    setEditingVoiceId(roomId);
+    setEditingVoiceName(roomName);
+  };
+
+  const cancelEditingVoice = () => {
+    setEditingVoiceId(null);
+    setEditingVoiceName("");
+  };
+
+  const submitEditingVoice = () => {
+    if (!editingVoiceId) return;
+    const trimmed = editingVoiceName.trim();
+    if (!trimmed) return;
+    onRenameVoiceRoom(editingVoiceId, trimmed);
+    cancelEditingVoice();
+  };
 
   return (
-    <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-visible lg:overflow-y-auto pb-10 shrink-0 custom-scrollbar">
-      {/* 스케줄 */}
-      <section>
-        <div className="flex justify-between items-center mb-3 px-1 relative">
-          <h2 className="text-lg font-bold text-gray-900">스케줄</h2>
-          <button
-            onClick={(e) =>
-              onAddSchedule && e.currentTarget.parentElement && onAddSchedule(e.currentTarget.parentElement)
-            }
-            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
-          >
-            <Plus className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
-
-        <div className="mb-2 px-1">
-          <span className="font-bold text-gray-800 text-sm">정기 매칭 일정</span>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          {schedules.length > 0 ? (
-            schedules.map((sch) => (
-              <ScheduleItem
-                key={sch.id}
-                schedule={sch}
-                currentUserId={currentUserId}
-                onStatusChange={onStatusChange}
-                onFeedback={onFeedback}
-              />
-            ))
-          ) : (
-            <div className="p-8 text-center text-gray-400 text-sm bg-white rounded-xl border border-gray-200">
-              등록된 일정이 없습니다.
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 채팅 */}
-      <section>
-        <div className="flex justify-between items-center mb-2 px-1">
-          <h2 className="text-lg font-bold text-gray-900">채팅</h2>
-          <button
-            type="button"
-            onClick={(e) => setChatCreateAnchorEl(e.currentTarget.parentElement ?? e.currentTarget)}
-            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
-          >
-            <Plus className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className="text-xs font-bold text-gray-500">음성 채팅</div>
+    <>
+      <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-visible lg:overflow-y-auto pb-10 shrink-0 custom-scrollbar">
+        {/* 스케줄 */}
+        <section>
+          <div className="flex justify-between items-center mb-3 px-1 relative">
+            <h2 className="text-lg font-bold text-gray-900">스케줄</h2>
+            <button
+              type="button"
+              onClick={(e) =>
+                onAddSchedule && e.currentTarget.parentElement && onAddSchedule(e.currentTarget.parentElement)
+              }
+              className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+            >
+              <Plus className="w-4 h-4 text-gray-400" />
+            </button>
           </div>
 
-          {voiceRooms.map((room, index) => {
-            const joined = isMeInRoom(room.users);
-            return (
-              <div
-                key={room.id}
-                className={
-                  index === 0 ? "border-b border-gray-50" : "bg-gray-50/50 pb-3 border-b border-gray-100"
-                }
-              >
-                <div className="w-full px-4 py-2 flex items-center gap-3 h-12">
-                  <button
-                    type="button"
-                    onClick={() => onJoinVoiceRoom(room.id)}
-                    className="flex items-center gap-3 flex-1 min-w-0"
-                  >
-                    <Volume2 className={`w-4 h-4 ${joined ? "text-gray-900" : "text-gray-500"}`} />
-                    <span className={`text-sm font-bold truncate ${joined ? "text-gray-900" : "text-gray-600"}`}>
-                      {room.name}
-                    </span>
-                  </button>
-                </div>
+          <div className="mb-2 px-1">
+            <span className="font-bold text-gray-800 text-sm">정기 매칭 일정</span>
+          </div>
 
-                <div className="pl-11 pr-4 space-y-2 pb-3">
-                  {room.users?.length === 0 ? (
-                    <div className="text-xs text-gray-400">참여자가 없습니다.</div>
-                  ) : (
-                    room.users.map((member) => {
-                      const mine = isMe(member.user);
-                      return (
-                        <div key={String(member.user.id)} className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-gray-300" />
-                          <span className="text-sm text-gray-600 font-medium">{member.user.nickname}</span>
-
-                          <div className="ml-auto flex items-center">
-                            {mine ? (
-                              <button
-                                type="button"
-                                onClick={() => onToggleMyMic(room.id)}
-                                className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                              >
-                                {member.micOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
-                              </button>
-                            ) : member.micOn ? (
-                              <Mic className="w-4 h-4 text-gray-400" />
-                            ) : (
-                              <MicOff className="w-4 h-4 text-gray-300" />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+          <div className="flex flex-col gap-4">
+            {schedules.length > 0 ? (
+              schedules.map((sch) => (
+                <ScheduleItem
+                  key={sch.id}
+                  schedule={sch}
+                  currentUserId={currentUserId}
+                  onStatusChange={onStatusChange}
+                  onFeedback={onFeedback}
+                />
+              ))
+            ) : (
+              <div className="p-8 text-center text-gray-400 text-sm bg-white rounded-xl border border-gray-200">
+                등록된 일정이 없습니다.
               </div>
-            );
-          })}
+            )}
+          </div>
+        </section>
 
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className="text-xs font-bold text-gray-500">일반 채팅</div>
+        {/* 채팅 */}
+        <section>
+          <div className="flex justify-between items-center mb-2 px-1">
+            <h2 className="text-lg font-bold text-gray-900">채팅</h2>
+            <button
+              type="button"
+              onClick={(e) => setChatCreateAnchorEl(e.currentTarget.parentElement ?? e.currentTarget)}
+              className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+            >
+              <Plus className="w-4 h-4 text-gray-400" />
+            </button>
           </div>
 
-          {textRooms.length === 0 ? (
-            <div className="px-4 py-6 text-sm text-gray-400">채팅방이 없습니다.</div>
-          ) : (
-            textRooms.map((room) => {
-              const isSelected = selectedChatRoomId === room.id;
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            {/* 음성 채팅 */}
+            <div className="px-4 py-3 border-b border-gray-100">
+              <div className="text-xs font-bold text-gray-500">음성 채팅</div>
+            </div>
+
+            {voiceRooms.map((room, index) => {
+              const joined = isMeInRoom(room.users);
+              const isEditing = editingVoiceId === room.id;
 
               return (
                 <div
                   key={room.id}
-                  className={`px-4 py-2 flex items-center gap-3 w-full h-12 transition-colors ${
-                    isSelected ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-600"
-                  }`}
+                  className={index === 0 ? "border-b border-gray-50" : "bg-gray-50/50 pb-3 border-b border-gray-100"}
                 >
-                  <MessageSquare className={`w-4 h-4 ${isSelected ? "text-blue-600" : "text-gray-500"}`} />
-                  <button
-                    type="button"
-                    onClick={() => onSelectChatRoom(room.id)}
-                    className={`text-sm font-bold truncate text-left flex-1 ${
-                      isSelected ? "text-blue-700" : "text-gray-600"
-                    }`}
-                  >
-                    {room.roomName}
-                  </button>
+                  <div className="w-full px-4 py-2 flex items-center gap-3 h-12">
+                    <button
+                      type="button"
+                      onClick={() => onJoinVoiceRoom(room.id)}
+                      className="flex items-center gap-3 flex-1 min-w-0"
+                    >
+                      <Volume2 className={`w-4 h-4 ${joined ? "text-gray-900" : "text-gray-500"}`} />
+                      {isEditing ? (
+                        <input
+                          value={editingVoiceName}
+                          onChange={(e) => setEditingVoiceName(e.target.value)}
+                          className="h-8 px-2 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-gray-400 w-full"
+                          maxLength={20}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") submitEditingVoice();
+                            if (e.key === "Escape") cancelEditingVoice();
+                          }}
+                        />
+                      ) : (
+                        <span className={`text-sm font-bold truncate ${joined ? "text-gray-900" : "text-gray-600"}`}>
+                          {room.name}
+                        </span>
+                      )}
+                    </button>
+
+                    {isEditing ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={submitEditingVoice}
+                          className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditingVoice}
+                          className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => startEditingVoice(room.id, room.name)}
+                          className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openConfirm("음성 채팅방 삭제", `"${room.name}" 음성 채팅방을 삭제할까요?`, () =>
+                              onDeleteVoiceRoom(room.id)
+                            )
+                          }
+                          disabled={voiceRooms.length <= 1}
+                          className={`p-1 rounded-md ${
+                            voiceRooms.length <= 1
+                              ? "text-gray-200 cursor-not-allowed"
+                              : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                          }`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pl-11 pr-4 space-y-2 pb-3">
+                    {room.users?.length === 0 ? (
+                      <div className="text-xs text-gray-400">참여자가 없습니다.</div>
+                    ) : (
+                      room.users.map((member) => {
+                        const mine = isMe(member.user);
+
+                        return (
+                          <div key={String(member.user.id)} className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-gray-300" />
+                            <span className="text-sm text-gray-600 font-medium">{member.user.nickname}</span>
+                            <div className="ml-auto flex items-center">
+                              {mine ? (
+                                <button
+                                  type="button"
+                                  onClick={() => onToggleMyMic(room.id)}
+                                  className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                                >
+                                  {member.micOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+                                </button>
+                              ) : member.micOn ? (
+                                <Mic className="w-4 h-4 text-gray-400" />
+                              ) : (
+                                <MicOff className="w-4 h-4 text-gray-300" />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               );
-            })
-          )}
-        </div>
-      </section>
+            })}
 
-      {/* 3. 멤버 섹션 */}
-      <section>
-        <div className="flex justify-between items-center mb-2 px-1">
-          <h2 className="text-lg font-bold text-gray-900">멤버</h2>
-          <button className="hover:bg-gray-100 rounded-full p-1">
-            <Plus className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
-        <div className="space-y-1">
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
-            >
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-100 overflow-hidden">
-                  {member.avatarUrl ? (
-                    <img
-                      src={member.avatarUrl}
-                      alt={member.nickname}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : null}
-                </div>
-                {member.isOnline ? (
+            {/* 일반 채팅 */}
+            <div className="px-4 py-3 border-b border-gray-100">
+              <div className="text-xs font-bold text-gray-500">일반 채팅</div>
+            </div>
+
+            {textRooms.length === 0 ? (
+              <div className="px-4 py-6 text-sm text-gray-400">채팅방이 없습니다.</div>
+            ) : (
+              textRooms.map((room) => {
+                const isSelected = selectedChatRoomId === room.id;
+                const isEditing = editingChatRoomId === room.id;
+
+                return (
+                  <div
+                    key={room.id}
+                    className={`px-4 py-2 flex items-center gap-3 w-full h-12 transition-colors ${
+                      isSelected ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-600"
+                    }`}
+                  >
+                    <MessageSquare className={`w-4 h-4 ${isSelected ? "text-blue-600" : "text-gray-500"}`} />
+
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {isEditing ? (
+                        <input
+                          value={editingChatName}
+                          onChange={(e) => setEditingChatName(e.target.value)}
+                          className="h-8 px-2 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-gray-400 w-full"
+                          maxLength={20}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") submitEditingChat();
+                            if (e.key === "Escape") cancelEditingChat();
+                          }}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onSelectChatRoom(room.id)}
+                          className={`text-sm font-bold truncate text-left flex-1 ${
+                            isSelected ? "text-blue-700" : "text-gray-600"
+                          }`}
+                        >
+                          {room.roomName}
+                        </button>
+                      )}
+                    </div>
+
+                    {isEditing ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={submitEditingChat}
+                          className="p-1 rounded-md hover:bg-blue-100 text-blue-600"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditingChat}
+                          className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => startEditingChat(room)}
+                          className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openConfirm("채팅방 삭제", `"${room.roomName}" 채팅방을 삭제할까요?`, () =>
+                              onDeleteChatRoom(room.id)
+                            )
+                          }
+                          disabled={textRooms.length <= 1}
+                          className={`p-1 rounded-md ${
+                            textRooms.length <= 1
+                              ? "text-gray-200 cursor-not-allowed"
+                              : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                          }`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
+
+        {/* 멤버 */}
+        <section>
+          <div className="flex justify-between items-center mb-2 px-1">
+            <h2 className="text-lg font-bold text-gray-900">멤버</h2>
+            <button type="button" className="hover:bg-gray-100 rounded-full p-1">
+              <Plus className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+
+          <div className="space-y-1">
+            {members.slice(0, 3).map((member, i) => (
+              <div
+                key={String(member.id ?? i)}
+                className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-100" />
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
-                ) : null}
+                </div>
+                <div>
+                  <div className="font-bold text-sm text-gray-900">{member.nickname || "Member"}</div>
+                  <div className="text-[11px] text-gray-400 font-medium">상태메세지</div>
+                </div>
               </div>
-              <div className="min-w-0">
-                <div className="font-bold text-sm text-gray-900 truncate">
-                  {member.nickname || "Member"}
-                </div>
-                <div className="text-[11px] text-gray-400 font-medium truncate">
-                  {member.statusMessage || "상태메세지"}
-                </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 생성 모달 */}
+        <ChatRoomCreateModal
+          anchorEl={chatCreateAnchorEl}
+          onClose={() => setChatCreateAnchorEl(null)}
+          onCreate={handleCreateChatRoom}
+        />
+      </aside>
+
+      {/* 삭제 확인 모달 */}
+      {confirmOpen && (
+        <>
+          <div className="fixed inset-0 z-[110] bg-black/30" onClick={() => setConfirmOpen(false)} />
+          <div className="fixed inset-0 z-[111] flex items-center justify-center px-4">
+            <div className="w-full max-w-[360px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900">{confirmTitle}</h3>
+              <p className="text-sm text-gray-500 mt-2">{confirmDescription}</p>
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  className="flex-1 h-10 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
+                  onClick={() => setConfirmOpen(false)}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 h-10 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors"
+                  onClick={handleConfirm}
+                >
+                  삭제
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <ChatRoomCreateModal
-        anchorEl={chatCreateAnchorEl}
-        onClose={() => setChatCreateAnchorEl(null)}
-        onCreate={handleCreateChatRoom}
-      />
-    </aside>
+          </div>
+        </>
+      )}
+    </>
   );
 };
