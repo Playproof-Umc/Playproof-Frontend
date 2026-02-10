@@ -109,7 +109,7 @@ function BoardWriteModalContent({
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full bg-black text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+              className="w-full bg-[var(--color-primary-800)] text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors"
             >
               업로드
             </button>

@@ -14,7 +14,7 @@ export const ProfileView = ({ userData, onClose, onChatRequest }: ProfileViewPro
       
       {/* 상단 배경 및 닫기 버튼 */}
       <div className="h-24 bg-gradient-to-r from-gray-800 to-black relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors bg-black/20 p-1 rounded-full backdrop-blur-md">
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors bg-[rgba(18,44,163,0.2)] p-1 rounded-full backdrop-blur-md">
           <X size={20} />
         </button>
       </div>
@@ -27,7 +27,7 @@ export const ProfileView = ({ userData, onClose, onChatRequest }: ProfileViewPro
           </div>
           <div className="flex gap-2 mb-1">
             <button className="px-3 py-1.5 bg-gray-100 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors">신고</button>
-            <button className="px-3 py-1.5 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-colors">친구 추가</button>
+            <button className="px-3 py-1.5 bg-[var(--color-primary-800)] text-white text-xs font-bold rounded-lg hover:bg-[var(--color-primary-700)] transition-colors">친구 추가</button>
           </div>
         </div>
 
@@ -69,7 +69,7 @@ export const ProfileView = ({ userData, onClose, onChatRequest }: ProfileViewPro
         </div>
 
         {/* 하단 버튼 */}
-        <button onClick={onChatRequest} className="w-full mt-8 bg-black text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+        <button onClick={onChatRequest} className="w-full mt-8 bg-[var(--color-primary-800)] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[var(--color-primary-700)] transition-colors">
           <MessageCircle size={18} /><span>1:1 채팅 요청하기</span>
         </button>
       </div>

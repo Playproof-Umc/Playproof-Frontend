@@ -139,7 +139,7 @@ export const MatchingComments = ({
           className="w-full text-xs font-medium text-gray-700 placeholder-gray-400 resize-none outline-none min-h-[60px]"
         />
         <div className="flex justify-end mt-2">
-          <button onClick={handleCommentSubmit} className="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors">작성하기</button>
+          <button onClick={handleCommentSubmit} className="bg-[var(--color-primary-800)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors">작성하기</button>
         </div>
       </div>
       
@@ -201,7 +201,7 @@ export const MatchingComments = ({
                       <button
                         type="button"
                         onClick={onEditSubmit}
-                        className="bg-black text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-gray-800 transition-colors"
+                        className="bg-[var(--color-primary-800)] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-[var(--color-primary-700)] transition-colors"
                       >
                         저장
                       </button>
@@ -279,7 +279,7 @@ export const MatchingComments = ({
                             <button
                               type="button"
                               onClick={onEditSubmit}
-                              className="bg-black text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-gray-800 transition-colors"
+                              className="bg-[var(--color-primary-800)] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-[var(--color-primary-700)] transition-colors"
                             >
                               저장
                             </button>
@@ -310,7 +310,7 @@ export const MatchingComments = ({
                     <button
                       type="button"
                       onClick={() => handleReplySubmit(comment.id)}
-                      className="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+                      className="bg-[var(--color-primary-800)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors"
                     >
                       답글 작성
                     </button>

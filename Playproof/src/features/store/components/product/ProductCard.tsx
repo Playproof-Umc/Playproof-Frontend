@@ -66,11 +66,11 @@ export const ProductCard = ({
 
   return (
     <Card className="group flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer">
-      <div className="w-full aspect-square bg-gray-100 relative overflow-hidden">
+      <div className="w-full aspect-square bg-gray-100 relative overflow-hidden flex items-center justify-center">
          <img 
             src={product.imageSrc} 
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 mix-blend-multiply" 
+            className="max-w-[70%] max-h-[70%] object-contain group-hover:scale-105 transition-transform duration-300" 
          />
       </div>
 

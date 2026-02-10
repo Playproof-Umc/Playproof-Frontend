@@ -10,6 +10,19 @@ type CommunityPostListItemProps = {
 };
 
 export function CommunityPostListItem({ post, isLast, onPostClick }: CommunityPostListItemProps) {
+  const getRelativeTime = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "";
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString("ko-KR");
+  };
+
   return (
     <div
       onClick={() => onPostClick(post)}
@@ -17,18 +30,21 @@ export function CommunityPostListItem({ post, isLast, onPostClick }: CommunityPo
         isLast ? "" : "border-b border-gray-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-1 text-gray-600">
-        <Heart className="h-5 w-5" />
+      <div className={`flex flex-col items-center gap-1 ${post.isLiked ? "text-red-500" : "text-gray-600"}`}>
+        <Heart className="h-5 w-5" fill={post.isLiked ? "currentColor" : "none"} />
         <span className="text-xs font-medium">{post.likes}</span>
       </div>
 
-      {post.thumbnail ? (
-        <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-          <img src={post.thumbnail} alt="" className="h-full w-full object-cover" />
-        </div>
-      ) : (
-        <div className="h-16 w-24 flex-shrink-0 rounded-lg bg-gray-200" />
-      )}
+      <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+        <img
+          src={post.thumbnail || "/no-image.png"}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = "/no-image.png";
+          }}
+        />
+      </div>
 
       <div className="flex-1">
         <h3 className="mb-1 font-semibold text-gray-900">{post.title}</h3>
@@ -41,7 +57,7 @@ export function CommunityPostListItem({ post, isLast, onPostClick }: CommunityPo
       </div>
 
       <div className="flex flex-col items-end gap-1 text-right">
-        <span className="text-xs text-gray-500">{post.date}</span>
+        <span className="text-xs text-gray-500">{getRelativeTime(post.createdAt || post.date)}</span>
         <div className="flex items-center gap-3 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Eye className="h-3.5 w-3.5" />

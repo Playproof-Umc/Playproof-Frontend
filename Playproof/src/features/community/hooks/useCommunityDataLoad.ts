@@ -1,19 +1,21 @@
 // src/features/community/hooks/useCommunityDataLoad.ts
 
 import React from "react";
-import { getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
+import { getAllBoardPosts, getBoardPosts, getHighlights, getBestPosts } from "@/features/community/api/communityApi";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import type { BoardPost, HighlightPost } from "@/features/community/types";
 
 type UseCommunityDataLoadArgs = {
   activeTab: string;
   currentPage: number;
+  boardGameId: number;
   hydrateHighlights: (posts: HighlightPost[]) => void;
 };
 
 export const useCommunityDataLoad = ({
   activeTab,
   currentPage,
+  boardGameId,
   hydrateHighlights,
 }: UseCommunityDataLoadArgs) => {
   const [boardPosts, setBoardPosts] = React.useState<BoardPost[]>([]);
@@ -33,7 +35,9 @@ export const useCommunityDataLoad = ({
           setBestPosts(bestData);
         } else {
           const [boardData, bestData] = await Promise.all([
-            getBoardPosts(currentPage),
+            boardGameId === 0
+              ? getAllBoardPosts(currentPage)
+              : getBoardPosts(boardGameId, currentPage),
             getBestPosts(),
           ]);
           setBoardPosts(boardData);
@@ -47,7 +51,7 @@ export const useCommunityDataLoad = ({
     };
 
     loadData();
-  }, [activeTab, currentPage, hydrateHighlights]);
+  }, [activeTab, currentPage, boardGameId, hydrateHighlights]);
 
   return {
     boardPosts,

@@ -11,7 +11,7 @@ export function CommunityWriteButton({ onClick }: CommunityWriteButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-black px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-gray-800"
+      className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-[var(--color-primary-800)] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-primary-700)]"
     >
       <Edit size={14} />
       <span className="hidden sm:inline">{COMMUNITY_SECTION_LABELS.write}</span>

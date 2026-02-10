@@ -1,6 +1,6 @@
 // src/features/store/components/search/StoreSearchBar.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 interface StoreSearchBarProps {
   onSearch: (keyword: string) => void;
@@ -131,11 +131,6 @@ export const StoreSearchBar = ({ onSearch, isLoggedIn = false }: StoreSearchBarP
             </div>
           )}
         </div>
-
-        <button className="w-12 h-12 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors relative">
-           <SlidersHorizontal size={20} />
-           <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full"></span>
-        </button>
 
         <button 
           onClick={handleSearch}

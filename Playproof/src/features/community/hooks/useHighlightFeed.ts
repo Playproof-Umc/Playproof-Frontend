@@ -1,23 +1,21 @@
 // src/features/community/hooks/useHighlightFeed.ts
 
 import React from "react";
-import type { HighlightPost, Comment } from "@/features/community/types";
-import { MOCK_COMMENTS } from "@/features/community/data/mockCommunityData";
+import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
+import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi } from "@/features/community/api/communityApi";
 import { useAuthStore } from "@/store/authStore";
 
 type HighlightLikeMap = Record<number, { count: number; isLiked: boolean }>;
-type HighlightCommentsMap = Record<number, Comment[]>;
+type HighlightCommentsMap = Record<number, CommunityComment[]>;
 type HighlightMediaMap = Record<number, string[]>;
 
 type UseHighlightFeedArgs = {
   initialPosts?: HighlightPost[];
-  seedComments?: boolean;
   userName?: string;
 };
 
 export const useHighlightFeed = ({
   initialPosts = [],
-  seedComments = true,
   userName,
 }: UseHighlightFeedArgs = {}) => {
   const authNickname = useAuthStore((s) => s.nickname);
@@ -35,43 +33,36 @@ export const useHighlightFeed = ({
         const next = { ...prev };
         posts.forEach((post) => {
           if (!next[post.id]) {
-            next[post.id] = { count: post.likes, isLiked: false };
+            next[post.id] = { count: post.likeCount ?? post.likes ?? 0, isLiked: post.isLiked ?? false };
           }
         });
         return next;
       });
-      if (!seedComments) return;
-      setCommentsMap((prev) => {
-        const next = { ...prev };
-        posts.forEach((post) => {
-          if (!next[post.id]) {
-            next[post.id] = MOCK_COMMENTS.map((comment) => ({
-              ...comment,
-              replies: comment.replies.map((reply) => ({ ...reply })),
-            }));
-          }
-        });
-        return next;
-      });
+      // MOCK_COMMENTS logic removed; commentsMap is hydrated only from backend
     },
-    [seedComments]
+    []
   );
 
   const getLikeState = React.useCallback(
-    (post: HighlightPost) => likeMap[post.id] ?? { count: post.likes, isLiked: false },
+    (post: HighlightPost) => likeMap[post.id] ?? { count: post.likeCount ?? post.likes ?? 0, isLiked: post.isLiked ?? false },
     [likeMap]
   );
 
-  const getComments = React.useCallback(
+  const getCommentsLocal = React.useCallback(
     (postId: number) => commentsMap[postId] ?? [],
     [commentsMap]
   );
 
+  const fetchComments = React.useCallback(async (postId: number) => {
+    const res = await getComments({ highlightId: postId });
+    setCommentsMap((prev) => ({ ...prev, [postId]: res }));
+  }, []);
+
   const getCommentCount = React.useCallback(
     (post: HighlightPost) => {
       const comments = commentsMap[post.id];
-      if (!comments) return post.comments;
-      return comments.reduce((sum, comment) => sum + 1 + comment.replies.length, 0);
+      if (!comments) return post.commentCount ?? post.comments ?? 0;
+      return comments.reduce((sum, comment) => sum + 1 + (comment.replies?.length ?? 0), 0);
     },
     [commentsMap]
   );
@@ -87,52 +78,42 @@ export const useHighlightFeed = ({
   }, []);
 
   const addComment = React.useCallback(
-    (postId: number, content: string) => {
-      const newComment: Comment = {
-        id: String(Date.now()),
-        author: currentUserName,
-        avatarUrl: "",
-        content,
-        date: "방금 전",
-        replies: [],
-      };
+    async (postId: number, content: string) => {
+      const res = await addCommentApi({ highlightId: postId, content });
+      if (!res) {
+        await fetchComments(postId);
+        return;
+      }
       setCommentsMap((prev) => {
-        const nextComments = prev[postId] ? [newComment, ...prev[postId]] : [newComment];
+        const nextComments = prev[postId] ? [res, ...prev[postId]] : [res];
         return { ...prev, [postId]: nextComments };
       });
     },
-    [currentUserName]
+    [fetchComments]
   );
 
   const addReply = React.useCallback(
-    (postId: number, commentId: string, content: string) => {
+    async (postId: number, commentId: number, content: string) => {
+      const res = await addCommentApi({ highlightId: postId, content, parentId: commentId });
+      if (!res) {
+        await fetchComments(postId);
+        return;
+      }
       setCommentsMap((prev) => {
         const current = prev[postId] ?? [];
         const next = current.map((comment) =>
           comment.id === commentId
-            ? {
-                ...comment,
-                replies: [
-                  ...comment.replies,
-                  {
-                    id: String(Date.now()),
-                    author: currentUserName,
-                    avatarUrl: "",
-                    content,
-                    date: "방금 전",
-                    parentId: commentId,
-                  },
-                ],
-              }
+            ? { ...comment, replies: [...(comment.replies ?? []), res] }
             : comment
         );
         return { ...prev, [postId]: next };
       });
     },
-    [currentUserName]
+    [fetchComments]
   );
 
-  const editComment = React.useCallback((postId: number, commentId: string, content: string) => {
+  const editComment = React.useCallback(async (postId: number, commentId: number, content: string) => {
+    await editCommentApi({ commentId, content });
     setCommentsMap((prev) => {
       const current = prev[postId] ?? [];
       const next = current.map((comment) =>
@@ -143,7 +124,8 @@ export const useHighlightFeed = ({
   }, []);
 
   const editReply = React.useCallback(
-    (postId: number, commentId: string, replyId: string, content: string) => {
+    async (postId: number, commentId: number, replyId: number, content: string) => {
+      await editCommentApi({ commentId: replyId, content });
       setCommentsMap((prev) => {
         const current = prev[postId] ?? [];
         const next = current.map((comment) =>
@@ -162,7 +144,8 @@ export const useHighlightFeed = ({
     []
   );
 
-  const deleteComment = React.useCallback((postId: number, commentId: string) => {
+  const deleteComment = React.useCallback(async (postId: number, commentId: number) => {
+    await deleteCommentApi(commentId);
     setCommentsMap((prev) => {
       const current = prev[postId] ?? [];
       const next = current.filter((comment) => comment.id !== commentId);
@@ -171,7 +154,8 @@ export const useHighlightFeed = ({
   }, []);
 
   const deleteReply = React.useCallback(
-    (postId: number, commentId: string, replyId: string) => {
+    async (postId: number, commentId: number, replyId: number) => {
+      await deleteCommentApi(replyId);
       setCommentsMap((prev) => {
         const current = prev[postId] ?? [];
         const next = current.map((comment) =>
@@ -216,11 +200,11 @@ export const useHighlightFeed = ({
       const imageUrls = images.map((file) => URL.createObjectURL(file));
       const newPost: HighlightPost = {
         id,
-        author: currentUserName,
-        date: "방금 전",
         createdAt: new Date().toISOString(),
         title: title ?? "하이라이트",
         content: content || "내용 없음",
+        author: currentUserName,
+        date: "방금 전",
         likes: 0,
         views: 0,
         comments: 0,
@@ -258,7 +242,8 @@ export const useHighlightFeed = ({
     actions: {
       hydrateFromPosts,
       getLikeState,
-      getComments,
+      getComments: getCommentsLocal,
+      fetchComments,
       getCommentCount,
       toggleLike,
       addComment,

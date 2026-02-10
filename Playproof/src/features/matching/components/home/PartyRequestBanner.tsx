@@ -70,7 +70,7 @@ export const PartyRequestBanner = ({ initialOpen = false }: PartyRequestBannerPr
                     <p className="text-sm text-gray-500">{bannerDescription}</p>
                 </div>
             </div>
-            <button onClick={() => setIsOpen(!isOpen)} className="bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-800 transition-colors">
+            <button onClick={() => setIsOpen(!isOpen)} className="bg-[var(--color-primary-800)] text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[var(--color-primary-700)] transition-colors">
                 {isOpen ? <ChevronUp size={16} /> : <Plus size={16} />}<span>신청자 목록 확인</span>
             </button>
         </div>
@@ -101,7 +101,7 @@ export const PartyRequestBanner = ({ initialOpen = false }: PartyRequestBannerPr
                             </div>
                             <div className="mb-4"><p className="text-xs text-gray-500 line-clamp-1 text-center bg-gray-50 p-2 rounded-lg">"{applicant.title}"</p></div>
                             <div className="space-y-2">
-                                <div className="flex gap-2"><button onClick={() => handleRemove(applicant.id)} className="flex-1 py-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors bg-white">거절</button><button onClick={() => handleRemove(applicant.id)} className="flex-1 py-3 bg-black text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">수락</button></div>
+                                <div className="flex gap-2"><button onClick={() => handleRemove(applicant.id)} className="flex-1 py-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors bg-white">거절</button><button onClick={() => handleRemove(applicant.id)} className="flex-1 py-3 bg-[var(--color-primary-800)] text-white rounded-lg text-sm font-bold hover:bg-[var(--color-primary-700)] transition-colors">수락</button></div>
                                 <div className="text-[10px] text-gray-300 font-medium text-center">{applicant.time}</div>
                             </div>
                         </div>

@@ -1,34 +1,34 @@
 // src/features/community/components/detail/PostDetailComments.tsx
 
 import React, { useRef } from "react";
-import type { Comment } from "@/features/community/types";
+import type { CommunityComment } from "@/features/community/types/types";
 import { COMMUNITY_SECTION_LABELS } from "@/features/community/constants/labels";
 import { PostDetailCommentForm } from "@/features/community/components/detail/comments/PostDetailCommentForm";
 import { PostDetailCommentItem } from "@/features/community/components/detail/comments/PostDetailCommentItem";
 
 type PostDetailCommentsProps = {
-  comments: Comment[];
+  comments: CommunityComment[];
   totalCount: number;
   currentUserName: string;
   commentText: string;
   replyText: string;
-  replyingToId: string | null;
-  editingCommentId: string | null;
-  editingReplyId: string | null;
-  editingParentId: string | null;
+  replyingToId: number | null;
+  editingCommentId: number | null;
+  editingReplyId: number | null;
+  editingParentId: number | null;
   editText: string;
   onCommentChange: (value: string) => void;
   onCommentSubmit: () => void;
   onReplyChange: (value: string) => void;
-  onReplyToggle: (commentId: string) => void;
-  onReplySubmit: (commentId: string) => void;
+  onReplyToggle: (commentId: number) => void;
+  onReplySubmit: (commentId: number) => void;
   onEditTextChange: (value: string) => void;
-  onEditCommentStart: (commentId: string, content: string) => void;
-  onEditReplyStart: (commentId: string, replyId: string, content: string) => void;
+  onEditCommentStart: (commentId: number, content: string) => void;
+  onEditReplyStart: (commentId: number, replyId: number, content: string) => void;
   onEditCancel: () => void;
   onEditSubmit: () => void;
-  onDeleteComment: (commentId: string) => void;
-  onDeleteReply: (commentId: string, replyId: string) => void;
+  onDeleteComment: (commentId: number) => void;
+  onDeleteReply: (commentId: number, replyId: number) => void;
 };
 
 export const PostDetailComments = ({
@@ -70,7 +70,7 @@ export const PostDetailComments = ({
     focusCommentInput();
   };
 
-  const handleReplySubmit = (commentId: string) => {
+  const handleReplySubmit = (commentId: number) => {
     onReplySubmit(commentId);
     focusCommentInput();
   };
@@ -85,7 +85,7 @@ export const PostDetailComments = ({
 
   const handleReplyKeyDown = (
     event: React.KeyboardEvent<HTMLTextAreaElement>,
-    commentId: string
+    commentId: number
   ) => {
     if (event.nativeEvent.isComposing) return;
     if (event.key === "Enter" && !event.shiftKey) {
@@ -102,12 +102,12 @@ export const PostDetailComments = ({
     }
   };
 
-  const handleEditCommentStart = (commentId: string, content: string) => {
+  const handleEditCommentStart = (commentId: number, content: string) => {
     onEditCommentStart(commentId, content);
     requestAnimationFrame(() => editInputRef.current?.focus());
   };
 
-  const handleEditReplyStart = (commentId: string, replyId: string, content: string) => {
+  const handleEditReplyStart = (commentId: number, replyId: number, content: string) => {
     onEditReplyStart(commentId, replyId, content);
     requestAnimationFrame(() => editInputRef.current?.focus());
   };

@@ -177,6 +177,15 @@ export const AzitPageView = () => {
         }}
       />
 
+      <AzitSettingsModal
+        open={isAzitSettingsOpen}
+        onClose={() => setIsAzitSettingsOpen(false)}
+        profileUrl={currentAzit.icon}
+        onUpdateProfile={(url) => actions.updateAzitIcon(currentAzitId, url)}
+        initialName={currentAzit.name}
+        onUpdateName={(nextName) => actions.updateAzitName(currentAzitId, nextName)}
+      />
+
       <FeedbackModal
         open={feedbackModal.open}
         required={feedbackModal.required}
@@ -189,6 +198,6 @@ export const AzitPageView = () => {
           actions.submitFeedback(feedbackModal.scheduleId);
         }}
       />
-    </div>
+    </AppLayout>
   );
 };

@@ -16,13 +16,20 @@ export const mockMembers: User[] = [
   { id: "3", nickname: '카이', statusMessage: '밥 먹으러 감', isOnline: false },
   { id: "4", nickname: '제이', statusMessage: '', isOnline: false },
   { id: "5", nickname: '모모', statusMessage: '데바데 할 사람?', isOnline: true },
+  { id: "6", nickname: '유진', statusMessage: '랭크 달려요', isOnline: true },
+  { id: "7", nickname: '하린', statusMessage: '힐러 가능', isOnline: false },
+  { id: "8", nickname: '민석', statusMessage: '칼바람 환영', isOnline: true },
+  { id: "9", nickname: '지우', statusMessage: '즐겜 중심', isOnline: false },
+  { id: "10", nickname: '서연', statusMessage: '탑/정글', isOnline: true },
+  { id: "11", nickname: '도윤', statusMessage: '서폿만', isOnline: false },
+  { id: "12", nickname: '수아', statusMessage: '듀오 구함', isOnline: true },
 ];
 
 // 아지트별 멤버 매핑
 export const mockMembersByAzit: Record<number, User[]> = {
-  1: mockMembers.slice(0, 3),
-  2: mockMembers.slice(0, 5),
-  3: mockMembers.slice(2, 5),
+  1: mockMembers.slice(0, 4),
+  2: mockMembers.slice(0, 12),
+  3: mockMembers.slice(0, 8),
 };
 
 // [중요] 모든 케이스 테스트를 위한 스케줄 데이터

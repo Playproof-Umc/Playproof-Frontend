@@ -28,36 +28,59 @@ export function HighlightDetailMediaPanel({
   onMoveToProfile,
   profileUserId,
 }: HighlightDetailMediaPanelProps) {
+
+  // 상대 시간 표시 함수
+  function getRelativeTime(dateString: string) {
+    if (!dateString) return '';
+    const now = new Date();
+    const date = new Date(dateString);
+    const diff = (now.getTime() - date.getTime()) / 1000;
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+    return date.toLocaleDateString('ko-KR');
+  }
+
   return (
     <div className="relative flex w-full md:w-3/5 flex-col bg-white min-h-0">
       <div className="border-b border-gray-200 p-5">
         <div className="flex items-center gap-3">
           <div
             onClick={(event) => onMoveToProfile(event, profileUserId)}
-            className="h-10 w-10 cursor-pointer rounded-full bg-gray-300 transition-colors hover:bg-gray-400"
-          />
+            className="h-10 w-10 cursor-pointer rounded-full bg-gray-300 transition-colors hover:bg-gray-400 overflow-hidden"
+          >
+            <img
+              src={post.profileUrl || '/no-image.png'}
+              alt="프로필"
+              className="h-10 w-10 object-cover"
+              onError={e => { e.currentTarget.src = '/no-image.png'; }}
+            />
+          </div>
           <div>
             <p
               onClick={(event) => onMoveToProfile(event, profileUserId)}
               className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
             >
-              {post.author}
+              {post.nickname || '알 수 없음'}
             </p>
-            <p className="text-xs text-gray-500">{post.date}</p>
+            <p className="text-xs text-gray-500">
+              {post.createdAt ? getRelativeTime(post.createdAt) : '날짜 없음'}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-hidden bg-zinc-900">
-        {post.images.length > 0 ? (
+        {post.medias && post.medias.length > 0 ? (
           <>
             <img
-              src={post.images[currentImageIndex]}
+              src={post.medias[currentImageIndex]}
               alt={post.content}
               className="h-full w-full object-contain"
             />
 
-            {post.images.length > 1 && (
+            {post.medias.length > 1 && (
               <>
                 <button
                   onClick={onPrevImage}
@@ -72,7 +95,7 @@ export function HighlightDetailMediaPanel({
                   →
                 </button>
                 <div className="absolute bottom-20 right-4 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
-                  {currentImageIndex + 1} / {post.images.length}
+                  {currentImageIndex + 1} / {post.medias.length}
                 </div>
               </>
             )}

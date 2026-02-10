@@ -27,7 +27,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ nickname, isMyPage
             ) : (
                 <>
                     <button className="px-3 py-1.5 bg-gray-100 text-xs font-bold rounded-lg">신고</button>
-                    <button className="px-3 py-1.5 bg-black text-white text-xs font-bold rounded-lg">친구 추가</button>
+                    <button className="px-3 py-1.5 bg-[var(--color-primary-800)] text-white text-xs font-bold rounded-lg hover:bg-[var(--color-primary-700)] transition-colors">친구 추가</button>
                 </>
             )}
         </div>
