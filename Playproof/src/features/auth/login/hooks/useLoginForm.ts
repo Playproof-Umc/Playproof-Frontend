@@ -35,6 +35,12 @@ function normalizeDigitsOnly(v: string) {
   return v.replace(/\D/g, "");
 }
 
+// ✅ [추가] 하이픈 포맷팅 헬퍼 함수
+function formatPhoneNumber(str: string) {
+  // 숫자만 있는 문자열을 010-0000-0000 형식으로 변환
+  return str.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+}
+
 function getRedirectPath(locationState: unknown): string {
   const state = locationState as RedirectState | null;
   const fromPath = state?.from?.pathname;
@@ -78,9 +84,9 @@ export function useLoginForm() {
     mutationFn: login,
     onSuccess: (res) => {
       auth.setAuth({
-        accessToken: res.data.accessToken,
-        userId: res.data.userId,
-        nickname: res.data.nickname,
+        accessToken: res.accessToken, // loginApi 응답 구조에 따라 res.data.accessToken일 수도 있음 (수정된 loginApi.ts 기준이면 res.accessToken)
+        userId: res.userId,
+        nickname: res.nickname,
       });
 
       const redirect = getRedirectPath(location.state);
@@ -93,7 +99,7 @@ export function useLoginForm() {
 
       // 등록되지 않은 번호
       if (status === 404 && code === "USER_NOT_FOUND") {
-        setServerError(" 등록되지 않은 번호입니다.");
+        setServerError("등록되지 않은 번호입니다.");
         return;
       }
 
@@ -101,11 +107,17 @@ export function useLoginForm() {
       if (status === 400 && code === "VALIDATION_FAILED") {
         const next: FieldError = {};
         for (const e of errors) {
-          if (e.field === "phoneNumber") next.phoneNumber = PHONE_FORMAT_MSG;
+          if (e.field === "phoneNumber" || e.field === "phone") next.phoneNumber = PHONE_FORMAT_MSG;
           if (e.field === "password") next.password = e.reason ?? PW_MSG;
         }
         setFieldError(next);
         setServerError(null);
+        return;
+      }
+
+      // 비밀번호 불일치 등 인증 실패
+      if (status === 401) {
+        setServerError("전화번호 또는 비밀번호가 일치하지 않습니다.");
         return;
       }
 
@@ -131,8 +143,11 @@ export function useLoginForm() {
     const ok = validateOnSubmit();
     if (!ok) return;
 
+    // ✅ [수정] normalizedPhone(숫자만)을 하이픈 형식으로 변환해서 전송
+    const formattedPhone = formatPhoneNumber(normalizedPhone);
+
     mutation.mutate({
-      phoneNumber: normalizedPhone,
+      phoneNumber: formattedPhone, // "01012345678" -> "010-1234-5678"
       password,
       keepLoggedIn,
     });

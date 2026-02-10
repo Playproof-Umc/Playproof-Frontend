@@ -1,196 +1,263 @@
-// src/features/team/hooks/useAzitSocket.ts
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { io, type Socket } from "socket.io-client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import { useAuthStore } from "@/store/authStore";
 
-type SocketStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
+const SOCKET_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my";
 
-export type JoinPayload = { roomId: number };
-export type SendMessagePayload = { roomId: number; content: string };
+export type SocketAck<TData> =
+  | { ok: true; data: TData }
+  | { ok: false; error: unknown };
 
-export type SocketAck =
-  | { ok: true; data?: unknown }
-  | { ok: false; error?: unknown }
-  | unknown;
+export interface ApiError {
+  code: string;
+  message: string;
+  errors?: Array<Record<string, unknown>>;
+}
 
-type Params = {
-  apiBaseUrl: string; // https://myfit.my
-  accessToken: string | null; // Bearer 없이 raw JWT
-  enabled?: boolean;
+export interface JoinRoomData {
+  roomId: number;
+  azitId: number;
+}
 
-  onNewMessage?: (data: unknown) => void;
-  onErrorEvent?: (err: unknown) => void;
-};
+// ✅ [핵심] isPrivate 필드 포함
+export interface CreateRoomPayload {
+  azitId: number;
+  name: string;
+  type: "TEXT" | "VOICE";
+  isPrivate: boolean;
+}
 
-export const useAzitSocket = ({
-  apiBaseUrl,
-  accessToken,
-  enabled = true,
-  onNewMessage,
-  onErrorEvent,
-}: Params) => {
+export interface CreateRoomResponse {
+  id: number;
+  name: string;
+  type: "TEXT" | "VOICE";
+  azitId: number;
+  isPrivate: boolean;
+}
+
+export interface ChatMessage {
+  id: number;
+  chatRoomId: number;
+  memberId: number;
+  userId: number;
+  nickname?: string;
+  content: string;
+  createdAt: string;
+}
+
+type EmitWithAck = <TPayload, TData>(
+  event: string,
+  payload: TPayload
+) => Promise<TData>;
+
+export const useAzitSocket = (params: {
+  roomId?: number;
+  onMessage?: (msg: ChatMessage) => void;
+  onError?: (err: ApiError) => void;
+}) => {
+  const { roomId } = params;
+  const token = useAuthStore((s) => s.accessToken);
+
   const socketRef = useRef<Socket | null>(null);
+  const joinedRoomIdRef = useRef<number | null>(null);
 
-  const [status, setStatus] = useState<SocketStatus>("idle");
-  const [socketId, setSocketId] = useState<string | null>(null);
-  const [lastError, setLastError] = useState<string | null>(null);
+  const onMessageRef = useRef<typeof params.onMessage>(params.onMessage);
+  const onErrorRef = useRef<typeof params.onError>(params.onError);
 
-  const isConnected = status === "connected";
+  const [isConnected, setIsConnected] = useState(false);
+  const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
+  const [lastError, setLastError] = useState<ApiError | null>(null);
 
   useEffect(() => {
-    if (!enabled) return;
+    onMessageRef.current = params.onMessage;
+  }, [params.onMessage]);
 
-    if (!accessToken) {
-      setStatus("idle");
-      setSocketId(null);
-      setLastError(null);
-      return;
+  useEffect(() => {
+    onErrorRef.current = params.onError;
+  }, [params.onError]);
+
+  const disconnect = () => {
+    const sock = socketRef.current;
+    if (!sock) return;
+    try {
+      sock.disconnect();
+    } finally {
+      socketRef.current = null;
+      joinedRoomIdRef.current = null;
+      setIsConnected(false);
+      setCurrentRoomId(null);
     }
+  };
 
-    const url = apiBaseUrl?.trim();
-    if (!url) {
-      setStatus("error");
-      setLastError("Socket 연결 실패: apiBaseUrl이 비어 있습니다.");
-      return;
-    }
+  const emitWithAck: EmitWithAck = useMemo(() => {
+    return async <TPayload, TData>(event: string, payload: TPayload) => {
+      const sock = socketRef.current;
+      if (!sock || !sock.connected) {
+        throw new Error(`[socket] not connected (event=${event})`);
+      }
 
-    setStatus("connecting");
-    setLastError(null);
+      return await new Promise<TData>((resolve, reject) => {
+        sock.emit(event, payload, (ack: SocketAck<TData>) => {
+          if (ack && typeof ack === "object" && "ok" in ack) {
+            if (ack.ok) resolve(ack.data);
+            else reject(ack.error);
+            return;
+          }
+          reject(new Error(`[socket] invalid ack for event=${event}`));
+        });
+      });
+    };
+  }, []);
 
-    const socket = io(url, {
-      auth: { token: accessToken }, // ✅ auth.ts extractToken이 지원
-      transports: ["websocket"], // ✅ 테스트 HTML과 동일
-      autoConnect: true,
+  /** 🔌 connect / subscribe */
+  useEffect(() => {
+    // 토큰이 없어도 null로 연결 시도 (게스트 모드)
+    console.log("🔌 [Socket] 연결 시도... (Token:", token ? "Yes" : "No", ")");
+    
+    disconnect();
+
+    const socket = io(SOCKET_BASE_URL, {
+      transports: ["websocket"],
+      auth: { token: token || null },
       reconnection: true,
-      reconnectionAttempts: 5,
-      timeout: 10000,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 3000,
+      timeout: 20000,
     });
 
     socketRef.current = socket;
 
     const handleConnect = () => {
-      setStatus("connected");
-      setSocketId(socket.id ?? null);
-      setLastError(null);
+      console.log("✅ [Socket] Connected! ID:", socket.id);
+      setIsConnected(true);
     };
-
-    const handleDisconnect = (_reason: string) => {
-      setStatus("disconnected");
-      setSocketId(null);
+    
+    const handleDisconnect = (reason: string) => {
+      console.log("❌ [Socket] Disconnected:", reason);
+      setIsConnected(false);
     };
 
     const handleConnectError = (err: unknown) => {
-      const msg =
-        err instanceof Error ? err.message : typeof err === "string" ? err : "Unknown socket error";
-      setStatus("error");
-      setLastError(msg);
+      console.warn("⚠️ [Socket] Connect Error:", err);
+      const wrapped: ApiError = {
+        code: "SOCKET_CONNECT_ERROR",
+        message: err instanceof Error ? err.message : "Socket connection error",
+      };
+      setLastError(wrapped);
+      onErrorRef.current?.(wrapped);
     };
 
-    const handleErrorEvent = (err: unknown) => onErrorEvent?.(err);
-    const handleNewMessage = (data: unknown) => onNewMessage?.(data);
+    const handleServerError = (err: ApiError) => {
+      console.error("🔥 [Socket] Server Error:", err);
+      setLastError(err);
+      onErrorRef.current?.(err);
+    };
+
+    const handleNewMessage = (payload: ChatMessage) => {
+      onMessageRef.current?.(payload);
+    };
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("connect_error", handleConnectError);
-
-    socket.on("error", handleErrorEvent);
+    socket.on("error", handleServerError);
     socket.on("newMessage", handleNewMessage);
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("connect_error", handleConnectError);
-
-      socket.off("error", handleErrorEvent);
+      socket.off("error", handleServerError);
       socket.off("newMessage", handleNewMessage);
-
-      socket.disconnect();
-      socketRef.current = null;
+      disconnect();
     };
-  }, [apiBaseUrl, accessToken, enabled, onNewMessage, onErrorEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
-  const disconnect = useCallback(() => {
-    socketRef.current?.disconnect();
-  }, []);
+  /** 🏠 room 자동 join/leave */
+  useEffect(() => {
+    if (!roomId) {
+      const prev = joinedRoomIdRef.current;
+      if (prev !== null && socketRef.current?.connected) {
+        socketRef.current.emit("leaveRoom", { roomId: prev });
+      }
+      joinedRoomIdRef.current = null;
+      setCurrentRoomId(null);
+      return;
+    }
 
-  const emitWithAck = useCallback(
-    <TPayload,>(eventName: string, payload: TPayload, timeoutMs = 5000) => {
-      const s = socketRef.current;
-      if (!s || !s.connected) return Promise.resolve<SocketAck | null>(null);
+    if (!isConnected) return;
 
-      return new Promise<SocketAck | null>((resolve) => {
-        let done = false;
+    const prev = joinedRoomIdRef.current;
+    if (prev === roomId) {
+      setCurrentRoomId(roomId);
+      return;
+    }
 
-        const timer = window.setTimeout(() => {
-          if (done) return;
-          done = true;
-          resolve(null);
-        }, timeoutMs);
+    if (prev !== null) {
+      socketRef.current?.emit("leaveRoom", { roomId: prev });
+    }
 
-        s.emit(eventName, payload, (res: SocketAck) => {
-          if (done) return;
-          done = true;
-          window.clearTimeout(timer);
-          resolve(res);
-        });
-      });
-    },
-    []
-  );
+    let cancelled = false;
 
-  const emitNoAck = useCallback(<TPayload,>(eventName: string, payload: TPayload) => {
-    const s = socketRef.current;
-    if (!s || !s.connected) return;
-    s.emit(eventName, payload);
-  }, []);
+    (async () => {
+      try {
+        const data = await emitWithAck<{ roomId: number }, JoinRoomData>(
+          "joinRoom",
+          { roomId }
+        );
+        if (cancelled) return;
+        joinedRoomIdRef.current = data.roomId;
+        setCurrentRoomId(data.roomId);
+      } catch (e) {
+        if (cancelled) return;
+        const wrapped: ApiError = {
+          code: "JOIN_ROOM_FAILED",
+          message: e instanceof Error ? e.message : "Failed to join room",
+        };
+        setLastError(wrapped);
+        onErrorRef.current?.(wrapped);
+      }
+    })();
 
-  const joinRoom = useCallback(
-    (payload: JoinPayload) => emitWithAck("joinRoom", payload),
-    [emitWithAck]
-  );
-  const leaveRoom = useCallback(
-    (payload: JoinPayload) => emitNoAck("leaveRoom", payload),
-    [emitNoAck]
-  );
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, isConnected]);
 
-  const sendMessage = useCallback(
-    (payload: SendMessagePayload) => emitWithAck("sendMessage", payload),
-    [emitWithAck]
-  );
+  const sendMessage = async (
+    targetRoomId: number,
+    content: string
+  ): Promise<ChatMessage> => {
+    return emitWithAck("sendMessage", { roomId: targetRoomId, content });
+  };
 
-  const voiceJoin = useCallback(
-    (payload: JoinPayload) => emitWithAck("voiceJoin", payload),
-    [emitWithAck]
-  );
-  const voiceLeave = useCallback(
-    (payload: JoinPayload) => emitWithAck("voiceLeave", payload),
-    [emitWithAck]
-  );
+  const voiceJoin = async (targetRoomId: number) => {
+    return emitWithAck("voiceJoin", { roomId: targetRoomId });
+  };
 
-  return useMemo(
-    () => ({
-      status,
-      socketId,
-      lastError,
-      isConnected,
-      joinRoom,
-      leaveRoom,
-      sendMessage,
-      voiceJoin,
-      voiceLeave,
-      disconnect,
-      socket: socketRef.current,
-    }),
-    [
-      status,
-      socketId,
-      lastError,
-      isConnected,
-      joinRoom,
-      leaveRoom,
-      sendMessage,
-      voiceJoin,
-      voiceLeave,
-      disconnect,
-    ]
-  );
+  const voiceLeave = (targetRoomId: number) => {
+    socketRef.current?.emit("voiceLeave", { roomId: targetRoomId });
+  };
+
+  // ✅ [수정] createRoomPayload 사용
+  const createChatRoom = async (
+    payload: CreateRoomPayload
+  ): Promise<CreateRoomResponse> => {
+    return emitWithAck("createRoom", payload);
+  };
+
+  return {
+    socket: socketRef,
+    isConnected,
+    currentRoomId,
+    lastError,
+    sendMessage,
+    voiceJoin,
+    voiceLeave,
+    createChatRoom, 
+  };
 };

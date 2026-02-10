@@ -1,4 +1,5 @@
 // src/features/team/api/chatApi.ts
+
 export type ApiError = {
   code: string;
   message: string;
@@ -10,16 +11,12 @@ export type Result<T> =
   | { statusCode: number; data: null; error: ApiError };
 
 export type ChatRoomGetResDto = {
-  id: number;
+  id: number; // chatRoomId
   roomName: string;
   chatType: "TEXT" | "VOICE";
   isPrivate: boolean;
   createdAt: string;
   updatedAt: string;
-};
-
-export type ChatRoomCreateResDto = {
-  roomId: number;
 };
 
 export type ChatMessageResDto = {
@@ -39,7 +36,7 @@ export type ChatMessageListResDto = {
 
 const normalizeBase = (baseUrl: string) => baseUrl.trim().replace(/\/+$/, "");
 
-async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+async function fetchJson<T>(input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   const json = (await res.json().catch(() => null)) as T | null;
   if (!json) throw new Error(`API 응답 파싱 실패 (status=${res.status})`);
@@ -66,6 +63,39 @@ export async function getChatRoomsByAzit(params: {
   return json.data;
 }
 
+// ✅ [수정됨] 파라미터 이름(name, type)을 로직과 맞추고 isPrivate 활성화
+export async function createChatRoomByAzit(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  azitId: number;
+  name: string;             // UI에서 넘겨주는 이름
+  type: "TEXT" | "VOICE";   // UI에서 넘겨주는 타입
+  isPrivate: boolean;       // 비공개 여부 (필수)
+}): Promise<ChatRoomGetResDto> {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/azits/${params.azitId}/chat-rooms`;
+
+  // 서버로 보낼 데이터 (백엔드 스키마 추정: roomName, chatType)
+  const body = {
+    roomName: params.name,
+    chatType: params.type,
+    isPrivate: params.isPrivate,
+  };
+
+  const json = await fetchJson<Result<ChatRoomGetResDto>>(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (json.error) throw new Error(json.error.message);
+  return json.data;
+}
+
 export async function getChatMessages(params: {
   apiBaseUrl: string;
   accessToken: string;
@@ -86,4 +116,22 @@ export async function getChatMessages(params: {
 
   if (json.error) throw new Error(json.error.message);
   return json.data;
+}
+
+/**
+ * Alias for chat message list fetch (hook-friendly name).
+ * Backend contract: cursor-based pagination (not limit/beforeId).
+ */
+export async function fetchChatMessages(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number;
+  cursor?: number | null;
+}): Promise<ChatMessageListResDto> {
+  return getChatMessages({
+    apiBaseUrl: params.apiBaseUrl,
+    accessToken: params.accessToken,
+    roomId: params.roomId,
+    cursor: params.cursor ?? null,
+  });
 }

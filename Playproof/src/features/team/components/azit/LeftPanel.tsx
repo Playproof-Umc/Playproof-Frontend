@@ -23,18 +23,18 @@ interface LeftPanelProps {
   onToggleMyMic: (roomId: string) => void;
 
   textRooms: ChatRoomSummary[];
-  onCreateChatRoom: (name: string, type: "TEXT" | "VOICE") => void;
+  
+  onCreateChatRoom: (data: ChatRoomCreateData) => void; // ✅ 객체로 받기
 
   onRenameVoiceRoom: (roomId: string, nextName: string) => void;
   onDeleteVoiceRoom: (roomId: string) => void;
 
-  // REST 기반으로 rename/delete 구현하려면 이후 단계에서 붙임
   onRenameChatRoom: (roomId: number, nextName: string) => void;
   onDeleteChatRoom: (roomId: number) => void;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({
-  members,
+  members = [],
   schedules = [],
   currentUserId,
   onAddSchedule,
@@ -44,24 +44,24 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
   selectedChatRoomId,
   onSelectChatRoom,
 
-  voiceRooms,
+  voiceRooms = [],
   onJoinVoiceRoom,
   onToggleMyMic,
 
-  textRooms,
+  textRooms = [],
   onCreateChatRoom,
-
-  onRenameVoiceRoom,
-  onDeleteVoiceRoom,
 }) => {
   const [chatCreateAnchorEl, setChatCreateAnchorEl] = useState<HTMLElement | null>(null);
 
+  // ✅ 데이터를 그대로 상위로 전달
   const handleCreateChatRoom = (data: ChatRoomCreateData) => {
-    onCreateChatRoom(data.name, data.type);
+    onCreateChatRoom(data);
+    setChatCreateAnchorEl(null);
   };
 
   const isMe = (u: User) => String(u.id) === String(currentUserId);
-  const isMeInRoom = (roomUsers: VoiceRoomMember[]) => roomUsers.some((m) => isMe(m.user));
+  const isMeInRoom = (roomUsers: VoiceRoomMember[]) =>
+    roomUsers?.some((m) => isMe(m.user)) ?? false;
 
   return (
     <aside className="w-full lg:w-[340px] flex flex-col gap-6 pr-0 lg:pr-2 overflow-visible lg:overflow-y-auto pb-10 shrink-0 custom-scrollbar">
@@ -116,7 +116,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          {/* 음성 */}
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="text-xs font-bold text-gray-500">음성 채팅</div>
           </div>
@@ -144,7 +143,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 </div>
 
                 <div className="pl-11 pr-4 space-y-2 pb-3">
-                  {room.users.length === 0 ? (
+                  {room.users?.length === 0 ? (
                     <div className="text-xs text-gray-400">참여자가 없습니다.</div>
                   ) : (
                     room.users.map((member) => {
@@ -160,7 +159,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                                 type="button"
                                 onClick={() => onToggleMyMic(room.id)}
                                 className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                aria-label="마이크 토글"
                               >
                                 {member.micOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
                               </button>
@@ -179,7 +177,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             );
           })}
 
-          {/* 텍스트 */}
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="text-xs font-bold text-gray-500">일반 채팅</div>
           </div>
@@ -211,34 +208,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
               );
             })
           )}
-        </div>
-      </section>
-
-      {/* 멤버 */}
-      <section>
-        <div className="flex justify-between items-center mb-2 px-1">
-          <h2 className="text-lg font-bold text-gray-900">멤버</h2>
-          <button className="hover:bg-gray-100 rounded-full p-1">
-            <Plus className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
-
-        <div className="space-y-1">
-          {members.slice(0, 3).map((member, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
-            >
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-100" />
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
-              </div>
-              <div>
-                <div className="font-bold text-sm text-gray-900">{member.nickname || "Member"}</div>
-                <div className="text-[11px] text-gray-400 font-medium">상태메세지</div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 

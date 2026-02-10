@@ -1,3 +1,5 @@
+// src/features/team/pages/AzitPageView.tsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Settings, Users } from "lucide-react";
@@ -17,24 +19,32 @@ import { useAzitPageLogic } from "@/features/team/hooks/useAzitPageLogic";
 export const AzitPageView = () => {
   const navigate = useNavigate();
   const { state, actions } = useAzitPageLogic();
+  
   const [isAzitCreateOpen, setIsAzitCreateOpen] = React.useState(false);
 
   const {
     currentAzitId,
     scheduleAnchorEl,
-    selectedChatRoom,
-    voiceRooms,
-    textRooms,
+
+    // chat
+    chatRooms,
+    selectedChatRoomId,
+    selectedChatRoomName,
     messages,
+
+    // voice mock
+    voiceRooms,
+
     currentAzit,
     currentMembers,
     currentClips,
     schedules,
     currentUserId,
     currentUser,
+
     feedbackModal,
+
     socketConnected,
-    voiceTokenStatus,
   } = state;
 
   const handleCreateSchedule = (data: ScheduleCreatePayload) => {
@@ -76,15 +86,16 @@ export const AzitPageView = () => {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
+
               <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
                 {currentAzit.name}
               </h1>
+
               <div className="flex items-center gap-1 text-gray-500 font-bold mt-0.5">
                 <Users className="w-4 h-4" />
                 <span className="text-sm">{currentAzit.memberCount}</span>
               </div>
 
-              {/* (선택) 연결 상태 뱃지 */}
               <span
                 className={[
                   "ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold",
@@ -93,20 +104,8 @@ export const AzitPageView = () => {
               >
                 {socketConnected ? "Socket 연결됨" : "Socket 미연결"}
               </span>
-
-              <span
-                className={[
-                  "rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                  voiceTokenStatus === "success"
-                    ? "bg-blue-100 text-blue-700"
-                    : voiceTokenStatus === "loading"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-gray-200 text-gray-700",
-                ].join(" ")}
-              >
-                voice-token: {voiceTokenStatus}
-              </span>
             </div>
+
             <button className="text-gray-400 hover:bg-gray-200 rounded-full p-2 transition-colors self-end sm:self-auto">
               <Settings className="w-5 h-5" />
             </button>
@@ -121,29 +120,30 @@ export const AzitPageView = () => {
             onAddSchedule={(target) => actions.setScheduleAnchorEl(target)}
             onStatusChange={actions.handleStatusChange}
             onFeedback={(scheduleId) => actions.openFeedbackModal(scheduleId)}
-            selectedChatRoom={selectedChatRoom}
+            selectedChatRoomId={selectedChatRoomId}
             onSelectChatRoom={actions.setSelectedChatRoom}
             voiceRooms={voiceRooms}
             onJoinVoiceRoom={(voiceRoomId) => {
-              // ✅ STEP 2: 음성방 클릭 → socket voiceJoin + voice-token
-              void actions.onEnterVoice(voiceRoomId);
+              actions.joinVoiceRoom(voiceRoomId);
             }}
-            onToggleMyMic={() => {
-              void actions.onToggleMyMic();
+            onToggleMyMic={(voiceRoomId) => {
+              actions.toggleMyMic(voiceRoomId);
             }}
-            textRooms={textRooms}
-            onCreateChatRoom={actions.addChatRoom}
-            onRenameVoiceRoom={actions.renameVoiceRoom}
-            onDeleteVoiceRoom={actions.deleteVoiceRoom}
-            onRenameChatRoom={actions.renameChatRoom}
-            onDeleteChatRoom={actions.deleteChatRoom}
+            textRooms={chatRooms}
+            // ✅ 수정: actions.onCreateChatRoom을 그대로 전달 (PageLogic에서 처리)
+            onCreateChatRoom={actions.onCreateChatRoom}
+            onRenameVoiceRoom={() => {}}
+            onDeleteVoiceRoom={() => {}}
+            onRenameChatRoom={() => {}}
+            onDeleteChatRoom={() => {}}
           />
 
           <MainPanel
             key={currentAzitId}
-            roomName={selectedChatRoom}
+            roomId={selectedChatRoomId}
+            roomName={selectedChatRoomName}
             messages={messages}
-            onSendMessage={actions.addChatMessage}
+            onSendMessage={actions.onSendMessage}
             currentUserName={currentUser.nickname}
           />
 

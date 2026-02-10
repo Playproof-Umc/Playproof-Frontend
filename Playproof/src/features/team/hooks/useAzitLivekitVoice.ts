@@ -1,119 +1,129 @@
+// src/features/team/hooks/useAzitLivekitVoice.ts
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Room } from "livekit-client";
-import type { VoiceTokenResponse } from "@/features/team/api/chatRoomsApi";
+import {
+  Room,
+  RoomEvent,
+  RemoteTrack,
+  RemoteParticipant,
+  Track,
+  type Participant,
+} from "livekit-client";
+// ✅ 타입 import 경로 확인 (ChatRoomsApi에서 가져옴)
+import type { VoiceTokenResDto } from "@/features/team/api/chatRoomsApi";
 
 export type LivekitStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
 
-type Params = {
-  enabled?: boolean;
-};
-
-export const useAzitLivekitVoice = ({ enabled = true }: Params = {}) => {
+export const useAzitLivekitVoice = () => {
   const roomRef = useRef<Room | null>(null);
 
   const [status, setStatus] = useState<LivekitStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  
+  // 현재 말하고 있는 사람 ID 목록 (UI 표시용)
+  const [activeSpeakers, setActiveSpeakers] = useState<string[]>([]);
 
-  const isConnected = status === "connected";
+  // ✅ [핵심] 상대방 오디오 트랙 구독 시 자동 재생
+  // 이 부분이 없으면 연결은 되는데 소리가 안 들립니다.
+  const handleTrackSubscribed = (
+    track: RemoteTrack,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _publication: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _participant: RemoteParticipant
+  ) => {
+    if (track.kind === Track.Kind.Audio) {
+      // HTMLAudioElement 생성 및 body에 부착 (화면엔 안보임, 소리만 재생)
+      const element = track.attach();
+      document.body.appendChild(element);
+    }
+  };
 
-  const connect = useCallback(
-    async (tokenInfo: VoiceTokenResponse) => {
-      if (!enabled) return false;
+  // ✅ 오디오 트랙 구독 해제 시 청소
+  const handleTrackUnsubscribed = (
+    track: RemoteTrack,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _publication: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _participant: RemoteParticipant
+  ) => {
+    track.detach().forEach((element) => element.remove());
+  };
 
-      try {
-        setStatus("connecting");
-        setError(null);
-
-        // 기존 연결이 있으면 정리
-        if (roomRef.current) {
-          try {
-            roomRef.current.disconnect();
-          } catch {
-            // ignore
-          }
-          roomRef.current = null;
-        }
-
-        const room = new Room();
-        roomRef.current = room;
-
-        // tokenInfo.roomName을 서버가 내려줬으므로 우선 신뢰.
-        // (백엔드가 prefix를 이미 포함해 내려주거나, 프론트가 조합하길 원하면 STEP 4에서 통일)
-        await room.connect(tokenInfo.url, tokenInfo.token, {
-          room: tokenInfo.roomName,
-        });
-
-        setStatus("connected");
-        setError(null);
-
-        // 기본: 접속 직후 마이크 ON (원하면 false로 바꿔도 됨)
-        await room.localParticipant.setMicrophoneEnabled(true);
-
-        return true;
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : typeof e === "string" ? e : "LiveKit connect error";
-        setStatus("error");
-        setError(msg);
-        return false;
+  const connect = useCallback(async (tokenInfo: VoiceTokenResDto) => {
+    try {
+      // 기존 연결 정리
+      if (roomRef.current) {
+        roomRef.current.disconnect();
       }
-    },
-    [enabled]
-  );
 
-  const disconnect = useCallback(() => {
-    const room = roomRef.current;
-    if (!room) {
-      setStatus("disconnected");
-      return;
-    }
+      setStatus("connecting");
+      setError(null);
 
-    try {
-      room.disconnect();
-    } catch {
-      // ignore
-    } finally {
-      roomRef.current = null;
-      setStatus("disconnected");
-    }
-  }, []);
+      const room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+      });
+      roomRef.current = room;
 
-  const setMicEnabled = useCallback(async (enabledMic: boolean) => {
-    const room = roomRef.current;
-    if (!room) return false;
+      // --- 이벤트 리스너 등록 ---
+      // 1. 듣기 기능 (TrackSubscribed)
+      room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+      room.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+      
+      // 2. 말하는 사람 감지 (ActiveSpeakersChanged)
+      room.on(RoomEvent.ActiveSpeakersChanged, (speakers: Participant[]) => {
+        setActiveSpeakers(speakers.map((p) => p.identity));
+      });
 
-    try {
-      await room.localParticipant.setMicrophoneEnabled(enabledMic);
+      // 3. 연결 끊김 감지
+      room.on(RoomEvent.Disconnected, () => {
+        setStatus("disconnected");
+        setActiveSpeakers([]);
+      });
+
+      // --- LiveKit 서버 접속 ---
+      await room.connect(tokenInfo.url, tokenInfo.token);
+
+      setStatus("connected");
+      
+      // 입장 시 마이크 켜기 (브라우저 권한 요청 뜸)
+      await room.localParticipant.setMicrophoneEnabled(true);
+
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : typeof e === "string" ? e : "Mic toggle error";
+      const msg = e instanceof Error ? e.message : "LiveKit connect failed";
+      setStatus("error");
       setError(msg);
+      console.error(e);
       return false;
     }
   }, []);
 
+  const disconnect = useCallback(() => {
+    if (roomRef.current) {
+      roomRef.current.disconnect();
+      roomRef.current = null;
+    }
+    setStatus("disconnected");
+    setActiveSpeakers([]);
+  }, []);
+
   const toggleMic = useCallback(async () => {
     const room = roomRef.current;
-    if (!room) return false;
+    if (!room || !room.localParticipant) return false;
+    
+    // 현재 마이크 상태 확인 후 토글
+    const isEnabled = room.localParticipant.isMicrophoneEnabled;
+    await room.localParticipant.setMicrophoneEnabled(!isEnabled);
+    return !isEnabled;
+  }, []);
 
-    // localParticipant.isMicrophoneEnabled()는 버전에 따라 제공/미제공이 섞여서
-    // 확실하게 하려면 track publication 상태를 확인해야 함.
-    // 여기선 안전하게: 현재 track publish 여부로 판단
-    const pubs = Array.from(room.localParticipant.audioTrackPublications.values());
-    const hasAudioTrack = pubs.some((p) => !!p.track);
-
-    // hasAudioTrack=true면 끄기, 아니면 켜기
-    return setMicEnabled(!hasAudioTrack);
-  }, [setMicEnabled]);
-
-  // 언마운트 cleanup
+  // 언마운트 시 정리
   useEffect(() => {
     return () => {
-      try {
-        roomRef.current?.disconnect();
-      } catch {
-        // ignore
-      } finally {
-        roomRef.current = null;
+      if (roomRef.current) {
+        roomRef.current.disconnect();
       }
     };
   }, []);
@@ -122,13 +132,13 @@ export const useAzitLivekitVoice = ({ enabled = true }: Params = {}) => {
     () => ({
       status,
       error,
-      isConnected,
+      isConnected: status === "connected",
+      activeSpeakers,
       connect,
       disconnect,
       toggleMic,
-      setMicEnabled,
       room: roomRef.current,
     }),
-    [status, error, isConnected, connect, disconnect, toggleMic, setMicEnabled]
+    [status, error, activeSpeakers, connect, disconnect, toggleMic]
   );
 };

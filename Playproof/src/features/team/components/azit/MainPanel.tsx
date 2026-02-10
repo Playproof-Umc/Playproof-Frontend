@@ -2,16 +2,20 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Send, Paperclip } from "lucide-react";
-import { useAzitChat } from "@/features/team/hooks/useAzitChat";
 import { ModalShell } from "@/components/ui/ModalShell";
-import type { ChatMessage } from "@/features/team/hooks/useAzitRooms";
+import type { ChatMessageUI } from "@/features/team/hooks/useAzitRooms";
 
 type MainPanelProps = {
   roomId: number | null;
   roomName: string;
-  messages: ChatMessage[];
+  messages: ChatMessageUI[];
   onSendMessage: (roomId: number, content: string, files: File[]) => void;
   currentUserName: string;
+};
+
+type PreviewItem = {
+  url: string;
+  type: "image" | "video";
 };
 
 export const MainPanel: React.FC<MainPanelProps> = ({
@@ -23,24 +27,57 @@ export const MainPanel: React.FC<MainPanelProps> = ({
 }) => {
   const [activeMedia, setActiveMedia] = React.useState<{ url: string; type: "image" | "video" } | null>(null);
   const navigate = useNavigate();
-  const {
-    message,
-    setMessage,
-    selectedFiles,
-    previewItems,
-    fileInputRef,
-    handleFileSelect,
-    handleRemoveImage,
-    triggerFileInput,
-    sendMessage,
-    hasContent,
-  } = useAzitChat();
+
+  // 입력/첨부는 MainPanel 로컬 상태로 관리
+  const [message, setMessage] = React.useState("");
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const [previewItems, setPreviewItems] = React.useState<PreviewItem[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const hasContent = message.trim().length > 0 || selectedFiles.length > 0;
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
+
+    const nextPreviews: PreviewItem[] = files.map((f) => ({
+      url: URL.createObjectURL(f),
+      type: f.type.startsWith("video") ? "video" : "image",
+    }));
+
+    setSelectedFiles((prev) => [...prev, ...files]);
+    setPreviewItems((prev) => [...prev, ...nextPreviews]);
+
+    // 동일 파일 재선택 가능하도록 reset
+    e.target.value = "";
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewItems((prev) => {
+      const target = prev[index];
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const handleSend = () => {
     if (!hasContent) return;
-    if (!roomId) return; // room 선택 전
+    if (!roomId) return;
+
     onSendMessage(roomId, message, selectedFiles);
-    sendMessage();
+
+    // 전송 후 로컬 상태 초기화
+    setMessage("");
+    setSelectedFiles([]);
+    setPreviewItems((prev) => {
+      prev.forEach((p) => URL.revokeObjectURL(p.url));
+      return [];
+    });
   };
 
   const handleShareToHighlight = React.useCallback(async () => {
@@ -58,6 +95,8 @@ export const MainPanel: React.FC<MainPanelProps> = ({
     navigate("/community?tab=하이라이트", { state: { shareFiles: [file] } });
   }, [activeMedia, navigate]);
 
+  const safeMessages = messages ?? [];
+
   return (
     <main className="flex-1 flex flex-col w-full min-w-0 lg:min-w-[400px] h-auto lg:h-full">
       <div className="flex-none h-12 flex items-center gap-2 mb-2 px-1">
@@ -69,12 +108,12 @@ export const MainPanel: React.FC<MainPanelProps> = ({
 
       <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
         <div className="flex-1 bg-gray-50 p-4 flex flex-col-reverse overflow-y-auto">
-          {messages.length === 0 ? (
+          {safeMessages.length === 0 ? (
             <div className="text-center text-gray-400 text-sm my-auto">
               {roomId ? "채팅 기록이 없습니다." : "채팅방을 선택해주세요."}
             </div>
           ) : (
-            messages.map((item) => {
+            safeMessages.map((item) => {
               const isMine = item.author === currentUserName;
               return (
                 <div
@@ -85,47 +124,23 @@ export const MainPanel: React.FC<MainPanelProps> = ({
                     <span className="font-semibold text-gray-700">{item.author}</span>
                     <span>{item.createdAt}</span>
                   </div>
-                  {item.content && (
+
+                  {item.content ? (
                     <div
                       className={`rounded-xl px-3 py-2 text-sm shadow-sm w-fit max-w-[75%] ${
-                        isMine
-                          ? "bg-blue-500 text-white"
-                          : "bg-white border border-gray-200 text-gray-800"
+                        isMine ? "bg-blue-500 text-white" : "bg-white border border-gray-200 text-gray-800"
                       }`}
                     >
                       {item.content}
                     </div>
-                  )}
-                  {item.media && item.media.length > 0 && (
-                    <div className={`flex gap-2 flex-wrap ${isMine ? "justify-end" : "justify-start"}`}>
-                      {item.media.map((mediaItem, index) =>
-                        mediaItem.type === "video" ? (
-                          <video
-                            key={`${item.id}-media-${index}`}
-                            src={mediaItem.url}
-                            className="w-[160px] h-[120px] object-cover rounded-lg border border-gray-200"
-                            muted
-                            playsInline
-                          />
-                        ) : (
-                          <button
-                            key={`${item.id}-media-${index}`}
-                            type="button"
-                            onClick={() => setActiveMedia(mediaItem)}
-                            className="w-[160px] h-[120px] rounded-lg border border-gray-200 overflow-hidden"
-                          >
-                            <img src={mediaItem.url} alt="chat attachment" className="w-full h-full object-cover" />
-                          </button>
-                        )
-                      )}
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })
           )}
         </div>
 
+        {/* ✅ 전송 전 프리뷰는 그대로 유지 */}
         {previewItems.length > 0 && (
           <div className="flex-none p-4 bg-white border-t border-gray-100">
             <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
@@ -137,11 +152,20 @@ export const MainPanel: React.FC<MainPanelProps> = ({
                   {item.type === "video" ? (
                     <video src={item.url} className="w-full h-full object-cover" muted playsInline />
                   ) : (
-                    <img src={item.url} alt="preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setActiveMedia(item)}
+                      className="w-full h-full"
+                      aria-label="preview"
+                    >
+                      <img src={item.url} alt="preview" className="w-full h-full object-cover" />
+                    </button>
                   )}
+
                   <button
                     onClick={() => handleRemoveImage(index)}
                     className="absolute -top-2 -right-2 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 shadow-sm z-10"
+                    aria-label="remove"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -152,7 +176,14 @@ export const MainPanel: React.FC<MainPanelProps> = ({
         )}
 
         <div className="p-4 bg-white border-t border-gray-100">
-          <input type="file" accept="image/*,video/*" multiple ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            className="hidden"
+          />
           <div className="relative flex items-center w-full">
             <button onClick={triggerFileInput} className="absolute left-3 text-gray-400 hover:text-gray-600">
               <Paperclip className="w-5 h-5 -rotate-45" />
