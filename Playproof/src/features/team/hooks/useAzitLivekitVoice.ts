@@ -128,6 +128,8 @@ export const useAzitLivekitVoice = () => {
     };
   }, []);
 
+  const getRoom = useCallback(() => roomRef.current, [])
+
   return useMemo(
     () => ({
       status,
@@ -137,7 +139,7 @@ export const useAzitLivekitVoice = () => {
       connect,
       disconnect,
       toggleMic,
-      room: roomRef.current,
+      getRoom,
     }),
     [status, error, activeSpeakers, connect, disconnect, toggleMic]
   );
