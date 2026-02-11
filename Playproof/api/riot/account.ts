@@ -15,7 +15,7 @@ function safeJsonParse<T>(text: string): T | null {
 }
 
 async function readUpstreamBody<T>(
-  upstream: Response,
+  upstream: Response
 ): Promise<{ data: T | string; contentType: string | null }> {
   const contentType = upstream.headers.get("content-type");
   const text = await upstream.text();
@@ -38,9 +38,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
+  // ✅ 캐시로 인한 혼동 방지 (특히 배포 후 디버깅)
+  res.setHeader("Cache-Control", "no-store");
+
   const gameName = typeof req.query.gameName === "string" ? req.query.gameName : "";
   const tagLine = typeof req.query.tagLine === "string" ? req.query.tagLine : "";
 
+  // ✅ Health-check 모드: 쿼리 없으면 200 OK 반환
+  // (Hobby 플랜 함수 12개 제한 때문에 /api/health를 추가할 수 없어서 여기에 합침)
+  if (!gameName && !tagLine) {
+    return res.status(200).json({
+      ok: true,
+      service: "playproof-api",
+      route: "/api/riot/account",
+    });
+  }
+
+  // ✅ 둘 중 하나만 온 경우는 기존 정책대로 400
   if (!gameName || !tagLine) {
     return res.status(400).json({ message: "gameName and tagLine are required" });
   }
@@ -51,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const url = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
-    gameName,
+    gameName
   )}/${encodeURIComponent(tagLine)}`;
 
   try {
@@ -61,12 +75,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
 
-    const { data, contentType } = await readUpstreamBody<RiotAccountByRiotIdResponse | { status?: unknown }>(
-      upstream,
-    );
+    const { data, contentType } = await readUpstreamBody<
+      RiotAccountByRiotIdResponse | { status?: unknown }
+    >(upstream);
 
     if (typeof data === "string") {
-      // text면 그대로 내려주되, 프론트(axios)가 기대하는 json과 다를 수 있으니 json 형태로 감싸서 내려줌
       return res.status(upstream.status).json({
         message: "Upstream returned non-JSON response",
         upstreamStatus: upstream.status,
