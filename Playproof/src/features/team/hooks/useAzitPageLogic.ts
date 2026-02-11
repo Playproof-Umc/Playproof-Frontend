@@ -9,8 +9,6 @@ import { login } from "@/services/authApi";
 
 import {
   mockMembers,
-  mockMembersByAzit,
-  mockSchedulesByAzit,
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
 
@@ -129,7 +127,7 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser);
+  } = useAzitSchedules(currentUserId, currentUser, accessToken);
 
   React.useEffect(() => {
     if (!accessToken) return;
