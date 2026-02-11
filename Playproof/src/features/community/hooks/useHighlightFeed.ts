@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
-import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi } from "@/features/community/api/communityApi";
+import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi, toggleLike as toggleLikeApi } from "@/features/community/api/communityApi";
 import { useAuthStore } from "@/store/authStore";
 
 type HighlightLikeMap = Record<number, { count: number; isLiked: boolean }>;
@@ -74,6 +74,17 @@ export const useHighlightFeed = ({
         ? { count: Math.max(0, current.count - 1), isLiked: false }
         : { count: current.count + 1, isLiked: true };
       return { ...prev, [postId]: next };
+    });
+    // API 호출
+    toggleLikeApi({ highlightId: postId }).catch(() => {
+      // 실패 시 상태를 원래대로 되돌림
+      setLikeMap((prev) => {
+        const current = prev[postId] ?? { count: fallbackLikes, isLiked: false };
+        const reverted = current.isLiked
+          ? { count: current.count + 1, isLiked: false }
+          : { count: Math.max(0, current.count - 1), isLiked: true };
+        return { ...prev, [postId]: reverted };
+      });
     });
   }, []);
 
