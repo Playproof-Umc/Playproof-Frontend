@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { NICKNAME_REGEX } from "@/features/auth/constants/regex";
-import { checkNicknameDuplicateMock } from "@/services/authApi";
+import { checkNicknameDuplicate } from "@/services/authApi";
 
 export type NickCheckState = "idle" | "checking" | "ok" | "dup" | "invalid";
 
@@ -34,7 +34,7 @@ export const useNicknameCheck = () => {
 
         setCheckState("checking");
         try {
-            const available = await checkNicknameDuplicateMock(value);
+            const available = await checkNicknameDuplicate(value);
 
             if (seq !== requestSeqRef.current) return;
 

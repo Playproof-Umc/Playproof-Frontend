@@ -72,6 +72,58 @@ export type ValidatePhoneResponse = {
   error: null | unknown;
 };
 
+export type NicknameDuplicateRequest = {
+  nickname: string;
+};
+
+export type NicknameDuplicateResponse = {
+  statusCode: number;
+  data: {
+    isDuplicate: boolean;
+  };
+  error: null | unknown;
+};
+
+export type RefreshTokenRequest = {
+  refreshToken: string;
+};
+
+export type RefreshTokenResponse = {
+  statusCode: number;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  error: null | unknown;
+};
+
+export type ResetPasswordRequest = {
+  phone: string;
+  code: string;
+  newPassword: string;
+};
+
+export type ResetPasswordResponse = {
+  statusCode: number;
+  data: {
+    status: string;
+  };
+  error: null | unknown;
+};
+
+export type VerifyNameRequest = {
+  phone: string;
+  name: string;
+};
+
+export type VerifyNameResponse = {
+  statusCode: number;
+  data: {
+    isValid: boolean;
+  };
+  error: null | unknown;
+};
+
 // ==================== API Functions ====================
 
 /**
@@ -157,16 +209,21 @@ export function sendPhoneCertificationMock(phone: string): Promise<{ status: str
 
 /**
  * 닉네임 중복 확인
- * GET /auth/nickname/check?nickname={nickname}
+ * POST /auth/nickname/validate-duplicate
  */
 export async function checkNicknameDuplicate(nickname: string): Promise<boolean> {
   try {
-    const res = await api.get(`/auth/nickname/check`, {
-      params: { nickname }
+    const res = await api.post<NicknameDuplicateResponse>("/auth/nickname/validate-duplicate", {
+      nickname
     });
 
-    // 사용 가능하면 true, 중복이면 false 반환
-    return res.data.data?.available ?? false;
+    if (res.data.statusCode !== 200) {
+      throw new Error('닉네임 중복 확인 처리 중 오류가 발생했습니다.');
+    }
+
+    // isDuplicate: true면 중복, false면 사용 가능
+    // 반환값: true면 사용 가능, false면 중복
+    return !res.data.data.isDuplicate;
   } catch (error) {
     console.error('닉네임 중복 확인 실패:', error);
     throw new Error('닉네임 중복 확인 중 오류가 발생했습니다.');
@@ -186,6 +243,82 @@ export function checkNicknameDuplicateMock(nickname: string): Promise<boolean> {
       resolve(available);
     }, 700);
   });
+}
+
+/**
+ * 토큰 리프레시
+ * POST /auth/refresh
+ * 
+ * @param refreshToken - 기존 리프레시 토큰
+ * @returns 새로운 액세스 토큰과 리프레시 토큰
+ */
+export async function refreshToken(refreshToken: string): Promise<RefreshTokenResponse['data']> {
+  try {
+    const res = await api.post<RefreshTokenResponse>("/auth/refresh", {
+      refreshToken
+    });
+
+    if (res.data.error || res.data.statusCode !== 200) {
+      throw new Error('토큰 갱신 처리 중 오류가 발생했습니다.');
+    }
+
+    return res.data.data;
+  } catch (error) {
+    console.error('토큰 리프레시 실패:', error);
+    throw new Error('토큰 갱신에 실패했습니다. 다시 로그인해주세요.');
+  }
+}
+
+/**
+ * 비밀번호 재설정 - 이름 확인
+ * POST /auth/password/verify-name
+ * 
+ * @param phone - 전화번호
+ * @param name - 이름
+ * @returns 유효한 계정인지 확인
+ */
+export async function verifyName(body: VerifyNameRequest): Promise<boolean> {
+  try {
+    const res = await api.post<VerifyNameResponse>("/auth/password/verify-name", body);
+
+    if (res.data.statusCode !== 200) {
+      throw new Error('등록되지 않은 계정입니다.');
+    }
+
+    return res.data.data.isValid;
+  } catch (error: any) {
+    console.error('이름 확인 실패:', error);
+    
+    if (error?.response?.status === 404) {
+      throw new Error('등록되지 않은 계정입니다.');
+    }
+    
+    throw new Error('이름 확인 중 오류가 발생했습니다.');
+  }
+}
+
+/**
+ * 비밀번호 재설정
+ * POST /auth/password/reset
+ * 
+ * @param phone - 전화번호
+ * @param code - 인증번호
+ * @param newPassword - 새 비밀번호
+ * @returns 재설정 성공 여부
+ */
+export async function resetPassword(body: ResetPasswordRequest): Promise<ResetPasswordResponse['data']> {
+  try {
+    const res = await api.post<ResetPasswordResponse>("/auth/password/reset", body);
+
+    if (res.data.error || res.data.statusCode !== 200) {
+      throw new Error('비밀번호 재설정 처리 중 오류가 발생했습니다.');
+    }
+
+    return res.data.data;
+  } catch (error) {
+    console.error('비밀번호 재설정 실패:', error);
+    throw new Error('비밀번호 재설정에 실패했습니다. 다시 시도해주세요.');
+  }
 }
 
 // ==================== Game Account Verification ====================

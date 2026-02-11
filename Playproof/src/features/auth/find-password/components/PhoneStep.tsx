@@ -3,33 +3,76 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { verifyName } from "@/services/authApi";
 
 interface PhoneStepProps {
-  onNext: (data: { name: string; phone: string }) => void;
+  onNext: (phone: string, name: string) => void;
 }
 
 export const PhoneStep = ({ onNext }: PhoneStepProps) => {
-  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
+  const [showNameField, setShowNameField] = useState(false);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 11);
     setPhone(value);
+    setError("");
+    
+    // 전화번호가 11자리가 되면 이름 입력 필드 표시
+    if (value.length === 11) {
+      setShowNameField(true);
+    } else {
+      setShowNameField(false);
+      setName("");
+    }
   };
 
-  const isFormValid = name.length > 0 && phone.length === 11;
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    setError("");
+  };
+
+  const handleSubmit = async () => {
+    if (isPending) return;
+
+    setIsPending(true);
+    setError("");
+    
+    try {
+      // 백엔드로 전화번호 + 이름 확인
+      const isValid = await verifyName({ phone, name });
+      
+      if (isValid) {
+        onNext(phone, name);
+      } else {
+        setError("등록되지 않은 계정입니다.");
+      }
+    } catch (error: any) {
+      console.error('❌ 계정 확인 실패:', error);
+      setError("등록되지 않은 계정입니다.");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const isPhoneValid = phone.length === 11;
+  const isNameValid = name.trim().length > 0;
+  const isFormValid = isPhoneValid && showNameField && isNameValid;
 
   return (
     <div className="flex flex-col gap-8">
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">비밀번호 찾기</h2>
-        <p className="text-gray-500 text-sm">전화번호를 입력해 주세요.</p>
+        <p className="text-gray-500 text-sm">이름을 입력해 주세요.</p>
       </div>
 
       <div className="flex flex-col gap-4">
         <Input
           label="전화번호"
-          placeholder="전화번호를 -없이 입력해주세요."
+          placeholder="01012345678"
           variant="light"
           inputMode="numeric"
           pattern="[0-9]*"
@@ -38,23 +81,26 @@ export const PhoneStep = ({ onNext }: PhoneStepProps) => {
           value={phone}
           onChange={handlePhoneChange}
         />
-        {phone.length === 11 ? (
+
+        {showNameField && (
           <Input
             label="이름"
-            placeholder="이름을 입력해주세요."
+            placeholder="김플푸"
             variant="light"
+            autoComplete="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
+            error={error}
           />
-        ) : null}
+        )}
       </div>
 
       <Button
         fullWidth
-        disabled={!isFormValid}
-        onClick={() => onNext({ name, phone })}
+        disabled={!isFormValid || isPending}
+        onClick={handleSubmit}
       >
-        다음
+        {isPending ? "확인 중..." : "다음"}
       </Button>
     </div>
   );

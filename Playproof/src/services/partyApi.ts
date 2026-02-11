@@ -343,7 +343,7 @@ export async function deleteParty(id: number): Promise<DeletePartyResponse['data
  * 파티 신청자 목록 조회
  * GET /parties/{partyId}/applications
  */
-export async function getPartyApplications(partyId: number): Promise<PartyApplication[]> {
+export async function  getPartyApplications(partyId: number): Promise<PartyApplication[]> {
   const res = await api.get<GetPartyApplicationsResponse>(`/parties/${partyId}/applications`);
 
   if (res.data.error || res.data.statusCode !== 200) {
