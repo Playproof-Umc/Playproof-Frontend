@@ -25,7 +25,7 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
   });
 
   const { 
-    game, title, isProMatch, selectedPositions, tier, azit, 
+    game, title, isProMatch, selectedPositions, tier, azit, newAzitName, azits, isAzitsLoading,
     memberCount, micStatus, selectedTags, memo, showDuplicateModal 
   } = formState;
 
@@ -66,8 +66,10 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
 
             <WriteDetailSection 
               game={game} tier={tier} azit={azit}
+              newAzitName={newAzitName}
+              azits={azits} isAzitsLoading={isAzitsLoading}
               memberCount={memberCount} micStatus={micStatus}
-              setTier={setters.setTier} setAzit={setters.setAzit}
+              setTier={setters.setTier} setAzit={setters.setAzit} setNewAzitName={setters.setNewAzitName}
               setMemberCount={setters.setMemberCount} setMicStatus={setters.setMicStatus}
             />
 

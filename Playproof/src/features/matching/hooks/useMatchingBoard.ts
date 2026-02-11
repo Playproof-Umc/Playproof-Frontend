@@ -117,6 +117,12 @@ export const useMatchingBoard = () => {
     });
     
     // MatchingData를 CreatePartyRequest로 변환
+    const resolvedAzitId = newPost.azitId ?? 0;
+    if (!resolvedAzitId) {
+      alert('아지트를 선택해주세요.');
+      return;
+    }
+
     const partyData: CreatePartyRequest = {
       gameId,
       title: newPost.title,
@@ -125,7 +131,7 @@ export const useMatchingBoard = () => {
       tierId,
       positionIds,
       isMicUse: newPost.mic ?? false,
-      azitId: 1, // TODO: 아지트 이름 → ID 매핑 필요
+      azitId: resolvedAzitId,
     };
 
     console.log('📤 전송할 API 데이터:', partyData);
