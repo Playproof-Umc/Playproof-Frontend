@@ -138,10 +138,10 @@ export const AzitPageView = () => {
             textRooms={chatRooms}
             // ✅ 수정: actions.onCreateChatRoom을 그대로 전달 (PageLogic에서 처리)
             onCreateChatRoom={actions.onCreateChatRoom}
-            onRenameVoiceRoom={() => {}}
-            onDeleteVoiceRoom={() => {}}
-            onRenameChatRoom={() => {}}
-            onDeleteChatRoom={() => {}}
+            onRenameVoiceRoom={actions.onRenameVoiceRoom}
+            onDeleteVoiceRoom={actions.onDeleteVoiceRoom}
+            onRenameChatRoom={actions.onRenameChatRoom}
+            onDeleteChatRoom={actions.onDeleteChatRoom}
           />
 
           <MainPanel

@@ -118,6 +118,53 @@ export async function getChatMessages(params: {
   return json.data;
 }
 
+export async function updateChatRoom(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number;
+  name?: string;
+  isPrivate?: boolean;
+}): Promise<ChatRoomGetResDto> {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/chat-rooms/${params.roomId}`;
+  const body: Record<string, unknown> = {};
+  if (params.name !== undefined) body.roomName = params.name;
+  if (params.isPrivate !== undefined) body.isPrivate = params.isPrivate;
+
+  const json = await fetchJson<Result<ChatRoomGetResDto>>(url, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (json.error) throw new Error(json.error.message);
+  return json.data;
+}
+
+export async function deleteChatRoom(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number;
+}) {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/chat-rooms/${params.roomId}`;
+
+  const json = await fetchJson<Result<string>>(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+    },
+  });
+
+  if (json.error) throw new Error(json.error.message);
+  return json.data;
+}
+
 /**
  * Alias for chat message list fetch (hook-friendly name).
  * Backend contract: cursor-based pagination (not limit/beforeId).

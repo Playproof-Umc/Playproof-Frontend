@@ -28,6 +28,8 @@ import {
   getChatRoomsByAzit,
   getChatMessages,
   createChatRoomByAzit,
+  updateChatRoom,
+  deleteChatRoom,
   type ChatMessageResDto,
 } from "@/features/team/api/chatApi";
 
@@ -387,6 +389,78 @@ export function useAzitPageLogic() {
     [accessToken, apiBaseUrl, currentAzitId, reloadChatRooms, setSelectedChatRoom]
   );
 
+  const onRenameChatRoom = React.useCallback(
+    async (roomId: number, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, roomName: trimmed } : room))
+      );
+      if (!accessToken) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId, name: trimmed });
+      } catch (err) {
+        console.error("채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onDeleteChatRoom = React.useCallback(
+    async (roomId: number) => {
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId });
+      } catch (err) {
+        console.error("채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onRenameVoiceRoom = React.useCallback(
+    async (roomId: string, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, name: trimmed } : room))
+      );
+      if (!accessToken) return;
+      const numericRoomId = Number(roomId);
+      if (Number.isNaN(numericRoomId)) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId: numericRoomId, name: trimmed });
+      } catch (err) {
+        console.error("음성 채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, reloadChatRooms, setVoiceRoomsFromServer, voiceRooms]
+  );
+
+  const onDeleteVoiceRoom = React.useCallback(
+    async (roomId: string) => {
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      const numericRoomId = Number(roomId);
+      if (Number.isNaN(numericRoomId)) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId: numericRoomId });
+      } catch (err) {
+        console.error("음성 채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, reloadChatRooms, setVoiceRoomsFromServer, voiceRooms]
+  );
+
   React.useEffect(() => {
     return () => {
       azitIconUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -508,6 +582,10 @@ export function useAzitPageLogic() {
       setSelectedChatRoom,
       onSendMessage,
       onCreateChatRoom,
+      onRenameChatRoom,
+      onDeleteChatRoom,
+      onRenameVoiceRoom,
+      onDeleteVoiceRoom,
       handleStatusChange,
       addSchedule,
       openFeedbackModal,
