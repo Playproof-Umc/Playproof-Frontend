@@ -4,6 +4,7 @@ import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { MOCK_BOARD_POSTS } from "@/features/community/data/mockCommunityData";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";
@@ -44,6 +45,7 @@ export const PostDetailPageView = () => {
   console.log("PostDetailPageView - final post:", post, "statePost:", statePost, "apiPost:", apiPost);
   const { state, setters, handlers } = useCommunityDetailLogic(post);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const {
     commentText,
     replyText,
@@ -124,17 +126,17 @@ export const PostDetailPageView = () => {
     }
   };
 
-  const handleDeletePost = async () => {
+  const handleDeletePost = () => {
     // 권한 체크 - nickname 또는 author 중 하나와 일치하면 허용
     const postAuthor = post.nickname ?? post.author;
     if (postAuthor !== currentUserName) {
       alert('본인이 작성한 게시글만 삭제할 수 있습니다.');
       return;
     }
+    setIsDeleteModalOpen(true);
+  };
 
-    const confirmed = window.confirm('게시글을 삭제할까요?');
-    if (!confirmed) return;
-
+  const handleDeleteConfirm = async () => {
     try {
       await deleteBoardPost(post.id);
       navigate(`/community?tab=${fromTab}`);
@@ -142,6 +144,8 @@ export const PostDetailPageView = () => {
       console.error('게시글 삭제 실패:', error);
       const errorMessage = error?.response?.data?.error?.message || '게시글 삭제에 실패했습니다.';
       alert(errorMessage);
+    } finally {
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -209,6 +213,28 @@ export const PostDetailPageView = () => {
         onSubmit={handleEditSubmit}
         post={post}
       />
+      <ModalShell open={isDeleteModalOpen} onOverlayClick={() => setIsDeleteModalOpen(false)}>
+        <div className="px-6 py-5">
+          <h2 className="text-lg font-bold text-gray-900">게시글 삭제</h2>
+          <p className="mt-2 text-sm text-gray-600">게시글을 삭제할까요? 삭제 후에는 복구할 수 없습니다.</p>
+        </div>
+        <div className="flex gap-2 border-t border-gray-100 px-6 py-4">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleDeleteConfirm}
+            className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            삭제
+          </button>
+        </div>
+      </ModalShell>
     </AppLayout>
   );
 };
