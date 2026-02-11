@@ -97,15 +97,23 @@ export const useCommunityPageLogic = () => {
     revokeBoardMedia,
   } = useCommunityWrite({
     activeTab,
-    currentUserName: highlightState.currentUserName,
     boardGame,
-    addHighlightPost: highlightActions.addHighlightPost,
-    setBoardPosts: setLoadedBoardPosts,
     refreshHighlights: () => {
       // 하이라이트 생성 후 목록 새로고침
       import("@/features/community/api/communityApi").then(({ getHighlights }) => {
         getHighlights(currentPage).then((posts) => {
           highlightActions.hydrateFromPosts(posts);
+        });
+      });
+    },
+    refreshBoardPosts: () => {
+      // 자유게시판 글 생성 후 목록 새로고침
+      import("@/features/community/api/communityApi").then(({ getBoardPosts, getAllBoardPosts }) => {
+        const fetchPosts = boardGameId === 0
+          ? getAllBoardPosts(currentPage)
+          : getBoardPosts(boardGameId, currentPage);
+        fetchPosts.then((posts) => {
+          setLoadedBoardPosts(posts);
         });
       });
     },
