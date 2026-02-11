@@ -15,6 +15,7 @@ import {
 } from "@/features/team/data/mockTeamData";
 
 import { getAzits } from "@/features/team/api/azitApi";
+import { getAzitMembers, mapAzitMembersToUsers } from "@/features/team/api/azitMemberApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -54,6 +55,7 @@ export function useAzitPageLogic() {
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
   const [azits, setAzits] = React.useState([]);
+  const [membersByAzit, setMembersByAzit] = React.useState<Record<number, User[]>>({});
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
   // Auth Store 정보 가져오기
@@ -149,6 +151,31 @@ export function useAzitPageLogic() {
       alive = false;
     };
   }, [accessToken, currentAzitId, setCurrentAzitId]);
+
+  React.useEffect(() => {
+    if (!accessToken || !currentAzitId) return;
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getAzitMembers({ azitId: currentAzitId, page: 1, size: 50 });
+        if (!alive) return;
+        const users = mapAzitMembersToUsers(res.members ?? []);
+        setMembersByAzit((prev) => ({ ...prev, [currentAzitId]: users }));
+        setAzits((prev) =>
+          prev.map((azit) =>
+            azit.id === currentAzitId
+              ? { ...azit, memberCount: users.length }
+              : azit
+          )
+        );
+      } catch (err) {
+        console.error("아지트 멤버 조회 실패:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId]);
 
   const {
     feedbackModal,
@@ -266,7 +293,7 @@ export function useAzitPageLogic() {
   }, [routeState?.azitId, setCurrentAzitId]);
 
   const currentAzit = azits.find((a) => a.id === currentAzitId) ?? azits[0];
-  const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
+  const currentMembers = membersByAzit[currentAzitId] ?? [];
   const currentClips = clipsByAzit[currentAzitId] ?? [];
 
   const reloadChatRooms = React.useCallback(async () => {
