@@ -4,15 +4,11 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 
 import type { User } from "@/features/team/types/types";
+import type { Azit } from "@/features/team/types";
 import { useAuthStore } from "@/store/authStore";
 import { login } from "@/services/authApi";
-
-import {
-  MOCK_MY_AZITS,
-  mockMembers,
-  mockMembersByAzit,
-  mockClipsByAzit,
-} from "@/features/team/data/mockTeamData";
+import { getAzits, updateAzit } from "@/features/team/api/azitApi";
+import { getAzitMembers } from "@/features/team/api/azitMemberApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -27,6 +23,8 @@ import {
   getChatRoomsByAzit,
   getChatMessages,
   createChatRoomByAzit,
+  updateChatRoom,
+  deleteChatRoom,
   type ChatMessageResDto,
 } from "@/features/team/api/chatApi";
 
@@ -51,8 +49,7 @@ export function useAzitPageLogic() {
   const routeState = location.state as { azitId?: number } | null;
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
-  const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
-  // currentMembers는 mockMembersByAzit에서 계산
+  const [azits, setAzits] = React.useState<Azit[]>([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
   // Auth Store 정보 가져오기
@@ -74,15 +71,12 @@ export function useAzitPageLogic() {
         isOnline: true,
       } as User;
     }
-    const foundMock = mockMembers.find((m) => String(m.id) === FALLBACK_USER_ID);
-    return (
-      foundMock ?? {
-        id: FALLBACK_USER_ID,
-        nickname: "게스트",
-        avatarUrl: "",
-        isOnline: true,
-      }
-    );
+    return {
+      id: FALLBACK_USER_ID,
+      nickname: "게스트",
+      avatarUrl: "",
+      isOnline: true,
+    };
   }, [accessToken, authUserId, authNickname]);
 
   // 자동 로그인 로직
@@ -126,7 +120,29 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, currentUser);
+  } = useAzitSchedules(currentUserId, currentUser, accessToken);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const data = await getAzits();
+        if (!alive) return;
+        if (data.length > 0) {
+          setAzits(data);
+          if (!data.some((a) => a.id === currentAzitId)) {
+            setCurrentAzitId(data[0].id);
+          }
+        }
+      } catch (err) {
+        console.error(\"아지트 목록 로드 실패:\", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId, setCurrentAzitId]);
 
   const {
     feedbackModal,
@@ -142,7 +158,7 @@ export function useAzitPageLogic() {
     markFeedbackDone,
   });
 
-  const { clipsByAzit, createMediaItems, addClipsFromMedia, initAzitClips } = useAzitMedia(mockClipsByAzit);
+  const { clipsByAzit, createMediaItems, addClipsFromMedia, initAzitClips } = useAzitMedia({});
 
   const {
     chatRooms,
@@ -156,9 +172,15 @@ export function useAzitPageLogic() {
     appendMessageToRoom,
     voiceRooms,
     joinVoiceRoom: joinVoiceRoomUI, 
+    leaveVoiceRoom,
     toggleMyMic,
     initAzitRooms,
   } = useAzitRooms(currentAzitId, currentUser);
+
+  const myVoiceRoomId = React.useMemo(() => {
+    const meId = String(currentUser.id);
+    return voiceRooms.find((room) => room.users.some((m) => String(m.user.id) === meId))?.id ?? null;
+  }, [currentUser.id, voiceRooms]);
 
   const [socketUiError, setSocketUiError] = React.useState<ApiError | null>(null);
 
@@ -169,6 +191,7 @@ export function useAzitPageLogic() {
     lastError,
     sendMessage: sendSocketMessage,
     voiceJoin: socketVoiceJoin,
+    voiceLeave: socketVoiceLeave,
   } = useAzitSocket({
     roomId: selectedChatRoomId ?? undefined,
     onMessage: (msg) => {
@@ -180,10 +203,19 @@ export function useAzitPageLogic() {
   });
 
   const { requestVoiceToken } = useAzitVoiceToken({ apiBaseUrl, accessToken });
-  const { connect: connectLiveKit } = useAzitLivekitVoice();
+  const { connect: connectLiveKit, disconnect: disconnectLiveKit } = useAzitLivekitVoice();
 
   // 음성 방 입장 로직
   const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
+    if (myVoiceRoomId && myVoiceRoomId === roomIdStr) {
+      const roomId = Number(roomIdStr);
+      if (roomId) {
+        socketVoiceLeave(roomId);
+      }
+      disconnectLiveKit();
+      leaveVoiceRoom();
+      return;
+    }
     const roomId = Number(roomIdStr);
     if (!roomId) return;
 
@@ -236,14 +268,17 @@ export function useAzitPageLogic() {
     } catch (err) {
       console.error("🔥 음성 채팅 연결 중 에러:", err);
     }
-  }, [socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
+  }, [socketVoiceLeave, disconnectLiveKit, leaveVoiceRoom, myVoiceRoomId, socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
 
   React.useEffect(() => {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);
   }, [routeState?.azitId, setCurrentAzitId]);
 
-  const currentAzit = azits.find((a) => a.id === currentAzitId) ?? azits[0];
-  const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
+  const currentAzit =
+    azits.find((a) => a.id === currentAzitId) ??
+    azits[0] ?? { id: 0, name: "", icon: "", memberCount: 0 };
+  const [membersByAzit, setMembersByAzit] = React.useState<Record<number, User[]>>({});
+  const currentMembers = membersByAzit[currentAzitId] ?? [];
   const currentClips = clipsByAzit[currentAzitId] ?? [];
 
   const reloadChatRooms = React.useCallback(async () => {
@@ -279,6 +314,29 @@ export function useAzitPageLogic() {
   React.useEffect(() => {
     reloadChatRooms();
   }, [reloadChatRooms]);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getAzitMembers({ azitId: currentAzitId, page: 1, size: 50 });
+        if (!alive) return;
+        const members: User[] = res.members.map((m) => ({
+          id: String(m.member_id),
+          nickname: m.nickname ?? "Unknown",
+          avatarUrl: m.avatar_url ?? "",
+          isOnline: true,
+        }));
+        setMembersByAzit((prev) => ({ ...prev, [currentAzitId]: members }));
+      } catch (err) {
+        console.error("아지트 멤버 조회 실패:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId]);
 
   React.useEffect(() => {
     if (!selectedChatRoomId || !accessToken) return;
@@ -341,6 +399,76 @@ export function useAzitPageLogic() {
     [accessToken, apiBaseUrl, currentAzitId, reloadChatRooms, setSelectedChatRoom]
   );
 
+  const onRenameChatRoom = React.useCallback(
+    async (roomId: number, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, roomName: trimmed } : room))
+      );
+      if (!accessToken) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId, name: trimmed });
+      } catch (err) {
+        console.error("❌ 채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onDeleteChatRoom = React.useCallback(
+    async (roomId: number) => {
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId });
+      } catch (err) {
+        console.error("❌ 채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onRenameVoiceRoom = React.useCallback(
+    async (roomId: string, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, name: trimmed } : room))
+      );
+      if (!accessToken) return;
+      if (Number.isNaN(Number(roomId))) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId, name: trimmed });
+      } catch (err) {
+        console.error("❌ 음성 채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, voiceRooms, reloadChatRooms, setVoiceRoomsFromServer]
+  );
+
+  const onDeleteVoiceRoom = React.useCallback(
+    async (roomId: string) => {
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      if (Number.isNaN(Number(roomId))) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId });
+      } catch (err) {
+        console.error("❌ 음성 채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, voiceRooms, reloadChatRooms, setVoiceRoomsFromServer]
+  );
+
   React.useEffect(() => {
     return () => {
       azitIconUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -363,18 +491,24 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
-  const updateAzitName = React.useCallback((azitId: number, name: string) => {
-    const trimmed = name.trim();
+  const updateAzitName = React.useCallback(async (azitId: number, nextName: string) => {
+    const trimmed = nextName.trim();
     if (!trimmed) return;
+    const updated = await updateAzit(azitId, { azit_name: trimmed });
     setAzits((prev) =>
-      prev.map((azit) => (azit.id === azitId ? { ...azit, name: trimmed } : azit))
+      prev.map((azit) =>
+        azit.id === azitId ? { ...azit, name: updated.azit_name ?? trimmed } : azit
+      )
     );
   }, []);
 
-  const updateAzitIcon = React.useCallback((azitId: number, iconUrl: string) => {
-    if (iconUrl) azitIconUrlsRef.current.push(iconUrl);
+  const updateAzitIcon = React.useCallback(async (azitId: number, file: File) => {
+    if (!file) return;
+    const updated = await updateAzit(azitId, { azit_icon: file });
     setAzits((prev) =>
-      prev.map((azit) => (azit.id === azitId ? { ...azit, icon: iconUrl } : azit))
+      prev.map((azit) =>
+        azit.id === azitId ? { ...azit, icon: updated.azit_icon_url ?? azit.icon } : azit
+      )
     );
   }, []);
 
@@ -408,6 +542,10 @@ export function useAzitPageLogic() {
       setSelectedChatRoom,
       onSendMessage,
       onCreateChatRoom,
+      onRenameChatRoom,
+      onDeleteChatRoom,
+      onRenameVoiceRoom,
+      onDeleteVoiceRoom,
       handleStatusChange,
       addSchedule,
       openFeedbackModal,

@@ -2,9 +2,15 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
+const resolveBaseURL = () => {
+  // 개발 환경에서는 Vite 프록시를 반드시 사용
+  if (import.meta.env.DEV) return "";
+  return import.meta.env.VITE_API_BASE_URL ?? "";
+};
+
 // baseURL은 프로젝트 환경에 맞게 바꿔줘
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "",
+  baseURL: resolveBaseURL(),
   headers: {
     "Content-Type": "application/json",
     ...(import.meta.env.VITE_ACCESS_TOKEN

@@ -13,6 +13,7 @@ interface HighlightCardProps {
   onToggleLike: (postId: number) => void;
   onPostClick: (post: HighlightPost) => void;
   currentUserName: string;
+  currentUserId?: number | null;
   onDeletePost?: (postId: number) => void;
 }
 
@@ -24,6 +25,7 @@ export function HighlightCard({
   onToggleLike,
   onPostClick,
   currentUserName,
+  currentUserId,
   onDeletePost,
 }: HighlightCardProps) {
   const navigate = useNavigate();
@@ -111,11 +113,16 @@ export function HighlightCard({
             {post.createdAt ? getRelativeTime(post.createdAt) : '날짜 없음'}
           </p>
         </div>
-        {(post.nickname ?? post.author) === currentUserName && onDeletePost ? (
+        {post.userId && currentUserId && post.userId === currentUserId && onDeletePost ? (
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
+              console.log("highlight delete click", {
+                postId: post.id,
+                postUserId: post.userId,
+                currentUserId,
+              });
               onDeletePost(post.id);
             }}
             className="ml-auto rounded-lg px-2 py-1 text-[10px] font-semibold text-gray-500 hover:text-gray-700"

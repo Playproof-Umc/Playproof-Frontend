@@ -22,6 +22,7 @@ export const WriteModalUploadBox = ({
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = React.useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const lastInitialKeyRef = React.useRef<string>("");
 
   React.useEffect(() => {
     return () => {
@@ -62,12 +63,19 @@ export const WriteModalUploadBox = ({
   };
 
   const clearPreviews = () => {
+    if (previews.length === 0 && selectedFiles.length === 0) return;
     previews.forEach((url) => URL.revokeObjectURL(url));
     setPreviews([]);
     setSelectedFiles([]);
   };
 
   React.useEffect(() => {
+    const nextKey = initialFiles
+      .map((file) => `${file.name}-${file.size}-${file.lastModified}`)
+      .join("|");
+    if (nextKey === lastInitialKeyRef.current) return;
+    lastInitialKeyRef.current = nextKey;
+
     if (!initialFiles.length) {
       clearPreviews();
       return;

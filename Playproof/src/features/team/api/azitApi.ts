@@ -2,14 +2,43 @@
 
 import { api } from "@/services/api";
 import type { Azit } from "@/features/team/types";
-import type { User } from "@/types";
 
 type RawAzit = Record<string, any>;
+
+type AzitResDto = {
+  azit_id: number;
+  azit_name: string;
+  azit_icon_url: string | null;
+};
+
+type AzitListResponse = {
+  statusCode: number;
+  data: { azits: AzitResDto[] };
+  error: null | unknown;
+};
+
+type AzitCreateResponse = {
+  statusCode: number;
+  data: AzitResDto;
+  error: null | unknown;
+};
+
+type AzitUpdateResponse = {
+  statusCode: number;
+  data: AzitResDto;
+  error: null | unknown;
+};
 
 const normalizeAzit = (item: RawAzit): Azit => {
   const id = item.id ?? item.azit_id ?? item.azitId ?? 0;
   const name = item.name ?? item.azit_name ?? item.title ?? "";
-  const icon = item.icon ?? item.icon_url ?? item.iconUrl ?? item.image_url ?? "";
+  const icon =
+    item.icon ??
+    item.icon_url ??
+    item.iconUrl ??
+    item.image_url ??
+    item.azit_icon_url ??
+    "";
   const memberCount =
     item.memberCount ??
     item.member_count ??
@@ -33,37 +62,68 @@ const normalizeAzit = (item: RawAzit): Azit => {
 };
 
 export async function getAzits(): Promise<Azit[]> {
-  const res = await api.get("/azits");
-  const data = res.data?.data ?? res.data;
-  const rawList = Array.isArray(data?.azits)
-    ? data.azits
-    : Array.isArray(data)
-      ? data
+  const res = await api.get<AzitListResponse>("/azits");
+  if (res.data?.error || (res.data?.statusCode && res.data.statusCode !== 200)) {
+    throw new Error("아지트 목록을 불러오는 중 오류가 발생했습니다.");
+  }
+
+  const payload = res.data?.data ?? (res.data as unknown);
+  const rawList = Array.isArray((payload as any)?.azits)
+    ? (payload as any).azits
+    : Array.isArray(payload)
+      ? payload
       : [];
 
   if (!Array.isArray(rawList)) return [];
-  return rawList
-    .map((item: RawAzit) => normalizeAzit(item))
-    .filter((azit) => Boolean(azit.id));
+  return rawList.map((item: RawAzit) => normalizeAzit(item)).filter((azit) => Boolean(azit.id));
 }
 
-type RawAzitMember = Record<string, any>;
+export async function createAzit(payload: { azit_name: string; azit_icon?: File | null }): Promise<AzitResDto> {
+  const formData = new FormData();
+  formData.append("azit_name", payload.azit_name);
+  if (payload.azit_icon) {
+    formData.append("azit_icon", payload.azit_icon);
+  }
 
-const normalizeAzitMember = (item: RawAzitMember): User => {
-  const id = item.member_id ?? item.user_id ?? item.id ?? "";
-  const nickname = item.nickname ?? item.name ?? "";
-  const avatarUrl = item.avatar_url ?? item.avatarUrl ?? item.profile_image ?? undefined;
+  const res = await api.post<AzitCreateResponse>("/azits", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
+    throw new Error("아지트 생성에 실패했습니다.");
+  }
+  return res.data.data;
+}
 
-  return {
-    id: String(id),
-    nickname: String(nickname),
-    avatarUrl: avatarUrl ? String(avatarUrl) : undefined,
-  };
-};
+export async function updateAzit(
+  azitId: number,
+  payload: { azit_name?: string | null; azit_icon?: File | string | null; is_delete_icon?: boolean }
+): Promise<AzitResDto> {
+  const hasName = payload.azit_name !== undefined;
+  const hasFile = payload.azit_icon instanceof File;
+  const hasDeleteFlag = payload.is_delete_icon !== undefined;
 
-export async function getAzitMembers(azitId: number): Promise<User[]> {
-  const res = await api.get(`/azits/${azitId}/members`);
-  const data = res.data?.data ?? res.data;
-  const rawMembers = Array.isArray(data?.members) ? data.members : [];
-  return rawMembers.map((item: RawAzitMember) => normalizeAzitMember(item));
+  if (hasName && !hasFile && !hasDeleteFlag) {
+    const res = await api.patch<AzitUpdateResponse>(`/azits/${azitId}`, {
+      azit_name: payload.azit_name ?? "",
+    });
+    if (res.data.error || res.data.statusCode !== 200) {
+      throw new Error("아지트 설정 변경에 실패했습니다.");
+    }
+    return res.data.data;
+  }
+
+  const formData = new FormData();
+  if (payload.azit_name !== undefined) formData.append("azit_name", payload.azit_name ?? "");
+  if (payload.is_delete_icon !== undefined) formData.append("is_delete_icon", String(payload.is_delete_icon));
+  if (payload.azit_icon instanceof File) {
+    formData.append("azit_icon", payload.azit_icon);
+  }
+
+  const res = await api.patch<AzitUpdateResponse>(`/azits/${azitId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  if (res.data.error || res.data.statusCode !== 200) {
+    throw new Error("아지트 설정 변경에 실패했습니다.");
+  }
+  return res.data.data;
 }

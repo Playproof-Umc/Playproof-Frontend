@@ -1,9 +1,11 @@
 // src/features/home/hooks/useHomeMatchingLogic.ts
 
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useMatchingDetail } from "@/features/matching/context/MatchingDetailContext";
-import { MOCK_MATCHING_DATA } from "@/features/matching/data/mockMatchingData";
 import type { FilterState, MatchingData } from "@/features/matching/types";
+import { getParties } from "@/services/partyApi";
+import { getGameName } from "@/constants/games";
 
 export const useHomeMatchingLogic = () => {
   const { openMatchingDetail } = useMatchingDetail();
@@ -24,12 +26,48 @@ export const useHomeMatchingLogic = () => {
     openMatchingDetail(match);
   };
 
+  const { data: partyData } = useQuery({
+    queryKey: ["home-parties", { sort: "latest" }],
+    queryFn: () => getParties({ page: 1, size: 100, sort: "latest" }),
+    staleTime: 30 * 1000,
+  });
+
+  const allMatches = React.useMemo<MatchingData[]>(() => {
+    if (!partyData?.parties) return [];
+
+    return partyData.parties.map((party) => ({
+      id: party.partyId,
+      game: getGameName(party.gameId),
+      title: party.title,
+      tier: party.tierName,
+      tags: party.tags.map((tag) => tag.name),
+      azit: party.azitName,
+      position: party.positions.map((pos) => pos.positionName),
+      memo: party.memo,
+      currentMembers: party.currentParticipants,
+      maxMembers: party.participants,
+      time: new Date(party.createdAt).toLocaleString("ko-KR"),
+      views: party.viewCount,
+      likes: party.likeCount ?? 0,
+      liked: party.isLike ?? false,
+      comments: party.commentCount ?? 0,
+      tsScore: party.host.trustScore,
+      mic: party.isMic,
+      hostUser: {
+        id: String(party.host.id),
+        nickname: party.host.nickname,
+        avatarUrl: party.host.avatarUrl ?? undefined,
+        isOnline: party.status === "active",
+      },
+    }));
+  }, [partyData]);
+
   const filteredPopularMatches = React.useMemo(() => {
-    const matchesByGame = MOCK_MATCHING_DATA.filter((m) => m.game === activeGameTab);
+    const matchesByGame = allMatches.filter((m) => m.game === activeGameTab);
     return [...matchesByGame]
       .sort((a, b) => b.views + b.likes - (a.views + a.likes))
       .slice(0, 10);
-  }, [activeGameTab]);
+  }, [allMatches, activeGameTab]);
 
   return {
     state: {

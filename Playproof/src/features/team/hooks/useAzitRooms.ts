@@ -165,6 +165,26 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     [currentAzitId, currentUser]
   );
 
+  const leaveVoiceRoom = React.useCallback(() => {
+    const me = currentUser;
+    const target = myVoiceRoomIdByAzit[currentAzitId] ?? null;
+    if (!target) return;
+
+    setVoiceRoomsByAzit((prev) => {
+      const rooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
+      const nextRooms = rooms.map((room) => {
+        if (room.id !== target) return room;
+        return {
+          ...room,
+          users: room.users.filter((m) => String(m.user.id) !== String(me.id)),
+        };
+      });
+      return { ...prev, [currentAzitId]: nextRooms };
+    });
+
+    setMyVoiceRoomIdByAzit((prev) => ({ ...prev, [currentAzitId]: null }));
+  }, [currentAzitId, currentUser, myVoiceRoomIdByAzit]);
+
   const toggleMyMic = React.useCallback(
     (roomId?: string) => {
       const me = currentUser;
@@ -210,6 +230,7 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     voiceRooms,
     myVoiceRoomId,
     joinVoiceRoom,
+    leaveVoiceRoom,
     toggleMyMic,
 
     initAzitRooms,

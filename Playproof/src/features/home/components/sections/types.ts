@@ -3,7 +3,7 @@
 import type { HighlightPost, BoardPost } from "@/features/community/types";
 import type { UserSummary } from "@/features/home/data/userSummaryMock";
 import type { FilterState, MatchingData } from "@/features/matching/types";
-import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
+import type { Azit, Schedule } from "@/features/team/types/types";
 
 export type HomeUserSummarySectionProps = {
   loading: boolean;
@@ -13,8 +13,8 @@ export type HomeUserSummarySectionProps = {
 };
 
 export type AzitSlide = {
-  azit: (typeof MOCK_MY_AZITS)[number];
-  schedule: (typeof mockSchedules)[number] | undefined;
+  azit: Azit;
+  schedule: Schedule | undefined;
   timeLabel: string;
 };
 
@@ -24,6 +24,13 @@ export type HomePartyFriendsSectionProps = {
   onPrevAzit: () => void;
   onNextAzit: () => void;
   onOpenAzit: (azitId: number) => void;
+  friends: {
+    id: number;
+    nickname: string;
+    statusMessage?: string;
+    isOnline: boolean;
+    avatarUrl?: string;
+  }[];
 };
 
 export type HomeMatchingSectionProps = {

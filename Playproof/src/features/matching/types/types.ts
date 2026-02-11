@@ -11,6 +11,8 @@ export interface MatchingData {
   tier: string;
   tags: string[];
   azit: string;
+  azitId?: number;
+  createAzitName?: string;
   position: string[];
   memo: string;
   currentMembers: number;

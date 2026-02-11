@@ -96,6 +96,52 @@ export async function createChatRoomByAzit(params: {
   return json.data;
 }
 
+export async function updateChatRoom(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number | string;
+  name: string;
+}): Promise<ChatRoomGetResDto> {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/chat-rooms/${encodeURIComponent(String(params.roomId))}`;
+
+  const body = {
+    roomName: params.name,
+  };
+
+  const json = await fetchJson<Result<ChatRoomGetResDto>>(url, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (json.error) throw new Error(json.error.message);
+  return json.data;
+}
+
+export async function deleteChatRoom(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number | string;
+}): Promise<void> {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/chat-rooms/${encodeURIComponent(String(params.roomId))}`;
+
+  const json = await fetchJson<Result<null>>(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+    },
+  });
+
+  if (json.error) throw new Error(json.error.message);
+}
+
 export async function getChatMessages(params: {
   apiBaseUrl: string;
   accessToken: string;

@@ -9,6 +9,35 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      "/auth": {
+        target: "https://myfit.my",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/community": {
+        target: "https://myfit.my",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/users": {
+        target: "https://myfit.my",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/azits": {
+        target: "https://myfit.my",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/parties": {
+        target: "https://myfit.my",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
   // resolve 설정 전체 추가
   resolve: {
     alias: {
