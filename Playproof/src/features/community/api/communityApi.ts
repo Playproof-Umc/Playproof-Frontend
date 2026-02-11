@@ -174,6 +174,43 @@ export async function deleteComment(commentId: number) {
   return res.data.data;
 }
 
+// 하이라이트 생성
+export async function createHighlight(payload: {
+  azit_id?: number;
+  content: string;
+  is_public?: boolean;
+  files?: File[];
+}) {
+  if (payload.files && payload.files.length > 0) {
+    const formData = new FormData();
+    if (payload.azit_id) formData.append("azit_id", String(payload.azit_id));
+    formData.append("content", payload.content);
+    formData.append("is_public", String(payload.is_public ?? true));
+    payload.files.forEach((file) => {
+      formData.append("medias", file);
+    });
+
+    const res = await api.post('/community/highlights', formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  }
+
+  const res = await api.post('/community/highlights', {
+    azit_id: payload.azit_id,
+    content: payload.content,
+    is_public: payload.is_public ?? true,
+    medias: [],
+  });
+  return res.data.data;
+}
+
+// 하이라이트 삭제
+export async function deleteHighlight(highlightId: number) {
+  const res = await api.delete(`/community/highlights/${highlightId}`);
+  return res.data.data;
+}
+
 // 좋아요 토글
 export async function toggleLike({ highlightId, postId }: { highlightId?: number; postId?: number }) {
   let target_type = "";
@@ -249,7 +286,7 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
   const res = await api.get('/community/highlights', { params: { page, limit } });
   const highlights = res.data.data?.highlights || [];
   // API 응답을 HighlightPost[]로 매핑
-  return (Array.isArray(highlights) ? highlights : []).map((raw) => {
+  const mapped = (Array.isArray(highlights) ? highlights : []).map((raw) => {
     const item = isRecord(raw) ? raw : {};
     return {
       id: toNumber(readValue(item, ["highlight_id", "id"])) ?? 0,
@@ -267,6 +304,7 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
       updatedAt: toStringValue(readValue(item, ["updated_at"])),
     } as HighlightPost;
   });
+  return mapped;
 }
 
 /**

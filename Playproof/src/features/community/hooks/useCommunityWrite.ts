@@ -3,7 +3,7 @@
 import React from "react";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import type { BoardPost } from "@/features/community/types";
-import { createBoardPost } from "@/features/community/api/communityApi";
+import { createBoardPost, createHighlight } from "@/features/community/api/communityApi";
 
 type UseCommunityWriteArgs = {
   activeTab: string;
@@ -11,6 +11,7 @@ type UseCommunityWriteArgs = {
   boardGame: string;
   addHighlightPost: (payload: { title?: string; content: string; images: File[] }) => void;
   setBoardPosts: React.Dispatch<React.SetStateAction<BoardPost[]>>;
+  refreshHighlights?: () => void;
 };
 
 const BOARD_GAME_ID_MAP: Record<string, number> = {
@@ -31,6 +32,7 @@ export const useCommunityWrite = ({
   boardGame,
   addHighlightPost,
   setBoardPosts,
+  refreshHighlights,
 }: UseCommunityWriteArgs) => {
   const [isWriteOpen, setIsWriteOpen] = React.useState(false);
 
@@ -51,7 +53,21 @@ export const useCommunityWrite = ({
       game?: string;
     }) => {
       if (activeTab === COMMUNITY_PAGE_LABELS.highlightTab) {
-        addHighlightPost({ title, content, images });
+        try {
+          await createHighlight({
+            content: content || "내용 없음",
+            is_public: true,
+            files: images,
+          });
+          
+          // API 성공 후 목록 새로고침
+          if (refreshHighlights) {
+            refreshHighlights();
+          }
+        } catch (error) {
+          console.error('Failed to create highlight:', error);
+          throw error;
+        }
         return;
       }
 

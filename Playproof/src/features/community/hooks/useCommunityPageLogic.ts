@@ -101,6 +101,14 @@ export const useCommunityPageLogic = () => {
     boardGame,
     addHighlightPost: highlightActions.addHighlightPost,
     setBoardPosts: setLoadedBoardPosts,
+    refreshHighlights: () => {
+      // 하이라이트 생성 후 목록 새로고침
+      import("@/features/community/api/communityApi").then(({ getHighlights }) => {
+        getHighlights(currentPage).then((posts) => {
+          highlightActions.hydrateFromPosts(posts);
+        });
+      });
+    },
   });
 
   React.useEffect(() => {
