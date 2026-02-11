@@ -26,6 +26,7 @@ export const PostDetailHeader = ({
   onShare,
   onReport,
 }: PostDetailHeaderProps) => {
+  console.log("PostDetailHeader rendered - likeCount:", likeCount, "isLiked:", isLiked);
   const getRelativeTime = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);

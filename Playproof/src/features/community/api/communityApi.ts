@@ -246,6 +246,20 @@ export async function getAllBoardPosts(page: number = 1, limit: number = 10): Pr
   return posts.map((item: unknown) => mapBoardPost(item));
 }
 
+/**
+ * 특정 게시판 글 조회
+ */
+export async function getBoardPost(postId: number): Promise<BoardPost | null> {
+  try {
+    const res = await api.get(`/community/posts/${postId}`);
+    const data = res.data.data;
+    if (!data) return null;
+    return mapBoardPost(data);
+  } catch {
+    return null;
+  }
+}
+
 // 자유게시판 글 작성
 export async function createBoardPost(payload: {
   game_id: number;
@@ -265,7 +279,7 @@ export async function createBoardPost(payload: {
     const res = await api.post('/community/posts', formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return res.data.data;
+    return mapBoardPost(res.data.data);
   }
 
   const res = await api.post('/community/posts', {
@@ -273,7 +287,7 @@ export async function createBoardPost(payload: {
     title: payload.title,
     content: payload.content,
   });
-  return res.data.data;
+  return mapBoardPost(res.data.data);
 }
 
 // 자유게시판 글 수정
@@ -287,7 +301,7 @@ export async function updateBoardPost(postId: number, payload: {
     content: payload.content,
     medias: payload.medias ?? [],
   });
-  return res.data.data;
+  return mapBoardPost(res.data.data);
 }
 
 // 자유게시판 글 삭제

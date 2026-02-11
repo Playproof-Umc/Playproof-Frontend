@@ -11,7 +11,8 @@ import { PostDetailBody } from "@/features/community/components/detail/PostDetai
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
 import { BoardEditModal } from "@/features/community/components";
 import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
-import { updateBoardPost, deleteBoardPost } from "@/features/community/api/communityApi";
+import { updateBoardPost, deleteBoardPost, getBoardPost } from "@/features/community/api/communityApi";
+import type { BoardPost } from "@/features/community/types/types";
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
@@ -19,8 +20,28 @@ export const PostDetailPageView = () => {
   const { postId } = useParams();
   const [searchParams] = useSearchParams();
   const fromTab = searchParams.get("from") || COMMUNITY_PAGE_LABELS.highlightTab;
-  const statePost = (location.state as { post?: typeof MOCK_BOARD_POSTS[number] } | null)?.post;
-  const post = statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const statePost = (location.state as { post?: BoardPost } | null)?.post;
+  const [apiPost, setApiPost] = React.useState<BoardPost | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  
+  // API에서 post 정보 로드
+  React.useEffect(() => {
+    if (!postId) return;
+    setIsLoading(true);
+    getBoardPost(Number(postId))
+      .then((post) => {
+        setApiPost(post);
+        console.log("Loaded post from API:", post);
+      })
+      .catch(() => {
+        console.log("Failed to load post from API, using state or MOCK");
+      })
+      .finally(() => setIsLoading(false));
+  }, [postId]);
+  
+  // statePost가 있으면 우선, 없으면 API post 사용, 둘 다 없으면 MOCK에서 찾기
+  const post = statePost ?? apiPost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  console.log("PostDetailPageView - final post:", post, "statePost:", statePost, "apiPost:", apiPost);
   const { state, setters, handlers } = useCommunityDetailLogic(post);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const {
@@ -37,11 +58,23 @@ export const PostDetailPageView = () => {
     editText,
   } = state;
 
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <p>로드 중...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
   if (!post) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>{COMMUNITY_PAGE_LABELS.notFound}</p>
-      </div>
+      <AppLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <p>{COMMUNITY_PAGE_LABELS.notFound}</p>
+        </div>
+      </AppLayout>
     );
   }
 
