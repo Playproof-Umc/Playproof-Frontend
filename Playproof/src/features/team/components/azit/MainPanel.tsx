@@ -38,6 +38,8 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const pendingScrollRef = React.useRef(false);
+  const lastRoomIdRef = React.useRef<number | null>(null);
+  const lastMessageCountRef = React.useRef(0);
 
   const hasContent = message.trim().length > 0 || selectedFiles.length > 0;
 
@@ -98,7 +100,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
     const file = new File([blob], `highlight-share-${Date.now()}.${ext}`, {
       type: blob.type || "image/jpeg",
     });
-    navigate("/community?tab=하이라이트", { state: { shareFiles: [file] } });
+    navigate("/community?tab=하이라이트&write=1", { state: { shareFiles: [file] } });
   }, [activeMedia, navigate]);
 
   const safeMessages = messages ?? [];
@@ -108,12 +110,20 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   }, []);
 
   React.useEffect(() => {
-    if (!roomId) return;
+    if (!roomId) {
+      lastRoomIdRef.current = null;
+      lastMessageCountRef.current = 0;
+      return;
+    }
     const container = scrollContainerRef.current;
     if (!container) return;
+
+    const isRoomChanged = lastRoomIdRef.current !== roomId;
+    const isNewMessages = safeMessages.length > lastMessageCountRef.current;
     const nearBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight < 120;
-    if (pendingScrollRef.current || nearBottom) {
+
+    if (isRoomChanged || isNewMessages || pendingScrollRef.current || nearBottom) {
       scrollToBottom();
       if (pendingScrollRef.current) {
         window.setTimeout(() => {
@@ -121,6 +131,9 @@ export const MainPanel: React.FC<MainPanelProps> = ({
         }, 300);
       }
     }
+
+    lastRoomIdRef.current = roomId;
+    lastMessageCountRef.current = safeMessages.length;
   }, [roomId, safeMessages.length, scrollToBottom]);
 
   return (

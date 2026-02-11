@@ -35,7 +35,10 @@ export const CommunityPageView = () => {
     }
     setSharedFiles(shareState.shareFiles);
     actions.modal.setWriteOpen(true);
-    navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
+    const params = new URLSearchParams(location.search);
+    params.delete("write");
+    const nextSearch = params.toString();
+    navigate(`${location.pathname}${nextSearch ? `?${nextSearch}` : ""}`, { replace: true, state: {} });
   }, [
     actions.modal,
     actions.tab,
