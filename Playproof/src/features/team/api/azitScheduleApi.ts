@@ -74,3 +74,29 @@ export async function createAzitSchedule(params: {
   }
   return res.data.data;
 }
+
+export async function participateSchedule(params: {
+  azitId: number;
+  scheduleId: number;
+}): Promise<void> {
+  const { azitId, scheduleId } = params;
+  const res = await api.post<Result<null>>(
+    `/azits/${azitId}/schedules/${scheduleId}/participants`
+  );
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 204)) {
+    throw new Error(res.data.error?.message ?? "스케줄 참여 실패");
+  }
+}
+
+export async function cancelScheduleParticipation(params: {
+  azitId: number;
+  scheduleId: number;
+}): Promise<void> {
+  const { azitId, scheduleId } = params;
+  const res = await api.delete<Result<null>>(
+    `/azits/${azitId}/schedules/${scheduleId}/participants`
+  );
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 204)) {
+    throw new Error(res.data.error?.message ?? "스케줄 참여 취소 실패");
+  }
+}

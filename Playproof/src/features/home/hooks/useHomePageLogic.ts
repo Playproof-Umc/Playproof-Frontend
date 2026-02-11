@@ -4,9 +4,9 @@ import React from "react";
 import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
 import { useAuthStore } from "@/store/authStore";
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
-import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
-import type { Azit } from "@/features/team/types/types";
+import type { Azit, Schedule } from "@/features/team/types/types";
 import { getAzits } from "@/features/team/api/azitApi";
+import { getAzitSchedules, type AzitScheduleDetailResDto } from "@/features/team/api/azitScheduleApi";
 import { getBestPosts } from "@/features/community/api/communityApi";
 import type { FilterState, MatchingData } from "@/features/matching/types";
 import type { HighlightPost, BoardPost, CommunityComment } from "@/features/community/types";
@@ -28,7 +28,7 @@ type UseHomePageLogicReturn = {
     loading: boolean;
     azitSlides: {
       azit: Azit;
-      schedule: (typeof mockSchedules)[number] | undefined;
+      schedule: Schedule | undefined;
       timeLabel: string;
     }[];
     azitIndex: number;
@@ -67,13 +67,45 @@ type UseHomePageLogicReturn = {
 export const useHomePageLogic = (): UseHomePageLogicReturn => {
   const { open: isSignupCompleteOpen, username, close } = useSignupCompleteModal();
   const authNickname = useAuthStore((s) => s.nickname);
+  const accessToken = useAuthStore((s) => s.accessToken);
   const displayName = authNickname ?? "사용자";
+
+  const mapScheduleDtoToUi = React.useCallback((dto: AzitScheduleDetailResDto): Schedule => {
+    const gameStart = new Date(dto.game_start_at);
+    const gameEnd = new Date(dto.game_end_at);
+    const dateStr = `${String(gameStart.getMonth() + 1).padStart(2, "0")}.${String(
+      gameStart.getDate()
+    ).padStart(2, "0")}`;
+    const timeStr = gameStart.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const participants = Array.from({ length: dto.current_participants ?? 0 }).map(() => ({
+      user: null,
+      status: "JOIN" as const,
+    }));
+
+    return {
+      id: String(dto.schedule_id),
+      title: dto.title,
+      dateStr,
+      timeStr,
+      fullDate: gameEnd,
+      hostId: "0",
+      maxMembers: dto.max_participants,
+      participants,
+      isFeedbackDone: false,
+    };
+  }, []);
 
   const [user, setUser] = React.useState<UserSummary | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [bestPosts, setBestPosts] = React.useState<BoardPost[]>([]);
   const [azitIndex, setAzitIndex] = React.useState(0);
-  const [azits, setAzits] = React.useState<Azit[]>(MOCK_MY_AZITS);
+  const [azits, setAzits] = React.useState<Azit[]>([]);
+  const [scheduleByAzit, setScheduleByAzit] = React.useState<Record<number, Schedule | undefined>>({});
 
   React.useEffect(() => {
     let alive = true;
@@ -95,15 +127,45 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
   const { state: highlightState, handlers: highlightHandlers } = useHomeHighlightsLogic(displayName);
 
   const azitSlides = React.useMemo(() => {
-    const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
-    return azits.map((azit, idx) => {
-      const schedule = schedules[idx % schedules.length];
+    return azits.map((azit) => {
+      const schedule = scheduleByAzit[azit.id];
       const timeLabel = schedule?.fullDate
         ? schedule.fullDate.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
         : "시간 미정";
       return { azit, schedule, timeLabel };
     });
-  }, [azits]);
+  }, [azits, scheduleByAzit]);
+
+  React.useEffect(() => {
+    if (!accessToken || azits.length === 0) return;
+    let alive = true;
+    (async () => {
+      try {
+        const entries = await Promise.all(
+          azits.map(async (azit) => {
+            try {
+              const res = await getAzitSchedules({ azitId: azit.id, size: 1 });
+              const first = res.schedules[0];
+              return [azit.id, first ? mapScheduleDtoToUi(first) : undefined] as const;
+            } catch {
+              return [azit.id, undefined] as const;
+            }
+          })
+        );
+        if (!alive) return;
+        const next: Record<number, Schedule | undefined> = {};
+        entries.forEach(([id, sch]) => {
+          next[id] = sch;
+        });
+        setScheduleByAzit(next);
+      } catch (err) {
+        console.error("home schedule load error:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, azits, mapScheduleDtoToUi]);
 
   React.useEffect(() => {
     let alive = true;
@@ -136,6 +198,7 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
     setAzitIndex((prev) => (prev >= azitSlides.length - 1 ? 0 : prev + 1));
   };
 
+
   return {
     state: {
       signupModal: {
@@ -167,8 +230,8 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
       handleFilterApply: matchingHandlers.handleFilterApply,
       handleHomeMatchClick: matchingHandlers.handleHomeMatchClick,
       handleHighlightClick: highlightHandlers.handleHighlightClick,
-      handlePrevAzit,
-      handleNextAzit,
+    handlePrevAzit,
+    handleNextAzit,
       handleHighlightLikeState: highlightHandlers.getHighlightLikeState,
       handleHighlightComments: highlightHandlers.getHighlightComments,
       handleHighlightCommentCount: highlightHandlers.getHighlightCommentCount,
