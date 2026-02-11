@@ -31,3 +31,28 @@ export async function getAzits(): Promise<Azit[]> {
   const list = res.data.data?.azits ?? [];
   return list.map(normalizeAzit);
 }
+
+export async function updateAzit(
+  azitId: number,
+  payload: { azit_name?: string | null; azit_icon?: File | null; is_delete_icon?: boolean }
+): Promise<AzitResDto> {
+  const formData = new FormData();
+  if (payload.azit_name !== undefined) {
+    formData.append("azit_name", payload.azit_name ?? "");
+  }
+  if (payload.is_delete_icon !== undefined) {
+    formData.append("is_delete_icon", String(payload.is_delete_icon));
+  }
+  if (payload.azit_icon) {
+    formData.append("azit_icon", payload.azit_icon);
+  }
+
+  const res = await api.patch<ApiResponse<AzitResDto>>(`/azits/${azitId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  if (res.data.error || res.data.statusCode !== 200) {
+    throw new Error(res.data.error?.message ?? "아지트 설정 변경 실패");
+  }
+  return res.data.data;
+}

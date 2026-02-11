@@ -187,9 +187,8 @@ export const AzitPageView = () => {
         open={isAzitSettingsOpen}
         onClose={() => setIsAzitSettingsOpen(false)}
         profileUrl={currentAzit?.icon}
-        onUpdateProfile={(url) => actions.updateAzitIcon(currentAzitId, url)}
         initialName={currentAzit?.name ?? ""}
-        onUpdateName={(nextName) => actions.updateAzitName(currentAzitId, nextName)}
+        onSave={({ name, file }) => actions.updateAzitSettings(currentAzitId, { name, file })}
       />
 
       <FeedbackModal

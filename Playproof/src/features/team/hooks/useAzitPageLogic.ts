@@ -12,7 +12,7 @@ import {
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
 
-import { getAzits } from "@/features/team/api/azitApi";
+import { getAzits, updateAzit } from "@/features/team/api/azitApi";
 import { getAzitMembers, mapAzitMembersToUsers } from "@/features/team/api/azitMemberApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
@@ -409,6 +409,75 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
+  const updateAzitName = React.useCallback(
+    async (azitId: number, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      try {
+        const updated = await updateAzit(azitId, { azit_name: trimmed });
+        setAzits((prev) =>
+          prev.map((azit) =>
+            azit.id === azitId
+              ? { ...azit, name: updated.azit_name }
+              : azit
+          )
+        );
+      } catch (err) {
+        console.error("아지트 이름 수정 실패:", err);
+      }
+    },
+    []
+  );
+
+  const updateAzitIcon = React.useCallback(
+    async (azitId: number, file: File) => {
+      if (!file) return;
+      try {
+        const updated = await updateAzit(azitId, { azit_icon: file });
+        setAzits((prev) =>
+          prev.map((azit) =>
+            azit.id === azitId
+              ? {
+                  ...azit,
+                  icon: updated.azit_icon_url ?? azit.icon,
+                }
+              : azit
+          )
+        );
+      } catch (err) {
+        console.error("아지트 아이콘 수정 실패:", err);
+      }
+    },
+    []
+  );
+
+  const updateAzitSettings = React.useCallback(
+    async (azitId: number, payload: { name?: string; file?: File | null }) => {
+      const trimmedName = payload.name?.trim();
+      if (!trimmedName && !payload.file) return;
+      try {
+        const updated = await updateAzit(azitId, {
+          azit_name: trimmedName ?? undefined,
+          azit_icon: payload.file ?? undefined,
+        });
+        setAzits((prev) =>
+          prev.map((azit) =>
+            azit.id === azitId
+              ? {
+                  ...azit,
+                  name: updated.azit_name ?? azit.name,
+                  icon: updated.azit_icon_url ?? azit.icon,
+                }
+              : azit
+          )
+        );
+      } catch (err) {
+        console.error("아지트 설정 변경 실패:", err);
+      }
+    },
+    []
+  );
+
   return {
     state: {
       azits,
@@ -448,6 +517,9 @@ export function useAzitPageLogic() {
       joinVoiceRoom,
       toggleMyMic,
       addAzit,
+      updateAzitName,
+      updateAzitIcon,
+      updateAzitSettings,
     },
   };
 }
