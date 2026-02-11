@@ -209,7 +209,6 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900">{displayName}</p>
-                      <p className="text-xs text-gray-500">playproof12@gmail.com</p>
                     </div>
                   </div>
                 </div>

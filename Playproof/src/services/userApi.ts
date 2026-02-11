@@ -13,7 +13,6 @@ export type VerifiedAccount = {
 export type UserProfile = {
   id: number;
   nickname: string;
-  email?: string;
   statusMessage: string;
   profileImageUrl: string;
   tsRank: number;
