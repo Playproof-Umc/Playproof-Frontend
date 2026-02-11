@@ -1,5 +1,6 @@
 // src/features/community/pages/PostDetailPageView.tsx
 
+import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -8,7 +9,9 @@ import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";
 import { PostDetailBody } from "@/features/community/components/detail/PostDetailBody";
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
+import { BoardEditModal } from "@/features/community/components";
 import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
+import { updateBoardPost, deleteBoardPost } from "@/features/community/api/communityApi";
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
@@ -19,6 +22,7 @@ export const PostDetailPageView = () => {
   const statePost = (location.state as { post?: typeof MOCK_BOARD_POSTS[number] } | null)?.post;
   const post = statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
   const { state, setters, handlers } = useCommunityDetailLogic(post);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const {
     commentText,
     replyText,
@@ -54,11 +58,45 @@ export const PostDetailPageView = () => {
   };
 
   const handleEditPost = () => {
-    console.log("게시글 수정");
+    // 권한 체크 - nickname 또는 author 중 하나와 일치하면 허용
+    const postAuthor = post.nickname ?? post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 수정할 수 있습니다.');
+      return;
+    }
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (payload: { title: string; content: string; images: File[]; game: string }) => {
+    // 권한 재확인 - nickname 또는 author 중 하나와 일치하면 허용
+    const postAuthor = post.nickname ?? post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 수정할 수 있습니다.');
+      setIsEditModalOpen(false);
+      return;
+    }
+
+    try {
+      // API 스펙: title, content, medias만 전송 (game_id는 수정 시 불필요)
+      await updateBoardPost(post.id, {
+        title: payload.title,
+        content: payload.content,
+        medias: [], // 기존 이미지 유지 (새 이미지 업로드는 별도 처리 TODO)
+      });
+      
+      // 수정 성공 후 페이지 새로고침
+      window.location.reload();
+    } catch (error: any) {
+      console.error('게시글 수정 실패:', error);
+      const errorMessage = error?.response?.data?.error?.message || '게시글 수정에 실패했습니다.';
+      alert(errorMessage);
+      setIsEditModalOpen(false);
+    }
   };
 
   const handleDeletePost = () => {
-    console.log("게시글 삭제");
+       console.log("게시글 삭제");
+    // TODO: 향후 구현
   };
 
   return (
@@ -118,6 +156,13 @@ export const PostDetailPageView = () => {
           </div>
         </div>
       </main>
+
+      <BoardEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditSubmit}
+        post={post}
+      />
     </AppLayout>
   );
 };

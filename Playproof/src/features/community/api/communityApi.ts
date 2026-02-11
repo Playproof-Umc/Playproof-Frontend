@@ -276,6 +276,26 @@ export async function createBoardPost(payload: {
   return res.data.data;
 }
 
+// 자유게시판 글 수정
+export async function updateBoardPost(postId: number, payload: {
+  title: string;
+  content: string;
+  medias?: { media_url: string; order: number }[];
+}) {
+  const res = await api.patch(`/community/posts/${postId}`, {
+    title: payload.title,
+    content: payload.content,
+    medias: payload.medias ?? [],
+  });
+  return res.data.data;
+}
+
+// 자유게시판 글 삭제
+export async function deleteBoardPost(postId: number) {
+  const res = await api.delete(`/community/posts/${postId}`);
+  return res.data.data;
+}
+
 /**
  * 하이라이트 목록 조회 (실제 API 연동)
  */
