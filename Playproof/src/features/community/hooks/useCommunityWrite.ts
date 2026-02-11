@@ -72,7 +72,13 @@ export const useCommunityWrite = ({
       }
 
       const resolvedGame = game ?? boardGame;
-      const gameId = BOARD_GAME_ID_MAP[resolvedGame] ?? 0;
+      const gameId = BOARD_GAME_ID_MAP[resolvedGame];
+      
+      if (!gameId) {
+        console.error('Invalid game selected:', resolvedGame);
+        throw new Error('게임을 선택해주세요.');
+      }
+      
       const res = await createBoardPost({
         game_id: gameId,
         title: title?.trim() || "제목 없음",

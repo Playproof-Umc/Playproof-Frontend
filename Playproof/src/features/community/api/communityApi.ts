@@ -251,7 +251,6 @@ export async function createBoardPost(payload: {
   game_id: number;
   title: string;
   content: string;
-  medias?: { media_url: string; order: number }[];
   files?: File[];
 }) {
   if (payload.files && payload.files.length > 0) {
@@ -259,9 +258,8 @@ export async function createBoardPost(payload: {
     formData.append("game_id", String(payload.game_id));
     formData.append("title", payload.title);
     formData.append("content", payload.content);
-    payload.files.forEach((file, index) => {
+    payload.files.forEach((file) => {
       formData.append("medias", file);
-      formData.append("orders", String(index + 1));
     });
 
     const res = await api.post('/community/posts', formData, {
@@ -274,7 +272,6 @@ export async function createBoardPost(payload: {
     game_id: payload.game_id,
     title: payload.title,
     content: payload.content,
-    medias: payload.medias ?? [],
   });
   return res.data.data;
 }
