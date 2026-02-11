@@ -84,8 +84,7 @@ export function useLolGameData(params: {
       const summary = lolSummaryQuery.data;
 
       const account =
-        summary?.account ??
-        (await riotApi.getPuuidByRiotId(riotMeta!.gameName, riotMeta!.tagLine));
+        summary?.account ?? (await riotApi.getPuuidByRiotId(riotMeta!.gameName, riotMeta!.tagLine));
 
       const matchIds = await riotApi.getMatchIdsByPuuid(account.puuid, {
         start: (page - 1) * pageSize,
@@ -97,8 +96,12 @@ export function useLolGameData(params: {
       const aggregate = buildLolAggregateStats(details as never, account.puuid);
       const matches = buildLolMatchList(details as never, account.puuid);
 
-      // ✅ 주 포지션: 최근 N판 기반
-      const mainPosition = computeMainPosition(details as never, account.puuid);
+      // ✅ 주 포지션: 최근 N판에서 "내 participant"만 모아 계산
+      const myParticipants = details
+        .flatMap((m) => m.info.participants)
+        .filter((p) => p.puuid === account.puuid);
+
+      const mainPosition = computeMainPosition(myParticipants);
 
       // ✅ linkedProfile: 요약 + 전적 기반 승률/포지션 override
       const baseLinkedProfile = summary?.linkedProfile;
@@ -108,15 +111,15 @@ export function useLolGameData(params: {
             winRatePercent: aggregate.winRatePercent,
             mainPosition,
           }
-        : buildLolLinkedProfile(
-            account,
-            await riotApi.getSummonerByPuuid(account.puuid).catch(() => null),
-            await riotApi.getLeagueEntriesByPuuid(account.puuid).catch(() => []),
-            {
-              fallbackWinRatePercent: aggregate.winRatePercent,
-              fallbackMainPosition: mainPosition,
-            }
-          );
+        : {
+            ...buildLolLinkedProfile(
+              account,
+              await riotApi.getSummonerByPuuid(account.puuid).catch(() => null),
+              await riotApi.getLeagueEntriesByPuuid(account.puuid).catch(() => [])
+            ),
+            winRatePercent: aggregate.winRatePercent,
+            mainPosition,
+          };
 
       return {
         linkedProfile,
@@ -154,6 +157,7 @@ export function useLolGameData(params: {
     const matchProfile = lolMatchesQuery.data?.linkedProfile;
     const matchAgg = lolMatchesQuery.data?.aggregate;
 
+    // ✅ 핵심: 이 프로젝트 타입은 currentTier를 사용
     const tierForCards = (matchProfile?.currentTier ?? summaryProfile?.currentTier) ?? "-";
     const posForCards = (matchProfile?.mainPosition ?? summaryProfile?.mainPosition) ?? "미정";
 
