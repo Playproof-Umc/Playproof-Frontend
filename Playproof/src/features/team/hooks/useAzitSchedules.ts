@@ -8,8 +8,8 @@ import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCre
 import {
   createAzitSchedule,
   getAzitSchedules,
-  joinAzitScheduleParticipant,
-  leaveAzitScheduleParticipant,
+  getAzitScheduleMyParticipantStatus,
+  updateAzitScheduleParticipantStatus,
 } from "@/features/team/api/azitScheduleApi";
 
 const coerceUserId = (value: string | number) => String(value);
@@ -44,7 +44,36 @@ export function useAzitSchedules(
       try {
         const list = await getAzitSchedules(currentAzitId);
         if (!isActive) return;
-        setSchedules(list);
+        if (!currentUserId) {
+          setSchedules(list);
+          return;
+        }
+
+        const enriched = await Promise.all(
+          list.map(async (schedule) => {
+            const hasMe = schedule.participants.some(
+              (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
+            );
+            if (hasMe) return schedule;
+
+            try {
+              const status = await getAzitScheduleMyParticipantStatus(
+                currentAzitId,
+                schedule.id
+              );
+              if (!status) return schedule;
+              return {
+                ...schedule,
+                participants: [...schedule.participants, { user: currentUser, status }],
+              };
+            } catch {
+              return schedule;
+            }
+          })
+        );
+
+        if (!isActive) return;
+        setSchedules(enriched);
       } catch {
         if (!isActive) return;
         setSchedules([]);
@@ -56,7 +85,7 @@ export function useAzitSchedules(
     return () => {
       isActive = false;
     };
-  }, [currentAzitId]);
+  }, [currentAzitId, currentUser, currentUserId]);
 
   const handleStatusChange = React.useCallback(
     async (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
@@ -99,18 +128,12 @@ export function useAzitSchedules(
         })
       );
 
-      const shouldCallApi =
-        (newStatus === "JOIN" && myCurrentStatus !== "JOIN") ||
-        (newStatus === "DECLINE" && myCurrentStatus === "JOIN");
+      const shouldCallApi = newStatus !== myCurrentStatus;
 
       if (!shouldCallApi) return;
 
       try {
-        if (newStatus === "JOIN") {
-          await joinAzitScheduleParticipant(currentAzitId, scheduleId);
-        } else {
-          await leaveAzitScheduleParticipant(currentAzitId, scheduleId);
-        }
+        await updateAzitScheduleParticipantStatus(currentAzitId, scheduleId, newStatus);
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const code = error.response?.data?.error?.code;

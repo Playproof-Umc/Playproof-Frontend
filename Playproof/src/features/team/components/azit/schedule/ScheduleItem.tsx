@@ -106,6 +106,12 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
             거절함
           </button>
         );
+      case 'CANCELLED':
+        return (
+          <button className="w-full bg-white border border-gray-400 text-gray-500 py-3 rounded-xl text-sm font-bold cursor-default">
+            취소함
+          </button>
+        );
       case 'PENDING':
       default:
         return (

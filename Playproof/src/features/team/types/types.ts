@@ -33,7 +33,7 @@ export interface Schedule {
 
   participants: {
     user: User | null;
-    status: 'JOIN' | 'DECLINE' | 'PENDING';
+    status: 'JOIN' | 'DECLINE' | 'PENDING' | 'CANCELLED';
   }[];
 }
 

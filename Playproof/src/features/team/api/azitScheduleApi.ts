@@ -103,7 +103,10 @@ const normalizeSchedule = (item: RawSchedule): Schedule => {
       (rawParticipants.length > 0 ? "JOIN" : undefined) ??
       "PENDING";
     const status =
-      statusRaw === "JOIN" || statusRaw === "DECLINE" || statusRaw === "PENDING"
+      statusRaw === "JOIN" ||
+      statusRaw === "DECLINE" ||
+      statusRaw === "PENDING" ||
+      statusRaw === "CANCELLED"
         ? statusRaw
         : "PENDING";
     return { user, status } as Schedule["participants"][number];
@@ -162,6 +165,95 @@ export async function joinAzitScheduleParticipant(
     `/azits/${azitId}/schedules/${scheduleId}/participants`
   );
   return res.data?.data ?? res.data;
+}
+
+export async function updateAzitScheduleParticipantStatus(
+  azitId: number,
+  scheduleId: string | number,
+  status: "JOIN" | "DECLINE" | "PENDING" | "CANCELLED"
+) {
+  try {
+    const res = await api.patch(
+      `/azits/${azitId}/schedules/${scheduleId}/participants`,
+      {
+        status,
+      }
+    );
+    return res.data?.data ?? res.data;
+  } catch (error) {
+    const message = (error as any)?.response?.data?.error?.message;
+    const raw = (error as any)?.response?.data;
+    const isHtmlCannotPatch =
+      typeof raw === "string" && raw.includes("Cannot PATCH");
+    const isMethodNotAllowed =
+      isHtmlCannotPatch || message === "Cannot PATCH";
+    if (!isMethodNotAllowed) {
+      throw error;
+    }
+
+    if (status === "JOIN") {
+      const res = await api.post(
+        `/azits/${azitId}/schedules/${scheduleId}/participants`
+      );
+      return res.data?.data ?? res.data;
+    }
+
+    if (status === "DECLINE" || status === "CANCELLED") {
+      const res = await api.delete(
+        `/azits/${azitId}/schedules/${scheduleId}/participants`
+      );
+      return res.data?.data ?? res.data;
+    }
+
+    return null;
+  }
+}
+
+export type MyParticipantStatus = "JOIN" | "DECLINE" | "PENDING" | "CANCELLED";
+
+export async function getAzitScheduleMyParticipantStatus(
+  azitId: number,
+  scheduleId: string | number
+): Promise<MyParticipantStatus | null> {
+  const res = await api.get(
+    `/azits/${azitId}/schedules/${scheduleId}/participants/me`
+  );
+  const data = res.data?.data ?? res.data;
+  const statusRaw =
+    data?.status ??
+    data?.participation_status ??
+    data?.state ??
+    data?.join_status ??
+    data?.joinStatus ??
+    data?.participant?.status ??
+    data?.participant?.participation_status;
+
+  if (statusRaw === "JOIN" || statusRaw === "DECLINE" || statusRaw === "PENDING" || statusRaw === "CANCELLED") {
+    return statusRaw;
+  }
+
+  return null;
+}
+
+export async function getAzitScheduleParticipantsByStatus(
+  azitId: number,
+  scheduleId: string | number,
+  status: "JOIN" | "DECLINE" | "PENDING" | "CANCELLED"
+): Promise<User[]> {
+  const res = await api.get(
+    `/azits/${azitId}/schedules/${scheduleId}/participants`,
+    { params: { status } }
+  );
+  const data = res.data?.data ?? res.data;
+  const rawList = Array.isArray(data?.participants)
+    ? data.participants
+    : Array.isArray(data?.members)
+      ? data.members
+      : Array.isArray(data)
+        ? data
+        : [];
+
+  return rawList.map((item: any) => normalizeUser(item.user ?? item.member?.user ?? item.member ?? item));
 }
 
 export async function leaveAzitScheduleParticipant(

@@ -10,13 +10,14 @@ export type ScheduleActionStatus =
   | "CREATOR"
   | "JOINED"
   | "DECLINED"
+  | "CANCELLED"
   | "PENDING";
 
 type ScheduleActionState = {
   status: ScheduleActionStatus;
   joinedParticipants: Schedule["participants"];
   joinedCount: number;
-  myStatus: "JOIN" | "DECLINE" | "PENDING";
+  myStatus: "JOIN" | "DECLINE" | "PENDING" | "CANCELLED";
   isTimeOver: boolean;
   isRecruitmentFailed: boolean;
   isRecruitmentEnded: boolean;
@@ -109,6 +110,19 @@ export const getScheduleActionState = (
   if (myStatus === "DECLINE") {
     return {
       status: "DECLINED",
+      joinedParticipants,
+      joinedCount,
+      myStatus,
+      isTimeOver,
+      isRecruitmentFailed,
+      isRecruitmentEnded,
+      isCreator,
+    };
+  }
+
+  if (myStatus === "CANCELLED") {
+    return {
+      status: "CANCELLED",
       joinedParticipants,
       joinedCount,
       myStatus,
