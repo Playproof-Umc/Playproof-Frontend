@@ -33,6 +33,8 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [previewItems, setPreviewItems] = React.useState<PreviewItem[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   const hasContent = message.trim().length > 0 || selectedFiles.length > 0;
 
@@ -97,6 +99,17 @@ export const MainPanel: React.FC<MainPanelProps> = ({
 
   const safeMessages = messages ?? [];
 
+  React.useEffect(() => {
+    if (!roomId) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const nearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+    if (nearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [roomId, safeMessages.length]);
+
   return (
     <main className="flex-1 flex flex-col w-full min-w-0 lg:min-w-[400px] h-auto lg:h-full">
       <div className="flex-none h-12 flex items-center gap-2 mb-2 px-1">
@@ -107,7 +120,10 @@ export const MainPanel: React.FC<MainPanelProps> = ({
       </div>
 
       <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
-        <div className="flex-1 bg-gray-50 p-4 flex flex-col-reverse overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 bg-gray-50 p-4 flex flex-col overflow-y-auto"
+        >
           {safeMessages.length === 0 ? (
             <div className="text-center text-gray-400 text-sm my-auto">
               {roomId ? "채팅 기록이 없습니다." : "채팅방을 선택해주세요."}
@@ -138,6 +154,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
               );
             })
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* ✅ 전송 전 프리뷰는 그대로 유지 */}

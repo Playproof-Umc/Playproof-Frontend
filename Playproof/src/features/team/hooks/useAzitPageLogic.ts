@@ -204,7 +204,9 @@ export function useAzitPageLogic() {
     replaceMessagesForRoom,
     appendMessageToRoom,
     voiceRooms,
+    myVoiceRoomId,
     joinVoiceRoom: joinVoiceRoomUI, 
+    leaveVoiceRoom,
     toggleMyMic,
     initAzitRooms,
   } = useAzitRooms(currentAzitId, currentUser);
@@ -240,6 +242,13 @@ export function useAzitPageLogic() {
     try {
       if (!accessToken) {
         alert("로그인 중입니다... 잠시 후 다시 시도해주세요.");
+        return;
+      }
+
+      if (myVoiceRoomId && myVoiceRoomId === roomIdStr) {
+        await socketVoiceLeave(roomId);
+        disconnectLiveKit();
+        leaveVoiceRoom();
         return;
       }
 
@@ -286,7 +295,7 @@ export function useAzitPageLogic() {
     } catch (err) {
       console.error("🔥 음성 채팅 연결 중 에러:", err);
     }
-  }, [socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
+  }, [socketVoiceJoin, socketVoiceLeave, requestVoiceToken, connectLiveKit, disconnectLiveKit, accessToken, joinVoiceRoomUI, leaveVoiceRoom, myVoiceRoomId, setAuth]); 
 
   React.useEffect(() => {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);
