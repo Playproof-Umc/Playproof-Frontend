@@ -93,7 +93,6 @@ export const PostDetailPageView = () => {
   };
 
   const handleEditPost = () => {
-    // 권한 체크 - nickname 또는 author 중 하나와 일치하면 허용
     const postAuthor = post.author;
     if (postAuthor !== currentUserName) {
       alert('본인이 작성한 게시글만 수정할 수 있습니다.');
@@ -103,7 +102,6 @@ export const PostDetailPageView = () => {
   };
 
   const handleEditSubmit = async (payload: { title: string; content: string; images: File[]; game: string }) => {
-    // 권한 재확인 - nickname 또는 author 중 하나와 일치하면 허용
     const postAuthor = post.author;
     if (postAuthor !== currentUserName) {
       alert('본인이 작성한 게시글만 수정할 수 있습니다.');
@@ -127,7 +125,6 @@ export const PostDetailPageView = () => {
   };
 
   const handleDeletePost = () => {
-    // 권한 체크 - nickname 또는 author 중 하나와 일치하면 허용
     const postAuthor = post.author;
     if (postAuthor !== currentUserName) {
       alert('본인이 작성한 게시글만 삭제할 수 있습니다.');
