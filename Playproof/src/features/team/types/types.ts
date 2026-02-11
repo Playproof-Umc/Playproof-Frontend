@@ -37,14 +37,15 @@ export interface Schedule {
   dateStr: string;
   timeStr: string;
   fullDate: Date; // 마감/게임 시간
-
-  hostId: string; // 방장 ID (모집중 상태 판단용)
-  maxMembers: number; // 목표 인원 (추가 게이머 찾기 조건용)
+  recruitmentEndAt?: Date; // 모집 마감 시간
+  
+  hostId: string;       // 방장 ID (모집중 상태 판단용)
+  maxMembers: number;   // 목표 인원 (추가 게이머 찾기 조건용)
   isFeedbackDone?: boolean; // 피드백 완료 여부 (완료됨 상태용)
 
   participants: {
     user: User | null;
-    status: "JOIN" | "DECLINE" | "PENDING";
+    status: 'JOIN' | 'DECLINE' | 'PENDING' | 'CANCELLED';
   }[];
 }
 

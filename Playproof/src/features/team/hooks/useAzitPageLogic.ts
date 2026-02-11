@@ -53,6 +53,7 @@ export function useAzitPageLogic() {
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
   const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
+  const [currentMembers, setCurrentMembers] = React.useState<User[]>([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
   // Auth Store 정보 가져오기
@@ -126,7 +127,7 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser);
+  } = useAzitSchedules(currentUserId, currentUser);
 
   const {
     feedbackModal,

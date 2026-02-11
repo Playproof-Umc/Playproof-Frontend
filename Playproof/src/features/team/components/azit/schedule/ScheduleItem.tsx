@@ -64,6 +64,15 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
             완료됨
           </button>
         );
+      case 'RECRUITMENT_ENDED':
+        return (
+          <button
+            disabled
+            className="w-full bg-gray-200 text-gray-500 py-3 rounded-xl text-sm font-bold cursor-not-allowed"
+          >
+            모집 마감
+          </button>
+        );
       case 'RECRUITMENT_FAILED':
         return (
           <button className="w-full bg-[var(--color-primary-800)] text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-[var(--color-primary-700)] transition-colors">
@@ -95,6 +104,12 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
         return (
           <button className="w-full bg-white border border-[var(--color-primary-800)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold cursor-default">
             거절함
+          </button>
+        );
+      case 'CANCELLED':
+        return (
+          <button className="w-full bg-white border border-gray-400 text-gray-500 py-3 rounded-xl text-sm font-bold cursor-default">
+            취소함
           </button>
         );
       case 'PENDING':
@@ -144,11 +159,15 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
             <div className="flex -space-x-1.5 mt-2">
               {joinedParticipants.slice(0, 4).map((p, i) => (
                 <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white overflow-hidden">
-                  {p.user?.avatarUrl ? (
-                    <img src={p.user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200" />
-                  )}
+                  <img
+                    src={p.user?.avatarUrl || "/no-image.png"}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      if (e.currentTarget.src.includes("/no-image.png")) return;
+                      e.currentTarget.src = "/no-image.png";
+                    }}
+                  />
                 </div>
               ))}
               <div className="w-6 h-6 rounded-full bg-white border-2 border-white flex items-center justify-center ml-1">
