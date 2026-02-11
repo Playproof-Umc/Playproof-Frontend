@@ -11,7 +11,6 @@ import {
   MOCK_MY_AZITS,
   mockMembers,
   mockMembersByAzit,
-  mockSchedulesByAzit,
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
 
@@ -105,11 +104,11 @@ export function useAzitPageLogic() {
           phone: formattedPhone,
           password: devPassword,
         });
-        console.log("✅ [AutoLogin] 성공! 닉네임:", res.nickname);
+        console.log("✅ [AutoLogin] 성공! 닉네임:", res.data.nickname);
         setAuth({
-          accessToken: res.accessToken,
-          userId: res.userId,
-          nickname: res.nickname,
+          accessToken: res.data.accessToken,
+          userId: res.data.userId,
+          nickname: res.data.nickname,
         });
       } catch (err) {
         console.error("❌ [AutoLogin] 실패:", err);
@@ -170,7 +169,6 @@ export function useAzitPageLogic() {
     lastError,
     sendMessage: sendSocketMessage,
     voiceJoin: socketVoiceJoin,
-    voiceLeave: socketVoiceLeave,
   } = useAzitSocket({
     roomId: selectedChatRoomId ?? undefined,
     onMessage: (msg) => {
@@ -182,7 +180,7 @@ export function useAzitPageLogic() {
   });
 
   const { requestVoiceToken } = useAzitVoiceToken({ apiBaseUrl, accessToken });
-  const { connect: connectLiveKit, disconnect: disconnectLiveKit } = useAzitLivekitVoice();
+  const { connect: connectLiveKit } = useAzitLivekitVoice();
 
   // 음성 방 입장 로직
   const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
@@ -303,10 +301,12 @@ export function useAzitPageLogic() {
       const text = content.trim();
       const media = createMediaItems(files);
       if (!text && media.length === 0) return;
-      if (media.length > 0) addClipsFromMedia(currentAzitId, media);
+      if (media.length > 0) {
+        addClipsFromMedia(currentAzitId, selectedChatRoomName ?? "자유 대화", media);
+      }
       await sendSocketMessage(roomId, text);
     },
-    [addClipsFromMedia, createMediaItems, currentAzitId, sendSocketMessage]
+    [addClipsFromMedia, createMediaItems, currentAzitId, selectedChatRoomName, sendSocketMessage]
   );
 
   const onCreateChatRoom = React.useCallback(
@@ -363,6 +363,21 @@ export function useAzitPageLogic() {
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
+  const updateAzitName = React.useCallback((azitId: number, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setAzits((prev) =>
+      prev.map((azit) => (azit.id === azitId ? { ...azit, name: trimmed } : azit))
+    );
+  }, []);
+
+  const updateAzitIcon = React.useCallback((azitId: number, iconUrl: string) => {
+    if (iconUrl) azitIconUrlsRef.current.push(iconUrl);
+    setAzits((prev) =>
+      prev.map((azit) => (azit.id === azitId ? { ...azit, icon: iconUrl } : azit))
+    );
+  }, []);
+
   return {
     state: {
       azits,
@@ -402,6 +417,8 @@ export function useAzitPageLogic() {
       joinVoiceRoom,
       toggleMyMic,
       addAzit,
+      updateAzitName,
+      updateAzitIcon,
     },
   };
 }

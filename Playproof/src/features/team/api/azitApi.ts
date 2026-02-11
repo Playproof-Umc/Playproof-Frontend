@@ -42,7 +42,9 @@ export async function getAzits(): Promise<Azit[]> {
       : [];
 
   if (!Array.isArray(rawList)) return [];
-  return rawList.map((item) => normalizeAzit(item)).filter((azit) => Boolean(azit.id));
+  return rawList
+    .map((item: RawAzit) => normalizeAzit(item))
+    .filter((azit) => Boolean(azit.id));
 }
 
 type RawAzitMember = Record<string, any>;

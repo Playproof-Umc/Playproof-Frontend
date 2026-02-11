@@ -1,6 +1,11 @@
 import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "../api/riotApi";
 import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "../types/gameDataTypes";
 
+const DDRAGON_VERSION = import.meta.env.VITE_DDRAGON_VERSION ?? "14.16.1";
+
+export const getChampionIconUrl = (name: string) =>
+  `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${name}.png`;
+
 const pickSoloQueue = (entries: LeagueEntryDto[]) =>
   entries.find((e) => e.queueType === "RANKED_SOLO_5x5") ?? null;
 
@@ -36,12 +41,14 @@ const extractItemsCount = (p: MatchDto["info"]["participants"][number]) => {
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
-  leagueEntries: LeagueEntryDto[]
+  leagueEntries: LeagueEntryDto[],
+  options?: { fallbackWinRatePercent?: number; fallbackMainPosition?: string }
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
   const wins = solo?.wins ?? 0;
   const losses = solo?.losses ?? 0;
-  const winRatePercent = toPercent(wins, losses);
+  const winRatePercent =
+    wins + losses > 0 ? toPercent(wins, losses) : options?.fallbackWinRatePercent ?? 0;
 
   return {
     summonerName: account.gameName,
@@ -51,7 +58,7 @@ export const buildLolLinkedProfile = (
     profileIconId: summoner?.profileIconId,
     summonerLevel: summoner?.summonerLevel,
     currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
-    mainPosition: "미정",
+    mainPosition: options?.fallbackMainPosition ?? "미정",
     winRatePercent,
   };
 };
@@ -98,6 +105,20 @@ export const buildLolAggregateStats = (matches: MatchDto[], puuid: string): LolA
   };
 };
 
+export const computeMainPosition = (matches: MatchDto[], puuid: string) => {
+  const counts = new Map<string, number>();
+
+  matches.forEach((m) => {
+    const me = m?.info?.participants?.find((p) => p.puuid === puuid);
+    if (!me) return;
+    const pos = me.teamPosition || me.lane || "미정";
+    counts.set(pos, (counts.get(pos) ?? 0) + 1);
+  });
+
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] ?? "미정";
+};
+
 // ✅ [수정] 원본 데이터(MatchDto)를 뷰모델(LolMatchItem)로 변환하는 핵심 로직
 export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchItem[] => {
   const validMatches = matches.filter((m) => m && m.info && m.info.participants);
@@ -125,7 +146,10 @@ export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchI
       durationText: secondsToKoreanDuration(m.info.gameDuration),
       kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
       kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-      pills: [`CS ${me.totalMinionsKilled}`, `골드 ${(me.goldEarned / 1000).toFixed(1)}k`],
+      pills: [
+        `CS ${me.totalMinionsKilled ?? 0}`,
+        `골드 ${((me.goldEarned ?? 0) / 1000).toFixed(1)}k`,
+      ],
       itemsCount: extractItemsCount(me),
 
       // 뷰모델에 데이터 주입
