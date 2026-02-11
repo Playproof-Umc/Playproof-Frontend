@@ -104,6 +104,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
 
   const toggleLike = useCallback((post: MatchingData) => {
     console.log('❤️ 좋아요 토글:', { postId: post.id, currentLikes: post.likes, isLiked: post.isLiked });
+    const prev = likeMap[post.id] ?? { count: post.likes, isLiked: !!post.isLiked };
     
     // 즉시 UI 업데이트 (Optimistic Update)
     setLikeMap((prev) => {
@@ -127,8 +128,19 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     // API 호출 (백그라운드)
     console.log('🌐 좋아요 API 호출 시작:', { partyId: post.id });
     likeParty(post.id)
-      .then(() => {
-        console.log('✅ 좋아요 API 호출 성공:', { partyId: post.id });
+      .then((data) => {
+        console.log('✅ 좋아요 API 호출 성공:', { partyId: post.id, response: data });
+        if (typeof data?.isLiked === 'boolean') {
+          const correctedCount =
+            prev.count + (data.isLiked ? 1 : 0) - (prev.isLiked ? 1 : 0);
+          const next = { count: Math.max(0, correctedCount), isLiked: data.isLiked };
+
+          setLikeMap((prevMap) => ({ ...prevMap, [post.id]: next }));
+          setSelectedPost((prevPost) => {
+            if (!prevPost || prevPost.id !== post.id) return prevPost;
+            return { ...prevPost, likes: next.count, isLiked: next.isLiked };
+          });
+        }
       })
       .catch((error) => {
         console.error('❌ 좋아요 API 호출 실패:', error);

@@ -16,7 +16,7 @@ interface UseMatchingWriteFormProps {
 export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMatchingWriteFormProps) => {
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
-  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const currentUserId = authUserId ? String(authUserId) : '1';
   const currentUserName = authNickname ?? '사용자';
   // 폼 상태
   const [game, setGame] = useState('리그오브레전드');

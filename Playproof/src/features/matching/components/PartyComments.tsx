@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { User, CornerDownRight, Loader2, X } from 'lucide-react';
 import { usePartyComments } from '@/features/matching/hooks/usePartyComments';
+import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 
 interface PartyCommentsProps {
   partyId: number;
@@ -19,6 +20,7 @@ export const PartyComments = ({ partyId, currentUserId, currentUserName = '나' 
 
   const commentInputRef = useRef<HTMLTextAreaElement | null>(null);
   const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const { updateCommentCount } = useMatchingDetail();
 
   const {
     comments,
@@ -31,6 +33,12 @@ export const PartyComments = ({ partyId, currentUserId, currentUserName = '나' 
     isUpdating,
     isDeleting,
   } = usePartyComments(partyId);
+
+  useEffect(() => {
+    if (meta?.totalComments !== undefined) {
+      updateCommentCount(partyId, meta.totalComments);
+    }
+  }, [meta?.totalComments, partyId, updateCommentCount]);
 
   // 댓글 작성
   const handleCommentSubmit = () => {

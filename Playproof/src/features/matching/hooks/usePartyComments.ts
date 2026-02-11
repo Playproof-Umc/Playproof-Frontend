@@ -15,6 +15,7 @@ import {
  */
 export const usePartyComments = (partyId: number, params?: GetCommentsParams) => {
   const queryClient = useQueryClient();
+  const queryKey = ['partyComments', partyId, params];
 
   // 댓글 목록 조회
   const {
@@ -23,7 +24,7 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
     error,
     refetch,
   } = useQuery({
-    queryKey: ['partyComments', partyId, params],
+    queryKey,
     queryFn: () => getPartyComments(partyId, params),
     enabled: !!partyId,
   });
@@ -33,13 +34,13 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
     mutationFn: (data: CreateCommentRequest) => createPartyComment(partyId, data),
     onMutate: async (newComment) => {
       // 진행 중인 refetch 취소
-      await queryClient.cancelQueries({ queryKey: ['partyComments', partyId] });
+      await queryClient.cancelQueries({ queryKey });
 
       // 이전 데이터 스냅샷
-      const previousComments = queryClient.getQueryData(['partyComments', partyId]);
+      const previousComments = queryClient.getQueryData(queryKey);
 
       // Optimistic Update: 임시 댓글 추가
-      queryClient.setQueryData(['partyComments', partyId], (old: any) => {
+      queryClient.setQueryData(queryKey, (old: any) => {
         if (!old) return old;
         
         const tempComment: PartyComment = {
@@ -67,12 +68,12 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
     onError: (err, newComment, context) => {
       // 에러 시 이전 상태로 롤백
       if (context?.previousComments) {
-        queryClient.setQueryData(['partyComments', partyId], context.previousComments);
+        queryClient.setQueryData(queryKey, context.previousComments);
       }
     },
     onSettled: () => {
       // 성공/실패 관계없이 최종적으로 서버 데이터로 동기화
-      queryClient.invalidateQueries({ queryKey: ['partyComments', partyId] });
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 
@@ -81,7 +82,7 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
     mutationFn: ({ commentId, data }: { commentId: number; data: UpdateCommentRequest }) =>
       updateComment(commentId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partyComments', partyId] });
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 
@@ -89,11 +90,11 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
   const deleteMutation = useMutation({
     mutationFn: (commentId: number) => deleteComment(commentId),
     onMutate: async (commentId) => {
-      await queryClient.cancelQueries({ queryKey: ['partyComments', partyId] });
-      const previousComments = queryClient.getQueryData(['partyComments', partyId]);
+      await queryClient.cancelQueries({ queryKey });
+      const previousComments = queryClient.getQueryData(queryKey);
 
       // Optimistic Update: 댓글 즉시 제거
-      queryClient.setQueryData(['partyComments', partyId], (old: any) => {
+      queryClient.setQueryData(queryKey, (old: any) => {
         if (!old) return old;
         return {
           ...old,
@@ -109,11 +110,11 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
     },
     onError: (err, commentId, context) => {
       if (context?.previousComments) {
-        queryClient.setQueryData(['partyComments', partyId], context.previousComments);
+        queryClient.setQueryData(queryKey, context.previousComments);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['partyComments', partyId] });
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 

@@ -20,7 +20,7 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
   const likeState = getLikeState(post);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
-  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const currentUserId = authUserId ? String(authUserId) : '1';
   const displayName = post.hostUser.id === currentUserId ? (authNickname ?? post.hostUser.nickname) : post.hostUser.nickname;
   
   // 친구 추가 Mutation
@@ -38,7 +38,7 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
   });
 
   const handleAddFriend = () => {
-    // post.hostUser.id가 "user-1" 형식이므로 숫자만 추출
+  // post.hostUser.id가 숫자 문자열이므로 숫자만 추출
     const userIdMatch = post.hostUser.id.match(/\d+/);
     const toUserId = userIdMatch ? Number(userIdMatch[0]) : null;
     

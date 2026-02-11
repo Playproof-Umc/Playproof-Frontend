@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Plus, ChevronUp, Loader2 } from 'lucide-react';
 import { usePartyApplications } from '@/features/matching/hooks/usePartyApplications';
-import { getGameName } from '@/constants/games';
 
 interface PartyRequestBannerProps {
   partyId?: number; // 내가 만든 파티의 ID
@@ -28,9 +27,7 @@ export const PartyRequestBanner = ({ partyId, initialOpen = false }: PartyReques
 
   // 게임별로 정렬
   const sortedApplicants = useMemo(() => {
-    return [...applications].sort((a, b) => {
-      return a.gameId - b.gameId;
-    });
+    return [...applications].sort((a, b) => a.gameName.localeCompare(b.gameName));
   }, [applications]);
 
   React.useEffect(() => {
@@ -42,7 +39,7 @@ export const PartyRequestBanner = ({ partyId, initialOpen = false }: PartyReques
   // 로딩 중이거나 신청자가 없으면 표시하지 않음
   if (isLoading || applications.length === 0) return null;
 
-  const latestUser = sortedApplicants[0].nickname;
+  const latestUser = sortedApplicants[0].applicant.nickname ?? '알 수 없음';
   const otherCount = applications.length - 1;
   const bannerDescription = otherCount > 0 
     ? `${latestUser} 님 외 ${otherCount}명이 파티 합류를 대기 중입니다.`
@@ -126,20 +123,20 @@ export const PartyRequestBanner = ({ partyId, initialOpen = false }: PartyReques
                             className="snap-start bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between min-h-[240px]"
                         >
                             <div className="font-bold text-sm text-gray-900 mb-4 border-b border-gray-50 pb-2 flex justify-between items-center">
-                              <span>{getGameName(applicant.gameId)}</span>
+                              <span>{applicant.gameName}</span>
                             </div>
                             <div 
-                              onClick={() => navigate(`/user/${applicant.userId}`)} 
+                              onClick={() => navigate(`/user/${applicant.applicant.id}`)} 
                               className="flex flex-col items-center mb-4 cursor-pointer group"
                             >
                                 <div className="w-16 h-16 bg-gray-100 rounded-full mb-3 flex items-center justify-center text-gray-400 group-hover:bg-gray-200 transition-colors">
                                   <User size={32} />
                                 </div>
                                 <div className="font-bold text-gray-900 text-sm mb-1 group-hover:underline underline-offset-2">
-                                  {applicant.nickname}
+                                  {applicant.applicant.nickname ?? "알 수 없음"}
                                 </div>
                                 <div className="flex items-center gap-1 text-[11px] text-gray-500 font-medium bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                                  <span>TS {applicant.trustScore ?? 0}</span>
+                                  <span>TS {applicant.applicant.trustScore ?? 0}</span>
                                 </div>
                             </div>
                             <div className="mb-4">

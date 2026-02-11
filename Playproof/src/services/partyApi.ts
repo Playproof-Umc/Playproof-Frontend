@@ -135,14 +135,15 @@ export type DeletePartyResponse = {
 
 export type PartyApplication = {
   applicationId: number;
-  userId: number;
-  nickname: string;
-  avatarUrl: string | null;
-  trustScore: number;
-  partyId: number;
-  partyTitle: string;
-  gameId: number;
-  status: string;
+  gameName: string;
+  applicant: {
+    id: number;
+    nickname: string | null;
+    avatarUrl: string | null;
+    trustScore: number;
+  };
+  recruitmentStatus: string;
+  memo: string | null;
   createdAt: string;
 };
 
@@ -449,7 +450,7 @@ export async function createPartyComment(
 ): Promise<CommentResponse['data']> {
   const res = await api.post<CommentResponse>(`/parties/${partyId}/comments`, body);
 
-  if (res.data.error || res.data.statusCode !== 200) {
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
     throw new Error('댓글 작성 중 오류가 발생했습니다.');
   }
 
