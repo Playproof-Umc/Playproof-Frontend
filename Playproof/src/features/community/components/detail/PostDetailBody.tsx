@@ -11,6 +11,7 @@ type PostDetailBodyProps = {
 };
 
 export const PostDetailBody = ({ post, likeCount, isLiked, onLike }: PostDetailBodyProps) => {
+  console.log("PostDetailBody rendered - likeCount:", likeCount, "isLiked:", isLiked);
   return (
     <>
       <div className="p-6">
