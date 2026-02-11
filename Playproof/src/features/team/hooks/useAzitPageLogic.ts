@@ -51,8 +51,7 @@ export function useAzitPageLogic() {
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
   const [azits, setAzits] = React.useState<Azit[]>([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
-  
-  // Auth Store 정보 가져오기
+
   const { accessToken, userId: authUserId, nickname: authNickname, setAuth } = useAuthStore();
   const isAutoLoggingIn = React.useRef(false);
 
@@ -67,7 +66,7 @@ export function useAzitPageLogic() {
       return {
         id: String(authUserId),
         nickname: authNickname || "알 수 없음",
-        avatarUrl: "", 
+        avatarUrl: "",
         isOnline: true,
       } as User;
     }
@@ -79,14 +78,13 @@ export function useAzitPageLogic() {
     };
   }, [accessToken, authUserId, authNickname]);
 
-  // 자동 로그인 로직
   React.useEffect(() => {
     if (accessToken || isAutoLoggingIn.current) return;
 
     const devPhone = import.meta.env.VITE_DEV_PHONE;
     const devPassword = import.meta.env.VITE_DEV_PASSWORD;
 
-    if (!devPhone || !devPassword) return; 
+    if (!devPhone || !devPassword) return;
 
     const tryAutoLogin = async () => {
       try {
@@ -136,7 +134,7 @@ export function useAzitPageLogic() {
           }
         }
       } catch (err) {
-        console.error(\"아지트 목록 로드 실패:\", err);
+        console.error("아지트 목록 로드 실패:", err);
       }
     })();
     return () => {
@@ -171,7 +169,7 @@ export function useAzitPageLogic() {
     replaceMessagesForRoom,
     appendMessageToRoom,
     voiceRooms,
-    joinVoiceRoom: joinVoiceRoomUI, 
+    joinVoiceRoom: joinVoiceRoomUI,
     leaveVoiceRoom,
     toggleMyMic,
     initAzitRooms,
@@ -205,70 +203,76 @@ export function useAzitPageLogic() {
   const { requestVoiceToken } = useAzitVoiceToken({ apiBaseUrl, accessToken });
   const { connect: connectLiveKit, disconnect: disconnectLiveKit } = useAzitLivekitVoice();
 
-  // 음성 방 입장 로직
-  const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
-    if (myVoiceRoomId && myVoiceRoomId === roomIdStr) {
+  const joinVoiceRoom = React.useCallback(
+    async (roomIdStr: string) => {
+      if (myVoiceRoomId && myVoiceRoomId === roomIdStr) {
+        const roomId = Number(roomIdStr);
+        if (roomId) {
+          socketVoiceLeave(roomId);
+        }
+        disconnectLiveKit();
+        leaveVoiceRoom();
+        return;
+      }
       const roomId = Number(roomIdStr);
-      if (roomId) {
-        socketVoiceLeave(roomId);
+      if (!roomId) return;
+
+      try {
+        if (!accessToken) {
+          alert("로그인 중입니다... 잠시 후 다시 시도해주세요.");
+          return;
+        }
+
+        console.log(`🎤 [Voice] 방(${roomId}) 입장 프로세스 시작`);
+        await socketVoiceJoin(roomId);
+        console.log("   Step 1: 소켓 입장 알림 완료");
+
+        const tokenData = await requestVoiceToken(roomId);
+        if (!tokenData) {
+          console.error("❌ Voice Token 발급 실패");
+          return;
+        }
+        console.log("   Step 2: 토큰 발급 완료. 내 정보:", tokenData.name);
+
+        if (tokenData.name && tokenData.identity) {
+          setAuth({
+            accessToken: accessToken,
+            userId: Number(tokenData.identity),
+            nickname: tokenData.name,
+          });
+        }
+
+        const success = await connectLiveKit(tokenData);
+
+        if (success) {
+          console.log("✅ Step 3: LiveKit 연결 성공!");
+          const updatedMe: User = {
+            id: tokenData.identity,
+            nickname: tokenData.name,
+            avatarUrl: "",
+            isOnline: true,
+          };
+          joinVoiceRoomUI(roomIdStr, updatedMe);
+        } else {
+          console.error("❌ LiveKit 연결 실패");
+        }
+      } catch (err) {
+        console.error("🔥 음성 채팅 연결 중 에러:", err);
       }
-      disconnectLiveKit();
-      leaveVoiceRoom();
-      return;
-    }
-    const roomId = Number(roomIdStr);
-    if (!roomId) return;
-
-    try {
-      if (!accessToken) {
-        alert("로그인 중입니다... 잠시 후 다시 시도해주세요.");
-        return;
-      }
-
-      console.log(`🎤 [Voice] 방(${roomId}) 입장 프로세스 시작`);
-      await socketVoiceJoin(roomId);
-      console.log("   Step 1: 소켓 입장 알림 완료");
-
-      // 토큰 발급 (여기서 내 진짜 닉네임과 ID를 알 수 있음!)
-      const tokenData = await requestVoiceToken(roomId);
-      if (!tokenData) {
-        console.error("❌ Voice Token 발급 실패");
-        return;
-      }
-      console.log("   Step 2: 토큰 발급 완료. 내 정보:", tokenData.name);
-
-      // ✅ [핵심 수정] 토큰에서 받은 정보로 내 정보(Auth Store)를 즉시 복구/갱신
-      if (tokenData.name && tokenData.identity) {
-        setAuth({
-          accessToken: accessToken, // 기존 토큰 유지
-          userId: Number(tokenData.identity),
-          nickname: tokenData.name
-        });
-      }
-
-      const success = await connectLiveKit(tokenData);
-      
-      if (success) {
-        console.log("✅ Step 3: LiveKit 연결 성공!");
-        
-        // ✅ [핵심 수정] UI 업데이트 시, 갱신된 유저 정보를 직접 만들어서 전달
-        // (Store 업데이트가 비동기라 UI에 바로 반영 안 될 수 있으므로)
-        const updatedMe: User = {
-          id: tokenData.identity,
-          nickname: tokenData.name, // "홍길동"
-          avatarUrl: "",
-          isOnline: true
-        };
-        
-        joinVoiceRoomUI(roomIdStr, updatedMe); 
-      } else {
-        console.error("❌ LiveKit 연결 실패");
-      }
-
-    } catch (err) {
-      console.error("🔥 음성 채팅 연결 중 에러:", err);
-    }
-  }, [socketVoiceLeave, disconnectLiveKit, leaveVoiceRoom, myVoiceRoomId, socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
+    },
+    [
+      socketVoiceLeave,
+      disconnectLiveKit,
+      leaveVoiceRoom,
+      myVoiceRoomId,
+      socketVoiceJoin,
+      requestVoiceToken,
+      connectLiveKit,
+      accessToken,
+      joinVoiceRoomUI,
+      setAuth,
+    ]
+  );
 
   React.useEffect(() => {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);
@@ -277,6 +281,7 @@ export function useAzitPageLogic() {
   const currentAzit =
     azits.find((a) => a.id === currentAzitId) ??
     azits[0] ?? { id: 0, name: "", icon: "", memberCount: 0 };
+
   const [membersByAzit, setMembersByAzit] = React.useState<Record<number, User[]>>({});
   const currentMembers = membersByAzit[currentAzitId] ?? [];
   const currentClips = clipsByAzit[currentAzitId] ?? [];
@@ -299,13 +304,12 @@ export function useAzitPageLogic() {
         const voiceRoomsData = rooms
           .filter((r: any) => r.chatType === "VOICE")
           .map((r: any) => ({
-             id: String(r.id),
-             name: r.roomName,
-             users: [] 
+            id: String(r.id),
+            name: r.roomName,
+            users: [],
           }));
         setVoiceRoomsFromServer(voiceRoomsData);
       }
-
     } catch (e) {
       console.error("채팅방 목록 로드 실패", e);
     }
@@ -494,22 +498,28 @@ export function useAzitPageLogic() {
   const updateAzitName = React.useCallback(async (azitId: number, nextName: string) => {
     const trimmed = nextName.trim();
     if (!trimmed) return;
-    const updated = await updateAzit(azitId, { azit_name: trimmed });
-    setAzits((prev) =>
-      prev.map((azit) =>
-        azit.id === azitId ? { ...azit, name: updated.azit_name ?? trimmed } : azit
-      )
-    );
+    try {
+      const updated = await updateAzit(azitId, { azit_name: trimmed });
+      setAzits((prev) =>
+        prev.map((azit) => (azit.id === azitId ? { ...azit, name: updated.azit_name ?? trimmed } : azit))
+      );
+    } catch (err) {
+      console.error("아지트 이름 수정 실패", err);
+    }
   }, []);
 
   const updateAzitIcon = React.useCallback(async (azitId: number, file: File) => {
     if (!file) return;
-    const updated = await updateAzit(azitId, { azit_icon: file });
-    setAzits((prev) =>
-      prev.map((azit) =>
-        azit.id === azitId ? { ...azit, icon: updated.azit_icon_url ?? azit.icon } : azit
-      )
-    );
+    try {
+      const updated = await updateAzit(azitId, { azit_icon: file });
+      setAzits((prev) =>
+        prev.map((azit) =>
+          azit.id === azitId ? { ...azit, icon: updated.azit_icon_url ?? azit.icon } : azit
+        )
+      );
+    } catch (err) {
+      console.error("아지트 아이콘 수정 실패", err);
+    }
   }, []);
 
   return {

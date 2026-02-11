@@ -9,6 +9,7 @@ type AzitResDto = {
   azit_id: number;
   azit_name: string;
   azit_icon_url: string | null;
+  member_count?: number;
 };
 
 type AzitListResponse = {
