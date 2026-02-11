@@ -35,9 +35,18 @@ function normalizeDigitsOnly(v: string) {
   return v.replace(/\D/g, "");
 }
 
-function formatPhoneNumber(str: string): string {
-  // 숫자만 있는 문자열을 010-0000-0000 형식으로 변환
-  return str.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+function formatPhoneNumberInput(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  }
+  if (digits.length <= 11) {
+    const head = digits.slice(0, 3);
+    const middle = digits.length === 10 ? digits.slice(3, 6) : digits.slice(3, 7);
+    const tail = digits.slice(middle.length + 3);
+    return `${head}-${middle}-${tail}`;
+  }
+  return digits;
 }
 
 function getRedirectPath(locationState: unknown): string {
@@ -84,15 +93,9 @@ export function useLoginForm() {
       
       // 1. 토큰 저장
       auth.setAuth({
-<<<<<<< HEAD
         accessToken: res.data.accessToken,
-        userId: 0, // 임시값 (곧 /users/my-profile에서 가져올 것)
-        nickname: '', // 임시값
-=======
-        accessToken: res.accessToken, // loginApi 응답 구조에 따라 res.data.accessToken일 수도 있음 (수정된 loginApi.ts 기준이면 res.accessToken)
-        userId: res.userId,
-        nickname: res.nickname,
->>>>>>> develop
+    userId: res.data.userId,
+    nickname: res.data.nickname,
       });
 
       try {
@@ -183,16 +186,8 @@ export function useLoginForm() {
     const ok = validateOnSubmit();
     if (!ok) return;
 
-<<<<<<< HEAD
     const requestBody = {
-      phone: formatPhoneNumber(normalizedPhone), // 010-1234-5678 형식
-=======
-    // ✅ [수정] normalizedPhone(숫자만)을 하이픈 형식으로 변환해서 전송
-    const formattedPhone = formatPhoneNumber(normalizedPhone);
-
-    mutation.mutate({
-      phoneNumber: formattedPhone, // "01012345678" -> "010-1234-5678"
->>>>>>> develop
+      phone: phoneNumber, // 하이픈 포함 전송
       password,
     };
 
@@ -202,7 +197,8 @@ export function useLoginForm() {
 
   const onChangePhoneNumber = (v: string) => {
     // 숫자만 유지
-    setPhoneNumber(normalizeDigitsOnly(v));
+    const digitsOnly = normalizeDigitsOnly(v);
+    setPhoneNumber(formatPhoneNumberInput(digitsOnly));
     setServerError(null);
 
     // 제출 이후에만 에러를 갱신/해제
