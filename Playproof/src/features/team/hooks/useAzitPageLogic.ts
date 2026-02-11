@@ -246,14 +246,12 @@ export function useAzitPageLogic() {
 
         if (success) {
           console.log("✅ Step 3: LiveKit 연결 성공!");
-
           const updatedMe: User = {
             id: tokenData.identity,
             nickname: tokenData.name,
             avatarUrl: "",
             isOnline: true,
           };
-
           joinVoiceRoomUI(roomIdStr, updatedMe);
         } else {
           console.error("❌ LiveKit 연결 실패");

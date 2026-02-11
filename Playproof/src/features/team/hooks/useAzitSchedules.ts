@@ -133,7 +133,6 @@ export function useAzitSchedules(
       const recruitEndBase = data.recruitRange.to ?? data.recruitRange.from;
       const recruitEndDate = applyTimeToDate(recruitEndBase, data.recruitEndTime);
 
-      // 서버 검증: 게임 시작 < 게임 종료, 모집 마감 < 게임 시작
       if (gameEndDate.getTime() <= gameStartDate.getTime()) {
         gameEndDate.setDate(gameEndDate.getDate() + 1);
       }
@@ -197,7 +196,6 @@ export function useAzitSchedules(
     currentAzitId,
     setCurrentAzitId,
     schedules,
-    setSchedules,
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
