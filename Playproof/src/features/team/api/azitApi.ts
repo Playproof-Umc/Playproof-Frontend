@@ -65,5 +65,5 @@ export async function getAzitMembers(azitId: number): Promise<User[]> {
   const res = await api.get(`/azits/${azitId}/members`);
   const data = res.data?.data ?? res.data;
   const rawMembers = Array.isArray(data?.members) ? data.members : [];
-  return rawMembers.map((item) => normalizeAzitMember(item));
+  return rawMembers.map((item: RawAzitMember) => normalizeAzitMember(item));
 }
