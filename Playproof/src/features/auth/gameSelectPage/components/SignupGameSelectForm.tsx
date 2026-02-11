@@ -67,7 +67,10 @@ export function SignupGameSelectForm({
               fullWidth
               className={`h-10 text-xs ${authCtaClassName}`}
               disabled={isPending}
-              onClick={onClickAuth}
+              onClick={() => {
+                console.log('🟢 인증하기 버튼 클릭됨');
+                onClickAuth();
+              }}
             >
               {authCtaLabel}
             </Button>

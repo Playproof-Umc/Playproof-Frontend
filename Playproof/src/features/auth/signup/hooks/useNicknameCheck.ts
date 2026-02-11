@@ -4,16 +4,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { NICKNAME_REGEX } from "@/features/auth/constants/regex";
+import { checkNicknameDuplicateMock } from "@/services/authApi";
 
 export type NickCheckState = "idle" | "checking" | "ok" | "dup" | "invalid";
 
 const DEBOUNCE_MS = 500;
-
-const mockCheckNickname = async (nickname: string) => {
-  await new Promise((r) => setTimeout(r, 700));
-  // Mock: "레나"는 중복
-  return nickname !== "레나";
-};
 
 export const useNicknameCheck = () => {
     const [nickname, setNickname] = useState("");
@@ -39,7 +34,7 @@ export const useNicknameCheck = () => {
 
         setCheckState("checking");
         try {
-            const available = await mockCheckNickname(value);
+            const available = await checkNicknameDuplicateMock(value);
 
             if (seq !== requestSeqRef.current) return;
 
