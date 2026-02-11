@@ -257,7 +257,9 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
       nickname: toStringValue(readValue(item, ["nickname"])),
       profileUrl: toStringValue(readValue(item, ["profileUrl"])),
       content: toStringValue(readValue(item, ["content"])) ?? "",
-      medias: Array.isArray(readValue(item, ["medias"])) ? (readValue(item, ["medias"]) as string[]) : [],
+      medias: Array.isArray(readValue(item, ["medias"])) 
+        ? (readValue(item, ["medias"]) as string[]).map((m) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
+        : [],
       commentCount: toNumber(readValue(item, ["comment_count"])),
       likeCount: toNumber(readValue(item, ["like_count"])),
       isLiked: (readValue(item, ["is_liked"]) as boolean | undefined) ?? false,
