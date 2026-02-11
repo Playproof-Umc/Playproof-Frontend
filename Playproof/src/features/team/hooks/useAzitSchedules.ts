@@ -7,6 +7,7 @@ import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCre
 import {
   createAzitSchedule,
   getAzitSchedules,
+  getAzitScheduleMyParticipationStatus,
   joinAzitScheduleParticipant,
   updateAzitScheduleParticipantStatus,
   type AzitScheduleDetailResDto,
@@ -101,10 +102,41 @@ export function useAzitSchedules(
       try {
         const res = await getAzitSchedules({ azitId: currentAzitId, size: 20 });
         if (!alive) return;
-        const list = res.schedules.map((dto) =>
+        const baseList = res.schedules.map((dto) =>
           mapScheduleDtoToUi(dto, currentUserId, currentUser)
         );
-        setSchedules(list);
+
+        const enriched = await Promise.all(
+          baseList.map(async (schedule) => {
+            const hasMe = schedule.participants.some(
+              (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
+            );
+            if (hasMe || !currentUserId) return schedule;
+
+            try {
+              const status = await getAzitScheduleMyParticipationStatus({
+                azitId: currentAzitId,
+                scheduleId: schedule.id,
+              });
+              if (!status) return schedule;
+
+              const normalizedStatus = status === "CANCELLED" ? "DECLINE" : status;
+              if (normalizedStatus === "JOIN") return schedule;
+
+              return {
+                ...schedule,
+                participants: [
+                  ...schedule.participants,
+                  { user: currentUser, status: normalizedStatus },
+                ],
+              };
+            } catch {
+              return schedule;
+            }
+          })
+        );
+
+        setSchedules(enriched);
       } catch (err) {
         if (!alive) return;
         console.error("스케줄 목록 로드 실패:", err);
