@@ -33,105 +33,181 @@ const extractItemsCount = (p: MatchDto["info"]["participants"][number]) => {
   return items.filter((x) => x && x !== 0).length;
 };
 
+// ✅ riotApi의 최소 DTO에 없을 수도 있는 필드들을 안전하게 읽기 위한 헬퍼
+const readNumberField = <T extends object>(obj: T, key: string): number | null => {
+  const v = (obj as unknown as Record<string, unknown>)[key];
+  return typeof v === "number" ? v : null;
+};
+
+const getCs = (p: MatchDto["info"]["participants"][number]) => {
+  const lane = readNumberField(p, "totalMinionsKilled") ?? 0;
+  const jungle = readNumberField(p, "neutralMinionsKilled") ?? 0;
+  return lane + jungle;
+};
+
+const getGold = (p: MatchDto["info"]["participants"][number]) => {
+  return readNumberField(p, "goldEarned") ?? 0;
+};
+
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
   leagueEntries: LeagueEntryDto[]
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
-  const wins = solo?.wins ?? 0;
-  const losses = solo?.losses ?? 0;
-  const winRatePercent = toPercent(wins, losses);
+  const tierText = solo ? formatTier(solo.tier, solo.rank) : "Unranked";
+  const winRatePercent = solo ? toPercent(solo.wins, solo.losses) : 0;
 
   return {
-    summonerName: account.gameName,
-    tagLine: account.tagLine,
-    riotId: `${account.gameName}#${account.tagLine}`,
-    serverLabel: "Kr server",
-    profileIconId: summoner?.profileIconId,
-    summonerLevel: summoner?.summonerLevel,
-    currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
+    gameKey: "lol",
+    title: "리그 오브 레전드",
+    subtitle: "League of Legends",
+    tierText,
     mainPosition: "미정",
     winRatePercent,
+    meta: {
+      riot: {
+        gameName: account.gameName,
+        tagLine: account.tagLine,
+        puuid: account.puuid,
+        summonerName: summoner?.name ?? "",
+      },
+    },
   };
 };
 
-export const buildLolAggregateStats = (matches: MatchDto[], puuid: string): LolAggregateStats => {
-  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
+export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): LolAggregateStats => {
+  const items = buildLolMatchList(matches, myPuuid);
 
-  const recent = validMatches
-    .map((m) => m.info.participants.find((p) => p.puuid === puuid))
-    .filter(Boolean) as MatchDto["info"]["participants"][number][];
+  const total = items.length;
+  const wins = items.filter((x) => x.result === "win").length;
+  const losses = total - wins;
 
-  let wins = 0;
-  let losses = 0;
-  let sumK = 0;
-  let sumD = 0;
-  let sumA = 0;
+  const kda = matches
+    .map((m) => m.info.participants.find((p) => p.puuid === myPuuid))
+    .filter(Boolean)
+    .map((p) => ({
+      k: p!.kills,
+      d: p!.deaths,
+      a: p!.assists,
+    }));
 
-  const champCount = new Map<string, number>();
+  const avgKills = total > 0 ? kda.reduce((s, x) => s + x.k, 0) / total : 0;
+  const avgDeaths = total > 0 ? kda.reduce((s, x) => s + x.d, 0) / total : 0;
+  const avgAssists = total > 0 ? kda.reduce((s, x) => s + x.a, 0) / total : 0;
+  const avgKdaRatio = kdaRatio(avgKills, avgDeaths, avgAssists);
 
-  for (const p of recent) {
-    if (p.win) wins += 1;
-    else losses += 1;
-    sumK += p.kills;
-    sumD += p.deaths;
-    sumA += p.assists;
-    champCount.set(p.championName, (champCount.get(p.championName) ?? 0) + 1);
+  // 모스트 챔피언(단순 빈도)
+  const champCounts = new Map<string, number>();
+  for (const m of matches) {
+    const me = m.info.participants.find((p) => p.puuid === myPuuid);
+    if (!me) continue;
+    champCounts.set(me.championName, (champCounts.get(me.championName) ?? 0) + 1);
   }
-
-  const total = recent.length || 1;
-  const mostChampions = [...champCount.entries()]
+  const mostChampions = Array.from(champCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([name, games]) => ({ name, games }));
+    .map(([championName]) => ({ championName }));
 
   return {
+    totalGames: total,
     wins,
     losses,
-    winRatePercent: toPercent(wins, losses),
-    avgKdaRatio: kdaRatio(sumK / total, sumD / total, sumA / total),
-    avgKills: Math.round((sumK / total) * 10) / 10,
-    avgDeaths: Math.round((sumD / total) * 10) / 10,
-    avgAssists: Math.round((sumA / total) * 10) / 10,
+    winRatePercent: total > 0 ? Math.round((wins / total) * 100) : 0,
+    avgKills: Math.round(avgKills * 10) / 10,
+    avgDeaths: Math.round(avgDeaths * 10) / 10,
+    avgAssists: Math.round(avgAssists * 10) / 10,
+    avgKdaRatio: Math.round(avgKdaRatio * 100) / 100,
     mostChampions,
+    items,
   };
 };
 
-// ✅ [수정] 원본 데이터(MatchDto)를 뷰모델(LolMatchItem)로 변환하는 핵심 로직
-export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchItem[] => {
-  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
+export const buildLolMatchList = (matches: MatchDto[], myPuuid: string): LolMatchItem[] => {
+  return matches
+    .map((m) => {
+      const me = m.info.participants.find((p) => p.puuid === myPuuid);
+      if (!me) return null;
 
-  return validMatches.map((m) => {
-    const me = m.info.participants.find((x) => x.puuid === puuid);
-    if (!me) return null as any;
+      const result: MatchResult = me.win ? "win" : "loss";
+      const myTeamId = me.teamId;
 
-    const win = me.win;
-    const result: MatchResult = win ? "win" : "lose";
+      const teamChampions = m.info.participants
+        .filter((p) => p.teamId === myTeamId)
+        .map((p) => p.championName);
 
-    // ✨ 팀 챔피언 정보 추출 (복구 로직)
-    const myTeamId = me.teamId;
-    const teamChampions = m.info.participants
-      .filter((p) => p.teamId === myTeamId)
-      .map((p) => p.championName);
-    const opponentChampions = m.info.participants
-      .filter((p) => p.teamId !== myTeamId)
-      .map((p) => p.championName);
+      const opponentChampions = m.info.participants
+        .filter((p) => p.teamId !== myTeamId)
+        .map((p) => p.championName);
 
-    return {
-      id: m.metadata.matchId,
-      result,
-      queueLabel: "솔랭",
-      durationText: secondsToKoreanDuration(m.info.gameDuration),
-      kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
-      kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-      pills: [`CS ${me.totalMinionsKilled}`, `골드 ${(me.goldEarned / 1000).toFixed(1)}k`],
-      itemsCount: extractItemsCount(me),
+      return {
+        id: m.metadata.matchId,
+        result,
+        queueLabel: "솔랭",
+        durationText: secondsToKoreanDuration(m.info.gameDuration),
+        kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
+        kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
+        pills: [`CS ${getCs(me)}`, `골드 ${(getGold(me) / 1000).toFixed(1)}k`],
+        itemsCount: extractItemsCount(me),
 
-      // 뷰모델에 데이터 주입
-      myChampionName: me.championName,
-      teamChampions,
-      opponentChampions,
-    };
-  }).filter(Boolean);
+        // 뷰모델에 데이터 주입
+        myChampionName: me.championName,
+        teamChampions,
+        opponentChampions,
+      };
+    })
+    .filter(Boolean) as LolMatchItem[];
 };
+
+// ✅ 챔피언 아이콘 URL 단일 진실 소스
+export function getChampionIconUrl(championName: string) {
+  const local = new Set(["Ambessa", "Mel", "Yunara", "Zaahen"]);
+  const alias: Record<string, string> = {
+    FiddleSticks: "Fiddlesticks",
+  };
+
+  const normalized = alias[championName] ?? championName;
+
+  if (local.has(normalized)) {
+    return new URL(`@/assets/lol/champions/${normalized}.png`, import.meta.url).toString();
+  }
+
+  const version = import.meta.env.VITE_DDRAGON_VERSION || "14.16.1";
+  return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${normalized}.png`;
+}
+
+// ✅ 최근 N판 기반 주 포지션 계산 (teamPosition 우선, 없으면 lane fallback)
+export function computeMainPosition(participants: Array<{ teamPosition?: string | null; lane?: string | null }>) {
+  const counts = new Map<string, number>();
+
+  const add = (raw?: string | null) => {
+    const v = (raw ?? "").trim();
+    if (!v || v === "NONE" || v === "Invalid" || v === "UNDEFINED") return;
+    counts.set(v, (counts.get(v) ?? 0) + 1);
+  };
+
+  for (const p of participants) add(p.teamPosition);
+  if (counts.size === 0) for (const p of participants) add(p.lane);
+
+  let best = "미정";
+  let bestCount = 0;
+  for (const [k, c] of counts.entries()) {
+    if (c > bestCount) {
+      best = k;
+      bestCount = c;
+    }
+  }
+
+  const labelMap: Record<string, string> = {
+    TOP: "TOP",
+    JUNGLE: "JUNGLE",
+    MIDDLE: "MID",
+    MID: "MID",
+    BOTTOM: "ADC",
+    ADC: "ADC",
+    SUPPORT: "SUP",
+    UTILITY: "SUP",
+  };
+
+  return labelMap[best] ?? best;
+}
