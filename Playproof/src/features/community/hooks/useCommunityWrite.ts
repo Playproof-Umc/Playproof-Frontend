@@ -57,6 +57,10 @@ export const useCommunityWrite = ({
 
       const resolvedGame = game ?? boardGame;
       const gameId = BOARD_GAME_ID_MAP[resolvedGame] ?? 0;
+      if (!gameId) {
+        alert("게임 카테고리를 선택해주세요.");
+        return;
+      }
       const res = await createBoardPost({
         game_id: gameId,
         title: title?.trim() || "제목 없음",

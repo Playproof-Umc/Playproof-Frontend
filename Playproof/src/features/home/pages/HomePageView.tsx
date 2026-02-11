@@ -95,7 +95,9 @@ export const HomePageView = () => {
             onMoreClick={() =>
               navigate({ pathname: "/community", search: "?tab=자유게시판" })
             }
-            onPostClick={(post) => navigate(`/community/${post.id}?from=자유게시판`)}
+            onPostClick={(post) =>
+              navigate(`/community/${post.id}?from=자유게시판`, { state: { post } })
+            }
           />
         </div>
       </main>

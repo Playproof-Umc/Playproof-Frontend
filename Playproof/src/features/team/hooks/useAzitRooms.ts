@@ -114,9 +114,14 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
 
   const replaceMessagesForRoom = React.useCallback(
     (roomId: number, next: ChatMessageUI[]) => {
+      const sorted = [...next].sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime();
+        const bTime = new Date(b.createdAt).getTime();
+        return aTime - bTime;
+      });
       setMessagesByAzit((prev) => {
         const byAzit = prev[currentAzitId] ?? {};
-        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: next } };
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: sorted } };
       });
     },
     [currentAzitId]
@@ -127,7 +132,7 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
       setMessagesByAzit((prev) => {
         const byAzit = prev[currentAzitId] ?? {};
         const list = byAzit[roomId] ?? [];
-        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [msg, ...list] } };
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [...list, msg] } };
       });
     },
     [currentAzitId]

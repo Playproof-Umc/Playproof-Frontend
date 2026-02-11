@@ -107,7 +107,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
       </div>
 
       <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
-        <div className="flex-1 bg-gray-50 p-4 flex flex-col-reverse overflow-y-auto">
+        <div className="flex-1 bg-gray-50 p-4 flex flex-col overflow-y-auto">
           {safeMessages.length === 0 ? (
             <div className="text-center text-gray-400 text-sm my-auto">
               {roomId ? "채팅 기록이 없습니다." : "채팅방을 선택해주세요."}

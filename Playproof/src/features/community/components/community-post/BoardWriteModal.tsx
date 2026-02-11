@@ -17,7 +17,7 @@ export function BoardWriteModal({
   isOpen,
   onClose,
   onSubmit,
-  initialGame = "전체글",
+  initialGame = GAME_LIST[0],
 }: BoardWriteModalProps) {
   if (!isOpen) return null;
 
@@ -34,12 +34,14 @@ export function BoardWriteModal({
 function BoardWriteModalContent({
   onClose,
   onSubmit,
-  initialGame = "전체글",
+  initialGame = GAME_LIST[0],
 }: Omit<BoardWriteModalProps, "isOpen">) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<File[]>([]);
-  const [selectedGame, setSelectedGame] = useState(initialGame);
+  const resolvedInitialGame =
+    initialGame === "전체글" ? GAME_LIST[0] : initialGame;
+  const [selectedGame, setSelectedGame] = useState(resolvedInitialGame);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -74,7 +76,7 @@ function BoardWriteModalContent({
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-800">카테고리</label>
               <GameFilter
-                games={["전체글", ...GAME_LIST]}
+                games={GAME_LIST}
                 activeGame={selectedGame}
                 onGameSelect={setSelectedGame}
               />

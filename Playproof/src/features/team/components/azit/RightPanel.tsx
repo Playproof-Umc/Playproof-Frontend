@@ -22,21 +22,17 @@ export const RightPanel: React.FC<RightPanelProps> = ({ clips }) => {
     closeMedia,
     goPrev,
     goNext,
-    goHighlight,
     shareToHighlight,
+    openGallery,
   } = useAzitMediaViewer(safeClips);
 
   return (
     <aside className="w-full lg:w-[320px] bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col h-full overflow-y-auto shrink-0 p-5 gap-6">
-      <div className="text-xs text-gray-500">
-        clips isArray: {String(Array.isArray(clips))} / type: {typeof clips}
-      </div>
-
       <ClipList
         clips={safeClips}
-        onViewAll={goHighlight}
+        onViewAll={openGallery}
         onSelectClip={openMedia}
-        viewAllLabel="하이라이트 전체보기"
+        viewAllLabel="전체보기"
       />
 
       <ModalShell
