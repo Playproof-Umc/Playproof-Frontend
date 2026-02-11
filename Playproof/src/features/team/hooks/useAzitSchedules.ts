@@ -3,6 +3,11 @@
 import React from "react";
 import type { Schedule } from "@/features/team/types";
 import type { User } from "@/types";
+import {
+  createAzitSchedule,
+  getAzitSchedules,
+  type AzitScheduleDetailResDto,
+} from "@/features/team/api/azitScheduleApi";
 
 type TimeSelection = {
   ampm: "AM" | "PM";
@@ -23,15 +28,38 @@ export function useAzitSchedules(
   currentUserId: string,
   schedulesByAzit: Record<number, Schedule[]>,
   membersByAzit: Record<number, User[]>,
-  currentUser: User
+  currentUser: User,
+  accessToken?: string | null
 ) {
   const [currentAzitId, setCurrentAzitId] = React.useState<number>(1);
   const [schedules, setSchedules] = React.useState<Schedule[]>([]);
 
   React.useEffect(() => {
-    const initialSchedules = schedulesByAzit[currentAzitId] ?? [];
-    setSchedules(initialSchedules);
-  }, [currentAzitId, schedulesByAzit]);
+    let alive = true;
+    const load = async () => {
+      if (!accessToken) {
+        const initialSchedules = schedulesByAzit[currentAzitId] ?? [];
+        setSchedules(initialSchedules);
+        return;
+      }
+      try {
+        const res = await getAzitSchedules({ azitId: currentAzitId, size: 20 });
+        if (!alive) return;
+        const mapped = res.schedules.map((dto) =>
+          mapScheduleDtoToUi(dto, currentUserId, currentUser)
+        );
+        setSchedules(mapped);
+      } catch (err) {
+        console.error("스케줄 목록 로드 실패:", err);
+        const initialSchedules = schedulesByAzit[currentAzitId] ?? [];
+        setSchedules(initialSchedules);
+      }
+    };
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId, currentUser, currentUserId, schedulesByAzit]);
 
   const handleStatusChange = React.useCallback(
     (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
@@ -68,11 +96,29 @@ export function useAzitSchedules(
   );
 
   const addSchedule = React.useCallback(
-    (data: CreateSchedulePayload) => {
+    async (data: CreateSchedulePayload) => {
+      console.log("🗓️ [ScheduleCreate] addSchedule payload", data);
       if (!data.gameDate) return;
       const date = new Date(data.gameDate);
       const hour = data.gameStartTime.hour % 12 + (data.gameStartTime.ampm === "PM" ? 12 : 0);
       date.setHours(hour, data.gameStartTime.minute, 0, 0);
+
+      const endDate = new Date(data.gameDate);
+      const endHour = data.gameEndTime.hour % 12 + (data.gameEndTime.ampm === "PM" ? 12 : 0);
+      endDate.setHours(endHour, data.gameEndTime.minute, 0, 0);
+
+      const recruitEndBase = data.recruitRange?.to ?? data.recruitRange?.from ?? data.gameDate;
+      const recruitEndDate = new Date(recruitEndBase);
+      const recruitEndHour =
+        data.recruitEndTime.hour % 12 + (data.recruitEndTime.ampm === "PM" ? 12 : 0);
+      recruitEndDate.setHours(recruitEndHour, data.recruitEndTime.minute, 0, 0);
+      // 서버 검증: 게임 시작 < 게임 종료, 모집 마감 < 게임 시작
+      if (endDate.getTime() <= date.getTime()) {
+        endDate.setDate(endDate.getDate() + 1);
+      }
+      if (recruitEndDate.getTime() >= date.getTime()) {
+        recruitEndDate.setTime(date.getTime() - 60_000);
+      }
 
       const timeStr = date.toLocaleTimeString("ko-KR", {
         hour: "2-digit",
@@ -83,21 +129,40 @@ export function useAzitSchedules(
         date.getDate()
       ).padStart(2, "0")}`;
 
-      const newSchedule: Schedule = {
-        id: String(Date.now()),
-        title: data.title.trim(),
-        dateStr,
-        timeStr,
-        fullDate: date,
-        hostId: String(currentUserId),
-        maxMembers: data.recruitCount,
-        participants: [{ user: currentUser, status: "JOIN" }],
-        isFeedbackDone: false,
-      };
+      if (!accessToken) {
+        const newSchedule: Schedule = {
+          id: String(Date.now()),
+          title: data.title.trim(),
+          dateStr,
+          timeStr,
+          fullDate: endDate,
+          hostId: String(currentUserId),
+          maxMembers: Math.max(2, data.recruitCount),
+          participants: [{ user: currentUser, status: "JOIN" }],
+          isFeedbackDone: false,
+        };
+        setSchedules((prev) => [newSchedule, ...prev]);
+        return;
+      }
 
-      setSchedules((prev) => [newSchedule, ...prev]);
+      try {
+        const created = await createAzitSchedule({
+          azitId: currentAzitId,
+          payload: {
+            title: data.title.trim(),
+            max_participants: Math.max(2, data.recruitCount),
+            game_start_at: date.toISOString(),
+            game_end_at: endDate.toISOString(),
+            recruitment_end_at: recruitEndDate.toISOString(),
+          },
+        });
+        const mapped = mapScheduleDtoToUi(created, currentUserId, currentUser);
+        setSchedules((prev) => [mapped, ...prev]);
+      } catch (err) {
+        console.error("스케줄 생성 실패:", err);
+      }
     },
-    [currentUser, currentUserId]
+    [accessToken, currentAzitId, currentUser, currentUserId]
   );
 
   const markFeedbackDone = React.useCallback((scheduleId: string) => {
@@ -114,5 +179,53 @@ export function useAzitSchedules(
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
+  };
+}
+
+function mapScheduleDtoToUi(
+  dto: AzitScheduleDetailResDto,
+  currentUserId: string,
+  currentUser: User
+): Schedule {
+  const gameStart = new Date(dto.game_start_at);
+  const gameEnd = new Date(dto.game_end_at);
+  const dateStr = `${String(gameStart.getMonth() + 1).padStart(2, "0")}.${String(
+    gameStart.getDate()
+  ).padStart(2, "0")}`;
+  const timeStr = gameStart.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const participants = (dto.participants ?? []).map((p) => ({
+    user: {
+      id: String(p.member_id),
+      nickname: p.nickname ?? "Unknown",
+      avatarUrl: p.avatar_url ?? "",
+      isOnline: true,
+    },
+    status: "JOIN" as const,
+  }));
+
+  const currentInList = participants.some((p) => String(p.user?.id) === String(currentUserId));
+  if (dto.is_participated && !currentInList) {
+    participants.push({ user: currentUser, status: "JOIN" });
+  }
+
+  const hostId = dto.participants?.[0]?.member_id
+    ? String(dto.participants[0].member_id)
+    : String(currentUserId);
+
+  return {
+    id: String(dto.schedule_id),
+    title: dto.title,
+    dateStr,
+    timeStr,
+    fullDate: gameEnd,
+    hostId,
+    maxMembers: dto.max_participants,
+    participants,
+    isFeedbackDone: false,
   };
 }

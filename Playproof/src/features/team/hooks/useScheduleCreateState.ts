@@ -112,6 +112,18 @@ export function useScheduleCreateState({
   const { isValid, msg } = validateForm();
 
   const handleSubmit = () => {
+    console.log("🗓️ [ScheduleCreate] submit clicked", {
+      title,
+      recruitCount,
+      gameDate,
+      gameStartTime,
+      gameEndTime,
+      recruitRange,
+      recruitStartTime,
+      recruitEndTime,
+      isValid,
+      msg,
+    });
     if (!isValid) return;
     const payload: ScheduleCreatePayload = {
       title,

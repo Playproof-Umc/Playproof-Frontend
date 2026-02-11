@@ -14,7 +14,7 @@ import {
   mockSchedulesByAzit,
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
-import { getAzits } from "@/features/team/api/azitApi";
+import { getAzits, updateAzit } from "@/features/team/api/azitApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -29,6 +29,8 @@ import {
   getChatRoomsByAzit,
   getChatMessages,
   createChatRoomByAzit,
+  updateChatRoom,
+  deleteChatRoom,
   type ChatMessageResDto,
 } from "@/features/team/api/chatApi";
 
@@ -144,7 +146,7 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser);
+  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser, accessToken);
 
   const {
     feedbackModal,
@@ -174,9 +176,15 @@ export function useAzitPageLogic() {
     appendMessageToRoom,
     voiceRooms,
     joinVoiceRoom: joinVoiceRoomUI, 
+    leaveVoiceRoom,
     toggleMyMic,
     initAzitRooms,
   } = useAzitRooms(currentAzitId, currentUser);
+
+  const myVoiceRoomId = React.useMemo(() => {
+    const meId = String(currentUser.id);
+    return voiceRooms.find((room) => room.users.some((m) => String(m.user.id) === meId))?.id ?? null;
+  }, [currentUser.id, voiceRooms]);
 
   const [socketUiError, setSocketUiError] = React.useState<ApiError | null>(null);
 
@@ -203,6 +211,15 @@ export function useAzitPageLogic() {
 
   // 음성 방 입장 로직
   const joinVoiceRoom = React.useCallback(async (roomIdStr: string) => {
+    if (myVoiceRoomId && myVoiceRoomId === roomIdStr) {
+      const roomId = Number(roomIdStr);
+      if (roomId) {
+        socketVoiceLeave(roomId);
+      }
+      disconnectLiveKit();
+      leaveVoiceRoom();
+      return;
+    }
     const roomId = Number(roomIdStr);
     if (!roomId) return;
 
@@ -255,7 +272,7 @@ export function useAzitPageLogic() {
     } catch (err) {
       console.error("🔥 음성 채팅 연결 중 에러:", err);
     }
-  }, [socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
+  }, [socketVoiceLeave, disconnectLiveKit, leaveVoiceRoom, myVoiceRoomId, socketVoiceJoin, requestVoiceToken, connectLiveKit, accessToken, joinVoiceRoomUI, setAuth]); 
 
   React.useEffect(() => {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);
@@ -358,6 +375,76 @@ export function useAzitPageLogic() {
     [accessToken, apiBaseUrl, currentAzitId, reloadChatRooms, setSelectedChatRoom]
   );
 
+  const onRenameChatRoom = React.useCallback(
+    async (roomId: number, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, roomName: trimmed } : room))
+      );
+      if (!accessToken) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId, name: trimmed });
+      } catch (err) {
+        console.error("❌ 채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onDeleteChatRoom = React.useCallback(
+    async (roomId: number) => {
+      const prevRooms = chatRooms;
+      setChatRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId });
+      } catch (err) {
+        console.error("❌ 채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, chatRooms, reloadChatRooms, setChatRoomsFromServer]
+  );
+
+  const onRenameVoiceRoom = React.useCallback(
+    async (roomId: string, nextName: string) => {
+      const trimmed = nextName.trim();
+      if (!trimmed) return;
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(
+        prevRooms.map((room) => (room.id === roomId ? { ...room, name: trimmed } : room))
+      );
+      if (!accessToken) return;
+      if (Number.isNaN(Number(roomId))) return;
+      try {
+        await updateChatRoom({ apiBaseUrl, accessToken, roomId, name: trimmed });
+      } catch (err) {
+        console.error("❌ 음성 채팅방 이름 수정 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, voiceRooms, reloadChatRooms, setVoiceRoomsFromServer]
+  );
+
+  const onDeleteVoiceRoom = React.useCallback(
+    async (roomId: string) => {
+      const prevRooms = voiceRooms;
+      setVoiceRoomsFromServer(prevRooms.filter((room) => room.id !== roomId));
+      if (!accessToken) return;
+      if (Number.isNaN(Number(roomId))) return;
+      try {
+        await deleteChatRoom({ apiBaseUrl, accessToken, roomId });
+      } catch (err) {
+        console.error("❌ 음성 채팅방 삭제 실패:", err);
+        await reloadChatRooms();
+      }
+    },
+    [accessToken, apiBaseUrl, voiceRooms, reloadChatRooms, setVoiceRoomsFromServer]
+  );
+
   React.useEffect(() => {
     return () => {
       azitIconUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -379,6 +466,27 @@ export function useAzitPageLogic() {
     },
     [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
+
+  const updateAzitName = React.useCallback(async (azitId: number, nextName: string) => {
+    const trimmed = nextName.trim();
+    if (!trimmed) return;
+    const updated = await updateAzit(azitId, { azit_name: trimmed });
+    setAzits((prev) =>
+      prev.map((azit) =>
+        azit.id === azitId ? { ...azit, name: updated.azit_name ?? trimmed } : azit
+      )
+    );
+  }, []);
+
+  const updateAzitIcon = React.useCallback(async (azitId: number, file: File) => {
+    if (!file) return;
+    const updated = await updateAzit(azitId, { azit_icon: file });
+    setAzits((prev) =>
+      prev.map((azit) =>
+        azit.id === azitId ? { ...azit, icon: updated.azit_icon_url ?? azit.icon } : azit
+      )
+    );
+  }, []);
 
   return {
     state: {
@@ -410,6 +518,10 @@ export function useAzitPageLogic() {
       setSelectedChatRoom,
       onSendMessage,
       onCreateChatRoom,
+      onRenameChatRoom,
+      onDeleteChatRoom,
+      onRenameVoiceRoom,
+      onDeleteVoiceRoom,
       handleStatusChange,
       addSchedule,
       openFeedbackModal,
@@ -419,6 +531,8 @@ export function useAzitPageLogic() {
       joinVoiceRoom,
       toggleMyMic,
       addAzit,
+      updateAzitName,
+      updateAzitIcon,
     },
   };
 }
