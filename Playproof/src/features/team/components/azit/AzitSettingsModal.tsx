@@ -63,7 +63,7 @@ export const AzitSettingsModal: React.FC<AzitSettingsModalProps> = ({
   };
 
   const isDirty =
-    profileUrl !== (initialProfileUrl ?? "") ||
+    Boolean(profileFile) ||
     (name.trim() !== (initialName ?? "")) ||
     Boolean(transferTo.trim()) ||
     Boolean(kickMember.trim()) ||

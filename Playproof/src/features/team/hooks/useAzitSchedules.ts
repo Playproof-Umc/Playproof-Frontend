@@ -8,161 +8,182 @@ import type { ScheduleCreatePayload } from "@/features/team/hooks/useScheduleCre
 import {
   createAzitSchedule,
   getAzitSchedules,
-  getAzitScheduleMyParticipantStatus,
   updateAzitScheduleParticipantStatus,
+  type AzitScheduleDetailResDto,
 } from "@/features/team/api/azitScheduleApi";
 
 const coerceUserId = (value: string | number) => String(value);
 
-/** --- [Helper] 날짜 및 시간 계산 로직 --- */
-const toLocalDateTimeString = (date: Date) => {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mi = String(date.getMinutes()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:00`;
-};
-
 const applyTimeToDate = (baseDate: Date, time: ScheduleCreatePayload["gameStartTime"]) => {
   const date = new Date(baseDate);
-  const hour = (time.hour % 12) + (time.ampm === "PM" ? 12 : 0);
+  const hour = time.hour % 12 + (time.ampm === "PM" ? 12 : 0);
   date.setHours(hour, time.minute, 0, 0);
   return date;
 };
 
 export function useAzitSchedules(
   currentUserId: string,
-  currentUser: User
+  currentUser: User,
+  accessToken?: string | null
 ) {
   const [currentAzitId, setCurrentAzitId] = React.useState<number>(1);
   const [schedules, setSchedules] = React.useState<Schedule[]>([]);
 
-  /** --- 1. 스케줄 목록 로드 및 데이터 보강 --- */
   React.useEffect(() => {
-    let isActive = true;
-
-    const fetchSchedules = async () => {
+    let alive = true;
+    const load = async () => {
+      if (!accessToken) {
+        setSchedules([]);
+        return;
+      }
       try {
-        // [Integration] 서버에서 가공된 Schedule[] 배열을 직접 받아옴 (api 내부의 normalize 활용)
-        const list = await getAzitSchedules(currentAzitId);
-        if (!isActive) return;
-
-        // [Develop Logic] 각 스케줄에 '나'의 참여 상태가 포함되어 있는지 확인하고 보강
-        const enriched = await Promise.all(
-          list.map(async (schedule) => {
-            const hasMe = schedule.participants.some(
-              (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
-            );
-            if (hasMe || !currentUserId) return schedule;
-
-            try {
-              const status = await getAzitScheduleMyParticipantStatus(currentAzitId, Number(schedule.id));
-              if (!status) return schedule;
-              return {
-                ...schedule,
-                participants: [...schedule.participants, { user: currentUser, status }],
-              };
-            } catch {
-              return schedule;
-            }
-          })
+        const res = await getAzitSchedules({ azitId: currentAzitId, size: 20 });
+        if (!alive) return;
+        const mapped = res.schedules.map((dto) =>
+          mapScheduleDtoToUi(dto, currentUserId, currentUser)
         );
-
-        if (isActive) setSchedules(enriched);
+        setSchedules(mapped);
       } catch (err) {
-        console.error("스케줄 로드 실패:", err);
-        if (isActive) setSchedules([]);
+        if (!alive) return;
+        console.error("스케줄 목록 로드 실패:", err);
+        setSchedules([]);
       }
     };
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId, currentUser, currentUserId]);
 
-    fetchSchedules();
-    return () => { isActive = false; };
-  }, [currentAzitId, currentUser, currentUserId]);
-
-  /** --- 2. 참여 상태 변경 (Optimistic Update 적용) --- */
   const handleStatusChange = React.useCallback(
     async (scheduleId: string, newStatus: "JOIN" | "DECLINE") => {
-      const target = schedules.find((sch) => sch.id === scheduleId);
-      if (!target) return;
+      const current = schedules.find((sch) => sch.id === scheduleId);
+      const myCurrentStatus =
+        current?.participants.find(
+          (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
+        )?.status ?? "PENDING";
 
-      // 모집 마감 체크
-      if (newStatus === "JOIN" && target.recruitmentEndAt) {
-        if (Date.now() >= target.recruitmentEndAt.getTime()) {
-          alert("모집이 마감된 스케줄입니다.");
-          return;
+      if (newStatus === "JOIN") {
+        const target = schedules.find((sch) => sch.id === scheduleId);
+        if (target?.recruitmentEndAt) {
+          const now = Date.now();
+          if (now >= target.recruitmentEndAt.getTime()) {
+            return;
+          }
         }
       }
 
-      // UI 즉시 반영 (Optimistic Update)
-      setSchedules((prev) =>
-        prev.map((sch) => {
+      setSchedules((prevSchedules) =>
+        prevSchedules.map((sch) => {
           if (sch.id !== scheduleId) return sch;
-          const participants = [...sch.participants];
-          const myIndex = participants.findIndex(
+
+          const myIndex = sch.participants.findIndex(
             (p) => coerceUserId(p.user?.id ?? "") === coerceUserId(currentUserId)
           );
 
+          const nextParticipants = [...sch.participants];
+
           if (myIndex !== -1) {
-            participants[myIndex] = { ...participants[myIndex], status: newStatus };
+            nextParticipants[myIndex] = {
+              ...nextParticipants[myIndex],
+              status: newStatus,
+            };
           } else {
-            participants.push({ user: currentUser, status: newStatus });
+            nextParticipants.push({ user: currentUser, status: newStatus });
           }
-          return { ...sch, participants };
+
+          return { ...sch, participants: nextParticipants };
         })
       );
 
+      const shouldCallApi = newStatus !== myCurrentStatus;
+      if (!shouldCallApi) return;
+
       try {
-        await updateAzitScheduleParticipantStatus(currentAzitId, Number(scheduleId), newStatus);
+        await updateAzitScheduleParticipantStatus(currentAzitId, scheduleId, newStatus);
       } catch (error) {
-        // 에러 발생 시 원래 상태 복구를 위해 목록 재조회
-        const list = await getAzitSchedules(currentAzitId);
-        setSchedules(list);
+        if (axios.isAxiosError(error)) {
+          const code = error.response?.data?.error?.code;
+          if (
+            (newStatus === "JOIN" && code === "PARTICIPATION_ALREADY_PARTICIPATED") ||
+            (newStatus === "DECLINE" && code === "PARTICIPATION_NOT_FOUND")
+          ) {
+            return;
+          }
+        }
+
+        try {
+          const res = await getAzitSchedules({ azitId: currentAzitId, size: 20 });
+          setSchedules(res.schedules.map((dto) => mapScheduleDtoToUi(dto, currentUserId, currentUser)));
+        } catch {
+          // ignore
+        }
       }
     },
     [currentAzitId, currentUser, currentUserId, schedules]
   );
 
-  /** --- 3. 스케줄 생성 --- */
   const addSchedule = React.useCallback(
     async (data: ScheduleCreatePayload) => {
-      if (!data.gameDate || !data.recruitRange?.from) return;
+      if (!data.gameDate) return;
+      if (!data.recruitRange?.from) return;
 
       const gameStartDate = applyTimeToDate(data.gameDate, data.gameStartTime);
       const gameEndDate = applyTimeToDate(data.gameDate, data.gameEndTime);
       const recruitEndBase = data.recruitRange.to ?? data.recruitRange.from;
       const recruitEndDate = applyTimeToDate(recruitEndBase, data.recruitEndTime);
 
-      try {
-        // API 요청 (CamelCase Payload 사용)
-        const res = await createAzitSchedule(currentAzitId, {
-          title: data.title.trim(),
-          maxParticipants: data.recruitCount,
-          gameStartAt: toLocalDateTimeString(gameStartDate),
-          gameEndAt: toLocalDateTimeString(gameEndDate),
-          recruitmentEndAt: toLocalDateTimeString(recruitEndDate),
-        });
+      if (gameEndDate.getTime() <= gameStartDate.getTime()) {
+        gameEndDate.setDate(gameEndDate.getDate() + 1);
+      }
+      if (recruitEndDate.getTime() >= gameStartDate.getTime()) {
+        recruitEndDate.setTime(gameStartDate.getTime() - 60_000);
+      }
 
-        // 생성 성공 시 목록에 추가 (서버에서 받은 ID 사용)
+      const timeStr = gameStartDate.toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      const dateStr = `${String(gameStartDate.getMonth() + 1).padStart(2, "0")}.${String(
+        gameStartDate.getDate()
+      ).padStart(2, "0")}`;
+
+      if (!accessToken) {
         const newSchedule: Schedule = {
-          id: String(res.scheduleId ?? Date.now()),
+          id: String(Date.now()),
           title: data.title.trim(),
-          dateStr: `${String(gameStartDate.getMonth() + 1).padStart(2, "0")}.${String(gameStartDate.getDate()).padStart(2, "0")}`,
-          timeStr: gameStartDate.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          dateStr,
+          timeStr,
           fullDate: gameStartDate,
           recruitmentEndAt: recruitEndDate,
           hostId: String(currentUserId),
-          maxMembers: data.recruitCount,
+          maxMembers: Math.max(2, data.recruitCount),
           participants: [{ user: currentUser, status: "JOIN" }],
           isFeedbackDone: false,
         };
-
         setSchedules((prev) => [newSchedule, ...prev]);
+        return;
+      }
+
+      try {
+        const created = await createAzitSchedule({
+          azitId: currentAzitId,
+          payload: {
+            title: data.title.trim(),
+            max_participants: Math.max(2, data.recruitCount),
+            game_start_at: gameStartDate.toISOString(),
+            game_end_at: gameEndDate.toISOString(),
+            recruitment_end_at: recruitEndDate.toISOString(),
+          },
+        });
+        const mapped = mapScheduleDtoToUi(created, currentUserId, currentUser);
+        setSchedules((prev) => [mapped, ...prev]);
       } catch (err) {
         console.error("스케줄 생성 실패:", err);
       }
     },
-    [currentAzitId, currentUser, currentUserId]
+    [accessToken, currentAzitId, currentUser, currentUserId]
   );
 
   const markFeedbackDone = React.useCallback((scheduleId: string) => {
@@ -178,5 +199,54 @@ export function useAzitSchedules(
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
+  };
+}
+
+function mapScheduleDtoToUi(
+  dto: AzitScheduleDetailResDto,
+  currentUserId: string,
+  currentUser: User
+): Schedule {
+  const gameStart = new Date(dto.game_start_at);
+  const gameEnd = new Date(dto.game_end_at);
+  const dateStr = `${String(gameStart.getMonth() + 1).padStart(2, "0")}.${String(
+    gameStart.getDate()
+  ).padStart(2, "0")}`;
+  const timeStr = gameStart.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const participants = (dto.participants ?? []).map((p) => ({
+    user: {
+      id: String(p.member_id),
+      nickname: p.nickname ?? "Unknown",
+      avatarUrl: p.avatar_url ?? "",
+      isOnline: true,
+    },
+    status: "JOIN" as const,
+  }));
+
+  const currentInList = participants.some((p) => String(p.user?.id) === String(currentUserId));
+  if (dto.is_participated && !currentInList) {
+    participants.push({ user: currentUser, status: "JOIN" });
+  }
+
+  const hostId = dto.participants?.[0]?.member_id
+    ? String(dto.participants[0].member_id)
+    : String(currentUserId);
+
+  return {
+    id: String(dto.schedule_id),
+    title: dto.title,
+    dateStr,
+    timeStr,
+    fullDate: gameEnd,
+    recruitmentEndAt: new Date(dto.recruitment_end_at),
+    hostId,
+    maxMembers: dto.max_participants,
+    participants,
+    isFeedbackDone: false,
   };
 }

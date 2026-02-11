@@ -43,11 +43,11 @@ export const usePartyLike = () => {
 
       return { previousParties };
     },
-    onSuccess: (data, partyId) => {
+    onSuccess: (_data, _partyId) => {
       // 서버 응답으로 최종 상태 동기화
       queryClient.invalidateQueries({ queryKey: ['parties'] });
     },
-    onError: (error: any, partyId, context) => {
+    onError: (error: any, _partyId, context) => {
       // 에러 발생 시 이전 상태로 롤백
       if (context?.previousParties) {
         queryClient.setQueryData(['parties'], context.previousParties);
