@@ -26,7 +26,8 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
 
   const { 
     game, title, isProMatch, selectedPositions, tier, azit, 
-    memberCount, micStatus, selectedTags, memo, showDuplicateModal 
+    memberCount, micStatus, selectedTags, memo, showDuplicateModal,
+    azitOptions, newAzitName
   } = formState;
 
   // initialGame은 모달이 열릴 때 한 번만 설정 (game을 의존성에서 제거)
@@ -66,8 +67,10 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
 
             <WriteDetailSection 
               game={game} tier={tier} azit={azit}
+              azitOptions={azitOptions}
+              newAzitName={newAzitName}
               memberCount={memberCount} micStatus={micStatus}
-              setTier={setters.setTier} setAzit={setters.setAzit}
+              setTier={setters.setTier} setAzit={setters.setAzit} setNewAzitName={setters.setNewAzitName}
               setMemberCount={setters.setMemberCount} setMicStatus={setters.setMicStatus}
             />
 

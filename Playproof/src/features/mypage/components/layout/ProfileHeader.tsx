@@ -8,9 +8,10 @@ import { MYPAGE_ACTION_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/c
 
 interface ProfileHeaderProps {
   profileData: MyProfileData;
+  readOnly?: boolean;
 }
 
-export function ProfileHeader({ profileData }: ProfileHeaderProps) {
+export function ProfileHeader({ profileData, readOnly = false }: ProfileHeaderProps) {
   const [bio, setBio] = React.useState(profileData.bio || '');
   const [isEditingBio, setIsEditingBio] = React.useState(false);
 
@@ -24,7 +25,7 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
     <div className="rounded-lg bg-white p-6 shadow-sm h-full flex flex-col justify-center">
       {/* 상태메시지 (수정 가능) */}
       <div className="mb-3">
-        {isEditingBio ? (
+        {!readOnly && isEditingBio ? (
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -52,12 +53,14 @@ export function ProfileHeader({ profileData }: ProfileHeaderProps) {
           </div>
         ) : (
           <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
-            <button
-              onClick={() => setIsEditingBio(true)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => setIsEditingBio(true)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
             <p className="flex-1 text-sm text-gray-700">
               {bio || MYPAGE_ACTION_LABELS.statusEmpty}
             </p>

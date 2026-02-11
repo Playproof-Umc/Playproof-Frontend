@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import type { MatchingData, FilterState } from '@/features/matching/types';
 import { getParties, createParty, type CreatePartyRequest } from '@/services/partyApi';
+import { createAzit } from '@/features/team/api/azitApi';
 import { filterMatches } from '@/features/matching/utils/matchingUtils';
 import { getGameName, getGameId } from '@/constants/games';
 import { getTierId } from '@/constants/tiers';
@@ -91,7 +92,7 @@ export const useMatchingBoard = () => {
     setFilterConditions(filters);
   }, []);
 
-  const handleNewPost = useCallback((newPost: MatchingData, action: 'new' | 'replace' | 'bump') => {
+  const handleNewPost = useCallback(async (newPost: MatchingData, action: 'new' | 'replace' | 'bump') => {
     console.log('새 파티 생성:', newPost, action);
     
     // 게임 이름 → ID 변환
@@ -116,6 +117,21 @@ export const useMatchingBoard = () => {
       positionIds,
     });
     
+    let azitId = newPost.azitId;
+    if (!azitId && newPost.createAzitName) {
+      try {
+        const created = await createAzit({ azit_name: newPost.createAzitName });
+        azitId = created.azit_id;
+      } catch (err) {
+        console.error('아지트 생성 실패:', err);
+        return;
+      }
+    }
+    if (!azitId) {
+      console.error('아지트 ID가 없습니다.');
+      return;
+    }
+
     // MatchingData를 CreatePartyRequest로 변환
     const partyData: CreatePartyRequest = {
       gameId,
@@ -125,7 +141,7 @@ export const useMatchingBoard = () => {
       tierId,
       positionIds,
       isMicUse: newPost.mic ?? false,
-      azitId: 1, // TODO: 아지트 이름 → ID 매핑 필요
+      azitId,
     };
 
     console.log('📤 전송할 API 데이터:', partyData);

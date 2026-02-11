@@ -13,6 +13,12 @@ type AzitListResponse = {
   error: null | unknown;
 };
 
+type AzitCreateResponse = {
+  statusCode: number;
+  data: AzitResDto;
+  error: null | unknown;
+};
+
 export async function getAzits(): Promise<Azit[]> {
   const res = await api.get<AzitListResponse>("/azits");
   if (res.data.error || res.data.statusCode !== 200) {
@@ -26,6 +32,22 @@ export async function getAzits(): Promise<Azit[]> {
     icon: item.azit_icon_url ?? "",
     memberCount: 0,
   }));
+}
+
+export async function createAzit(payload: { azit_name: string; azit_icon?: File | null }): Promise<AzitResDto> {
+  const formData = new FormData();
+  formData.append("azit_name", payload.azit_name);
+  if (payload.azit_icon) {
+    formData.append("azit_icon", payload.azit_icon);
+  }
+
+  const res = await api.post<AzitCreateResponse>("/azits", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
+    throw new Error("아지트 생성에 실패했습니다.");
+  }
+  return res.data.data;
 }
 
 type AzitUpdateResponse = {

@@ -1,22 +1,26 @@
 // src/features/matching/components/write/WriteDetailSection.tsx
 import { ChevronDown, Mic, MicOff } from 'lucide-react';
-import { GAME_CONFIG, MY_AZITS } from '@/features/matching/constants/matchingConfig';
+import { GAME_CONFIG } from '@/features/matching/constants/matchingConfig';
 
 interface WriteDetailSectionProps {
   game: string;
   tier: string;
   azit: string;
+  azitOptions: Array<{ id: number; name: string }>;
+  newAzitName: string;
   memberCount: number;
   micStatus: 'on' | 'off' | null;
   setTier: (val: string) => void;
   setAzit: (val: string) => void;
+  setNewAzitName: (val: string) => void;
   setMemberCount: (val: number) => void;
   setMicStatus: (val: 'on' | 'off' | null) => void;
 }
 
 export const WriteDetailSection = ({ 
   game, tier, azit, memberCount, micStatus, 
-  setTier, setAzit, setMemberCount, setMicStatus 
+  azitOptions, newAzitName,
+  setTier, setAzit, setNewAzitName, setMemberCount, setMicStatus 
 }: WriteDetailSectionProps) => {
   const currentConfig = GAME_CONFIG[game] || GAME_CONFIG['기타'];
 
@@ -43,11 +47,20 @@ export const WriteDetailSection = ({
               <select value={azit} onChange={(e) => setAzit(e.target.value)} className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm appearance-none outline-none focus:border-black font-medium cursor-pointer text-gray-900">
                 <option value="new">➕ 신규 생성 (기본)</option>
                 <optgroup label="내 아지트 목록">
-                  {MY_AZITS.map(a => (<option key={a.id} value={a.id}>{a.name}</option>))}
+                  {azitOptions.map(a => (<option key={a.id} value={String(a.id)}>{a.name}</option>))}
                 </optgroup>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
             </div>
+            {azit === "new" && (
+              <input
+                value={newAzitName}
+                onChange={(e) => setNewAzitName(e.target.value)}
+                placeholder="신규 아지트 이름을 입력하세요."
+                className="mt-2 w-full p-3 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-black font-medium text-gray-900"
+                maxLength={20}
+              />
+            )}
         </div>
       </div>
 

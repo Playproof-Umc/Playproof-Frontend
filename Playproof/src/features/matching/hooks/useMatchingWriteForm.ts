@@ -1,9 +1,9 @@
 // src/features/matching/hooks/useMatchingWriteForm.ts
 
 //src/features/matching/hooks/useMatchingWriteForm.ts
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { MatchingData } from '@/features/matching/types';
-import { MY_AZITS } from '@/features/matching/constants/matchingConfig';
+import { getAzits } from '@/features/team/api/azitApi';
 import { useAuthStore } from '@/store/authStore';
 
 interface UseMatchingWriteFormProps {
@@ -24,6 +24,8 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
   const [tier, setTier] = useState('');
   const [azit, setAzit] = useState('new');
+  const [newAzitName, setNewAzitName] = useState('');
+  const [azitOptions, setAzitOptions] = useState<Array<{ id: number; name: string }>>([]);
   const [memberCount, setMemberCount] = useState(0);
   const [micStatus, setMicStatus] = useState<'on' | 'off' | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -61,20 +63,41 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
     return (
       game && tier && selectedPositions.length > 0 &&
       memberCount >= 1 && selectedTags.length >= 1 && 
-      title.trim().length > 0
+      title.trim().length > 0 &&
+      (azit !== 'new' || newAzitName.trim().length > 0)
     );
-  }, [game, tier, selectedPositions, memberCount, selectedTags, title]);
+  }, [game, tier, selectedPositions, memberCount, selectedTags, title, azit, newAzitName]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getAzits();
+        if (!alive) return;
+        setAzitOptions(res.map((a) => ({ id: a.id, name: a.name })));
+      } catch {
+        if (!alive) return;
+        setAzitOptions([]);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const createPostData = (): MatchingData => {
     const azitName = azit === 'new' 
-        ? '신규 생성' 
-        : MY_AZITS.find(a => a.id === azit)?.name || '알 수 없는 아지트';
+        ? newAzitName.trim() || '신규 생성' 
+        : azitOptions.find(a => String(a.id) === azit)?.name || '알 수 없는 아지트';
+    const azitId = azit === 'new' ? undefined : Number(azit);
 
     return {
       id: Date.now(),
       game, title, tier,
       tags: selectedTags,
       azit: azitName,
+      azitId,
+      createAzitName: azit === 'new' ? newAzitName.trim() : undefined,
       position: selectedPositions,
       memo,
       currentMembers: 1, 
@@ -88,6 +111,7 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
 
   const resetForm = () => {
     setTitle(''); setSelectedPositions([]); setMemberCount(0); setSelectedTags([]); setMemo('');
+    setNewAzitName('');
   };
 
   const handleUploadAttempt = () => {
@@ -112,10 +136,10 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
   return {
     formState: {
       game, title, isProMatch, selectedPositions, tier, azit,
-      memberCount, micStatus, selectedTags, memo, showDuplicateModal
+      memberCount, micStatus, selectedTags, memo, showDuplicateModal, azitOptions, newAzitName
     },
     setters: {
-      setIsProMatch, setTier, setAzit, setMemberCount, setMicStatus, setMemo, setShowDuplicateModal
+      setIsProMatch, setTier, setAzit, setMemberCount, setMicStatus, setMemo, setShowDuplicateModal, setNewAzitName
     },
     handlers: {
       handleGameChange, 

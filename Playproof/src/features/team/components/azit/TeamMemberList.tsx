@@ -6,12 +6,14 @@ import { Plus } from 'lucide-react';
 import type { User } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { UserAvatar } from '@/features/user/components';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   members: User[];
 }
 
 export const TeamMemberList: React.FC<Props> = ({ members }) => {
+  const navigate = useNavigate();
   return (
     <section>
       {/* 헤더 */}
@@ -25,7 +27,11 @@ export const TeamMemberList: React.FC<Props> = ({ members }) => {
       <div className="space-y-3">
         {members.map(member => (
           <Card key={member.id} className="p-3 hover:border-gray-300 transition-colors">
-            <div className="flex items-center gap-3 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => navigate(`/user/${member.id}`)}
+              className="flex items-center gap-3 w-full text-left cursor-pointer"
+            >
               
               {/* 공통 유저 아바타 컴포넌트 사용 */}
               <UserAvatar user={member} />
@@ -38,7 +44,7 @@ export const TeamMemberList: React.FC<Props> = ({ members }) => {
                   {member.isOnline ? '온라인' : '오프라인'}
                 </div>
               </div>
-            </div>
+            </button>
           </Card>
         ))}
 
