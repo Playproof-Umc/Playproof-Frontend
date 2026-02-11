@@ -10,6 +10,7 @@ type MainPanelProps = {
   roomName: string;
   messages: ChatMessageUI[];
   onSendMessage: (roomId: number, content: string, files: File[]) => void;
+  currentUserId?: string;
   currentUserName: string;
 };
 
@@ -23,6 +24,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   roomName,
   messages,
   onSendMessage,
+  currentUserId,
   currentUserName,
 }) => {
   const [activeMedia, setActiveMedia] = React.useState<{ url: string; type: "image" | "video" } | null>(null);
@@ -33,6 +35,11 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [previewItems, setPreviewItems] = React.useState<PreviewItem[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const pendingScrollRef = React.useRef(false);
+  const lastRoomIdRef = React.useRef<number | null>(null);
+  const lastMessageCountRef = React.useRef(0);
 
   const hasContent = message.trim().length > 0 || selectedFiles.length > 0;
 
@@ -70,6 +77,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
     if (!roomId) return;
 
     onSendMessage(roomId, message, selectedFiles);
+    pendingScrollRef.current = true;
 
     // 전송 후 로컬 상태 초기화
     setMessage("");
@@ -92,33 +100,67 @@ export const MainPanel: React.FC<MainPanelProps> = ({
     const file = new File([blob], `highlight-share-${Date.now()}.${ext}`, {
       type: blob.type || "image/jpeg",
     });
-    navigate("/community?tab=하이라이트", { state: { shareFiles: [file] } });
+    navigate("/community?tab=하이라이트&write=1", { state: { shareFiles: [file] } });
   }, [activeMedia, navigate]);
 
   const safeMessages = messages ?? [];
+
+  const scrollToBottom = React.useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, []);
+
+  React.useEffect(() => {
+    if (!roomId) {
+      lastRoomIdRef.current = null;
+      lastMessageCountRef.current = 0;
+      return;
+    }
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const isRoomChanged = lastRoomIdRef.current !== roomId;
+    const isNewMessages = safeMessages.length > lastMessageCountRef.current;
+    const nearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+
+    if (isRoomChanged || isNewMessages || pendingScrollRef.current || nearBottom) {
+      scrollToBottom();
+      if (pendingScrollRef.current) {
+        window.setTimeout(() => {
+          pendingScrollRef.current = false;
+        }, 300);
+      }
+    }
+
+    lastRoomIdRef.current = roomId;
+    lastMessageCountRef.current = safeMessages.length;
+  }, [roomId, safeMessages.length, scrollToBottom]);
 
   return (
     <main className="flex-1 flex flex-col w-full min-w-0 lg:min-w-[400px] h-auto lg:h-full">
       <div className="flex-none h-12 flex items-center gap-2 mb-2 px-1">
         <h2 className="text-lg font-bold text-gray-900">{roomName || "채팅"}</h2>
-        <button className="text-gray-400 hover:bg-gray-100 p-0.5 rounded transition-colors">
-          <Plus className="w-5 h-5" />
-        </button>
       </div>
 
       <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
-        <div className="flex-1 bg-gray-50 p-4 flex flex-col-reverse overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 bg-gray-50 p-4 flex flex-col overflow-y-auto"
+        >
           {safeMessages.length === 0 ? (
             <div className="text-center text-gray-400 text-sm my-auto">
               {roomId ? "채팅 기록이 없습니다." : "채팅방을 선택해주세요."}
             </div>
           ) : (
             safeMessages.map((item) => {
-              const isMine = item.author === currentUserName;
+              const isMine =
+                (currentUserId && item.userId
+                  ? String(item.userId) === String(currentUserId)
+                  : item.author === currentUserName);
               return (
                 <div
                   key={item.id}
-                  className={`flex flex-col gap-2 mb-4 ${isMine ? "items-end" : "items-start"}`}
+                  className={`w-full flex flex-col gap-2 mb-4 ${isMine ? "items-end" : "items-start"}`}
                 >
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <span className="font-semibold text-gray-700">{item.author}</span>
@@ -134,10 +176,40 @@ export const MainPanel: React.FC<MainPanelProps> = ({
                       {item.content}
                     </div>
                   ) : null}
+
+                  {item.mediaUrls && item.mediaUrls.length > 0 ? (
+                    <div
+                      className={`flex flex-wrap gap-2 max-w-[75%] w-fit ${
+                        isMine ? "self-end justify-end" : "self-start justify-start"
+                      }`}
+                    >
+                      {item.mediaUrls.map((url, idx) => (
+                        <button
+                          key={`${item.id}-media-${idx}`}
+                          type="button"
+                          onClick={() => setActiveMedia({ url, type: "image" })}
+                          className="w-32 h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50"
+                        >
+                          <img
+                            src={url}
+                            alt="chat media"
+                            className="w-full h-full object-cover"
+                            onLoad={() => {
+                              if (pendingScrollRef.current) {
+                                scrollToBottom();
+                                pendingScrollRef.current = false;
+                              }
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               );
             })
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* ✅ 전송 전 프리뷰는 그대로 유지 */}
@@ -178,7 +250,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
         <div className="p-4 bg-white border-t border-gray-100">
           <input
             type="file"
-            accept="image/*,video/*"
+            accept="image/*"
             multiple
             ref={fileInputRef}
             onChange={handleFileSelect}

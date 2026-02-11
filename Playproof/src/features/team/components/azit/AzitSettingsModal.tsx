@@ -7,9 +7,8 @@ type AzitSettingsModalProps = {
   open: boolean;
   onClose: () => void;
   profileUrl?: string;
-  onUpdateProfile?: (url: string) => void;
   initialName?: string;
-  onUpdateName?: (name: string) => void;
+  onSave?: (payload: { name?: string; file?: File | null }) => void;
   onSubmit?: () => void;
 };
 
@@ -17,9 +16,8 @@ export const AzitSettingsModal: React.FC<AzitSettingsModalProps> = ({
   open,
   onClose,
   profileUrl: initialProfileUrl,
-  onUpdateProfile,
   initialName,
-  onUpdateName,
+  onSave,
   onSubmit,
 }) => {
   const [name, setName] = React.useState("");
@@ -29,6 +27,7 @@ export const AzitSettingsModal: React.FC<AzitSettingsModalProps> = ({
   const [showKick, setShowKick] = React.useState(false);
   const [deleteReason, setDeleteReason] = React.useState("");
   const [profileUrl, setProfileUrl] = React.useState<string>("");
+  const [profileFile, setProfileFile] = React.useState<File | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -40,6 +39,7 @@ export const AzitSettingsModal: React.FC<AzitSettingsModalProps> = ({
     setShowKick(false);
     setDeleteReason("");
     setProfileUrl(initialProfileUrl ?? "");
+    setProfileFile(null);
   }, [open, initialProfileUrl, initialName]);
 
   React.useEffect(() => {
@@ -56,24 +56,24 @@ export const AzitSettingsModal: React.FC<AzitSettingsModalProps> = ({
     if (profileUrl) URL.revokeObjectURL(profileUrl);
     const nextUrl = URL.createObjectURL(file);
     setProfileUrl(nextUrl);
+    setProfileFile(file);
     e.target.value = "";
   };
 
+  const trimmedName = name.trim();
   const isDirty =
-    profileUrl !== (initialProfileUrl ?? "") ||
-    (name.trim() !== (initialName ?? "")) ||
+    profileFile !== null ||
+    trimmedName !== (initialName ?? "") ||
     Boolean(transferTo.trim()) ||
     Boolean(kickMember.trim()) ||
     Boolean(deleteReason.trim());
 
   const handleSubmit = () => {
     if (!isDirty) return;
-    if (profileUrl !== (initialProfileUrl ?? "")) {
-      onUpdateProfile?.(profileUrl);
-    }
-    if (name.trim() !== (initialName ?? "")) {
-      onUpdateName?.(name);
-    }
+    onSave?.({
+      name: trimmedName !== (initialName ?? "") ? trimmedName : undefined,
+      file: profileFile,
+    });
     onSubmit?.();
     onClose();
   };

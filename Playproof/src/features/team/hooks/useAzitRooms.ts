@@ -10,8 +10,10 @@ export type ChatRoomSummary = {
 
 export type ChatMessageUI = {
   id: string;
+  userId?: string;
   author: string;
   content: string;
+  mediaUrls?: string[];
   createdAt: string;
 };
 
@@ -114,9 +116,12 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
 
   const replaceMessagesForRoom = React.useCallback(
     (roomId: number, next: ChatMessageUI[]) => {
+      const sorted = [...next].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
       setMessagesByAzit((prev) => {
         const byAzit = prev[currentAzitId] ?? {};
-        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: next } };
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: sorted } };
       });
     },
     [currentAzitId]
@@ -127,7 +132,7 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
       setMessagesByAzit((prev) => {
         const byAzit = prev[currentAzitId] ?? {};
         const list = byAzit[roomId] ?? [];
-        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [msg, ...list] } };
+        return { ...prev, [currentAzitId]: { ...byAzit, [roomId]: [...list, msg] } };
       });
     },
     [currentAzitId]
@@ -188,6 +193,19 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     [currentAzitId, currentUser, myVoiceRoomIdByAzit]
   );
 
+  const leaveVoiceRoom = React.useCallback(() => {
+    const me = currentUser;
+    setVoiceRoomsByAzit((prev) => {
+      const rooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
+      const nextRooms = rooms.map((room) => ({
+        ...room,
+        users: room.users.filter((m) => String(m.user.id) !== String(me.id)),
+      }));
+      return { ...prev, [currentAzitId]: nextRooms };
+    });
+    setMyVoiceRoomIdByAzit((prev) => ({ ...prev, [currentAzitId]: null }));
+  }, [currentAzitId, currentUser]);
+
   const initAzitRooms = React.useCallback((azitId: number) => {
     setChatRoomsByAzit((prev) => ({ ...prev, [azitId]: [] }));
     setSelectedChatRoomIdByAzit((prev) => ({ ...prev, [azitId]: null }));
@@ -210,6 +228,7 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     voiceRooms,
     myVoiceRoomId,
     joinVoiceRoom,
+    leaveVoiceRoom,
     toggleMyMic,
 
     initAzitRooms,
