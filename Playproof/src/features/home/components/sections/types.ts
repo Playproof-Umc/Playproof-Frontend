@@ -24,6 +24,13 @@ export type HomePartyFriendsSectionProps = {
   onPrevAzit: () => void;
   onNextAzit: () => void;
   onOpenAzit: (azitId: number) => void;
+  friends: {
+    id: number;
+    nickname: string;
+    statusMessage?: string;
+    isOnline: boolean;
+    avatarUrl?: string;
+  }[];
 };
 
 export type HomeMatchingSectionProps = {

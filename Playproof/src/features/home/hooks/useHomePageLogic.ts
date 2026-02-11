@@ -12,6 +12,7 @@ import type { FilterState, MatchingData } from "@/features/matching/types";
 import type { HighlightPost, BoardPost, CommunityComment } from "@/features/community/types";
 import { useHomeHighlightsLogic } from "@/features/home/hooks/useHomeHighlightsLogic";
 import { useHomeMatchingLogic } from "@/features/home/hooks/useHomeMatchingLogic";
+import { getFriends as fetchFriends } from "@/services/friendApi";
 
 type UseHomePageLogicReturn = {
   state: {
@@ -26,6 +27,13 @@ type UseHomePageLogicReturn = {
     displayName: string;
     user: UserSummary | null;
     loading: boolean;
+    friends: {
+      id: number;
+      nickname: string;
+      statusMessage?: string;
+      isOnline: boolean;
+      avatarUrl?: string;
+    }[];
     azitSlides: {
       azit: Azit;
       schedule: Schedule | undefined;
@@ -106,6 +114,9 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
   const [azitIndex, setAzitIndex] = React.useState(0);
   const [azits, setAzits] = React.useState<Azit[]>([]);
   const [scheduleByAzit, setScheduleByAzit] = React.useState<Record<number, Schedule | undefined>>({});
+  const [friends, setFriends] = React.useState<
+    { id: number; nickname: string; statusMessage?: string; isOnline: boolean; avatarUrl?: string }[]
+  >([]);
 
   React.useEffect(() => {
     let alive = true;
@@ -122,6 +133,31 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
       alive = false;
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const list = await fetchFriends();
+        if (!alive) return;
+        setFriends(
+          list.map((f) => ({
+            id: f.userId,
+            nickname: f.nickname ?? "Unknown",
+            statusMessage: f.statusMessage ?? undefined,
+            isOnline: false,
+            avatarUrl: f.avatarUrl ?? undefined,
+          }))
+        );
+      } catch (err) {
+        console.error("friend list load error:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken]);
 
   const { state: matchingState, handlers: matchingHandlers } = useHomeMatchingLogic();
   const { state: highlightState, handlers: highlightHandlers } = useHomeHighlightsLogic(displayName);
@@ -212,6 +248,7 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
       displayName,
       user,
       loading,
+      friends,
       azitSlides,
       azitIndex,
       searchKeyword: matchingState.searchKeyword,

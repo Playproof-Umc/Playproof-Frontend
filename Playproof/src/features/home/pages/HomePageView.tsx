@@ -29,6 +29,7 @@ export const HomePageView = () => {
     onPrevAzit: h.handlePrevAzit,
     onNextAzit: h.handleNextAzit,
     onOpenAzit: (azitId: number) => navigate("/azit", { state: { azitId } }),
+    friends: s.friends,
   };
   const matchingProps = {
     activeGameTab: s.activeGameTab,

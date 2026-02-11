@@ -9,6 +9,7 @@ export const HomePartyFriendsSection = ({
   onPrevAzit,
   onNextAzit,
   onOpenAzit,
+  friends,
 }: HomePartyFriendsSectionProps) => {
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -57,17 +58,7 @@ export const HomePartyFriendsSection = ({
       </div>
 
       <div className="h-full">
-        <HomeFriendList
-          friends={[
-            { id: 1, nickname: "유진", statusMessage: "TS 99", isOnline: true },
-            { id: 2, nickname: "유진", statusMessage: "상태메세지", isOnline: true },
-            { id: 3, nickname: "유진", statusMessage: "TS 90", isOnline: false },
-            { id: 4, nickname: "하린", statusMessage: "TS 87", isOnline: true },
-            { id: 5, nickname: "민석", statusMessage: "즐겜 유저", isOnline: false },
-            { id: 6, nickname: "지우", statusMessage: "TS 102", isOnline: true },
-            { id: 7, nickname: "서연", statusMessage: "든든한 힐러", isOnline: false },
-          ]}
-        />
+        <HomeFriendList friends={friends} />
       </div>
     </div>
   );

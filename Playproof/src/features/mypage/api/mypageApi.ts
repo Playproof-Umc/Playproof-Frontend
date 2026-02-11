@@ -11,9 +11,9 @@ import {
   fetchMyProfile as mockFetchMyProfile,
   fetchMyFeedbacks as mockFetchMyFeedbacks,
   fetchMyPosts as mockFetchMyPosts,
-  fetchFriends as mockFetchFriends,
   fetchBlockedUsers as mockFetchBlockedUsers,
 } from '@/features/mypage/data/mockMyPageData';
+import { getFriends as fetchFriends } from '@/services/friendApi';
 
 /**
  * 내 프로필 정보 조회
@@ -46,9 +46,15 @@ export async function getMyPosts(): Promise<MyPostsData> {
  * 친구 목록 조회
  */
 export async function getFriends(): Promise<FriendData[]> {
-  // TODO: 실제 API로 교체
-  // return await fetch('/api/mypage/friends').then(res => res.json());
-  return await mockFetchFriends();
+  const list = await fetchFriends();
+  return list.map((f) => ({
+    userId: String(f.userId),
+    nickname: f.nickname ?? "Unknown",
+    profileImage: f.avatarUrl ?? undefined,
+    isOnline: false,
+    lastSeen: f.statusMessage ?? undefined,
+    tierScore: f.trustScore ?? undefined,
+  }));
 }
 
 /**
