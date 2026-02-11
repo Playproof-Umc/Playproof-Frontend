@@ -90,12 +90,12 @@ export const AzitPageView = () => {
               </button>
 
               <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
-                {currentAzit.name}
+                {currentAzit?.name ?? "아지트"}
               </h1>
 
               <div className="flex items-center gap-1 text-gray-500 font-bold mt-0.5">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">{currentAzit.memberCount}</span>
+                <span className="text-sm">{currentAzit?.memberCount ?? 0}</span>
               </div>
 
               <span
@@ -186,9 +186,9 @@ export const AzitPageView = () => {
       <AzitSettingsModal
         open={isAzitSettingsOpen}
         onClose={() => setIsAzitSettingsOpen(false)}
-        profileUrl={currentAzit.icon}
+        profileUrl={currentAzit?.icon}
         onUpdateProfile={(url) => actions.updateAzitIcon(currentAzitId, url)}
-        initialName={currentAzit.name}
+        initialName={currentAzit?.name ?? ""}
         onUpdateName={(nextName) => actions.updateAzitName(currentAzitId, nextName)}
       />
 

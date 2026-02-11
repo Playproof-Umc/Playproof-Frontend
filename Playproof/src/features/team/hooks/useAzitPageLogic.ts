@@ -8,12 +8,13 @@ import { useAuthStore } from "@/store/authStore";
 import { login } from "@/services/authApi";
 
 import {
-  MOCK_MY_AZITS,
   mockMembers,
   mockMembersByAzit,
   mockSchedulesByAzit,
   mockClipsByAzit,
 } from "@/features/team/data/mockTeamData";
+
+import { getAzits } from "@/features/team/api/azitApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -52,7 +53,7 @@ export function useAzitPageLogic() {
   const routeState = location.state as { azitId?: number } | null;
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
-  const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
+  const [azits, setAzits] = React.useState([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
   // Auth Store 정보 가져오기
@@ -127,6 +128,27 @@ export function useAzitPageLogic() {
     addSchedule,
     markFeedbackDone,
   } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const list = await getAzits();
+        if (!alive) return;
+        setAzits(list);
+        if (list.length > 0) {
+          const exists = list.some((a) => a.id === currentAzitId);
+          if (!exists) setCurrentAzitId(list[0].id);
+        }
+      } catch (err) {
+        console.error("아지트 목록 조회 실패:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId, setCurrentAzitId]);
 
   const {
     feedbackModal,
