@@ -14,9 +14,9 @@ type AuthState = {
 export const useAuthStore = create(
   persist<AuthState>(
     (set) => ({
-      // 개발 환경에서 .env에 설정된 테스트 토큰 사용 (로그인 전 기본값)
-      accessToken: import.meta.env.VITE_DEV_ACCESS_TOKEN ?? null,
-      userId: import.meta.env.VITE_DEV_USER_ID ? Number(import.meta.env.VITE_DEV_USER_ID) : null,
+      // 초기값은 모두 null (로그인 전 상태)
+      accessToken: null,
+      userId: null,
       nickname: null,
       setAuth: ({ accessToken, userId, nickname }) =>
         set({ accessToken, userId, nickname }),

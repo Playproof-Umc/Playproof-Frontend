@@ -10,6 +10,8 @@ type Props = {
 	activeWidth?: number;
 	/** 자동 전환 간격(ms). 0이면 자동 전환 없음 */
 	autoMs?: number;
+	/** 활성 인덱스 변경 콜백 */
+	onActiveChange?: (index: number) => void;
 };
 
 export const OnboardingIndicator = ({
@@ -17,11 +19,16 @@ export const OnboardingIndicator = ({
 	initialActive = 0,
 	activeWidth = 183,
 	autoMs = 3500,
+	onActiveChange,
 }: Props) => {
 	const safeTotal = Math.max(1, total);
 	const [active, setActive] = useState(
 		Math.min(Math.max(0, initialActive), safeTotal - 1)
 	);
+
+	useEffect(() => {
+		onActiveChange?.(active);
+	}, [active, onActiveChange]);
 
 	const trackRef = useRef<HTMLButtonElement | null>(null);
 	const [trackPx, setTrackPx] = useState<number>(0);
