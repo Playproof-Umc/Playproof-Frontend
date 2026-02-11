@@ -155,19 +155,12 @@ export async function login(body: LoginRequest): Promise<LoginResponse> {
 }
 
 /**
- * 📵 인증번호 발송 (개발 중 사용 불가 - 유료 서비스)
+ * 인증번호 발송
  * POST /auth/phone/send-certification
  * 
  * ⚠️ 경고: 이 API는 SMS 발송 비용이 발생합니다.
- * 개발 환경에서는 사용하지 마세요!
  */
 export async function sendPhoneCertification(body: SendCertificationRequest): Promise<SendCertificationResponse['data']> {
-  // 개발 환경에서 실수로 호출되는 것을 방지 (Vite 환경)
-  if (import.meta.env.DEV) {
-    console.error('⚠️ [개발 환경] SMS 인증 API 호출이 차단되었습니다. (유료 서비스)');
-    throw new Error('개발 환경에서는 SMS 인증을 사용할 수 없습니다.');
-  }
-
   const res = await api.post<SendCertificationResponse>("/auth/phone/send-certification", body);
 
   if (res.data.error || res.data.statusCode !== 200) {

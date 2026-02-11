@@ -1,6 +1,6 @@
 // src/features/auth/signup/hooks/usePhoneVerification.ts
 import { useEffect, useMemo, useState } from "react";
-import { sendPhoneCertificationMock, validatePhone } from "@/services/authApi";
+import { sendPhoneCertification, validatePhone } from "@/services/authApi";
 
 const phoneValid = (v: string) => /^010\d{8}$/.test(v);
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
@@ -80,8 +80,8 @@ export const usePhoneVerification = () => {
     if (!phoneOk) return;
 
     try {
-      // 개발 환경: Mock SMS 발송
-      await sendPhoneCertificationMock(phone);
+      // 실제 SMS 발송
+      await sendPhoneCertification({ phone });
       
       setSmsCooldown(30);
       setCode("");
@@ -89,7 +89,7 @@ export const usePhoneVerification = () => {
       setVerifyState("idle");
       setCodeTimer(3 * 60); // 3분
       
-      console.log('📱 [개발용 Mock] SMS 인증번호가 발송되었습니다.');
+      console.log('📱 SMS 인증번호가 발송되었습니다.');
     } catch (error: unknown) {
       console.error('❌ SMS 발송 실패:', error);
       
@@ -109,23 +109,10 @@ export const usePhoneVerification = () => {
 
     setIsVerifying(true);
     try {
-      // 개발 환경: Mock 인증 (123456 사용)
-      if (import.meta.env.DEV) {
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        
-        if (code === "123456") {
-          setVerifyState("success");
-          console.log('✅ [개발용 Mock] 전화번호 인증 성공 (코드: 123456)');
-        } else {
-          setVerifyState("fail");
-          console.warn('❌ 인증번호가 일치하지 않습니다. (테스트 코드: 123456)');
-        }
-      } else {
-        // 프로덕션: 실제 API 호출
-        await validatePhone({ phone, code });
-        setVerifyState("success");
-        console.log('✅ 전화번호 인증 성공');
-      }
+      // 실제 API 호출
+      await validatePhone({ phone, code });
+      setVerifyState("success");
+      console.log('✅ 전화번호 인증 성공');
     } catch (error) {
       setVerifyState("fail");
       console.error('❌ 인증번호 검증 실패:', error);
