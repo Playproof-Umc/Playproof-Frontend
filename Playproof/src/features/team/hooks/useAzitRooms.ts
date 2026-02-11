@@ -10,8 +10,10 @@ export type ChatRoomSummary = {
 
 export type ChatMessageUI = {
   id: string;
+  userId?: string;
   author: string;
   content: string;
+  mediaUrls?: string[];
   createdAt: string;
 };
 

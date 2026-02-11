@@ -3,7 +3,7 @@
 import React from "react";
 import type { Clip } from "@/features/team/types";
 
-type MediaItem = { url: string; type: "image" | "video" };
+type MediaItem = { url: string; type: "image" | "video"; dateLabel?: string; id?: string };
 
 const formatDuration = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
@@ -45,8 +45,8 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
     if (media.length === 0) return;
     const nowLabel = "방금 전";
     const newClips: Clip[] = media.map((item, index) => ({
-      id: `${Date.now()}-${index}`,
-      date: nowLabel,
+      id: item.id ?? `${Date.now()}-${index}`,
+      date: item.dateLabel ?? nowLabel,
       thumbnailUrl: item.type === "image" ? item.url : "",
       mediaType: item.type,
       mediaUrl: item.url,
@@ -88,6 +88,55 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
       };
     });
   }, []);
+
+  const replaceClipsFromMedia = React.useCallback(
+    (azitId: number, roomName: string, media: MediaItem[]) => {
+      const nowLabel = "방금 전";
+      const newClips: Clip[] = media.map((item, index) => ({
+        id: item.id ?? `${Date.now()}-${index}`,
+        date: item.dateLabel ?? nowLabel,
+        thumbnailUrl: item.type === "image" ? item.url : "",
+        mediaType: item.type,
+        mediaUrl: item.url,
+        durationLabel: item.type === "video" ? "0:00" : undefined,
+      }));
+
+      setClipsByAzit((prev) => {
+        const currentRooms = prev[azitId] ?? {};
+        return {
+          ...prev,
+          [azitId]: {
+            ...currentRooms,
+            [roomName]: newClips,
+          },
+        };
+      });
+
+      newClips.forEach((clip) => {
+        if (clip.mediaType !== "video" || !clip.mediaUrl) return;
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.src = clip.mediaUrl;
+        video.onloadedmetadata = () => {
+          const label = formatDuration(video.duration);
+          setClipsByAzit((prev) => {
+            const currentRooms = prev[azitId] ?? {};
+            const current = currentRooms[roomName] ?? [];
+            return {
+              ...prev,
+              [azitId]: {
+                ...currentRooms,
+                [roomName]: current.map((item) =>
+                  item.id === clip.id ? { ...item, durationLabel: label } : item
+                ),
+              },
+            };
+          });
+        };
+      });
+    },
+    []
+  );
 
   const initAzitClips = React.useCallback((azitId: number) => {
     setClipsByAzit((prev) => ({ ...prev, [azitId]: { "자유 대화": [] } }));
@@ -146,6 +195,7 @@ export const useAzitMedia = (initialClips: Record<number, Clip[]>) => {
     clipsByAzit,
     createMediaItems,
     addClipsFromMedia,
+    replaceClipsFromMedia,
     initAzitClips,
     ensureRoomClips,
     renameRoomClips,

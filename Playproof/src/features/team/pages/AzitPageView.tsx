@@ -150,6 +150,7 @@ export const AzitPageView = () => {
             roomName={selectedChatRoomName}
             messages={messages}
             onSendMessage={actions.onSendMessage}
+            currentUserId={currentUserId}
             currentUserName={currentUser.nickname}
           />
 

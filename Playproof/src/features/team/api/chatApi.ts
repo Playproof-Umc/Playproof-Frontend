@@ -26,6 +26,7 @@ export type ChatMessageResDto = {
   userId: number;
   nickname?: string | null;
   content: string;
+  mediaUrls?: string[];
   createdAt: string;
 };
 
@@ -114,6 +115,34 @@ export async function getChatMessages(params: {
     },
   });
 
+  if (json.error) throw new Error(json.error.message);
+  return json.data;
+}
+
+export async function uploadChatImage(params: {
+  apiBaseUrl: string;
+  accessToken: string;
+  roomId: number;
+  file: File;
+}): Promise<{ mediaUrl: string }> {
+  const base = normalizeBase(params.apiBaseUrl);
+  const url = `${base}/chat-rooms/${params.roomId}/upload`;
+  const formData = new FormData();
+  formData.append("file", params.file);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${params.accessToken}`,
+      Accept: "application/json",
+    },
+    body: formData,
+  });
+
+  const json = (await res.json().catch(() => null)) as Result<{ mediaUrl: string }> | null;
+  if (!json) {
+    throw new Error(`API 응답 파싱 실패 (status=${res.status})`);
+  }
   if (json.error) throw new Error(json.error.message);
   return json.data;
 }
