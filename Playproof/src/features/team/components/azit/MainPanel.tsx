@@ -114,9 +114,6 @@ export const MainPanel: React.FC<MainPanelProps> = ({
     <main className="flex-1 flex flex-col w-full min-w-0 lg:min-w-[400px] h-auto lg:h-full">
       <div className="flex-none h-12 flex items-center gap-2 mb-2 px-1">
         <h2 className="text-lg font-bold text-gray-900">{roomName || "채팅"}</h2>
-        <button className="text-gray-400 hover:bg-gray-100 p-0.5 rounded transition-colors">
-          <Plus className="w-5 h-5" />
-        </button>
       </div>
 
       <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden relative">
