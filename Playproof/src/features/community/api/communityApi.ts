@@ -295,12 +295,31 @@ export async function updateBoardPost(postId: number, payload: {
   title: string;
   content: string;
   medias?: { media_url: string; order: number }[];
+  files?: File[];
 }) {
-  const res = await api.patch(`/community/posts/${postId}`, {
+  if (payload.files && payload.files.length > 0) {
+    const formData = new FormData();
+    formData.append("title", payload.title);
+    formData.append("content", payload.content);
+    payload.files.forEach((file) => {
+      formData.append("medias", file);
+    });
+
+    const res = await api.patch(`/community/posts/${postId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return mapBoardPost(res.data.data);
+  }
+
+  const body: { title: string; content: string; medias?: { media_url: string; order: number }[] } = {
     title: payload.title,
     content: payload.content,
-    medias: payload.medias ?? [],
-  });
+  };
+  if (payload.medias) {
+    body.medias = payload.medias;
+  }
+
+  const res = await api.patch(`/community/posts/${postId}`, body);
   return mapBoardPost(res.data.data);
 }
 

@@ -1,6 +1,6 @@
 // src/features/community/components/detail/PostDetailHeader.tsx
 
-import { Eye, MessageCircle, Heart, Share2 } from "lucide-react";
+import { Eye, MessageCircle, Heart, Share2, Pencil, Trash2 } from "lucide-react";
 import type { BoardPost } from "@/features/community/types";
 
 type PostDetailHeaderProps = {
@@ -27,6 +27,7 @@ export const PostDetailHeader = ({
   onReport,
 }: PostDetailHeaderProps) => {
   console.log("PostDetailHeader rendered - likeCount:", likeCount, "isLiked:", isLiked);
+  const isOwner = (post.nickname ?? post.author) === currentUserName;
   const getRelativeTime = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -44,6 +45,24 @@ export const PostDetailHeader = ({
       <div className="mb-4 flex items-start justify-between">
         <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
         <div className="flex items-center gap-2">
+          {isOwner && (
+            <>
+              <button
+                onClick={onEdit}
+                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
+                title="수정"
+              >
+                <Pencil className="h-5 w-5" />
+              </button>
+              <button
+                onClick={onDelete}
+                className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                title="삭제"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            </>
+          )}
           <button
             onClick={onShare}
             className="rounded-lg p-2 text-gray-600 hover:bg-gray-100"

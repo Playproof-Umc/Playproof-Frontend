@@ -71,7 +71,8 @@ function BoardEditModalContent({
       });
       onClose();
     } catch (err) {
-      setError("수정에 실패했습니다. 다시 시도해주세요.");
+      const message = err instanceof Error ? err.message : "수정에 실패했습니다. 다시 시도해주세요.";
+      setError(message);
     } finally {
       setLoading(false);
     }

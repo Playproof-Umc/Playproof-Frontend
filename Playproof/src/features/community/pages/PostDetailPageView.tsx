@@ -40,7 +40,7 @@ export const PostDetailPageView = () => {
   }, [postId]);
   
   // statePost가 있으면 우선, 없으면 API post 사용, 둘 다 없으면 MOCK에서 찾기
-  const post = statePost ?? apiPost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const post = apiPost ?? statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
   console.log("PostDetailPageView - final post:", post, "statePost:", statePost, "apiPost:", apiPost);
   const { state, setters, handlers } = useCommunityDetailLogic(post);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -111,25 +111,38 @@ export const PostDetailPageView = () => {
 
     try {
       // API 스펙: title, content, medias만 전송 (game_id는 수정 시 불필요)
-      await updateBoardPost(post.id, {
+      const updated = await updateBoardPost(post.id, {
         title: payload.title,
         content: payload.content,
-        medias: [], // 기존 이미지 유지 (새 이미지 업로드는 별도 처리 TODO)
+        files: payload.images,
       });
-      
-      // 수정 성공 후 페이지 새로고침
-      window.location.reload();
+      setApiPost(updated);
     } catch (error: any) {
       console.error('게시글 수정 실패:', error);
       const errorMessage = error?.response?.data?.error?.message || '게시글 수정에 실패했습니다.';
-      alert(errorMessage);
-      setIsEditModalOpen(false);
+      throw new Error(errorMessage);
     }
   };
 
-  const handleDeletePost = () => {
-       console.log("게시글 삭제");
-    // TODO: 향후 구현
+  const handleDeletePost = async () => {
+    // 권한 체크 - nickname 또는 author 중 하나와 일치하면 허용
+    const postAuthor = post.nickname ?? post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 삭제할 수 있습니다.');
+      return;
+    }
+
+    const confirmed = window.confirm('게시글을 삭제할까요?');
+    if (!confirmed) return;
+
+    try {
+      await deleteBoardPost(post.id);
+      navigate(`/community?tab=${fromTab}`);
+    } catch (error: any) {
+      console.error('게시글 삭제 실패:', error);
+      const errorMessage = error?.response?.data?.error?.message || '게시글 삭제에 실패했습니다.';
+      alert(errorMessage);
+    }
   };
 
   return (
