@@ -85,6 +85,8 @@ export function useAzitSchedules(
             );
             if (me) {
               nextParticipants.push({ user: me, status: newStatus });
+            } else if (currentUser) {
+              nextParticipants.push({ user: currentUser, status: newStatus });
             }
           }
 

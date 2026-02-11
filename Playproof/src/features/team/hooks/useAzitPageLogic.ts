@@ -7,14 +7,9 @@ import type { User } from "@/features/team/types/types";
 import { useAuthStore } from "@/store/authStore";
 import { login } from "@/services/authApi";
 
-import {
-  MOCK_MY_AZITS,
-  mockMembers,
-  mockMembersByAzit,
-  mockSchedulesByAzit,
-  mockClipsByAzit,
-} from "@/features/team/data/mockTeamData";
+// mock data removed for azit feature
 import { getAzits, updateAzit } from "@/features/team/api/azitApi";
+import { getAzitMembers } from "@/features/team/api/azitMemberApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
 import { useAzitFeedback } from "@/features/team/hooks/useAzitFeedback";
@@ -55,7 +50,7 @@ export function useAzitPageLogic() {
   const routeState = location.state as { azitId?: number } | null;
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
-  const [azits, setAzits] = React.useState(MOCK_MY_AZITS);
+  const [azits, setAzits] = React.useState([]);
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
   // Auth Store 정보 가져오기
@@ -70,12 +65,18 @@ export function useAzitPageLogic() {
 
   React.useEffect(() => {
     if (!accessToken) return;
+    if (!currentAzitId) return;
     let alive = true;
     (async () => {
       try {
         const data = await getAzits();
         if (!alive) return;
-        if (data.length > 0) setAzits(data);
+        if (data.length > 0) {
+          setAzits(data);
+          if (!data.some((a) => a.id === currentAzitId)) {
+            setCurrentAzitId(data[0].id);
+          }
+        }
       } catch (err) {
         console.error("아지트 목록 로드 실패:", err);
       }
@@ -94,15 +95,12 @@ export function useAzitPageLogic() {
         isOnline: true,
       } as User;
     }
-    const foundMock = mockMembers.find((m) => String(m.id) === FALLBACK_USER_ID);
-    return (
-      foundMock ?? {
-        id: FALLBACK_USER_ID,
-        nickname: "게스트",
-        avatarUrl: "",
-        isOnline: true,
-      }
-    );
+    return {
+      id: FALLBACK_USER_ID,
+      nickname: "게스트",
+      avatarUrl: "",
+      isOnline: true,
+    };
   }, [accessToken, authUserId, authNickname]);
 
   // 자동 로그인 로직
@@ -146,7 +144,7 @@ export function useAzitPageLogic() {
     handleStatusChange,
     addSchedule,
     markFeedbackDone,
-  } = useAzitSchedules(currentUserId, mockSchedulesByAzit, mockMembersByAzit, currentUser, accessToken);
+  } = useAzitSchedules(currentUserId, {}, {}, currentUser, accessToken);
 
   const {
     feedbackModal,
@@ -162,7 +160,7 @@ export function useAzitPageLogic() {
     markFeedbackDone,
   });
 
-  const { clipsByAzit, createMediaItems, addClipsFromMedia, initAzitClips } = useAzitMedia(mockClipsByAzit);
+  const { clipsByAzit, createMediaItems, addClipsFromMedia, initAzitClips } = useAzitMedia({});
 
   const {
     chatRooms,
@@ -278,8 +276,11 @@ export function useAzitPageLogic() {
     if (routeState?.azitId) setCurrentAzitId(routeState.azitId);
   }, [routeState?.azitId, setCurrentAzitId]);
 
-  const currentAzit = azits.find((a) => a.id === currentAzitId) ?? azits[0];
-  const currentMembers = mockMembersByAzit[currentAzitId] ?? [];
+  const currentAzit =
+    azits.find((a) => a.id === currentAzitId) ??
+    azits[0] ?? { id: 0, name: "", icon: "", memberCount: 0 };
+  const [membersByAzit, setMembersByAzit] = React.useState<Record<number, User[]>>({});
+  const currentMembers = membersByAzit[currentAzitId] ?? [];
   const currentClips = clipsByAzit[currentAzitId] ?? [];
 
   const reloadChatRooms = React.useCallback(async () => {
@@ -315,6 +316,29 @@ export function useAzitPageLogic() {
   React.useEffect(() => {
     reloadChatRooms();
   }, [reloadChatRooms]);
+
+  React.useEffect(() => {
+    if (!accessToken) return;
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getAzitMembers({ azitId: currentAzitId, page: 1, size: 50 });
+        if (!alive) return;
+        const members: User[] = res.members.map((m) => ({
+          id: String(m.member_id),
+          nickname: m.nickname ?? "Unknown",
+          avatarUrl: m.avatar_url ?? "",
+          isOnline: true,
+        }));
+        setMembersByAzit((prev) => ({ ...prev, [currentAzitId]: members }));
+      } catch (err) {
+        console.error("아지트 멤버 조회 실패:", err);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [accessToken, currentAzitId]);
 
   React.useEffect(() => {
     if (!selectedChatRoomId || !accessToken) return;

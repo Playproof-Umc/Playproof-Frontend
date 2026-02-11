@@ -95,7 +95,7 @@ export const AzitPageView = () => {
 
               <div className="flex items-center gap-1 text-gray-500 font-bold mt-0.5">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">{currentAzit.memberCount}</span>
+                <span className="text-sm">{currentMembers.length}</span>
               </div>
 
               <span
