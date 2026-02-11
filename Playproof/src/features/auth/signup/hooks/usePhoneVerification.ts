@@ -90,11 +90,12 @@ export const usePhoneVerification = () => {
       setCodeTimer(3 * 60); // 3분
       
       console.log('📱 [개발용 Mock] SMS 인증번호가 발송되었습니다.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ SMS 발송 실패:', error);
       
       // 409 Conflict: 이미 등록된 전화번호
-      if (error?.response?.status === 409) {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 409) {
         alert('이미 가입된 전화번호입니다. 다른 번호를 사용해주세요.');
       } else {
         alert('인증번호 발송에 실패했습니다. 다시 시도해주세요.');

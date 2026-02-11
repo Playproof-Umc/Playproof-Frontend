@@ -24,8 +24,9 @@ export const NameStep = ({ phone, onNext, isPending = false }: NameStepProps) =>
     
     try {
       await onNext(name);
-    } catch (err: any) {
-      setError(err.message || "등록되지 않은 계정입니다.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "등록되지 않은 계정입니다.";
+      setError(errorMessage);
     }
   };
 

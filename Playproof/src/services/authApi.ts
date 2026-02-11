@@ -286,10 +286,11 @@ export async function verifyName(body: VerifyNameRequest): Promise<boolean> {
     }
 
     return res.data.data.isValid;
-  } catch (error: any) {
+  } catch (error) {
     console.error('이름 확인 실패:', error);
     
-    if (error?.response?.status === 404) {
+    const axiosError = error as { response?: { status?: number } };
+    if (axiosError?.response?.status === 404) {
       throw new Error('등록되지 않은 계정입니다.');
     }
     

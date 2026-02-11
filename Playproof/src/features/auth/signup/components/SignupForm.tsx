@@ -47,7 +47,7 @@ const SignupForm = () => {
 
 			if (!allValid) {
 				console.log('🔍 [회원가입 조건 체크]', conditions);
-				console.log('❌ 미충족 조건:', Object.entries(conditions).filter(([_, v]) => !v).map(([k]) => k));
+				console.log('❌ 미충족 조건:', Object.entries(conditions).filter(([, isValid]) => !isValid).map(([key]) => key));
 			}
 
 			return allValid;

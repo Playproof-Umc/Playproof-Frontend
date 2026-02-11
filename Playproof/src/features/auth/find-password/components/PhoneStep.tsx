@@ -50,7 +50,7 @@ export const PhoneStep = ({ onNext }: PhoneStepProps) => {
       } else {
         setError("등록되지 않은 계정입니다.");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ 계정 확인 실패:', error);
       setError("등록되지 않은 계정입니다.");
     } finally {
