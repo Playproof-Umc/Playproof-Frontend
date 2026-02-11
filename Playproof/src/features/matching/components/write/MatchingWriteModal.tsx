@@ -29,12 +29,12 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
     memberCount, micStatus, selectedTags, memo, showDuplicateModal 
   } = formState;
 
+  // initialGame은 모달이 열릴 때 한 번만 설정 (game을 의존성에서 제거)
   React.useEffect(() => {
     if (!isOpen || !initialGame) return;
-    if (initialGame !== game) {
-      handlers.handleGameChange(initialGame);
-    }
-  }, [game, handlers, initialGame, isOpen]);
+    handlers.handleGameChange(initialGame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialGame]);
 
   if (!isOpen) return null;
 
@@ -84,7 +84,7 @@ export const MatchingWriteModal: React.FC<MatchingWriteModalProps> = ({
               disabled={!isFormValid} 
               className={`w-full py-4 rounded-xl text-base font-bold transition-colors ${
                 isFormValid 
-                  ? 'bg-gray-900 hover:bg-black text-white cursor-pointer' 
+                  ? 'bg-gray-900 hover:bg-[var(--color-primary-800)] text-white cursor-pointer' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

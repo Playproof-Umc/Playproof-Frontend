@@ -75,7 +75,7 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
         );
       case 'RECRUITMENT_FAILED':
         return (
-          <button className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
+          <button className="w-full bg-[var(--color-primary-800)] text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-[var(--color-primary-700)] transition-colors">
             <Users className="w-4 h-4" /> 추가 게이머 찾기
           </button>
         );
@@ -83,26 +83,26 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
         return (
           <button
             onClick={() => onFeedback?.(schedule.id)}
-            className="w-full bg-blue-100 text-blue-600 py-3 rounded-xl text-sm font-bold hover:bg-blue-200 transition-colors"
+            className="w-full bg-[rgba(11,26,91,0.08)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold hover:bg-[rgba(11,26,91,0.12)] transition-colors"
           >
             피드백 남기기
           </button>
         );
       case 'CREATOR':
         return (
-          <button className="w-full bg-white border border-blue-600 text-blue-600 py-3 rounded-xl text-sm font-bold cursor-default">
+          <button className="w-full bg-white border border-[var(--color-primary-800)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold cursor-default">
             모집중
           </button>
         );
       case 'JOINED':
         return (
-          <button className="w-full bg-white border border-blue-600 text-blue-600 py-3 rounded-xl text-sm font-bold cursor-default">
+          <button className="w-full bg-white border border-[var(--color-primary-800)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold cursor-default">
             신청 완료
           </button>
         );
       case 'DECLINED':
         return (
-          <button className="w-full bg-white border border-blue-600 text-blue-600 py-3 rounded-xl text-sm font-bold cursor-default">
+          <button className="w-full bg-white border border-[var(--color-primary-800)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold cursor-default">
             거절함
           </button>
         );
@@ -118,13 +118,13 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
           <div className="flex gap-2 w-full">
             <button
               onClick={() => onStatusChange?.(schedule.id, 'DECLINE')}
-              className="flex-1 bg-white border border-blue-600 text-blue-600 py-3 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors"
+              className="flex-1 bg-white border border-[var(--color-primary-800)] text-[var(--color-primary-800)] py-3 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors"
             >
               불참
             </button>
             <button
               onClick={() => onStatusChange?.(schedule.id, 'JOIN')}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
+              className="flex-1 bg-[var(--color-primary-800)] text-white py-3 rounded-xl text-sm font-bold hover:bg-[var(--color-primary-700)] transition-colors"
             >
               참여
             </button>

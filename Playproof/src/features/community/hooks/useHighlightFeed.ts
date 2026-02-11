@@ -11,13 +11,11 @@ type HighlightMediaMap = Record<number, string[]>;
 
 type UseHighlightFeedArgs = {
   initialPosts?: HighlightPost[];
-  seedComments?: boolean;
   userName?: string;
 };
 
 export const useHighlightFeed = ({
   initialPosts = [],
-  seedComments = true,
   userName,
 }: UseHighlightFeedArgs = {}) => {
   const authNickname = useAuthStore((s) => s.nickname);
@@ -42,7 +40,7 @@ export const useHighlightFeed = ({
       });
       // MOCK_COMMENTS logic removed; commentsMap is hydrated only from backend
     },
-    [seedComments]
+    []
   );
 
   const getLikeState = React.useCallback(

@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2, Menu, X } from 'lucide-react';
+import { Bell, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2, Menu, X } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components';
 import { buildMockNotifications } from '@/features/notification/data/mockNotifications';
 import { NAV_LINKS } from '@/constants/navigation';
@@ -131,8 +131,12 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => navigate('/home')}>
-            <h1 className="text-2xl font-black tracking-tighter">PLAYPROOF</h1>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/home')}>
+            <img
+              src="/playproof-gnb.svg"
+              alt="PLAYPROOF"
+              className="h-7 w-auto"
+            />
             <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600">Pro</span>
           </div>
 
@@ -238,7 +242,6 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
             )}
           </div>
 
-          <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
             </>
           )}
         </div>

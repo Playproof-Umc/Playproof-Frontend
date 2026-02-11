@@ -1,15 +1,18 @@
-// src/features/matching/context/MatchingDetailContext.tsx
-
 /* eslint-disable react-refresh/only-export-components */
 //src/features/matching/context/MatchingDetailContext.tsx
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { MatchingData } from '@/features/matching/types';
+import { likeParty, applyToParty } from '@/services/partyApi';
 
 type LikeState = {
   count: number;
   isLiked: boolean;
 };
+
+type RequestState = 'none' | 'pending' | 'accepted';
+
+type RequestStateMap = Record<number, RequestState>;
 
 type CommentCountMap = Record<number, number>;
 
@@ -24,6 +27,9 @@ interface MatchingDetailContextType {
   getLikeState: (post: MatchingData) => LikeState;
   getCommentCount: (post: MatchingData) => number;
   updateCommentCount: (postId: number, count: number) => void;
+  requestMatch: (post: MatchingData) => void;
+  cancelMatchRequest: (post: MatchingData) => void;
+  getRequestState: (post: MatchingData) => RequestState;
 }
 
 const MatchingDetailContext = createContext<MatchingDetailContextType | undefined>(undefined);
@@ -41,6 +47,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   const [selectedPost, setSelectedPost] = useState<MatchingData | null>(null);
   const [likeMap, setLikeMap] = useState<Record<number, LikeState>>({});
   const [commentCountMap, setCommentCountMap] = useState<CommentCountMap>({});
+  const [requestStateMap, setRequestStateMap] = useState<RequestStateMap>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -96,11 +103,15 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   }, []);
 
   const toggleLike = useCallback((post: MatchingData) => {
+    console.log('❤️ 좋아요 토글:', { postId: post.id, currentLikes: post.likes, isLiked: post.isLiked });
+    
+    // 즉시 UI 업데이트 (Optimistic Update)
     setLikeMap((prev) => {
       const current = prev[post.id] ?? { count: post.likes, isLiked: !!post.isLiked };
       const next = current.isLiked
         ? { count: Math.max(0, current.count - 1), isLiked: false }
         : { count: current.count + 1, isLiked: true };
+      console.log('📊 UI 업데이트:', { before: current, after: next });
       return { ...prev, [post.id]: next };
     });
 
@@ -112,6 +123,26 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
         : { count: current.count + 1, isLiked: true };
       return { ...prev, likes: next.count, isLiked: next.isLiked };
     });
+
+    // API 호출 (백그라운드)
+    console.log('🌐 좋아요 API 호출 시작:', { partyId: post.id });
+    likeParty(post.id)
+      .then(() => {
+        console.log('✅ 좋아요 API 호출 성공:', { partyId: post.id });
+      })
+      .catch((error) => {
+        console.error('❌ 좋아요 API 호출 실패:', error);
+        // 실패 시 롤백
+        setLikeMap((prev) => {
+          const current = prev[post.id];
+          if (!current) return prev;
+          const rollback = current.isLiked
+            ? { count: current.count - 1, isLiked: false }
+            : { count: current.count + 1, isLiked: true };
+          console.log('🔄 롤백:', { rollback });
+          return { ...prev, [post.id]: rollback };
+        });
+      });
   }, []);
 
   const getCommentCount = useCallback(
@@ -128,6 +159,41 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     });
   }, []);
 
+  const getRequestState = useCallback(
+    (post: MatchingData): RequestState => {
+      return requestStateMap[post.id] ?? 'none';
+    },
+    [requestStateMap]
+  );
+
+  const requestMatch = useCallback((post: MatchingData) => {
+    console.log('🎯 매칭 요청:', { postId: post.id, title: post.title });
+    
+    // 즉시 UI 업데이트 (Optimistic Update)
+    setRequestStateMap((prev) => ({ ...prev, [post.id]: 'pending' }));
+    
+    // API 호출
+    console.log('📤 파티 신청 API 호출 시작...');
+    applyToParty(post.id)
+      .then(() => {
+        console.log('✅ 파티 신청 API 호출 성공:', { partyId: post.id });
+        alert('파티 신청이 완료되었습니다!');
+      })
+      .catch((error) => {
+        console.error('❌ 파티 신청 API 호출 실패:', error);
+        const errorMessage = error.response?.data?.error?.message || '파티 신청에 실패했습니다.';
+        alert(errorMessage);
+        // 실패 시 롤백
+        setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
+      });
+  }, []);
+
+  const cancelMatchRequest = useCallback((post: MatchingData) => {
+    console.log('❌ 매칭 요청 취소:', { postId: post.id });
+    setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
+    // TODO: 취소 API 추가 시 여기서 호출
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       isOpen,
@@ -140,6 +206,9 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      cancelMatchRequest,
+      getRequestState,
     }),
     [
       isOpen,
@@ -152,13 +221,14 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       getLikeState,
       getCommentCount,
       updateCommentCount,
+      requestMatch,
+      cancelMatchRequest,
+      getRequestState,
     ]
   );
 
   return (
-    <MatchingDetailContext.Provider
-      value={contextValue}
-    >
+    <MatchingDetailContext.Provider value={contextValue}>
       {children}
     </MatchingDetailContext.Provider>
   );

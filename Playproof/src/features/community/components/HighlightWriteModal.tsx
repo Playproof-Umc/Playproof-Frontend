@@ -46,7 +46,7 @@ function HighlightWriteModalContent({
     try {
       await onSubmit({ content: content.trim(), images });
       onClose();
-    } catch (e: any) {
+    } catch {
       setError("업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setLoading(false);
@@ -91,7 +91,8 @@ function HighlightWriteModalContent({
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full bg-black text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+              // [해결] 색상은 내 브랜치(primary-800) + 기능은 develop(disabled) 합침
+              className="w-full bg-[var(--color-primary-800)] text-white px-4 py-3 rounded-lg text-xs font-bold hover:bg-[var(--color-primary-700)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? "업로드 중..." : "업로드"}

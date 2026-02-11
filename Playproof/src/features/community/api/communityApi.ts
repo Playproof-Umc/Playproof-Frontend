@@ -1,38 +1,68 @@
 import type { HighlightPost, CommunityComment, User, BoardPost } from '@/features/community/types/types';
 import { api } from '@/services/api';
 
-const normalizeUser = (user: any): User | undefined => {
-  if (!user) return undefined;
+type ApiRecord = Record<string, unknown>;
+
+const isRecord = (value: unknown): value is ApiRecord =>
+  typeof value === "object" && value !== null;
+
+const readValue = (record: ApiRecord, keys: string[]) => {
+  for (const key of keys) {
+    const value = record[key];
+    if (value !== undefined && value !== null) return value;
+  }
+  return undefined;
+};
+
+const toNumber = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+};
+
+const toStringValue = (value: unknown) => (typeof value === "string" ? value : undefined);
+
+const normalizeUser = (user: unknown): User | undefined => {
+  if (!isRecord(user)) return undefined;
   return {
-    id: user.id ?? user.user_id ?? 0,
-    nickname: user.nickname ?? user.name ?? "",
-    profileImage: user.profileImage ?? user.profile_image ?? undefined,
+    id: toNumber(readValue(user, ["id", "user_id", "userId"])) ?? 0,
+    nickname: toStringValue(readValue(user, ["nickname", "name"])) ?? "",
+    profileImage: toStringValue(readValue(user, ["profileImage", "profile_image"])),
   };
 };
 
-const normalizeComment = (item: any): CommunityComment => {
-  const user = normalizeUser(item.user) ?? (item.nickname ? {
-    id: item.user_id ?? item.userId ?? 0,
-    nickname: item.nickname ?? "",
-    profileImage: item.profile_image ?? item.profileImage ?? undefined,
-  } : undefined);
+const normalizeComment = (raw: unknown): CommunityComment => {
+  const item = isRecord(raw) ? raw : {};
+  const fallbackUser: User = { id: 0, nickname: "", profileImage: undefined };
+  const user =
+    normalizeUser(readValue(item, ["user"])) ??
+    (toStringValue(readValue(item, ["nickname"]))
+      ? {
+          id: toNumber(readValue(item, ["user_id", "userId"])) ?? 0,
+          nickname: toStringValue(readValue(item, ["nickname"])) ?? "",
+          profileImage: toStringValue(readValue(item, ["profile_image", "profileImage"])),
+        }
+      : fallbackUser);
 
   return {
-    id: item.id ?? item.comment_id ?? 0,
-    userId: item.userId ?? item.user_id ?? 0,
-    highlightId: item.highlightId ?? item.highlight_id ?? undefined,
-    postId: item.postId ?? item.post_id ?? undefined,
-    parentId: item.parentId ?? item.parent_id ?? undefined,
-    content: item.content ?? "",
-    isPublic: item.isPublic ?? item.is_public ?? true,
-    createdAt: item.createdAt ?? item.created_at ?? "",
-    updatedAt: item.updatedAt ?? item.updated_at ?? "",
-    user: user as User,
-    highlight: item.highlight,
-    post: item.post,
-    parent: item.parent,
-    replies: Array.isArray(item.replies)
-      ? item.replies.map((reply: any) => normalizeComment(reply))
+    id: toNumber(readValue(item, ["id", "comment_id"])) ?? 0,
+    userId: toNumber(readValue(item, ["userId", "user_id"])) ?? 0,
+    highlightId: toNumber(readValue(item, ["highlightId", "highlight_id"])),
+    postId: toNumber(readValue(item, ["postId", "post_id"])),
+    parentId: toNumber(readValue(item, ["parentId", "parent_id"])),
+    content: toStringValue(readValue(item, ["content"])) ?? "",
+    isPublic: (readValue(item, ["isPublic", "is_public"]) as boolean | undefined) ?? true,
+    createdAt: toStringValue(readValue(item, ["createdAt", "created_at"])) ?? "",
+    updatedAt: toStringValue(readValue(item, ["updatedAt", "updated_at"])) ?? "",
+    user: user ?? fallbackUser,
+    highlight: undefined,
+    post: undefined,
+    parent: undefined,
+    replies: Array.isArray(readValue(item, ["replies"]))
+      ? (readValue(item, ["replies"]) as unknown[]).map((reply) => normalizeComment(reply))
       : [],
   };
 };
@@ -63,27 +93,34 @@ const BOARD_GAME_NAME_MAP: Record<number, string> = {
   3: "오버워치",
 };
 
-const mapBoardPost = (item: any): BoardPost => ({
-  id: item.post_id ?? item.id,
-  userId: item.user_id ?? item.userId,
-  gameId: item.game_id ?? item.gameId,
-  author: item.nickname ?? item.author ?? "",
-  date: item.created_at ?? "",
-  createdAt: item.created_at ?? "",
-  game: BOARD_GAME_NAME_MAP[item.game_id ?? item.gameId] ?? item.game_name ?? item.game ?? "",
-  title: item.title ?? "",
-  content: item.content ?? "",
-  likes: item.like_count ?? 0,
-  isLiked: item.is_liked ?? item.isLiked ?? false,
-  views: item.view_count ?? 0,
-  comments: item.comment_count ?? 0,
-  mediaType: (item.medias ?? []).length > 0 ? "photo" : undefined,
-  thumbnail: item.medias?.[0]?.media_url ?? item.thumbnail ?? undefined,
-});
+const mapBoardPost = (raw: unknown): BoardPost => {
+  const item = isRecord(raw) ? raw : {};
+  const gameId = toNumber(readValue(item, ["game_id", "gameId"]));
+  const medias = Array.isArray(readValue(item, ["medias"])) ? (readValue(item, ["medias"]) as ApiRecord[]) : [];
+  const firstMedia = medias[0];
+
+  return {
+    id: toNumber(readValue(item, ["post_id", "id"])) ?? 0,
+    userId: toNumber(readValue(item, ["user_id", "userId"])),
+    gameId,
+    author: toStringValue(readValue(item, ["nickname", "author"])) ?? "",
+    date: toStringValue(readValue(item, ["created_at"])) ?? "",
+    createdAt: toStringValue(readValue(item, ["created_at"])) ?? "",
+    game: BOARD_GAME_NAME_MAP[gameId ?? 0] ?? toStringValue(readValue(item, ["game_name", "game"])) ?? "",
+    title: toStringValue(readValue(item, ["title"])) ?? "",
+    content: toStringValue(readValue(item, ["content"])) ?? "",
+    likes: toNumber(readValue(item, ["like_count"])) ?? 0,
+    isLiked: (readValue(item, ["is_liked", "isLiked"]) as boolean | undefined) ?? false,
+    views: toNumber(readValue(item, ["view_count"])) ?? 0,
+    comments: toNumber(readValue(item, ["comment_count"])) ?? 0,
+    mediaType: medias.length > 0 ? "photo" : undefined,
+    thumbnail: isRecord(firstMedia) ? toStringValue(readValue(firstMedia, ["media_url"])) ?? toStringValue(readValue(item, ["thumbnail"])) : toStringValue(readValue(item, ["thumbnail"])),
+  };
+};
 
 // 댓글 목록 조회
 export async function getComments({ highlightId, postId, parentId, page = 1, limit = 20 }: { highlightId?: number; postId?: number; parentId?: number; page?: number; limit?: number }) {
-  const params: any = { page, limit };
+  const params: Record<string, unknown> = { page, limit };
   if (highlightId) {
     params.target_type = 'HIGHLIGHT';
     params.target_id = highlightId;
@@ -96,7 +133,7 @@ export async function getComments({ highlightId, postId, parentId, page = 1, lim
   const res = await api.get('/community/comments', { params });
   const raw = res.data.data?.comments ?? res.data.data ?? [];
   if (!Array.isArray(raw)) return [];
-  const normalized = raw.map((item: any) => normalizeComment(item));
+  const normalized = raw.map((item) => normalizeComment(item));
   return buildCommentTree(normalized);
 }
 
@@ -112,7 +149,7 @@ export async function addComment({ highlightId, postId, content, parentId }: { h
     target_type = 'POST';
     target_id = postId;
   }
-  const payload: any = {
+  const payload: Record<string, unknown> = {
     target_type,
     target_id,
     content,
@@ -159,7 +196,7 @@ export async function getBoardPosts(gameId: number, page: number = 1, limit: num
   const res = await api.get(`/community/games/${gameId}/posts`, { params: { page, limit } });
   const data = res.data.data;
   const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-  return posts.map((item: any) => mapBoardPost(item));
+  return posts.map((item: unknown) => mapBoardPost(item));
 }
 
 /**
@@ -169,7 +206,7 @@ export async function getAllBoardPosts(page: number = 1, limit: number = 10): Pr
   const res = await api.get("/community/posts", { params: { page, limit } });
   const data = res.data.data;
   const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-  return posts.map((item: any) => mapBoardPost(item));
+  return posts.map((item: unknown) => mapBoardPost(item));
 }
 
 // 자유게시판 글 작성
@@ -212,19 +249,22 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
   const res = await api.get('/community/highlights', { params: { page, limit } });
   const highlights = res.data.data?.highlights || [];
   // API 응답을 HighlightPost[]로 매핑
-  return highlights.map((item: any) => ({
-    id: item.highlight_id,
-    userId: item.user_id,
-    nickname: item.nickname,
-    profileUrl: item.profileUrl,
-    content: item.content,
-    medias: item.medias,
-    commentCount: item.comment_count,
-    likeCount: item.like_count,
-    isLiked: item.is_liked,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
-  }));
+  return (Array.isArray(highlights) ? highlights : []).map((raw) => {
+    const item = isRecord(raw) ? raw : {};
+    return {
+      id: toNumber(readValue(item, ["highlight_id", "id"])) ?? 0,
+      userId: toNumber(readValue(item, ["user_id", "userId"])),
+      nickname: toStringValue(readValue(item, ["nickname"])),
+      profileUrl: toStringValue(readValue(item, ["profileUrl"])),
+      content: toStringValue(readValue(item, ["content"])) ?? "",
+      medias: Array.isArray(readValue(item, ["medias"])) ? (readValue(item, ["medias"]) as string[]) : [],
+      commentCount: toNumber(readValue(item, ["comment_count"])),
+      likeCount: toNumber(readValue(item, ["like_count"])),
+      isLiked: (readValue(item, ["is_liked"]) as boolean | undefined) ?? false,
+      createdAt: toStringValue(readValue(item, ["created_at"])),
+      updatedAt: toStringValue(readValue(item, ["updated_at"])),
+    } as HighlightPost;
+  });
 }
 
 /**
@@ -235,7 +275,7 @@ export async function getBestPosts(limit: number = 5): Promise<BoardPost[]> {
     const res = await api.get('/community/posts/best', { params: { limit } });
     const data = res.data.data;
     const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-    return posts.map((item: any) => mapBoardPost(item));
+    return posts.map((item: unknown) => mapBoardPost(item));
   } catch {
     return [];
   }
@@ -244,21 +284,21 @@ export async function getBestPosts(limit: number = 5): Promise<BoardPost[]> {
 // 하이라이트 상세 조회 (단일)
 export async function getHighlightDetail(highlightId: number) {
   const res = await api.get(`/community/highlights/${highlightId}`);
-  const item = res.data.data;
+  const item = isRecord(res.data.data) ? res.data.data : {};
   // camelCase로 변환 및 기본 이미지 처리
   return {
-    id: item.highlight_id,
-    userId: item.user_id,
-    nickname: item.nickname,
-    profileUrl: item.profileUrl || '/no-image.png',
-    content: item.content,
-    medias: (item.medias && item.medias.length > 0)
-      ? item.medias.map((m: string) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
+    id: toNumber(readValue(item, ["highlight_id", "id"])) ?? highlightId,
+    userId: toNumber(readValue(item, ["user_id", "userId"])),
+    nickname: toStringValue(readValue(item, ["nickname"])),
+    profileUrl: toStringValue(readValue(item, ["profileUrl"])) ?? '/no-image.png',
+    content: toStringValue(readValue(item, ["content"])) ?? "",
+    medias: (Array.isArray(readValue(item, ["medias"])) && (readValue(item, ["medias"]) as string[]).length > 0)
+      ? (readValue(item, ["medias"]) as string[]).map((m) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
       : ['/no-image.png'],
-    commentCount: item.comment_count,
-    likeCount: item.like_count,
-    isLiked: item.is_liked,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
+    commentCount: toNumber(readValue(item, ["comment_count"])),
+    likeCount: toNumber(readValue(item, ["like_count"])),
+    isLiked: (readValue(item, ["is_liked"]) as boolean | undefined) ?? false,
+    createdAt: toStringValue(readValue(item, ["created_at"])),
+    updatedAt: toStringValue(readValue(item, ["updated_at"])),
   };
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import {
   CommunityTabs,
   CommunitySearchBar,
@@ -53,10 +53,8 @@ export const CommunityPageView = () => {
   }, [modal.isWriteOpen, sharedFiles.length]);
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
-
-      <main className="mx-auto w-full max-w-7xl px-6 py-8">
+    <AppLayout className="bg-zinc-50">
+      <main className="py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-zinc-900">
             {COMMUNITY_PAGE_LABELS.title}
@@ -124,11 +122,11 @@ export const CommunityPageView = () => {
       {modal.selectedPost && (
         <HighlightDetailModal
           post={modal.selectedPost}
-          comments={actions.highlight.getComments(modal.selectedPost.id)}
+          comments={actions.highlight.getComments(modal.selectedPost!.id)}
           likeCount={actions.highlight.getLikeState(modal.selectedPost).count}
           isLiked={actions.highlight.getLikeState(modal.selectedPost).isLiked}
           totalCommentCount={actions.highlight.getCommentCount(modal.selectedPost)}
-          onToggleLike={(postId) => actions.highlight.toggleLike(postId, modal.selectedPost!.likes)}
+          onToggleLike={(postId) => actions.highlight.toggleLike(postId, modal.selectedPost!.likes ?? 0)}
           onAddComment={actions.highlight.addComment}
           onAddReply={actions.highlight.addReply}
           onEditComment={actions.highlight.editComment}
@@ -156,6 +154,6 @@ export const CommunityPageView = () => {
           initialImages={sharedFiles}
         />
       )}
-    </div>
+    </AppLayout>
   );
 };

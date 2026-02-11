@@ -179,7 +179,7 @@ export const NotificationDropdown = ({
                           markAsRead(noti.id);
                           removeNotification(noti.id);
                         }}
-                        className="px-3 py-1.5 bg-black text-white text-[11px] font-bold rounded-lg hover:bg-gray-800"
+                        className="px-3 py-1.5 bg-[var(--color-primary-800)] text-white text-[11px] font-bold rounded-lg hover:bg-[var(--color-primary-700)]"
                       >
                         수락
                       </button>

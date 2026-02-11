@@ -1,5 +1,8 @@
 // src/features/team/types/types.ts
-import type { User } from '@/types'; 
+import type { User } from "@/types";
+
+// ✅ 외부에서 "@/features/team/types/types"로 User를 import 할 수 있게 re-export
+export type { User } from "@/types";
 
 // 아지트 (팀 공간) 타입
 export interface Azit {
@@ -10,11 +13,20 @@ export interface Azit {
   description?: string;
 }
 
+export interface Clip {
+  id: string;
+  date: string;
+  thumbnailUrl: string;
+  mediaType?: "image" | "video";
+  mediaUrl?: string;
+  durationLabel?: string;
+}
+
 // 채널 정보
 export interface Channel {
   id: string;
   name: string;
-  type: 'VOICE' | 'TEXT';
+  type: "VOICE" | "TEXT";
   connectedUsers?: User[];
 }
 
@@ -44,14 +56,5 @@ export interface CustomMatchSchedule {
   targetDate: Date;
   currentParticipants: number;
   maxParticipants: number;
-  status: '모집중' | '매칭완료';
-}
-
-export interface Clip {
-  id: string;
-  date: string;
-  thumbnailUrl: string;
-  mediaType?: 'image' | 'video';
-  mediaUrl?: string;
-  durationLabel?: string;
+  status: "모집중" | "매칭완료";
 }

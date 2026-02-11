@@ -7,7 +7,7 @@ import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/use
 import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
 import { getBestPosts } from "@/features/community/api/communityApi";
 import type { FilterState, MatchingData } from "@/features/matching/types";
-import type { HighlightPost, BoardPost, Comment } from "@/features/community/types";
+import type { HighlightPost, BoardPost, CommunityComment } from "@/features/community/types";
 import { useHomeHighlightsLogic } from "@/features/home/hooks/useHomeHighlightsLogic";
 import { useHomeMatchingLogic } from "@/features/home/hooks/useHomeMatchingLogic";
 
@@ -49,16 +49,16 @@ type UseHomePageLogicReturn = {
     handlePrevAzit: () => void;
     handleNextAzit: () => void;
     handleHighlightLikeState: (post: HighlightPost) => { count: number; isLiked: boolean };
-    handleHighlightComments: (postId: number) => Comment[];
+    handleHighlightComments: (postId: number) => CommunityComment[];
     handleHighlightCommentCount: (post: HighlightPost) => number;
     toggleHighlightLike: (postId: number, fallbackLikes: number) => void;
     deleteHighlightPost: (postId: number) => void;
-    addHighlightComment: (postId: number, content: string) => void;
-    addHighlightReply: (postId: number, commentId: string, content: string) => void;
-    editHighlightComment: (postId: number, commentId: string, content: string) => void;
-    editHighlightReply: (postId: number, commentId: string, replyId: string, content: string) => void;
-    deleteHighlightComment: (postId: number, commentId: string) => void;
-    deleteHighlightReply: (postId: number, commentId: string, replyId: string) => void;
+    addHighlightComment: (postId: number, content: string) => void | Promise<void>;
+    addHighlightReply: (postId: number, commentId: number, content: string) => void | Promise<void>;
+    editHighlightComment: (postId: number, commentId: number, content: string) => void | Promise<void>;
+    editHighlightReply: (postId: number, commentId: number, replyId: number, content: string) => void | Promise<void>;
+    deleteHighlightComment: (postId: number, commentId: number) => void | Promise<void>;
+    deleteHighlightReply: (postId: number, commentId: number, replyId: number) => void | Promise<void>;
   };
 };
 

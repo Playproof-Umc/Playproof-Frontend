@@ -1,6 +1,6 @@
 // src/features/matching/pages/MatchingPageView.tsx
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { MatchingSearchBar, GameFilter, RecommendedSection, PartyRequestBanner, MatchingWriteModal } from '@/features/matching/components';
 import { PopularMatchList } from '@/features/matching/components/home/PopularMatchList';
 import { FilteredMatchList } from '@/features/matching/components/home/FilteredMatchList';
@@ -94,11 +94,12 @@ export const MatchingPageView = () => {
   }, [allMatches, location.key, location.state, navigate, openMatchingDetail, actions, setters]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 pb-20 font-sans">
-      <Navbar isProUser={isProUser} onTogglePro={() => setters.setIsProUser(!isProUser)} />
-
+    <AppLayout
+      className="bg-white text-gray-800 pb-20 font-sans"
+      navbarProps={{ isProUser, onTogglePro: () => setters.setIsProUser(!isProUser) }}
+    >
       <div className="bg-white border-b border-gray-100 relative z-40">
-        <div className="max-w-[1280px] mx-auto px-6 py-5 flex flex-col gap-5">
+        <div className="py-5 flex flex-col gap-5">
           <div className="w-full">
             <GameFilter games={GAME_LIST} activeGame={activeGame} onGameSelect={setters.setActiveGame} />
           </div>
@@ -120,8 +121,8 @@ export const MatchingPageView = () => {
         </div>
       </div>
 
-      <main className="max-w-[1280px] mx-auto px-6 py-8 space-y-10">
-      <PartyRequestBanner initialOpen={initialOpenApplicants} />
+      <main className="py-8 space-y-10">
+        <PartyRequestBanner initialOpen={initialOpenApplicants} />
         {/* 추천 섹션 */}
         <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />
@@ -141,11 +142,11 @@ export const MatchingPageView = () => {
         required
         targetName={pendingFeedback?.targetName ?? "상대방"}
         onSubmit={() => {
-    if (!pendingFeedback) return;
-    removePendingFeedback(pendingFeedback.scheduleId, pendingFeedback.azitId);
-    setPendingFeedback(getPendingFeedbacks()[0]);
-  }}
+          if (!pendingFeedback) return;
+          removePendingFeedback(pendingFeedback.scheduleId, pendingFeedback.azitId);
+          setPendingFeedback(getPendingFeedbacks()[0]);
+        }}
       />
-    </div>
+    </AppLayout>
   );
 };

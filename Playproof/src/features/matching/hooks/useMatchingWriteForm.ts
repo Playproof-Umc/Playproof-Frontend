@@ -33,9 +33,11 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
 
   // 게임 변경 핸들러 (게임이 바뀌면 포지션/티어 초기화)
   const handleGameChange = (newGame: string) => {
+    console.log('🎮 게임 변경:', { 이전: game, 새로운: newGame });
     setGame(newGame);
     setSelectedPositions([]);
     setTier('');
+    console.log('✅ 게임 변경 완료 - 포지션/티어 초기화됨');
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

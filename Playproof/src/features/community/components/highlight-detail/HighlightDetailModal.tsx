@@ -16,12 +16,12 @@ export interface HighlightDetailModalProps {
   isLiked: boolean;
   totalCommentCount: number;
   onToggleLike: (postId: number) => void;
-  onAddComment: (postId: number, content: string) => void;
-  onAddReply: (postId: number, commentId: number, content: string) => void;
-  onEditComment: (postId: number, commentId: number, content: string) => void;
-  onEditReply: (postId: number, commentId: number, replyId: number, content: string) => void;
-  onDeleteComment: (postId: number, commentId: number) => void;
-  onDeleteReply: (postId: number, commentId: number, replyId: number) => void;
+  onAddComment: (postId: number, content: string) => void | Promise<void>;
+  onAddReply: (postId: number, commentId: number, content: string) => void | Promise<void>;
+  onEditComment: (postId: number, commentId: number, content: string) => void | Promise<void>;
+  onEditReply: (postId: number, commentId: number, replyId: number, content: string) => void | Promise<void>;
+  onDeleteComment: (postId: number, commentId: number) => void | Promise<void>;
+  onDeleteReply: (postId: number, commentId: number, replyId: number) => void | Promise<void>;
   currentUserName: string;
   isOpen: boolean;
   onClose: () => void;

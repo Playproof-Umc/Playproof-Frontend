@@ -11,7 +11,7 @@ export const api = axios.create({
       ? { Authorization: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}` }
       : {}),
   },
-  withCredentials: true, // refreshToken을 httpOnly 쿠키로 받게 될 때 필요
+  // withCredentials: true, // refreshToken을 httpOnly 쿠키로 받게 될 때만 필요
 });
 
 // accessToken 자동 주입(메모리)
@@ -46,7 +46,7 @@ export interface CreateHighlightResponse {
     content: string;
     created_at: string;
   };
-  error: any;
+  error: unknown;
 }
 
 export async function createHighlight(
