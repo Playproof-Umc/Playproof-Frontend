@@ -91,7 +91,7 @@ function BoardWriteModalContent({
             </div>
 
             <div>
-              <WriteModalUploadBox onFilesChange={setImages} />
+              <WriteModalUploadBox onFilesChange={setImages} initialFiles={images} />
             </div>
 
             <div>
