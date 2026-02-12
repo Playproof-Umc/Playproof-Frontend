@@ -2,9 +2,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { sendPhoneCertification, validatePhone } from "@/services/authApi";
 
-const phoneValid = (v: string) => /^010\d{8}$/.test(v);
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
 const pad2 = (n: number) => String(n).padStart(2, "0");
+
+function formatPhoneNumberInput(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  }
+  if (digits.length <= 11) {
+    const head = digits.slice(0, 3);
+    const middle = digits.length === 10 ? digits.slice(3, 6) : digits.slice(3, 7);
+    const tail = digits.slice(middle.length + 3);
+    return `${head}-${middle}-${tail}`;
+  }
+  return digits;
+}
+
+const phoneValid = (v: string) => /^010\d{8}$/.test(digitsOnly(v));
 
 export type VerifyState = "idle" | "success" | "fail";
 
@@ -130,7 +145,7 @@ export const usePhoneVerification = () => {
     onPhoneChange: (next: string) => {
       if (locked) return; // 이미 성공했으면 수정 불가
       const v = digitsOnly(next).slice(0, 11);
-      setPhone(v);
+      setPhone(formatPhoneNumberInput(v));
 
       // 번호 변경 시 모든 상태 초기화 (재인증 필요)
       setSmsCooldown(0);
