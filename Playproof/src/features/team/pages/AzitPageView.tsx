@@ -178,8 +178,8 @@ export const AzitPageView = () => {
       <AzitCreateModal
         open={isAzitCreateOpen}
         onClose={() => setIsAzitCreateOpen(false)}
-        onCreate={({ name, iconUrl }) => {
-          actions.addAzit(name, iconUrl);
+        onCreate={({ name, iconFile }) => {
+          actions.addAzit(name, iconFile);
           setIsAzitCreateOpen(false);
         }}
       />

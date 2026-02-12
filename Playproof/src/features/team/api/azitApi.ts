@@ -56,3 +56,23 @@ export async function updateAzit(
   }
   return res.data.data;
 }
+
+export async function createAzit(payload: {
+  azit_name: string;
+  azit_icon?: File | null;
+}): Promise<AzitResDto> {
+  const formData = new FormData();
+  formData.append("azit_name", payload.azit_name);
+  if (payload.azit_icon) {
+    formData.append("azit_icon", payload.azit_icon);
+  }
+
+  const res = await api.post<ApiResponse<AzitResDto>>("/azits", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
+    throw new Error(res.data.error?.message ?? "아지트 생성 실패");
+  }
+  return res.data.data;
+}

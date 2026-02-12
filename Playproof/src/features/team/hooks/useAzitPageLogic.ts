@@ -9,7 +9,7 @@ import { login } from "@/services/authApi";
 
 import { mockMembers } from "@/features/team/data/mockTeamData";
 
-import { getAzits, updateAzit } from "@/features/team/api/azitApi";
+import { createAzit, getAzits, updateAzit } from "@/features/team/api/azitApi";
 import { getAzitMembers, mapAzitMembersToUsers } from "@/features/team/api/azitMemberApi";
 
 import { useAzitSchedules } from "@/features/team/hooks/useAzitSchedules";
@@ -547,18 +547,33 @@ export function useAzitPageLogic() {
   }, []);
 
   const addAzit = React.useCallback(
-    (name: string, iconUrl?: string) => {
+    async (name: string, iconFile?: File | null) => {
       const trimmed = name.trim();
       if (!trimmed) return;
-      const nextId = azits.reduce((max, a) => Math.max(max, a.id), 0) + 1;
-      if (iconUrl) azitIconUrlsRef.current.push(iconUrl);
-      const nextAzit = { id: nextId, name: trimmed, memberCount: 1, icon: iconUrl ?? "" };
-      setAzits((prev) => [...prev, nextAzit]);
-      initAzitRooms(nextId);
-      initAzitClips(nextId);
-      setCurrentAzitId(nextId);
+      if (!accessToken) return;
+      try {
+        const created = await createAzit({
+          azit_name: trimmed,
+          azit_icon: iconFile ?? null,
+        });
+        const nextAzit: Azit = {
+          id: created.azit_id,
+          name: created.azit_name,
+          icon: created.azit_icon_url ?? "",
+          memberCount: 1,
+        };
+        setAzits((prev) => {
+          const exists = prev.some((a) => a.id === nextAzit.id);
+          return exists ? prev : [...prev, nextAzit];
+        });
+        initAzitRooms(nextAzit.id);
+        initAzitClips(nextAzit.id);
+        setCurrentAzitId(nextAzit.id);
+      } catch (err) {
+        console.error("아지트 생성 실패:", err);
+      }
     },
-    [azits, initAzitClips, initAzitRooms, setCurrentAzitId]
+    [accessToken, initAzitClips, initAzitRooms, setCurrentAzitId]
   );
 
   const updateAzitName = React.useCallback(
