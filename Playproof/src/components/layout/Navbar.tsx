@@ -19,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
   const accessToken = useAuthStore((s) => s.accessToken);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const displayName = authNickname ?? "사용자";
   const isLoggedIn = !!accessToken; // 액세스 토큰이 있으면 로그인 상태
   
@@ -111,7 +112,14 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
           <span>내 파티 관리</span>
         </div>
         <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
-        <div className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors">
+        <div
+          className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+          onClick={() => {
+            clearAuth();
+            setIsProfileOpen(false);
+            navigate('/login');
+          }}
+        >
           <LogOut size={16} />
           <span>로그아웃</span>
         </div>
