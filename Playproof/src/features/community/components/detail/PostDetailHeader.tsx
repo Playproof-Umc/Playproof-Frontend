@@ -27,7 +27,7 @@ export const PostDetailHeader = ({
   onReport,
 }: PostDetailHeaderProps) => {
   console.log("PostDetailHeader rendered - likeCount:", likeCount, "isLiked:", isLiked);
-  const isOwner = (post.nickname ?? post.author) === currentUserName;
+  const isOwner = (post.author) === currentUserName;
   const getRelativeTime = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
