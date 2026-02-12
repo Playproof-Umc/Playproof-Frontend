@@ -10,7 +10,7 @@ export type SignupRequest = {
     id: number;
     agree: boolean;
   }>;
-  gameInfo: {
+  gameInfo?: {
     gameId: number;
     gameName: string;
     gameNickname: string;
