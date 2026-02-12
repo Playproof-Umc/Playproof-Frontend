@@ -58,6 +58,12 @@ npm run dev
 ```
 브라우저에서 `http://localhost:5173`으로 접속하여 확인합니다.
 
+### 5. 프로덕션 빌드 확인 (선택)
+```bash
+npm run build
+npm run preview
+```
+
 <br/>
 
 ## 📂 Project Structure (폴더 구조)
