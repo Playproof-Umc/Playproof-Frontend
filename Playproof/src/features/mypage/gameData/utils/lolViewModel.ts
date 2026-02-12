@@ -4,7 +4,7 @@ import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "@/featur
 import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "@/features/mypage/gameData/types/gameDataTypes";
 
 /* =========================================================
-   ✅ 로컬 챔피언 이미지 (정적 import)
+   Local champion images (optional)
 ========================================================= */
 import Ambessa from "@/assets/lol/champions/Ambessa.png";
 import Mel from "@/assets/lol/champions/Mel.png";
@@ -19,7 +19,7 @@ const LOCAL_CHAMP_MAP: Record<string, string> = {
 };
 
 /* =========================================================
-   기본 유틸
+   Basic utils
 ========================================================= */
 
 const pickSoloQueue = (entries: LeagueEntryDto[]) =>
@@ -69,19 +69,15 @@ const getGold = (p: MatchDto["info"]["participants"][number]) => {
   return readNumberField(p, "goldEarned") ?? 0;
 };
 
-const readStringField = <T extends object>(obj: T | null | undefined, key: string) => {
-  const v = (obj as unknown as Record<string, unknown> | null)?.[key];
-  return typeof v === "string" ? v : "";
-};
-
-const readNumberFieldLoose = <T extends object>(obj: T | null | undefined, key: string): number | null => {
-  const v = (obj as unknown as Record<string, unknown> | null)?.[key];
-  return typeof v === "number" ? v : null;
-};
-
 /* =========================================================
-   ✅ buildLolLinkedProfile
-   ⭐ FIX: 헤더에서 사용하는 필드들을 실제로 채운다.
+   buildLolLinkedProfile
+========================================================= */
+
+export type BuildLolProfileOptions = {
+  fallbackWinRatePercent?: number;
+  fallbackMainPosition?: string;
+};
+
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
@@ -89,53 +85,28 @@ export const buildLolLinkedProfile = (
   options?: BuildLolProfileOptions
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
-
-  const tierText = solo ? formatTier(solo.tier, solo.rank) : "Unranked";
-  const winRatePercent = solo ? toPercent(solo.wins, solo.losses) : 0;
-
-  // RiotID / Summoner 정보 (최소 DTO라서 안전 접근)
-  const summonerName = readStringField(summoner, "name");
-  const summonerLevel = readNumberFieldLoose(summoner, "summonerLevel");
-  const profileIconId = readNumberFieldLoose(summoner, "profileIconId");
-
-  const riotId = `${account.gameName}#${account.tagLine}`;
-
-  // serverLabel은 네 프로젝트에서 KR 고정으로 쓰는 편이 안전 (필요하면 나중에 확장)
-  const serverLabel = "KR";
+  const wins = solo?.wins ?? 0;
+  const losses = solo?.losses ?? 0;
+  const winRatePercent =
+    typeof options?.fallbackWinRatePercent === "number"
+      ? options.fallbackWinRatePercent
+      : toPercent(wins, losses);
 
   return {
-    gameKey: "lol",
-    title: "리그 오브 레전드",
-    subtitle: "League of Legends",
-
-    // 기존 필드
-    tierText,
-    mainPosition: "미정",
+    summonerName: account.gameName,
+    tagLine: account.tagLine,
+    riotId: `${account.gameName}#${account.tagLine}`,
+    serverLabel: "Kr server",
+    profileIconId: summoner?.profileIconId,
+    summonerLevel: summoner?.summonerLevel,
+    currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
+    mainPosition: options?.fallbackMainPosition ?? "미정",
     winRatePercent,
-
-    // ✅ 헤더 카드에서 쓰는 필드들 (없어서 UI가 비어있던 원인)
-    riotId,
-    summonerName,
-    serverLabel,
-    summonerLevel: summonerLevel ?? undefined,
-    profileIconId: profileIconId ?? undefined,
-
-    // ✅ 헤더가 currentTier를 직접 쓰는 경우도 있어서 같이 제공
-    currentTier: tierText,
-
-    meta: {
-      riot: {
-        gameName: account.gameName,
-        tagLine: account.tagLine,
-        puuid: account.puuid,
-        summonerName,
-      },
-    },
-  } as LolLinkedProfile;
+  };
 };
 
 /* =========================================================
-   ✅ buildLolAggregateStats (export 유지)
+   buildLolAggregateStats
 ========================================================= */
 
 export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): LolAggregateStats => {
@@ -171,10 +142,9 @@ export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): Lo
   const mostChampions = Array.from(champCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([name]) => ({ name }));
+    .map(([name, games]) => ({ name, games }));
 
   return {
-    totalGames: total,
     wins,
     losses,
     winRatePercent: total > 0 ? Math.round((wins / total) * 100) : 0,
@@ -183,9 +153,85 @@ export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): Lo
     avgAssists: Math.round(avgAssists * 10) / 10,
     avgKdaRatio: Math.round(avgKdaRatio * 100) / 100,
     mostChampions,
-    items,
   };
 };
 
 /* =========================================================
-   ✅ buildLolMatchList (export 유지)
+   buildLolMatchList
+========================================================= */
+
+export const buildLolMatchList = (matches: MatchDto[], myPuuid: string): LolMatchItem[] => {
+  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
+
+  return validMatches
+    .map((m) => {
+      const me = m.info.participants.find((x) => x.puuid === myPuuid);
+      if (!me) return null as any;
+
+      const win = me.win;
+      const result: MatchResult = win ? "win" : "lose";
+
+      const myTeamId = me.teamId;
+      const teamChampions = m.info.participants
+        .filter((p) => p.teamId === myTeamId)
+        .map((p) => p.championName);
+      const opponentChampions = m.info.participants
+        .filter((p) => p.teamId !== myTeamId)
+        .map((p) => p.championName);
+
+      const cs = getCs(me);
+      const gold = getGold(me);
+
+      return {
+        id: m.metadata.matchId,
+        result,
+        queueLabel: "솔랭",
+        durationText: secondsToKoreanDuration(m.info.gameDuration),
+        kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
+        kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
+        pills: [`CS ${cs}`, `골드 ${(gold / 1000).toFixed(1)}k`],
+        itemsCount: extractItemsCount(me),
+        myChampionName: me.championName,
+        teamChampions,
+        opponentChampions,
+      } as LolMatchItem;
+    })
+    .filter(Boolean) as LolMatchItem[];
+};
+
+/* =========================================================
+   helpers for UI
+========================================================= */
+
+const POSITION_MAP: Record<string, string> = {
+  TOP: "탑",
+  JUNGLE: "정글",
+  MIDDLE: "미드",
+  MID: "미드",
+  BOTTOM: "원딜",
+  ADC: "원딜",
+  UTILITY: "서폿",
+  SUPPORT: "서폿",
+};
+
+export const computeMainPosition = (matches: MatchDto[], puuid: string): string => {
+  const counts = new Map<string, number>();
+  for (const m of matches ?? []) {
+    const me = m?.info?.participants?.find((p) => p.puuid === puuid);
+    if (!me) continue;
+    const raw = me.teamPosition || me.lane || "UNKNOWN";
+    const label = POSITION_MAP[raw] ?? "미정";
+    if (label === "미정") continue;
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] ?? "미정";
+};
+
+export const getChampionIconUrl = (name: string): string => {
+  const local = LOCAL_CHAMP_MAP[name];
+  if (local) return local;
+  const normalized = name.replace(/[^A-Za-z0-9]/g, "");
+  if (!normalized) return "";
+  return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${normalized}.png`;
+};
