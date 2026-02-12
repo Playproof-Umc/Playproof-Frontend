@@ -84,17 +84,32 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
       );
     }
 
-    // 2. 커뮤니티 페이지 (/community) 메뉴 (예시)
+    // 2. 커뮤니티 페이지 (/community) 메뉴
     if (location.pathname.startsWith('/community')) {
       return (
         <>
-          <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => navigate('/mypage')}>
+          <div
+            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+            onClick={() => navigate('/mypage')}
+          >
             <User size={16} className="text-gray-400" />
             <span>내 프로필</span>
           </div>
           <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
             <FileText size={16} className="text-gray-400" />
             <span>내가 쓴 글 보기</span>
+          </div>
+          <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
+          <div
+            className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+            onClick={() => {
+              clearAuth();
+              setIsProfileOpen(false);
+              navigate('/login');
+            }}
+          >
+            <LogOut size={16} />
+            <span>로그아웃</span>
           </div>
         </>
       );
