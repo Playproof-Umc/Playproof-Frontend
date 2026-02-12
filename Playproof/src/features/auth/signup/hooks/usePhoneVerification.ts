@@ -1,9 +1,25 @@
 // src/features/auth/signup/hooks/usePhoneVerification.ts
 import { useEffect, useMemo, useState } from "react";
+import { sendPhoneCertification, validatePhone } from "@/services/authApi";
 
-const phoneValid = (v: string) => /^010\d{8}$/.test(v);
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
 const pad2 = (n: number) => String(n).padStart(2, "0");
+
+function formatPhoneNumberInput(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  }
+  if (digits.length <= 11) {
+    const head = digits.slice(0, 3);
+    const middle = digits.length === 10 ? digits.slice(3, 6) : digits.slice(3, 7);
+    const tail = digits.slice(middle.length + 3);
+    return `${head}-${middle}-${tail}`;
+  }
+  return digits;
+}
+
+const phoneValid = (v: string) => /^010\d{8}$/.test(digitsOnly(v));
 
 export type VerifyState = "idle" | "success" | "fail";
 
@@ -78,13 +94,28 @@ export const usePhoneVerification = () => {
     setPhoneTouched(true);
     if (!phoneOk) return;
 
-    setSmsCooldown(30);
-    // phoneLocked 제거됨
-
-    setCode("");
-    setCodeTouched(false);
-    setVerifyState("idle");
-    setCodeTimer(3 * 60); // 3분 (180초)
+    try {
+      // 실제 SMS 발송
+      await sendPhoneCertification({ phone });
+      
+      setSmsCooldown(30);
+      setCode("");
+      setCodeTouched(false);
+      setVerifyState("idle");
+      setCodeTimer(3 * 60); // 3분
+      
+      console.log('📱 SMS 인증번호가 발송되었습니다.');
+    } catch (error: unknown) {
+      console.error('❌ SMS 발송 실패:', error);
+      
+      // 409 Conflict: 이미 등록된 전화번호
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 409) {
+        alert('이미 가입된 전화번호입니다. 다른 번호를 사용해주세요.');
+      } else {
+        alert('인증번호 발송에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   };
 
   const verifyCode = async () => {
@@ -93,10 +124,13 @@ export const usePhoneVerification = () => {
 
     setIsVerifying(true);
     try {
-      await new Promise((r) => setTimeout(r, 700));
-
-      if (code === "123456") setVerifyState("success");
-      else setVerifyState("fail");
+      // 실제 API 호출
+      await validatePhone({ phone, code });
+      setVerifyState("success");
+      console.log('✅ 전화번호 인증 성공');
+    } catch (error) {
+      setVerifyState("fail");
+      console.error('❌ 인증번호 검증 실패:', error);
     } finally {
       setIsVerifying(false);
     }
@@ -111,7 +145,7 @@ export const usePhoneVerification = () => {
     onPhoneChange: (next: string) => {
       if (locked) return; // 이미 성공했으면 수정 불가
       const v = digitsOnly(next).slice(0, 11);
-      setPhone(v);
+      setPhone(formatPhoneNumberInput(v));
 
       // 번호 변경 시 모든 상태 초기화 (재인증 필요)
       setSmsCooldown(0);

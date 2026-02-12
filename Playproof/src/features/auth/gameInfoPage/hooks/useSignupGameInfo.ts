@@ -10,6 +10,9 @@ import {
   getPositionOptionsByGame,
 } from "@/features/auth/gameInfoPage/mock/gameMeta";
 import type { GameId } from "@/features/auth/gameInfoPage/types";
+import { useSignupStore } from "@/store/signupStore";
+import { useAuthStore } from "@/store/authStore";
+import { signup } from "@/services/authApi";
 
 type LocationState = {
   gameId?: GameId;
@@ -19,6 +22,8 @@ export function useSignupGameInfo() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state ?? {}) as LocationState;
+  const { setGameInfo, getFinalSignupData, clearSignupData, selectedGameId, accountId } = useSignupStore();
+  const { setAuth } = useAuthStore();
 
   const gameId: GameId = state.gameId ?? "other";
   const selectedGameTitle = GAME_LABEL[gameId] ?? "기타";
@@ -85,8 +90,56 @@ export function useSignupGameInfo() {
 
     setIsPending(true);
     try {
-      // TODO(API 연동): 최종 회원가입 완료 요청
-      navigate("/home", { replace: true, state: { signupCompleted: true }, });
+      // Step 3: 게임 정보 저장
+      const gameInfo = {
+        gameId: selectedGameId || 8, // store에 저장된 숫자 ID 사용, 없으면 8(other)
+        gameName: isAuthStyleGame ? selectedGameTitle : gameName,
+        gameNickname: isAuthStyleGame ? "" : nickname,
+        accountId: accountId, // store에 저장된 accountId (자동: puuid, 수동: "")
+        playStyle: isAuthStyleGame ? playStyle : manualPlayStyle,
+        positionId: isAuthStyleGame ? (parseInt(position) || 0) : 0,
+        tierId: isAuthStyleGame ? (parseInt(tier) || 0) : 0,
+      };
+      
+      setGameInfo(gameInfo);
+      console.log('🎮 [Step 3 완료 - 게임 정보]', gameInfo);
+      console.log(accountId ? '  ✅ 자동 회원가입 (계정 연동됨)' : '  📝 수동 회원가입');
+
+      // 최종 데이터 조합
+      const finalData = getFinalSignupData();
+      
+      if (!finalData) {
+        alert('회원가입 정보가 비어있습니다. 처음부터 다시 시도해주세요.');
+        navigate('/signup');
+        return;
+      }
+      
+      console.log('📤 [최종 회원가입 요청 데이터]', finalData);
+      
+      // 서버에 최종 데이터 전송
+      const signupResult = await signup(finalData);
+      
+      console.log('✅ 회원가입 성공!', signupResult);
+      
+      // 회원가입 완료 후 authStore에 유저 정보 저장 (네비바에 표시용)
+      // TODO: 실제로는 자동 로그인 또는 로그인 페이지로 이동해야 하지만,
+      // 일단 회원가입 결과로 받은 정보를 저장
+      setAuth({
+        accessToken: '', // 회원가입 후 자동 로그인이 구현되면 토큰 저장
+        userId: signupResult.id,
+        nickname: signupResult.nickname,
+      });
+      
+      // 회원가입 완료 후 store 초기화
+      clearSignupData();
+      
+      navigate("/home", { 
+        replace: true, 
+        state: { signupCompleted: true } 
+      });
+    } catch (error) {
+      console.error('❌ 회원가입 실패:', error);
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsPending(false);
     }

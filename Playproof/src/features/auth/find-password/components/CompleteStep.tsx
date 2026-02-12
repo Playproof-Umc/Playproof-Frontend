@@ -1,11 +1,12 @@
 // src/features/auth/find-password/components/CompleteStep.tsx
 
 import { Button } from "@/components/ui/Button";
-import { useNavigate } from "react-router-dom";
 
-export const CompleteStep = () => {
-  const navigate = useNavigate();
+interface CompleteStepProps {
+  onNext: () => void;
+}
 
+export const CompleteStep = ({ onNext }: CompleteStepProps) => {
   return (
     <div className="flex flex-col items-center text-center gap-10 py-4">
       <div className="w-20 h-20 rounded-full border-[3px] border-[#1533B6] flex items-center justify-center">
@@ -19,8 +20,8 @@ export const CompleteStep = () => {
         <p className="text-gray-500 text-sm">새 비밀번호로 로그인해 주세요.</p>
       </div>
 
-      <Button fullWidth onClick={() => navigate("/login")}>
-        로그인하러 가기
+      <Button fullWidth onClick={onNext}>
+        로그인
       </Button>
     </div>
   );

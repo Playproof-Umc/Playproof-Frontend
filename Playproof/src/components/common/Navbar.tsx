@@ -1,12 +1,9 @@
-// src/components/layout/Navbar.tsx
+// src/components/common/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2, Menu, X } from 'lucide-react';
-import { NotificationDropdown } from '@/features/notification/components';
-import { buildMockNotifications } from '@/features/notification/data/mockNotifications';
+import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
+import { NotificationDropdown } from '@/features/notification/components/NotificationDropdown';
 import { NAV_LINKS } from '@/constants/navigation';
-import { Button } from '@/components/ui/Button';
-import { useAuthStore } from '@/store/authStore';
 
 interface NavbarProps {
   isProUser?: boolean;
@@ -16,18 +13,9 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const authUserId = useAuthStore((s) => s.userId);
-  const authNickname = useAuthStore((s) => s.nickname);
-  const displayName = authNickname ?? "사용자";
-  const isLoggedIn = !!accessToken; // 액세스 토큰이 있으면 로그인 상태
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [notifications, setNotifications] = useState(() =>
-    buildMockNotifications(authUserId ? `user-${authUserId}` : "1")
-  );
   
   // 드롭다운 외부 클릭 감지를 위한 Ref
   const profileRef = useRef<HTMLDivElement>(null);
@@ -44,13 +32,6 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
   }, []);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
-  const isAuthPage =
-    location.pathname === '/' ||
-    location.pathname.startsWith('/landing') ||
-    location.pathname.startsWith('/login') ||
-    location.pathname.startsWith('/signup') ||
-    location.pathname.startsWith('/gameselect') ||
-    location.pathname.startsWith('/gameinfo');
 
   // ✨ 페이지별 드롭다운 메뉴 내용을 결정하는 함수
   const renderProfileMenu = () => {
@@ -125,20 +106,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 1. 로고 및 네비게이션 */}
         <div className="flex items-center gap-8">
-          <button
-            type="button"
-            onClick={() => setIsMobileOpen(true)}
-            className="md:hidden p-2 rounded-full hover:bg-gray-100 text-gray-600"
-            aria-label="메뉴 열기"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/home')}>
-            <img
-              src="/playproof-gnb.svg"
-              alt="PLAYPROOF"
-              className="h-7 w-auto"
-            />
+          <div className="flex items-center gap-1 cursor-pointer" onClick={() => navigate('/home')}>
+            <h1 className="text-2xl font-black tracking-tighter">PLAYPROOF</h1>
             <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600">Pro</span>
           </div>
 
@@ -161,16 +130,6 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 2. 우측 컨트롤 */}
         <div className="flex items-center gap-4">
-          {!isLoggedIn ? (
-            <Button
-              variant="primary"
-              className="h-9 rounded-md px-4 text-sm"
-              onClick={() => navigate('/login')}
-            >
-              로그인
-            </Button>
-          ) : (
-            <>
           {onTogglePro && (
             <button 
               onClick={onTogglePro} 
@@ -192,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               </div>
               
               {/* 닉네임 & 뱃지 */}
-              <span className="font-bold text-sm text-gray-800">{displayName}</span>
+              <span className="font-bold text-sm text-gray-800">플루</span>
               <span className="bg-zinc-200 text-[10px] font-bold px-1.5 py-0.5 rounded text-gray-600">Pro</span>
 
               {/* 스크롤 버튼 (화살표) */}
@@ -210,7 +169,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
                       <User size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">{displayName}</p>
+                      <p className="text-sm font-bold text-gray-900">플루</p>
+                      <p className="text-xs text-gray-500">playproof12@gmail.com</p>
                     </div>
                   </div>
                 </div>
@@ -230,85 +190,14 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               className={`p-2 rounded-full transition-all relative ${isNotiOpen ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 text-gray-500 hover:text-black'}`}
             >
               <Bell className="w-5 h-5" />
-              {notifications.some((noti) => !noti.isRead) && (
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-              )}
+              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </button>
-            {isNotiOpen && (
-              <NotificationDropdown
-                onClose={() => setIsNotiOpen(false)}
-                notifications={notifications}
-                onUpdateNotifications={setNotifications}
-              />
-            )}
+            {isNotiOpen && <NotificationDropdown onClose={() => setIsNotiOpen(false)} />}
           </div>
 
-            </>
-          )}
+          <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />
         </div>
       </div>
-
-      {/* 모바일 네비게이션 */}
-      {isMobileOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-[120] bg-black/40"
-            onClick={() => setIsMobileOpen(false)}
-          />
-          <aside className="fixed left-0 top-0 z-[121] h-full w-[280px] bg-white shadow-2xl border-r border-gray-200 p-6 flex flex-col">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-1">
-                <h2 className="text-lg font-black tracking-tighter">PLAYPROOF</h2>
-                <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">Pro</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMobileOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-                aria-label="메뉴 닫기"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-2 text-sm font-medium text-gray-700">
-              {NAV_LINKS.map((item) => (
-                <button
-                  key={item.path}
-                  onClick={() => {
-                    navigate(item.path);
-                    setIsMobileOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                    isActive(item.path) ? "bg-gray-100 text-black" : "hover:bg-gray-50"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-
-            <div className="mt-6 border-t border-gray-200 pt-4">
-              {isAuthPage ? (
-                <Button
-                  variant="primary"
-                  className="w-full h-10 rounded-md text-sm"
-                  onClick={() => {
-                    navigate('/login');
-                    setIsMobileOpen(false);
-                  }}
-                >
-                  로그인
-                </Button>
-              ) : (
-                <div className="rounded-xl border border-gray-200 overflow-hidden">
-                  {renderProfileMenu()}
-                </div>
-              )}
-            </div>
-          </aside>
-        </>
-      )}
     </header>
   );
 };
