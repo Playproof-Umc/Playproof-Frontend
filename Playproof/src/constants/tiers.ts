@@ -72,7 +72,7 @@ export function getTierId(gameId: number, tierName: string): number {
  * 티어 ID로 티어 이름 조회
  */
 export function getTierName(tierId: number): string {
-  for (const [gameId, tiers] of Object.entries(TIER_MAP)) {
+  for (const [_gameId, tiers] of Object.entries(TIER_MAP)) {
     const entry = Object.entries(tiers).find(([_, id]) => id === tierId);
     if (entry) return entry[0];
   }

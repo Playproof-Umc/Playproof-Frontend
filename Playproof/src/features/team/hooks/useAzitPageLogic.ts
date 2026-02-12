@@ -3,7 +3,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-import type { User } from "@/features/team/types/types";
+import type { Azit, User } from "@/features/team/types";
 import { useAuthStore } from "@/store/authStore";
 import { login } from "@/services/authApi";
 
@@ -54,7 +54,7 @@ export function useAzitPageLogic() {
   const routeState = location.state as { azitId?: number } | null;
 
   const [scheduleAnchorEl, setScheduleAnchorEl] = React.useState<HTMLElement | null>(null);
-  const [azits, setAzits] = React.useState([]);
+  const [azits, setAzits] = React.useState<Azit[]>([]);
   const [membersByAzit, setMembersByAzit] = React.useState<Record<number, User[]>>({});
   const azitIconUrlsRef = React.useRef<string[]>([]);
   
@@ -107,11 +107,11 @@ export function useAzitPageLogic() {
           phone: formattedPhone,
           password: devPassword,
         });
-        console.log("✅ [AutoLogin] 성공! 닉네임:", res.nickname);
+        console.log("✅ [AutoLogin] 성공! 닉네임:", res.data.nickname);
         setAuth({
-          accessToken: res.accessToken,
-          userId: res.userId,
-          nickname: res.nickname,
+          accessToken: res.data.accessToken,
+          userId: res.data.userId,
+          nickname: res.data.nickname,
         });
       } catch (err) {
         console.error("❌ [AutoLogin] 실패:", err);

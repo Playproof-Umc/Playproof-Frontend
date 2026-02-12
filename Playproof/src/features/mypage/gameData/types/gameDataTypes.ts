@@ -6,12 +6,18 @@ export type LinkedAccountMeta = {
     tagLine: string;
     riotId: string;
   };
+  overwatch?: {
+    battleTag: string;
+    player_id?: string;
+    name?: string;
+  };
 };
 
 export type LinkedAccount = {
   game: GameKey;
   title: string;
   subtitle?: string;
+  badge?: string;
   accounts: Array<{
     label: string;
     value: string;

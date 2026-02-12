@@ -124,7 +124,7 @@ export function useSignupGameSelect() {
     alert(`${selectedGame.authKind} 연동은 준비 중입니다.`);
   };
 
-  const handleRiotAccountVerified = async (accountId: string, gameName: string, tagLine: string) => {
+  const handleRiotAccountVerified = async (_accountId: string, gameName: string, tagLine: string) => {
     if (!selectedGame) return;
 
     setIsPending(true);
@@ -164,7 +164,7 @@ export function useSignupGameSelect() {
     }
   };
 
-  const handleOverwatchAccountVerified = async (accountId: string, battleTag: string) => {
+  const handleOverwatchAccountVerified = async (_accountId: string, battleTag: string) => {
     if (!selectedGame) return;
 
     setIsPending(true);

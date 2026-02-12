@@ -33,15 +33,24 @@ const extractItemsCount = (p: MatchDto["info"]["participants"][number]) => {
   return items.filter((x) => x && x !== 0).length;
 };
 
+export type BuildLolProfileOptions = {
+  fallbackWinRatePercent?: number;
+  fallbackMainPosition?: string;
+};
+
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
-  leagueEntries: LeagueEntryDto[]
+  leagueEntries: LeagueEntryDto[],
+  options?: BuildLolProfileOptions
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
   const wins = solo?.wins ?? 0;
   const losses = solo?.losses ?? 0;
-  const winRatePercent = toPercent(wins, losses);
+  const winRatePercent =
+    typeof options?.fallbackWinRatePercent === "number"
+      ? options.fallbackWinRatePercent
+      : toPercent(wins, losses);
 
   return {
     summonerName: account.gameName,
@@ -51,7 +60,7 @@ export const buildLolLinkedProfile = (
     profileIconId: summoner?.profileIconId,
     summonerLevel: summoner?.summonerLevel,
     currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
-    mainPosition: "미정",
+    mainPosition: options?.fallbackMainPosition ?? "미정",
     winRatePercent,
   };
 };
@@ -118,6 +127,9 @@ export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchI
       .filter((p) => p.teamId !== myTeamId)
       .map((p) => p.championName);
 
+    const cs = Number(me.totalMinionsKilled ?? 0);
+    const gold = Number(me.goldEarned ?? 0);
+
     return {
       id: m.metadata.matchId,
       result,
@@ -125,7 +137,7 @@ export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchI
       durationText: secondsToKoreanDuration(m.info.gameDuration),
       kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
       kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-      pills: [`CS ${me.totalMinionsKilled}`, `골드 ${(me.goldEarned / 1000).toFixed(1)}k`],
+      pills: [`CS ${cs}`, `골드 ${(gold / 1000).toFixed(1)}k`],
       itemsCount: extractItemsCount(me),
 
       // 뷰모델에 데이터 주입
@@ -134,4 +146,36 @@ export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchI
       opponentChampions,
     };
   }).filter(Boolean);
+};
+
+const POSITION_MAP: Record<string, string> = {
+  TOP: "탑",
+  JUNGLE: "정글",
+  MIDDLE: "미드",
+  MID: "미드",
+  BOTTOM: "원딜",
+  ADC: "원딜",
+  UTILITY: "서폿",
+  SUPPORT: "서폿",
+};
+
+export const computeMainPosition = (matches: MatchDto[], puuid: string): string => {
+  const counts = new Map<string, number>();
+  for (const m of matches ?? []) {
+    const me = m?.info?.participants?.find((p) => p.puuid === puuid);
+    if (!me) continue;
+    const raw = me.teamPosition || me.lane || "UNKNOWN";
+    const label = POSITION_MAP[raw] ?? "미정";
+    if (label === "미정") continue;
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] ?? "미정";
+};
+
+export const getChampionIconUrl = (name: string): string => {
+  const normalized = name.replace(/[^A-Za-z0-9]/g, "");
+  if (!normalized) return "";
+  // 최신 버전은 고정값 대신 CDN의 최신을 쓰거나 env로 관리 가능
+  return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${normalized}.png`;
 };

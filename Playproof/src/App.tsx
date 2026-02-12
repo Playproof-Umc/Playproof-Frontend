@@ -10,14 +10,14 @@ const SignupGameSelectPage = lazy(() => import('@/pages/auth/SignupGameSelectPag
 const SignupGameInfoPage = lazy(() => import('@/pages/auth/SignupGameInfoPage'));
 const SignupUsernamePage = lazy(() => import('@/pages/auth/SignupUsernamePage'));
 const FindPasswordPage = lazy(() => import('@/pages/auth/FindPasswordPage'));
-const HomePage = lazy(() => import('@/pages/Home/HomePage'));
+const HomePage = lazy(() => import('@/pages/home/HomePage'));
 const MatchingPage = lazy(() => import('@/pages/matching/MatchingPage'));
 const AzitPage = lazy(() => import('@/pages/azit/AzitPage'));
 const MyPageMain = lazy(() => import('@/pages/mypage/MyPageMain'));
 const UserProfilePage = lazy(() => import('@/pages/profile/UserProfilePage'));
-const CommunityPage = lazy(() => import('@/pages/Community/CommunityPage'));
+const CommunityPage = lazy(() => import('@/pages/community/CommunityPage'));
 const GameDataPage = lazy(() => import('@/pages/mypage/GameData'));
-const PostDetailPage = lazy(() => import('@/pages/Community/PostDetailPage'));
+const PostDetailPage = lazy(() => import('@/pages/community/PostDetailPage'));
 const StorePage = lazy(() => import('@/pages/store/StorePage'));
 
 // Context Providers

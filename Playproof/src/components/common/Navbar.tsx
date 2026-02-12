@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Settings, User, ChevronDown, CreditCard, ShoppingCart, LogOut, FileText, Gamepad2 } from 'lucide-react';
 import { NotificationDropdown } from '@/features/notification/components/NotificationDropdown';
+import { MOCK_NOTIFICATIONS } from '@/features/notification/data/mockNotifications';
 import { NAV_LINKS } from '@/constants/navigation';
 
 interface NavbarProps {
@@ -16,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
   
   // 드롭다운 외부 클릭 감지를 위한 Ref
   const profileRef = useRef<HTMLDivElement>(null);
@@ -192,7 +194,13 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </button>
-            {isNotiOpen && <NotificationDropdown onClose={() => setIsNotiOpen(false)} />}
+            {isNotiOpen && (
+              <NotificationDropdown
+                onClose={() => setIsNotiOpen(false)}
+                notifications={notifications}
+                onUpdateNotifications={setNotifications}
+              />
+            )}
           </div>
 
           <Settings className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black transition-colors" />

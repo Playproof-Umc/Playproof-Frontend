@@ -1,7 +1,7 @@
 // src/features/team/components/azit/MainPanel.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Send, Paperclip } from "lucide-react";
+import { Trash2, Send, Paperclip } from "lucide-react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import type { ChatMessageUI } from "@/features/team/hooks/useAzitRooms";
 

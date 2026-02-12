@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { sendFriendRequest } from '@/services/friendApi';
+import { sendFriendRequest, type FriendRequestData } from '@/services/friendApi';
 
 /**
  * 친구 신청 훅
@@ -7,7 +7,7 @@ import { sendFriendRequest } from '@/services/friendApi';
 export const useFriendRequest = () => {
   const queryClient = useQueryClient();
 
-  const friendRequestMutation = useMutation({
+  const friendRequestMutation = useMutation<FriendRequestData, Error, number>({
     mutationFn: (toUserId: number) => sendFriendRequest(toUserId),
     onSuccess: (data) => {
       alert(`친구 신청이 완료되었습니다. (상태: ${data.friendStatus})`);
