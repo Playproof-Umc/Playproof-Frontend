@@ -19,7 +19,7 @@ import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { GameFilter } from "@/features/matching/components";
 import { GAME_LIST } from "@/features/matching/constants/matchingConfig";
 
-const COMMUNITY_BOARD_GAMES = ["전체글", ...GAME_LIST];
+const COMMUNITY_BOARD_GAMES = GAME_LIST;
 
 export const CommunityPageView = () => {
   const { ui, data, modal, user, actions } = useCommunityPageLogic();

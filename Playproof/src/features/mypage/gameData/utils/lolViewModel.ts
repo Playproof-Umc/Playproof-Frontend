@@ -82,12 +82,11 @@ const readNumberFieldLoose = <T extends object>(obj: T | null | undefined, key: 
 /* =========================================================
    ✅ buildLolLinkedProfile
    ⭐ FIX: 헤더에서 사용하는 필드들을 실제로 채운다.
-========================================================= */
-
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
-  leagueEntries: LeagueEntryDto[]
+  leagueEntries: LeagueEntryDto[],
+  options?: BuildLolProfileOptions
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
 
@@ -190,110 +189,3 @@ export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): Lo
 
 /* =========================================================
    ✅ buildLolMatchList (export 유지)
-========================================================= */
-
-export const buildLolMatchList = (matches: MatchDto[], myPuuid: string): LolMatchItem[] => {
-  return matches
-    .map((m) => {
-      const me = m.info.participants.find((p) => p.puuid === myPuuid);
-      if (!me) return null;
-
-      const result: MatchResult = me.win ? "win" : "loss";
-      const myTeamId = me.teamId;
-
-      const teamChampions = m.info.participants
-        .filter((p) => p.teamId === myTeamId)
-        .map((p) => (typeof p.championName === "string" ? p.championName.trim() : ""))
-        .filter((x) => x.length > 0);
-
-      const opponentChampions = m.info.participants
-        .filter((p) => p.teamId !== myTeamId)
-        .map((p) => (typeof p.championName === "string" ? p.championName.trim() : ""))
-        .filter((x) => x.length > 0);
-
-      const myChampionName =
-        typeof me.championName === "string" && me.championName.trim().length > 0 ? me.championName.trim() : "Unknown";
-
-      return {
-        id: m.metadata.matchId,
-        result,
-        queueLabel: "솔랭",
-        durationText: secondsToKoreanDuration(m.info.gameDuration),
-        kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
-        kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-        pills: [`CS ${getCs(me)}`, `골드 ${(getGold(me) / 1000).toFixed(1)}k`],
-        itemsCount: extractItemsCount(me),
-        myChampionName,
-        teamChampions,
-        opponentChampions,
-      };
-    })
-    .filter(Boolean) as LolMatchItem[];
-};
-
-/* =========================================================
-   ✅ getChampionIconUrl (export 유지)
-========================================================= */
-
-const CHAMPION_ALIAS: Record<string, string> = {
-  FiddleSticks: "Fiddlesticks",
-  MonkeyKing: "Wukong",
-  Leblanc: "LeBlanc",
-  Khazix: "KhaZix",
-  RekSai: "RekSai",
-};
-
-export function getChampionIconUrl(championName?: string | null) {
-  const raw = (championName ?? "").trim();
-  if (!raw || raw === "Unknown") return "";
-
-  const normalized = CHAMPION_ALIAS[raw] ?? raw;
-
-  if (LOCAL_CHAMP_MAP[normalized]) return LOCAL_CHAMP_MAP[normalized];
-
-  const versionRaw = import.meta.env.VITE_DDRAGON_VERSION || "14.16.1";
-  const version = String(versionRaw).trim();
-
-  return `https://ddragon.leagueoflegends.com/cdn/${encodeURIComponent(version)}/img/champion/${encodeURIComponent(
-    normalized
-  )}.png`;
-}
-
-/* =========================================================
-   ✅ computeMainPosition (export 유지)
-========================================================= */
-
-export function computeMainPosition(participants: Array<{ teamPosition?: string | null; lane?: string | null }>) {
-  const counts = new Map<string, number>();
-
-  const add = (raw?: string | null) => {
-    const v = (raw ?? "").trim();
-    if (!v || v === "NONE" || v === "Invalid" || v === "UNDEFINED") return;
-    counts.set(v, (counts.get(v) ?? 0) + 1);
-  };
-
-  for (const p of participants) add(p.teamPosition);
-  if (counts.size === 0) for (const p of participants) add(p.lane);
-
-  let best = "미정";
-  let bestCount = 0;
-  for (const [k, c] of counts.entries()) {
-    if (c > bestCount) {
-      best = k;
-      bestCount = c;
-    }
-  }
-
-  const labelMap: Record<string, string> = {
-    TOP: "TOP",
-    JUNGLE: "JUNGLE",
-    MIDDLE: "MID",
-    MID: "MID",
-    BOTTOM: "ADC",
-    ADC: "ADC",
-    SUPPORT: "SUP",
-    UTILITY: "SUP",
-  };
-
-  return labelMap[best] ?? best;
-}

@@ -3,6 +3,8 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StepDots } from "@/components/auth/StepDots";
 import { SignupGameSelectForm } from "@/features/auth/gameSelectPage/components/SignupGameSelectForm";
+import { RiotAccountModal } from "@/features/auth/gameSelectPage/components/RiotAccountModal";
+import { OverwatchAccountModal } from "@/features/auth/gameSelectPage/components/OverwatchAccountModal";
 import { useSignupGameSelect } from "@/features/auth/gameSelectPage/hooks/useSignupGameSelect";
 
 export const SignupGameSelectPageView = () => {
@@ -16,6 +18,12 @@ export const SignupGameSelectPageView = () => {
     onSelectGame,
     onClickManual,
     onClickAuth,
+    showRiotModal,
+    onCloseRiotModal,
+    handleRiotAccountVerified,
+    showOverwatchModal,
+    onCloseOverwatchModal,
+    handleOverwatchAccountVerified,
   } = useSignupGameSelect();
 
   return (
@@ -49,6 +57,22 @@ export const SignupGameSelectPageView = () => {
           />
         </div>
       </div>
+
+      {/* Riot 계정 인증 모달 */}
+      <RiotAccountModal
+        isOpen={showRiotModal}
+        onClose={onCloseRiotModal}
+        onVerified={handleRiotAccountVerified}
+        isPending={isPending}
+      />
+
+      {/* Overwatch 계정 인증 모달 */}
+      <OverwatchAccountModal
+        isOpen={showOverwatchModal}
+        onClose={onCloseOverwatchModal}
+        onVerified={handleOverwatchAccountVerified}
+        isPending={isPending}
+      />
     </AppLayout>
   );
 };

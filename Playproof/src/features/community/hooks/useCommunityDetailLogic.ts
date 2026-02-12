@@ -40,8 +40,19 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
   const [editText, setEditText] = useState("");
   const [likeStateMap, setLikeStateMap] = useState<Record<number, LikeState>>({});
   const baseLikeState = useMemo(
-    () => ({ count: post?.likes ?? 0, isLiked: post?.isLiked ?? false }),
-    [post?.likes, post?.isLiked]
+    () => {
+      // post.likes 필드에서 초기값 가져오기
+      // MOCK 데이터의 경우 likes 필드가 있고, API에서도 동일한 구조를 반환해야 함
+      const initialCount = post?.likes ?? 0;
+      const initialLiked = post?.isLiked ?? false;
+      
+      if (post && typeof post === 'object') {
+        console.log('baseLikeState - post.id:', post.id, 'post.likes:', post.likes, 'post.isLiked:', post.isLiked);
+      }
+      
+      return { count: initialCount, isLiked: initialLiked };
+    },
+    [post?.likes, post?.isLiked, post?.id]
   );
   const likeState = post ? (likeStateMap[post.id] ?? baseLikeState) : baseLikeState;
 
@@ -174,13 +185,17 @@ export const useCommunityDetailLogic = (post?: BoardPost) => {
     if (!post) return;
     try {
       const res = await toggleLike({ postId: post.id });
-      const nextCount = res?.like_count ?? res?.likeCount;
-      const nextLiked = res?.is_liked ?? res?.isLiked;
+      console.log("API toggleLike response:", res);
+      const nextCount = res?.like_count ?? res?.likeCount ?? res?.count;
+      const nextLiked = res?.is_liked ?? res?.isLiked ?? res?.liked;
+      console.log("Extracted - nextCount:", nextCount, "nextLiked:", nextLiked);
       if (typeof nextCount === "number" && typeof nextLiked === "boolean") {
+        console.log("Setting likeStateMap with count:", nextCount, "liked:", nextLiked);
         setLikeStateMap((prev) => ({ ...prev, [post.id]: { count: nextCount, isLiked: nextLiked } }));
         return;
       }
-    } catch {
+    } catch (error) {
+      console.error("Error in toggleLike:", error);
       // ignore and fall back to optimistic toggle
     }
     setLikeStateMap((prev) => {

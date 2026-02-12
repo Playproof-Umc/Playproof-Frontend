@@ -49,11 +49,11 @@ const mapScheduleDtoToUi = (
     hour12: false,
   });
 
-  const participants = (dto.participants ?? []).map((p) => ({
+  const participants: Schedule["participants"] = (dto.participants ?? []).map((p) => ({
     user: {
       id: String(p.member_id),
       nickname: p.nickname ?? "Unknown",
-      avatarUrl: p.avatar_url ?? "",
+      avatarUrl: p.avatar_url ?? undefined,
       isOnline: true,
     },
     status: "JOIN" as const,

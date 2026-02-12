@@ -1,5 +1,6 @@
 // src/features/auth/pages/LandingPageView.tsx
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { OnboardingPlaceholder } from "@/components/ui/OnboardingPlaceholder";
@@ -7,14 +8,20 @@ import { OnboardingIndicator } from "@/components/ui/OnboardingIndicator";
 import { AppLayout } from "@/components/layout/AppLayout";
 
 export const LandingPageView = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <AppLayout>
       <main className="mx-auto flex min-h-screen max-w-[1280px] flex-col items-center justify-center px-6">
         <div className="w-full max-w-[1232px]">
           <div className="relative">
-            <OnboardingPlaceholder />
+            <OnboardingPlaceholder activeIndex={activeIndex} />
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-              <OnboardingIndicator total={3} initialActive={0} />
+              <OnboardingIndicator 
+                total={6} 
+                initialActive={0}
+                onActiveChange={setActiveIndex}
+              />
             </div>
           </div>
         </div>

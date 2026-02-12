@@ -2,12 +2,31 @@
 
 import React from "react";
 import type { HighlightPost, CommunityComment } from "@/features/community/types/types";
-import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi } from "@/features/community/api/communityApi";
+import { getComments, addComment as addCommentApi, editComment as editCommentApi, deleteComment as deleteCommentApi, toggleLike as toggleLikeApi, deleteHighlight as deleteHighlightApi } from "@/features/community/api/communityApi";
 import { useAuthStore } from "@/store/authStore";
 
 type HighlightLikeMap = Record<number, { count: number; isLiked: boolean }>;
 type HighlightCommentsMap = Record<number, CommunityComment[]>;
 type HighlightMediaMap = Record<number, string[]>;
+
+const LIKED_HIGHLIGHTS_KEY = 'playproof_liked_highlights';
+
+const getLikedHighlightsFromStorage = (): Set<number> => {
+  try {
+    const stored = localStorage.getItem(LIKED_HIGHLIGHTS_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const saveLikedHighlightsToStorage = (likedSet: Set<number>) => {
+  try {
+    localStorage.setItem(LIKED_HIGHLIGHTS_KEY, JSON.stringify([...likedSet]));
+  } catch {
+    // ignore storage errors
+  }
+};
 
 type UseHighlightFeedArgs = {
   initialPosts?: HighlightPost[];
@@ -25,19 +44,19 @@ export const useHighlightFeed = ({
   const [likeMap, setLikeMap] = React.useState<HighlightLikeMap>({});
   const [commentsMap, setCommentsMap] = React.useState<HighlightCommentsMap>({});
   const [, setMediaMap] = React.useState<HighlightMediaMap>({});
+  const likedHighlightsRef = React.useRef<Set<number>>(getLikedHighlightsFromStorage());
 
   const hydrateFromPosts = React.useCallback(
     (posts: HighlightPost[]) => {
       setHighlights(posts);
-      setLikeMap((prev) => {
-        const next = { ...prev };
-        posts.forEach((post) => {
-          if (!next[post.id]) {
-            next[post.id] = { count: post.likeCount ?? post.likes ?? 0, isLiked: post.isLiked ?? false };
-          }
-        });
-        return next;
+      const likedSet = likedHighlightsRef.current;
+      const newLikeMap: HighlightLikeMap = {};
+      posts.forEach((post) => {
+        // 로컬 저장소에 있으면 좋아요 상태 유지 (백엔드 is_liked 무시)
+        const isLiked = likedSet.has(post.id);
+        newLikeMap[post.id] = { count: post.likeCount ?? post.likes ?? 0, isLiked };
       });
+      setLikeMap(newLikeMap);
       // MOCK_COMMENTS logic removed; commentsMap is hydrated only from backend
     },
     []
@@ -68,13 +87,59 @@ export const useHighlightFeed = ({
   );
 
   const toggleLike = React.useCallback((postId: number, fallbackLikes: number) => {
+    // 먼저 낙관적 업데이트
+    let isToggleToLiked = false;
     setLikeMap((prev) => {
       const current = prev[postId] ?? { count: fallbackLikes, isLiked: false };
+      isToggleToLiked = !current.isLiked;
       const next = current.isLiked
         ? { count: Math.max(0, current.count - 1), isLiked: false }
         : { count: current.count + 1, isLiked: true };
+      
+      // localStorage 업데이트
+      if (isToggleToLiked) {
+        likedHighlightsRef.current.add(postId);
+      } else {
+        likedHighlightsRef.current.delete(postId);
+      }
+      saveLikedHighlightsToStorage(likedHighlightsRef.current);
+      
       return { ...prev, [postId]: next };
     });
+    
+    // API 호출하고 응답으로 count만 동기화 (is_liked는 로컬 상태 유지)
+    toggleLikeApi({ highlightId: postId })
+      .then((res) => {
+        const nextCount = res?.like_count ?? res?.likeCount;
+        if (typeof nextCount === "number") {
+          setLikeMap((prev) => {
+            const current = prev[postId];
+            if (current) {
+              return { ...prev, [postId]: { ...current, count: nextCount } };
+            }
+            return prev;
+          });
+        }
+      })
+      .catch(() => {
+        // 실패 시 상태를 원래대로 되돌림
+        setLikeMap((prev) => {
+          const current = prev[postId] ?? { count: fallbackLikes, isLiked: false };
+          const reverted = isToggleToLiked
+            ? { count: Math.max(0, current.count - 1), isLiked: false }
+            : { count: current.count + 1, isLiked: true };
+          
+          // localStorage도 되돌림
+          if (isToggleToLiked) {
+            likedHighlightsRef.current.delete(postId);
+          } else {
+            likedHighlightsRef.current.add(postId);
+          }
+          saveLikedHighlightsToStorage(likedHighlightsRef.current);
+          
+          return { ...prev, [postId]: reverted };
+        });
+      });
   }, []);
 
   const addComment = React.useCallback(
@@ -169,29 +234,38 @@ export const useHighlightFeed = ({
     []
   );
 
-  const deletePost = React.useCallback((postId: number) => {
-    setMediaMap((prev) => {
-      const urls = prev[postId];
-      if (urls) {
-        urls.forEach((url) => URL.revokeObjectURL(url));
-      }
-      const next = { ...prev };
-      delete next[postId];
-      return next;
-    });
-    setHighlights((prev) => prev.filter((post) => post.id !== postId));
-    setLikeMap((prev) => {
-      if (!prev[postId]) return prev;
-      const next = { ...prev };
-      delete next[postId];
-      return next;
-    });
-    setCommentsMap((prev) => {
-      if (!prev[postId]) return prev;
-      const next = { ...prev };
-      delete next[postId];
-      return next;
-    });
+  const deletePost = React.useCallback(async (postId: number) => {
+    try {
+      await deleteHighlightApi(postId);
+      setMediaMap((prev) => {
+        const urls = prev[postId];
+        if (urls) {
+          urls.forEach((url) => URL.revokeObjectURL(url));
+        }
+        const next = { ...prev };
+        delete next[postId];
+        return next;
+      });
+      setHighlights((prev) => prev.filter((post) => post.id !== postId));
+      setLikeMap((prev) => {
+        if (!prev[postId]) return prev;
+        const next = { ...prev };
+        delete next[postId];
+        return next;
+      });
+      setCommentsMap((prev) => {
+        if (!prev[postId]) return prev;
+        const next = { ...prev };
+        delete next[postId];
+        return next;
+      });
+      // localStorage에서도 제거
+      likedHighlightsRef.current.delete(postId);
+      saveLikedHighlightsToStorage(likedHighlightsRef.current);
+    } catch (error) {
+      console.error('Failed to delete highlight:', error);
+      throw error;
+    }
   }, []);
 
   const addHighlightPost = React.useCallback(

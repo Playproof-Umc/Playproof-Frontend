@@ -6,6 +6,11 @@ export type LinkedAccountMeta = {
     tagLine: string;
     riotId: string;
   };
+  overwatch?: {
+    battleTag: string;
+    player_id?: string;
+    name?: string;
+  };
 };
 
 export type LinkedAccount = {

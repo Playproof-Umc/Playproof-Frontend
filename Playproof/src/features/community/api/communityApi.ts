@@ -174,6 +174,43 @@ export async function deleteComment(commentId: number) {
   return res.data.data;
 }
 
+// 하이라이트 생성
+export async function createHighlight(payload: {
+  azit_id?: number;
+  content: string;
+  is_public?: boolean;
+  files?: File[];
+}) {
+  if (payload.files && payload.files.length > 0) {
+    const formData = new FormData();
+    if (payload.azit_id) formData.append("azit_id", String(payload.azit_id));
+    formData.append("content", payload.content);
+    formData.append("is_public", String(payload.is_public ?? true));
+    payload.files.forEach((file) => {
+      formData.append("medias", file);
+    });
+
+    const res = await api.post('/community/highlights', formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  }
+
+  const res = await api.post('/community/highlights', {
+    azit_id: payload.azit_id,
+    content: payload.content,
+    is_public: payload.is_public ?? true,
+    medias: [],
+  });
+  return res.data.data;
+}
+
+// 하이라이트 삭제
+export async function deleteHighlight(highlightId: number) {
+  const res = await api.delete(`/community/highlights/${highlightId}`);
+  return res.data.data;
+}
+
 // 좋아요 토글
 export async function toggleLike({ highlightId, postId }: { highlightId?: number; postId?: number }) {
   let target_type = "";
@@ -209,12 +246,25 @@ export async function getAllBoardPosts(page: number = 1, limit: number = 10): Pr
   return posts.map((item: unknown) => mapBoardPost(item));
 }
 
+/**
+ * 특정 게시판 글 조회
+ */
+export async function getBoardPost(postId: number): Promise<BoardPost | null> {
+  try {
+    const res = await api.get(`/community/posts/${postId}`);
+    const data = res.data.data;
+    if (!data) return null;
+    return mapBoardPost(data);
+  } catch {
+    return null;
+  }
+}
+
 // 자유게시판 글 작성
 export async function createBoardPost(payload: {
   game_id: number;
   title: string;
   content: string;
-  medias?: { media_url: string; order: number }[];
   files?: File[];
 }) {
   if (payload.files && payload.files.length > 0) {
@@ -222,23 +272,60 @@ export async function createBoardPost(payload: {
     formData.append("game_id", String(payload.game_id));
     formData.append("title", payload.title);
     formData.append("content", payload.content);
-    payload.files.forEach((file, index) => {
+    payload.files.forEach((file) => {
       formData.append("medias", file);
-      formData.append("orders", String(index + 1));
     });
 
     const res = await api.post('/community/posts', formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return res.data.data;
+    return mapBoardPost(res.data.data);
   }
 
   const res = await api.post('/community/posts', {
     game_id: payload.game_id,
     title: payload.title,
     content: payload.content,
-    medias: payload.medias ?? [],
   });
+  return mapBoardPost(res.data.data);
+}
+
+// 자유게시판 글 수정
+export async function updateBoardPost(postId: number, payload: {
+  title: string;
+  content: string;
+  medias?: { media_url: string; order: number }[];
+  files?: File[];
+}) {
+  if (payload.files && payload.files.length > 0) {
+    const formData = new FormData();
+    formData.append("title", payload.title);
+    formData.append("content", payload.content);
+    payload.files.forEach((file) => {
+      formData.append("medias", file);
+    });
+
+    const res = await api.patch(`/community/posts/${postId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return mapBoardPost(res.data.data);
+  }
+
+  const body: { title: string; content: string; medias?: { media_url: string; order: number }[] } = {
+    title: payload.title,
+    content: payload.content,
+  };
+  if (payload.medias) {
+    body.medias = payload.medias;
+  }
+
+  const res = await api.patch(`/community/posts/${postId}`, body);
+  return mapBoardPost(res.data.data);
+}
+
+// 자유게시판 글 삭제
+export async function deleteBoardPost(postId: number) {
+  const res = await api.delete(`/community/posts/${postId}`);
   return res.data.data;
 }
 
@@ -249,7 +336,7 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
   const res = await api.get('/community/highlights', { params: { page, limit } });
   const highlights = res.data.data?.highlights || [];
   // API 응답을 HighlightPost[]로 매핑
-  return (Array.isArray(highlights) ? highlights : []).map((raw) => {
+  const mapped = (Array.isArray(highlights) ? highlights : []).map((raw) => {
     const item = isRecord(raw) ? raw : {};
     return {
       id: toNumber(readValue(item, ["highlight_id", "id"])) ?? 0,
@@ -257,7 +344,9 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
       nickname: toStringValue(readValue(item, ["nickname"])),
       profileUrl: toStringValue(readValue(item, ["profileUrl"])),
       content: toStringValue(readValue(item, ["content"])) ?? "",
-      medias: Array.isArray(readValue(item, ["medias"])) ? (readValue(item, ["medias"]) as string[]) : [],
+      medias: Array.isArray(readValue(item, ["medias"])) 
+        ? (readValue(item, ["medias"]) as string[]).map((m) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
+        : [],
       commentCount: toNumber(readValue(item, ["comment_count"])),
       likeCount: toNumber(readValue(item, ["like_count"])),
       isLiked: (readValue(item, ["is_liked"]) as boolean | undefined) ?? false,
@@ -265,6 +354,7 @@ export async function getHighlights(page: number = 1, limit: number = 10): Promi
       updatedAt: toStringValue(readValue(item, ["updated_at"])),
     } as HighlightPost;
   });
+  return mapped;
 }
 
 /**

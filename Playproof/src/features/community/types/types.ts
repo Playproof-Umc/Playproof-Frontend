@@ -133,6 +133,7 @@ export interface BoardPost {
   id: number;
   userId?: number;
   gameId?: number;
+  nickname?: string;
   author: string;
   date: string;
   createdAt: string;

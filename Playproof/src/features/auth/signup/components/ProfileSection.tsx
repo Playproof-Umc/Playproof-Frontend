@@ -2,6 +2,14 @@
 
 //src/features/auth/signup/components/ProfileSection.tsx
 import { Button } from "@/components/ui/Button";
+import avatar1 from "@/assets/avatars/avatar-1.svg";
+import avatar2 from "@/assets/avatars/avatar-2.svg";
+import avatar3 from "@/assets/avatars/avatar-3.svg";
+import avatar4 from "@/assets/avatars/avatar-4.svg";
+import avatar5 from "@/assets/avatars/avatar-5.svg";
+import avatar6 from "@/assets/avatars/avatar-6.svg";
+
+const AVATARS = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6];
 
 type NicknameProps = {
     nickname: string;
@@ -80,7 +88,7 @@ export const ProfileSection = ({ nicknameProps, avatarIdx, onSelectAvatar }: Pro
             <div>
                 <div className="mb-6 ml-2 font-semibold text-base">아바타 선택하기</div>
                 <div className="mb-16 grid grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => {
+                    {AVATARS.map((avatarSrc, i) => {
                         const selected = avatarIdx === i;
                         return (
                             <button
@@ -90,11 +98,17 @@ export const ProfileSection = ({ nicknameProps, avatarIdx, onSelectAvatar }: Pro
                                 aria-label={`avatar-${i + 1}`}
                                 aria-pressed={selected}
                                 className={[
-                                    "aspect-square w-full rounded-lg bg-[#F3F3F3]",
-                                    selected ? "ring-2 ring-[#1533B6]" : "ring-1 ring-transparent",
-                                    "transition hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1533B6]",
+                                    "aspect-square w-full rounded-lg bg-[#F3F3F3] overflow-hidden p-2",
+                                    selected ? "ring-4 ring-[#1533B6]" : "ring-1 ring-gray-200",
+                                    "transition hover:brightness-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1533B6]",
                                 ].join(" ")}
-                            />
+                            >
+                                <img 
+                                    src={avatarSrc} 
+                                    alt={`아바타 ${i + 1}`}
+                                    className="w-full h-full object-contain"
+                                />
+                            </button>
                         );
                     })}
                 </div>

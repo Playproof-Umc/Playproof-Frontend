@@ -5,7 +5,7 @@ import { Camera, X } from "lucide-react";
 
 export type AzitCreateData = {
   name: string;
-  iconUrl?: string;
+  iconFile?: File | null;
   coverUrl?: string;
   description?: string;
 };
@@ -23,6 +23,7 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
 }) => {
   const [name, setName] = React.useState("");
   const [previewUrl, setPreviewUrl] = React.useState<string>("");
+  const [iconFile, setIconFile] = React.useState<File | null>(null);
   const [description, setDescription] = React.useState("");
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -30,6 +31,7 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
     if (!open) return;
     setName("");
     setPreviewUrl("");
+    setIconFile(null);
     setDescription("");
   }, [open]);
 
@@ -45,6 +47,7 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setIconFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     e.target.value = "";
   };
@@ -53,7 +56,7 @@ export const AzitCreateModal: React.FC<AzitCreateModalProps> = ({
     if (!name.trim()) return;
     onCreate({
       name: name.trim(),
-      iconUrl: previewUrl || undefined,
+      iconFile,
       description: description.trim() || undefined,
     });
   };

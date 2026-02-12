@@ -16,9 +16,11 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const accessToken = useAuthStore((s) => s.accessToken);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const displayName = authNickname ?? "사용자";
+  const isLoggedIn = !!accessToken; // 액세스 토큰이 있으면 로그인 상태
   
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -159,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isProUser = true, onTogglePro })
         
         {/* 2. 우측 컨트롤 */}
         <div className="flex items-center gap-4">
-          {isAuthPage ? (
+          {!isLoggedIn ? (
             <Button
               variant="primary"
               className="h-9 rounded-md px-4 text-sm"

@@ -58,7 +58,7 @@ export function getPositionIds(gameId: number, positionNames: string[]): number[
  * 포지션 ID로 포지션 이름 조회
  */
 export function getPositionName(positionId: number): string {
-  for (const [gameId, positions] of Object.entries(POSITION_MAP)) {
+  for (const [_gameId, positions] of Object.entries(POSITION_MAP)) {
     const entry = Object.entries(positions).find(([_, id]) => id === positionId);
     if (entry) return entry[0];
   }
