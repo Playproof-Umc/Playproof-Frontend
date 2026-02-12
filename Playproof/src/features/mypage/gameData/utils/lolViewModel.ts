@@ -1,5 +1,26 @@
-import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "../api/riotApi";
-import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "../types/gameDataTypes";
+// src/features/mypage/gameData/utils/lolViewModel.ts
+
+import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "@/features/mypage/gameData/api/riotApi";
+import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "@/features/mypage/gameData/types/gameDataTypes";
+
+/* =========================================================
+   ✅ 로컬 챔피언 이미지 (정적 import)
+========================================================= */
+import Ambessa from "@/assets/lol/champions/Ambessa.png";
+import Mel from "@/assets/lol/champions/Mel.png";
+import Yunara from "@/assets/lol/champions/Yunara.png";
+import Zaahen from "@/assets/lol/champions/Zaahen.png";
+
+const LOCAL_CHAMP_MAP: Record<string, string> = {
+  Ambessa,
+  Mel,
+  Yunara,
+  Zaahen,
+};
+
+/* =========================================================
+   기본 유틸
+========================================================= */
 
 const pickSoloQueue = (entries: LeagueEntryDto[]) =>
   entries.find((e) => e.queueType === "RANKED_SOLO_5x5") ?? null;
@@ -33,11 +54,34 @@ const extractItemsCount = (p: MatchDto["info"]["participants"][number]) => {
   return items.filter((x) => x && x !== 0).length;
 };
 
-export type BuildLolProfileOptions = {
-  fallbackWinRatePercent?: number;
-  fallbackMainPosition?: string;
+const readNumberField = <T extends object>(obj: T, key: string): number | null => {
+  const v = (obj as unknown as Record<string, unknown>)[key];
+  return typeof v === "number" ? v : null;
 };
 
+const getCs = (p: MatchDto["info"]["participants"][number]) => {
+  const lane = readNumberField(p, "totalMinionsKilled") ?? 0;
+  const jungle = readNumberField(p, "neutralMinionsKilled") ?? 0;
+  return lane + jungle;
+};
+
+const getGold = (p: MatchDto["info"]["participants"][number]) => {
+  return readNumberField(p, "goldEarned") ?? 0;
+};
+
+const readStringField = <T extends object>(obj: T | null | undefined, key: string) => {
+  const v = (obj as unknown as Record<string, unknown> | null)?.[key];
+  return typeof v === "string" ? v : "";
+};
+
+const readNumberFieldLoose = <T extends object>(obj: T | null | undefined, key: string): number | null => {
+  const v = (obj as unknown as Record<string, unknown> | null)?.[key];
+  return typeof v === "number" ? v : null;
+};
+
+/* =========================================================
+   ✅ buildLolLinkedProfile
+   ⭐ FIX: 헤더에서 사용하는 필드들을 실제로 채운다.
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
@@ -45,137 +89,103 @@ export const buildLolLinkedProfile = (
   options?: BuildLolProfileOptions
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
-  const wins = solo?.wins ?? 0;
-  const losses = solo?.losses ?? 0;
-  const winRatePercent =
-    typeof options?.fallbackWinRatePercent === "number"
-      ? options.fallbackWinRatePercent
-      : toPercent(wins, losses);
+
+  const tierText = solo ? formatTier(solo.tier, solo.rank) : "Unranked";
+  const winRatePercent = solo ? toPercent(solo.wins, solo.losses) : 0;
+
+  // RiotID / Summoner 정보 (최소 DTO라서 안전 접근)
+  const summonerName = readStringField(summoner, "name");
+  const summonerLevel = readNumberFieldLoose(summoner, "summonerLevel");
+  const profileIconId = readNumberFieldLoose(summoner, "profileIconId");
+
+  const riotId = `${account.gameName}#${account.tagLine}`;
+
+  // serverLabel은 네 프로젝트에서 KR 고정으로 쓰는 편이 안전 (필요하면 나중에 확장)
+  const serverLabel = "KR";
 
   return {
-    summonerName: account.gameName,
-    tagLine: account.tagLine,
-    riotId: `${account.gameName}#${account.tagLine}`,
-    serverLabel: "Kr server",
-    profileIconId: summoner?.profileIconId,
-    summonerLevel: summoner?.summonerLevel,
-    currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
-    mainPosition: options?.fallbackMainPosition ?? "미정",
+    gameKey: "lol",
+    title: "리그 오브 레전드",
+    subtitle: "League of Legends",
+
+    // 기존 필드
+    tierText,
+    mainPosition: "미정",
     winRatePercent,
-  };
+
+    // ✅ 헤더 카드에서 쓰는 필드들 (없어서 UI가 비어있던 원인)
+    riotId,
+    summonerName,
+    serverLabel,
+    summonerLevel: summonerLevel ?? undefined,
+    profileIconId: profileIconId ?? undefined,
+
+    // ✅ 헤더가 currentTier를 직접 쓰는 경우도 있어서 같이 제공
+    currentTier: tierText,
+
+    meta: {
+      riot: {
+        gameName: account.gameName,
+        tagLine: account.tagLine,
+        puuid: account.puuid,
+        summonerName,
+      },
+    },
+  } as LolLinkedProfile;
 };
 
-export const buildLolAggregateStats = (matches: MatchDto[], puuid: string): LolAggregateStats => {
-  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
+/* =========================================================
+   ✅ buildLolAggregateStats (export 유지)
+========================================================= */
 
-  const recent = validMatches
-    .map((m) => m.info.participants.find((p) => p.puuid === puuid))
-    .filter(Boolean) as MatchDto["info"]["participants"][number][];
+export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): LolAggregateStats => {
+  const items = buildLolMatchList(matches, myPuuid);
 
-  let wins = 0;
-  let losses = 0;
-  let sumK = 0;
-  let sumD = 0;
-  let sumA = 0;
+  const total = items.length;
+  const wins = items.filter((x) => x.result === "win").length;
+  const losses = total - wins;
 
-  const champCount = new Map<string, number>();
+  const kda = matches
+    .map((m) => m.info.participants.find((p) => p.puuid === myPuuid))
+    .filter(Boolean)
+    .map((p) => ({
+      k: p!.kills,
+      d: p!.deaths,
+      a: p!.assists,
+    }));
 
-  for (const p of recent) {
-    if (p.win) wins += 1;
-    else losses += 1;
-    sumK += p.kills;
-    sumD += p.deaths;
-    sumA += p.assists;
-    champCount.set(p.championName, (champCount.get(p.championName) ?? 0) + 1);
+  const avgKills = total > 0 ? kda.reduce((s, x) => s + x.k, 0) / total : 0;
+  const avgDeaths = total > 0 ? kda.reduce((s, x) => s + x.d, 0) / total : 0;
+  const avgAssists = total > 0 ? kda.reduce((s, x) => s + x.a, 0) / total : 0;
+  const avgKdaRatio = kdaRatio(avgKills, avgDeaths, avgAssists);
+
+  const champCounts = new Map<string, number>();
+  for (const m of matches) {
+    const me = m.info.participants.find((p) => p.puuid === myPuuid);
+    if (!me) continue;
+    const name = typeof me.championName === "string" ? me.championName.trim() : "";
+    if (!name) continue;
+    champCounts.set(name, (champCounts.get(name) ?? 0) + 1);
   }
 
-  const total = recent.length || 1;
-  const mostChampions = [...champCount.entries()]
+  const mostChampions = Array.from(champCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([name, games]) => ({ name, games }));
+    .map(([name]) => ({ name }));
 
   return {
+    totalGames: total,
     wins,
     losses,
-    winRatePercent: toPercent(wins, losses),
-    avgKdaRatio: kdaRatio(sumK / total, sumD / total, sumA / total),
-    avgKills: Math.round((sumK / total) * 10) / 10,
-    avgDeaths: Math.round((sumD / total) * 10) / 10,
-    avgAssists: Math.round((sumA / total) * 10) / 10,
+    winRatePercent: total > 0 ? Math.round((wins / total) * 100) : 0,
+    avgKills: Math.round(avgKills * 10) / 10,
+    avgDeaths: Math.round(avgDeaths * 10) / 10,
+    avgAssists: Math.round(avgAssists * 10) / 10,
+    avgKdaRatio: Math.round(avgKdaRatio * 100) / 100,
     mostChampions,
+    items,
   };
 };
 
-// ✅ [수정] 원본 데이터(MatchDto)를 뷰모델(LolMatchItem)로 변환하는 핵심 로직
-export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchItem[] => {
-  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
-
-  return validMatches.map((m) => {
-    const me = m.info.participants.find((x) => x.puuid === puuid);
-    if (!me) return null as any;
-
-    const win = me.win;
-    const result: MatchResult = win ? "win" : "lose";
-
-    // ✨ 팀 챔피언 정보 추출 (복구 로직)
-    const myTeamId = me.teamId;
-    const teamChampions = m.info.participants
-      .filter((p) => p.teamId === myTeamId)
-      .map((p) => p.championName);
-    const opponentChampions = m.info.participants
-      .filter((p) => p.teamId !== myTeamId)
-      .map((p) => p.championName);
-
-    const cs = Number(me.totalMinionsKilled ?? 0);
-    const gold = Number(me.goldEarned ?? 0);
-
-    return {
-      id: m.metadata.matchId,
-      result,
-      queueLabel: "솔랭",
-      durationText: secondsToKoreanDuration(m.info.gameDuration),
-      kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
-      kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-      pills: [`CS ${cs}`, `골드 ${(gold / 1000).toFixed(1)}k`],
-      itemsCount: extractItemsCount(me),
-
-      // 뷰모델에 데이터 주입
-      myChampionName: me.championName,
-      teamChampions,
-      opponentChampions,
-    };
-  }).filter(Boolean);
-};
-
-const POSITION_MAP: Record<string, string> = {
-  TOP: "탑",
-  JUNGLE: "정글",
-  MIDDLE: "미드",
-  MID: "미드",
-  BOTTOM: "원딜",
-  ADC: "원딜",
-  UTILITY: "서폿",
-  SUPPORT: "서폿",
-};
-
-export const computeMainPosition = (matches: MatchDto[], puuid: string): string => {
-  const counts = new Map<string, number>();
-  for (const m of matches ?? []) {
-    const me = m?.info?.participants?.find((p) => p.puuid === puuid);
-    if (!me) continue;
-    const raw = me.teamPosition || me.lane || "UNKNOWN";
-    const label = POSITION_MAP[raw] ?? "미정";
-    if (label === "미정") continue;
-    counts.set(label, (counts.get(label) ?? 0) + 1);
-  }
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  return sorted[0]?.[0] ?? "미정";
-};
-
-export const getChampionIconUrl = (name: string): string => {
-  const normalized = name.replace(/[^A-Za-z0-9]/g, "");
-  if (!normalized) return "";
-  // 최신 버전은 고정값 대신 CDN의 최신을 쓰거나 env로 관리 가능
-  return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${normalized}.png`;
-};
+/* =========================================================
+   ✅ buildLolMatchList (export 유지)

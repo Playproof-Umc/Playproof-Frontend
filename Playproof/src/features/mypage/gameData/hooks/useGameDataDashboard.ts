@@ -1,5 +1,3 @@
-// src/features/mypage/gameData/hooks/useGameDataDashboard.ts
-
 import { useMemo, useState } from "react";
 
 import type {
@@ -61,11 +59,41 @@ type DashboardView =
   | OwErrorView
   | OwView;
 
-function applyCardOverrides(base: LinkedAccount[], overrides: Array<{ game: GameKey; accounts: LinkedAccount["accounts"] }>) {
+// ✅ game key alias/정규화 (mock/실데이터 혼용 대비)
+function normalizeGameKey(game: string): GameKey {
+  const g = String(game).toLowerCase();
+
+  // LoL aliases
+  if (g === "lol" || g === "league" || g === "leagueoflegends" || g === "league_of_legends") return "lol";
+
+  // Valorant aliases
+  if (g === "valorant" || g === "val" || g === "vlt") return "valorant";
+
+  // Overwatch aliases
+  if (g === "overwatch" || g === "ow") return "overwatch";
+
+  // Steam 등 기타는 그대로 (GameKey에 포함된 값이라고 가정)
+  return game as GameKey;
+}
+
+function applyCardOverrides(
+  base: LinkedAccount[],
+  overrides: Array<{ game: GameKey; accounts: LinkedAccount["accounts"] }>
+) {
+  // base 자체는 건드리지 않고 새 배열로 리턴
   let next = base;
+
   for (const ov of overrides) {
-    next = next.map((a) => (a.game === ov.game ? { ...a, accounts: ov.accounts } : a));
+    const ovKey = normalizeGameKey(ov.game);
+
+    next = next.map((a) => {
+      const aKey = normalizeGameKey(a.game);
+
+      if (aKey !== ovKey) return a;
+      return { ...a, accounts: ov.accounts };
+    });
   }
+
   return next;
 }
 
@@ -74,7 +102,7 @@ export const useGameDataDashboard = () => {
 
   const defaultSelected = useMemo(() => {
     const firstRealGame = baseData.linkedAccounts.find((a) => typeof a.game === "string" && a.game.length > 0)?.game;
-    return (firstRealGame ?? null) as GameKey | null;
+    return (firstRealGame ? normalizeGameKey(firstRealGame) : null) as GameKey | null;
   }, [baseData.linkedAccounts]);
 
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(defaultSelected);
@@ -106,13 +134,14 @@ export const useGameDataDashboard = () => {
 
   // --- linkedAccounts override (연동 카드 데이터 유지 핵심) ---
   const linkedAccounts = useMemo(() => {
-    const overrides = [lol.cardOverride, overwatch.cardOverride].filter(Boolean) as Array<{
+    // ✅ VAL override 포함 (확정 버그 픽스)
+    const overrides = [lol.cardOverride, valorant.cardOverride, overwatch.cardOverride].filter(Boolean) as Array<{
       game: GameKey;
       accounts: LinkedAccount["accounts"];
     }>;
 
     return applyCardOverrides(baseData.linkedAccounts, overrides);
-  }, [baseData.linkedAccounts, lol.cardOverride, overwatch.cardOverride]);
+  }, [baseData.linkedAccounts, lol.cardOverride, valorant.cardOverride, overwatch.cardOverride]);
 
   const data: GameDataDashboardData = useMemo(() => {
     // LoL 전적 로드 시 baseData.lol을 최신으로 주입(기존 동작 유지)
@@ -126,7 +155,9 @@ export const useGameDataDashboard = () => {
   const view: DashboardView = useMemo(() => {
     if (!selectedGame) return { kind: "empty" };
 
-    if (selectedGame === "lol") {
+    const sg = normalizeGameKey(selectedGame);
+
+    if (sg === "lol") {
       if (!lol.riotMeta) return { kind: "lolError", message: "Riot ID가 없습니다." };
       if (lol.status.kind === "loading") return { kind: "lolLoading" };
       if (lol.status.kind === "error") return { kind: "lolError", message: lol.status.message };
@@ -134,14 +165,13 @@ export const useGameDataDashboard = () => {
       return { kind: "lolLoading" };
     }
 
-    if (selectedGame === "valorant") {
-      // useValorantGameData의 view는 이미 kind를 맞춰줌
+    if (sg === "valorant") {
       if (valorant.view.kind === "valLoading") return { kind: "valLoading" };
       if (valorant.view.kind === "valError") return { kind: "valError", message: valorant.view.message };
       return { kind: "valorant", data: valorant.view.data };
     }
 
-    if (selectedGame === "overwatch") {
+    if (sg === "overwatch") {
       if (overwatch.view.kind === "owLoading") return { kind: "owLoading" };
       if (overwatch.view.kind === "owError") return { kind: "owError", message: overwatch.view.message };
       return { kind: "overwatch", data: overwatch.view.data };
@@ -154,9 +184,10 @@ export const useGameDataDashboard = () => {
   const actions = useMemo(
     () => ({
       onSelectGame: (game: GameKey) => {
-        setSelectedGame(game);
+        const g = normalizeGameKey(game);
+        setSelectedGame(g);
         setActiveTab("matches");
-        if (game === "lol") setPage(1);
+        if (g === "lol") setPage(1);
       },
       onChangeTab: (tab: DashboardTabKey) => setActiveTab(tab),
       onChangeLolPage: (nextPage: number) => setPage(nextPage),
@@ -164,7 +195,6 @@ export const useGameDataDashboard = () => {
     []
   );
 
-  // --- valorant panel return (기존 return shape 유지) ---
   return {
     data,
     selectedGame,

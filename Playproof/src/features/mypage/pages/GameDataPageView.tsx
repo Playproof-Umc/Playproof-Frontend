@@ -1,5 +1,3 @@
-// src/features/mypage/pages/GameDataPageView.tsx
-
 import { Card } from "@/components/ui/Card";
 import {
   UserProfileCard,
@@ -15,21 +13,25 @@ import { useGameDataDashboard } from "@/features/mypage/gameData/hooks/useGameDa
 import type { LinkedAccount } from "@/features/mypage/gameData/types/gameDataTypes";
 
 function getOverwatchBattleTag(accounts: LinkedAccount[]): string {
-  const ow = accounts.find((a) => a.game === "overwatch");
+  const ow = accounts.find((a) => String(a.game).toLowerCase() === "overwatch" || String(a.game).toLowerCase() === "ow");
   const meta = ow?.meta as Record<string, unknown> | undefined;
 
+  // 1) meta.overwatch.battleTag
   const overwatch = meta?.["overwatch"];
   if (overwatch && typeof overwatch === "object") {
     const bt = (overwatch as Record<string, unknown>)["battleTag"];
     if (typeof bt === "string") return bt.trim();
   }
 
+  // 2) meta.battleTag (fallback)
+  const bt2 = meta?.["battleTag"];
+  if (typeof bt2 === "string") return bt2.trim();
+
   return "";
 }
 
 export const GameDataPageView = () => {
   const dashboard = useGameDataDashboard();
-console.log("DEBUG linkedAccounts", dashboard.data.linkedAccounts);
 
   const battleTag = getOverwatchBattleTag(dashboard.data.linkedAccounts);
 
@@ -146,9 +148,7 @@ console.log("DEBUG linkedAccounts", dashboard.data.linkedAccounts);
               ) : heroStats.isError ? (
                 <Card className="mt-6 p-6">
                   <div className="text-sm font-semibold text-gray-900">영웅 통계 로드 실패</div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    일시적인 오류입니다. (레이트리밋일 수 있어요)
-                  </div>
+                  <div className="mt-2 text-xs text-gray-500">일시적인 오류입니다. (레이트리밋일 수 있어요)</div>
                 </Card>
               ) : (
                 <OverwatchHeroStatsSection rows={heroStats.rows} />
