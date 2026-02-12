@@ -12,6 +12,7 @@ export type LinkedAccount = {
   game: GameKey;
   title: string;
   subtitle?: string;
+  badge?: string;
   accounts: Array<{
     label: string;
     value: string;
