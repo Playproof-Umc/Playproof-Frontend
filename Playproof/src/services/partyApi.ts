@@ -27,7 +27,10 @@ export type PartyListItem = {
   status: string;
   viewCount: number;
   likeCount?: number;
-  isLike?: boolean;
+  isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   commentCount?: number;
   tags: Array<{ id: number; name: string }>;
   positions: Array<{ positionId: number; positionName: string }>;
@@ -64,6 +67,10 @@ export type PartyDetail = {
   status: string;
   viewCount: number;
   likeCount?: number;
+  isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   commentCount?: number;
   tags: Array<{ id: number; name: string }>;
   positions: Array<{ positionId: number; positionName: string }>;

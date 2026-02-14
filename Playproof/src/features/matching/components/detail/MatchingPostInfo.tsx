@@ -16,46 +16,33 @@ interface MatchingPostInfoProps {
 }
 
 export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu, onMoveToProfile }: MatchingPostInfoProps) => {
-  const { toggleLike, getLikeState } = useMatchingDetail();
+  const { toggleLike, getLikeState, requestMatch, getRequestState } = useMatchingDetail();
   const likeState = getLikeState(post);
+  const requestState = getRequestState(post);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
   const currentUserId = authUserId ? String(authUserId) : '1';
+  const isHost = String(post.hostUser.id) === currentUserId;
   const displayName = post.hostUser.id === currentUserId ? (authNickname ?? post.hostUser.nickname) : post.hostUser.nickname;
-  
-  // 친구 추가 Mutation
-  const addFriendMutation = useMutation({
-    mutationFn: (toUserId: number) => sendFriendRequest(toUserId),
-    onSuccess: (data) => {
-      console.log('✅ 친구 신청 성공:', data);
-      alert('친구 신청이 완료되었습니다!');
-      onToggleMenu(); // 메뉴 닫기
-    },
-    onError: (error) => {
-      console.error('❌ 친구 신청 실패:', error);
-      alert('친구 신청에 실패했습니다.');
-    },
-  });
 
-  const handleAddFriend = () => {
-  // post.hostUser.id가 숫자 문자열이므로 숫자만 추출
-    const userIdMatch = post.hostUser.id.match(/\d+/);
-    const toUserId = userIdMatch ? Number(userIdMatch[0]) : null;
-    
-    if (!toUserId) {
-      console.error('유효하지 않은 사용자 ID:', post.hostUser.id);
-      alert('사용자 정보를 찾을 수 없습니다.');
-      return;
+  // ... (addFriendMutation 및 handleAddFriend 로직 유지)
+
+  const getRequestButtonText = () => {
+    switch (requestState) {
+      case 'pending': return '신청 취소하기';
+      case 'accepted': return '참여 중';
+      default: return '파티 신청하기';
     }
-
-    console.log('👥 친구 추가 요청:', {
-      대상사용자: post.hostUser.nickname,
-      toUserId,
-      현재사용자: currentUserId,
-    });
-
-    addFriendMutation.mutate(toUserId);
   };
+
+  const handleRequestClick = () => {
+    if (requestState === 'none') {
+      requestMatch(post);
+    } else if (requestState === 'pending') {
+      cancelMatchRequest(post);
+    }
+  };
+
   return (
     <div className="w-[60%] p-8 flex flex-col h-full overflow-y-auto border-r border-gray-100 relative scrollbar-hide">
       {/* Header & Menu */}
@@ -69,10 +56,9 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
             <div className="absolute right-0 top-6 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden py-1">
               <button 
                 onClick={handleAddFriend}
-                disabled={addFriendMutation.isPending}
                 className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left disabled:opacity-50"
               >
-                <UserPlus size={14} /> {addFriendMutation.isPending ? '요청 중...' : '친구추가'}
+                <UserPlus size={14} /> 친구추가
               </button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 text-left"><Home size={14} /> 아지트 초대</button>
               <button className="w-full px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 text-left"><AlertTriangle size={14} /> 신고하기</button>
@@ -122,6 +108,24 @@ export const MatchingPostInfo = ({ post, commentCount, isMenuOpen, onToggleMenu,
             return (<div key={posId} className="w-16 h-16 bg-gray-50 rounded-xl flex flex-col items-center justify-center text-gray-500 text-[11px] font-bold gap-1.5">{icon}<span>{label}</span></div>);
           })}
         </div>
+
+        {/* 파티 신청 버튼 추가 */}
+        {!isHost && (
+          <button
+            onClick={handleRequestClick}
+            disabled={requestState === 'accepted'}
+            className={`w-full py-4 rounded-xl text-sm font-bold mb-6 transition-all ${
+              requestState === 'none' 
+                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-100' 
+                : requestState === 'pending'
+                ? 'bg-red-50 text-red-500 hover:bg-red-100 border border-red-100'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {getRequestButtonText()}
+          </button>
+        )}
+
         <div className="flex items-center gap-4 text-xs font-medium text-gray-400 border-t border-gray-50 pt-4">
           <div className="flex items-center gap-1"><Eye size={14} /> <span>{post.views}</span></div>
           <button

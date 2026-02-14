@@ -21,7 +21,7 @@ export const MatchingPageView = () => {
   const { state, setters, actions } = useMatchingBoard();
   const location = useLocation();
   const navigate = useNavigate();
-  const { openMatchingDetail, hydrateLikes, hydrateCommentCounts } = useMatchingDetail();
+  const { openMatchingDetail, hydrateLikes, hydrateCommentCounts, hydrateRequestStates } = useMatchingDetail();
   const authUserId = useAuthStore((s) => s.userId);
   const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
   const {
@@ -56,7 +56,8 @@ export const MatchingPageView = () => {
   useEffect(() => {
     hydrateLikes(allMatches);
     hydrateCommentCounts(allMatches);
-  }, [allMatches, hydrateLikes, hydrateCommentCounts]);
+    hydrateRequestStates(allMatches);
+  }, [allMatches, hydrateLikes, hydrateCommentCounts, hydrateRequestStates]);
 
   useEffect(() => {
     if (lastLocationKeyRef.current === location.key) return;

@@ -20,6 +20,9 @@ export interface MatchingData {
   views: number;
   likes: number;
   isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   isMatched?: boolean;
   comments: number;
   tsScore: number;
