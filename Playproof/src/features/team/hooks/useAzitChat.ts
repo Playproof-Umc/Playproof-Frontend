@@ -4,8 +4,9 @@ import { useAzitSocket, type ChatMessage, type ApiError } from "./useAzitSocket"
 import { getChatMessages } from "@/features/team/api/chatApi";
 import { useAuthStore } from "@/store/authStore";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my";
+const API_BASE_RAW = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
+const API_BASE = API_BASE_RAW.replace(/\/$/, "");
+const API_BASE_URL = API_BASE ? `${API_BASE}/api` : "/api";
 
 export const useAzitChat = (
   params: {
