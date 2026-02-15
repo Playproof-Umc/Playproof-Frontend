@@ -1,11 +1,6 @@
 // src/features/mypage/gameData/api/overfastApi.ts
 
-import axios from "axios";
-
-const overwatchClient = axios.create({
-  baseURL: "/api/overwatch",
-  timeout: 15_000,
-});
+import { overwatchClient } from "@/services/axios";
 
 export type OverfastPlayerSummary = {
   player_id: string;
