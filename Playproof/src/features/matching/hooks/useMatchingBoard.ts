@@ -63,6 +63,7 @@ export const useMatchingBoard = () => {
       likes: party.likeCount ?? 0,
       isLiked: party.isLiked ?? false,
       isApplied: party.isApplied ?? false,
+      applicationId: party.applicationId,
       applicationStatus: party.applicationStatus ?? 'none',
       comments: party.commentCount ?? 0,
       tsScore: party.host.trustScore,
