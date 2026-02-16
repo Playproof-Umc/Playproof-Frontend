@@ -2,9 +2,14 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
+// 환경변수 기반 API 루트
+const API_BASE_RAW = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
+const API_BASE = API_BASE_RAW.replace(/\/$/, "");
+const API_PREFIX = API_BASE ? `${API_BASE}/api` : "/api";
+
 // baseURL은 프로젝트 환경에 맞게 바꿔줘
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "",
+  baseURL: API_PREFIX,
   headers: {
     "Content-Type": "application/json",
     ...(import.meta.env.VITE_ACCESS_TOKEN

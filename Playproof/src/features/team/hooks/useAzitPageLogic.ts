@@ -62,9 +62,11 @@ export function useAzitPageLogic() {
   const { accessToken, userId: authUserId, nickname: authNickname, setAuth } = useAuthStore();
   const isAutoLoggingIn = React.useRef(false);
 
-  const apiBaseUrl =
+  const API_BASE_RAW =
     ((import.meta as unknown as { env?: Record<string, unknown> }).env?.VITE_API_BASE_URL as string | undefined)?.trim() ||
-    "https://myfit.my";
+    "";
+  const API_BASE = API_BASE_RAW.replace(/\/$/, "");
+  const apiBaseUrl = API_BASE ? `${API_BASE}/api` : "/api";
 
   const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
 

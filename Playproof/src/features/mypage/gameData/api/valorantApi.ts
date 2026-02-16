@@ -41,10 +41,7 @@ type ValorantMatchDetailResponse = {
   players: ValorantMatchPlayer[];
 };
 
-const client = axios.create({
-  baseURL: "/api/valorant",
-  headers: { "Content-Type": "application/json" },
-});
+import { valorantClient as client } from "@/services/axios";
 
 export const valorantApi = {
   async getMmrByRiotId(params: GetMmrParams): Promise<ValorantMmrResponse> {
