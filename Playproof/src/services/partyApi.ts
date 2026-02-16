@@ -368,7 +368,7 @@ export async function getPartyApplications(partyId: number): Promise<PartyApplic
 export async function applyToParty(postId: number): Promise<ApplyPartyResponse['data']> {
   const res = await api.post<ApplyPartyResponse>(`/parties/${postId}/applications`);
 
-  if (res.data.error || res.data.statusCode !== 200) {
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
     throw new Error('파티 신청 중 오류가 발생했습니다.');
   }
 
