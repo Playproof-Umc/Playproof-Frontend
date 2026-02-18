@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/Card';
-import { fetchMyFeedbacks } from '@/features/mypage/data/mockMyPageData';
+import { getMyFeedbacks } from '@/features/mypage/api/mypageApi';
 import type { FeedbackData } from '@/features/mypage/types';
 import { FeedbackCard } from '@/features/mypage/components/feedback/FeedbackCard';
 import { MYPAGE_ACTION_LABELS, MYPAGE_FEEDBACK_LABELS, MYPAGE_SECTION_LABELS } from '@/features/mypage/constants/labels';
@@ -14,7 +14,7 @@ export function FeedbackSection() {
   React.useEffect(() => {
     const loadFeedbacks = async () => {
       try {
-        const data = await fetchMyFeedbacks();
+        const data = await getMyFeedbacks();
         setFeedbacks(data);
       } catch (error) {
         console.error('Failed to load feedbacks:', error);

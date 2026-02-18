@@ -12,6 +12,7 @@ export function MyPageSidebar({ activeSection, onSectionChange }: MyPageSidebarP
     { id: MYPAGE_SECTION_IDS.profile, label: MYPAGE_SECTION_LABELS.profile },
     { id: MYPAGE_SECTION_IDS.feedback, label: MYPAGE_SECTION_LABELS.feedback },
     { id: MYPAGE_SECTION_IDS.writtenPosts, label: MYPAGE_SECTION_LABELS.writtenPosts },
+    { id: MYPAGE_SECTION_IDS.gameData, label: MYPAGE_SECTION_LABELS.gameData },
     { id: MYPAGE_SECTION_IDS.friends, label: MYPAGE_SECTION_LABELS.friends },
   ];
 

@@ -15,10 +15,14 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
   const isPositive = feedback.temperScoreChange > 0;
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = React.useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
+  const [showAllTags, setShowAllTags] = React.useState(false);
+  const MAX_TAGS = 4;
+  const tagsToShow = showAllTags ? feedback.tags : feedback.tags.slice(0, MAX_TAGS);
+  const hasMoreTags = feedback.tags.length > MAX_TAGS;
 
   return (
     <>
-      <div className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow h-[320px]">
+      <div className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
         {/* 상단: TS 점수 + 아이콘 / 신고 + 친구추가 */}
         <div className="mb-4 flex items-center justify-between flex-shrink-0">
           {/* 좌측: TS 점수 변화 */}
@@ -83,7 +87,7 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
 
         {/* 하단: 피드백 태그 */}
         <div className="flex flex-wrap justify-center gap-2 flex-shrink-0">
-          {feedback.tags.map((tag, index) => (
+          {tagsToShow.map((tag, index) => (
             <span
               key={index}
               className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700"
@@ -91,6 +95,22 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
               {tag}
             </span>
           ))}
+          {hasMoreTags && !showAllTags && (
+            <button
+              className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 transition"
+              onClick={() => setShowAllTags(true)}
+            >
+              ...더보기
+            </button>
+          )}
+          {hasMoreTags && showAllTags && (
+            <button
+              className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 transition"
+              onClick={() => setShowAllTags(false)}
+            >
+              접기
+            </button>
+          )}
         </div>
       </div>
 
@@ -108,6 +128,7 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         targetUserNickname={feedback.fromUser.nickname}
+        targetId={feedback.id}
       />
     </>
   );

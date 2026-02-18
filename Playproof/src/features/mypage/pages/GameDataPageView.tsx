@@ -45,8 +45,6 @@ export const GameDataPageView = () => {
   return (
     <div className="min-h-screen bg-white text-black">
       <main className="mx-auto w-full max-w-[1280px] px-6 py-10">
-        <UserProfileCard profile={dashboard.data.userProfile} />
-
         <div className="mt-10">
           <div className="mb-4 text-sm font-semibold text-gray-700">연동된 게임 계정</div>
 
