@@ -26,33 +26,46 @@ type ApiErrorResponse = {
 export const useSignup = () => {
 	return useMutation<{ id: number; phone: string; nickname: string }, SignupError, SignupPayload>({
 		mutationFn: async (payload) => {
-			const body: SignupRequest = {
-				phone: payload.phone,
-				password: payload.password,
-				nickname: payload.nickname,
-			};
+			try {
+				const body: SignupRequest = {
+					phone: payload.phone,
+					password: payload.password,
+					nickname: payload.nickname,
+					terms: [],
+					gameInfo: {
+						gameId: 0,
+						gameName: "",
+						gameNickname: "",
+						accountId: "",
+						playStyle: "",
+						positionId: 0,
+						tierId: 0,
+					},
+				};
 
-			const result = await signup(body);
-			return result;
+				const result = await signup(body);
+				return result;
+			} catch (err) {
+				const axiosErr = err as AxiosError<ApiErrorResponse>;
+				const status = axiosErr.response?.status;
+				const code = axiosErr.response?.data?.error?.code;
+
+				console.error('회원가입 오류:', { status, code, message: axiosErr.response?.data?.error?.message });
+
+				if (status === 409 || code === "DUPLICATE_PHONE" || code === "DUPLICATE_NICKNAME") {
+					throw { code: "DUPLICATE", message: axiosErr.response?.data?.error?.message || "이미 등록된 정보입니다." } as SignupError;
+				}
+
+				if (status === 400 && code === "VALIDATION_FAILED") {
+					throw { code: "VALIDATION_FAILED", message: axiosErr.response?.data?.error?.message || "입력값을 확인해주세요." } as SignupError;
+				}
+
+				throw { code: "NETWORK", message: "일시적인 오류가 발생했습니다. 다시 시도해주세요." } as SignupError;
+			}
 		},
-		onError: (err: AxiosError<ApiErrorResponse>) => {
-			const status = err.response?.status;
-			const code = err.response?.data?.error?.code;
-
-			console.error('회원가입 오류:', { status, code, message: err.response?.data?.error?.message });
-
-			// 중복 계정 처리
-			if (status === 409 || code === "DUPLICATE_PHONE" || code === "DUPLICATE_NICKNAME") {
-				throw { code: "DUPLICATE", message: err.response?.data?.error?.message || "이미 등록된 정보입니다." };
-			}
-
-			// 유효성 검사 실패
-			if (status === 400 && code === "VALIDATION_FAILED") {
-				throw { code: "VALIDATION_FAILED", message: err.response?.data?.error?.message || "입력값을 확인해주세요." };
-			}
-
-			// 기타 오류
-			throw { code: "NETWORK", message: "일시적인 오류가 발생했습니다. 다시 시도해주세요." };
+		onError: (error: SignupError) => {
+			// 이미 mutationFn에서 SignupError로 변환되어 전달됩니다.
+			console.error('회원가입 실패:', error);
 		},
 	});
 };

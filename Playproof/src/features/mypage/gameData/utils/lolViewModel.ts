@@ -1,5 +1,26 @@
-import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "../api/riotApi";
-import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "../types/gameDataTypes";
+// src/features/mypage/gameData/utils/lolViewModel.ts
+
+import type { AccountDto, LeagueEntryDto, MatchDto, SummonerDto } from "@/features/mypage/gameData/api/riotApi";
+import type { LolAggregateStats, LolLinkedProfile, LolMatchItem, MatchResult } from "@/features/mypage/gameData/types/gameDataTypes";
+
+/* =========================================================
+   Local champion images (optional)
+========================================================= */
+import Ambessa from "@/assets/lol/champions/Ambessa.png";
+import Mel from "@/assets/lol/champions/Mel.png";
+import Yunara from "@/assets/lol/champions/Yunara.png";
+import Zaahen from "@/assets/lol/champions/Zaahen.png";
+
+const LOCAL_CHAMP_MAP: Record<string, string> = {
+  Ambessa,
+  Mel,
+  Yunara,
+  Zaahen,
+};
+
+/* =========================================================
+   Basic utils
+========================================================= */
 
 const pickSoloQueue = (entries: LeagueEntryDto[]) =>
   entries.find((e) => e.queueType === "RANKED_SOLO_5x5") ?? null;
@@ -33,15 +54,43 @@ const extractItemsCount = (p: MatchDto["info"]["participants"][number]) => {
   return items.filter((x) => x && x !== 0).length;
 };
 
+const readNumberField = <T extends object>(obj: T, key: string): number | null => {
+  const v = (obj as unknown as Record<string, unknown>)[key];
+  return typeof v === "number" ? v : null;
+};
+
+const getCs = (p: MatchDto["info"]["participants"][number]) => {
+  const lane = readNumberField(p, "totalMinionsKilled") ?? 0;
+  const jungle = readNumberField(p, "neutralMinionsKilled") ?? 0;
+  return lane + jungle;
+};
+
+const getGold = (p: MatchDto["info"]["participants"][number]) => {
+  return readNumberField(p, "goldEarned") ?? 0;
+};
+
+/* =========================================================
+   buildLolLinkedProfile
+========================================================= */
+
+export type BuildLolProfileOptions = {
+  fallbackWinRatePercent?: number;
+  fallbackMainPosition?: string;
+};
+
 export const buildLolLinkedProfile = (
   account: AccountDto,
   summoner: SummonerDto | null,
-  leagueEntries: LeagueEntryDto[]
+  leagueEntries: LeagueEntryDto[],
+  options?: BuildLolProfileOptions
 ): LolLinkedProfile => {
   const solo = pickSoloQueue(leagueEntries);
   const wins = solo?.wins ?? 0;
   const losses = solo?.losses ?? 0;
-  const winRatePercent = toPercent(wins, losses);
+  const winRatePercent =
+    typeof options?.fallbackWinRatePercent === "number"
+      ? options.fallbackWinRatePercent
+      : toPercent(wins, losses);
 
   return {
     summonerName: account.gameName,
@@ -51,37 +100,46 @@ export const buildLolLinkedProfile = (
     profileIconId: summoner?.profileIconId,
     summonerLevel: summoner?.summonerLevel,
     currentTier: solo ? formatTier(solo.tier, solo.rank) : "Unranked",
-    mainPosition: "미정",
+    mainPosition: options?.fallbackMainPosition ?? "미정",
     winRatePercent,
   };
 };
 
-export const buildLolAggregateStats = (matches: MatchDto[], puuid: string): LolAggregateStats => {
-  const validMatches = matches.filter((m) => m && m.info && m.info.participants);
+/* =========================================================
+   buildLolAggregateStats
+========================================================= */
 
-  const recent = validMatches
-    .map((m) => m.info.participants.find((p) => p.puuid === puuid))
-    .filter(Boolean) as MatchDto["info"]["participants"][number][];
+export const buildLolAggregateStats = (matches: MatchDto[], myPuuid: string): LolAggregateStats => {
+  const items = buildLolMatchList(matches, myPuuid);
 
-  let wins = 0;
-  let losses = 0;
-  let sumK = 0;
-  let sumD = 0;
-  let sumA = 0;
+  const total = items.length;
+  const wins = items.filter((x) => x.result === "win").length;
+  const losses = total - wins;
 
-  const champCount = new Map<string, number>();
+  const kda = matches
+    .map((m) => m.info.participants.find((p) => p.puuid === myPuuid))
+    .filter(Boolean)
+    .map((p) => ({
+      k: p!.kills,
+      d: p!.deaths,
+      a: p!.assists,
+    }));
 
-  for (const p of recent) {
-    if (p.win) wins += 1;
-    else losses += 1;
-    sumK += p.kills;
-    sumD += p.deaths;
-    sumA += p.assists;
-    champCount.set(p.championName, (champCount.get(p.championName) ?? 0) + 1);
+  const avgKills = total > 0 ? kda.reduce((s, x) => s + x.k, 0) / total : 0;
+  const avgDeaths = total > 0 ? kda.reduce((s, x) => s + x.d, 0) / total : 0;
+  const avgAssists = total > 0 ? kda.reduce((s, x) => s + x.a, 0) / total : 0;
+  const avgKdaRatio = kdaRatio(avgKills, avgDeaths, avgAssists);
+
+  const champCounts = new Map<string, number>();
+  for (const m of matches) {
+    const me = m.info.participants.find((p) => p.puuid === myPuuid);
+    if (!me) continue;
+    const name = typeof me.championName === "string" ? me.championName.trim() : "";
+    if (!name) continue;
+    champCounts.set(name, (champCounts.get(name) ?? 0) + 1);
   }
 
-  const total = recent.length || 1;
-  const mostChampions = [...champCount.entries()]
+  const mostChampions = Array.from(champCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([name, games]) => ({ name, games }));
@@ -89,49 +147,91 @@ export const buildLolAggregateStats = (matches: MatchDto[], puuid: string): LolA
   return {
     wins,
     losses,
-    winRatePercent: toPercent(wins, losses),
-    avgKdaRatio: kdaRatio(sumK / total, sumD / total, sumA / total),
-    avgKills: Math.round((sumK / total) * 10) / 10,
-    avgDeaths: Math.round((sumD / total) * 10) / 10,
-    avgAssists: Math.round((sumA / total) * 10) / 10,
+    winRatePercent: total > 0 ? Math.round((wins / total) * 100) : 0,
+    avgKills: Math.round(avgKills * 10) / 10,
+    avgDeaths: Math.round(avgDeaths * 10) / 10,
+    avgAssists: Math.round(avgAssists * 10) / 10,
+    avgKdaRatio: Math.round(avgKdaRatio * 100) / 100,
     mostChampions,
   };
 };
 
-// ✅ [수정] 원본 데이터(MatchDto)를 뷰모델(LolMatchItem)로 변환하는 핵심 로직
-export const buildLolMatchList = (matches: MatchDto[], puuid: string): LolMatchItem[] => {
+/* =========================================================
+   buildLolMatchList
+========================================================= */
+
+export const buildLolMatchList = (matches: MatchDto[], myPuuid: string): LolMatchItem[] => {
   const validMatches = matches.filter((m) => m && m.info && m.info.participants);
 
-  return validMatches.map((m) => {
-    const me = m.info.participants.find((x) => x.puuid === puuid);
-    if (!me) return null as any;
+  return validMatches
+    .map((m) => {
+      const me = m.info.participants.find((x) => x.puuid === myPuuid);
+      if (!me) return null as any;
 
-    const win = me.win;
-    const result: MatchResult = win ? "win" : "lose";
+      const win = me.win;
+      const result: MatchResult = win ? "win" : "lose";
 
-    // ✨ 팀 챔피언 정보 추출 (복구 로직)
-    const myTeamId = me.teamId;
-    const teamChampions = m.info.participants
-      .filter((p) => p.teamId === myTeamId)
-      .map((p) => p.championName);
-    const opponentChampions = m.info.participants
-      .filter((p) => p.teamId !== myTeamId)
-      .map((p) => p.championName);
+      const myTeamId = me.teamId;
+      const teamChampions = m.info.participants
+        .filter((p) => p.teamId === myTeamId)
+        .map((p) => p.championName);
+      const opponentChampions = m.info.participants
+        .filter((p) => p.teamId !== myTeamId)
+        .map((p) => p.championName);
 
-    return {
-      id: m.metadata.matchId,
-      result,
-      queueLabel: "솔랭",
-      durationText: secondsToKoreanDuration(m.info.gameDuration),
-      kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
-      kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
-      pills: [`CS ${me.totalMinionsKilled}`, `골드 ${(me.goldEarned / 1000).toFixed(1)}k`],
-      itemsCount: extractItemsCount(me),
+      const cs = getCs(me);
+      const gold = getGold(me);
 
-      // 뷰모델에 데이터 주입
-      myChampionName: me.championName,
-      teamChampions,
-      opponentChampions,
-    };
-  }).filter(Boolean);
+      return {
+        id: m.metadata.matchId,
+        result,
+        queueLabel: "솔랭",
+        durationText: secondsToKoreanDuration(m.info.gameDuration),
+        kdaText: `${me.kills}/${me.deaths}/${me.assists}`,
+        kdaRatioText: `${kdaRatio(me.kills, me.deaths, me.assists).toFixed(2)}:1 평점`,
+        pills: [`CS ${cs}`, `골드 ${(gold / 1000).toFixed(1)}k`],
+        itemsCount: extractItemsCount(me),
+        myChampionName: me.championName,
+        teamChampions,
+        opponentChampions,
+      } as LolMatchItem;
+    })
+    .filter(Boolean) as LolMatchItem[];
+};
+
+/* =========================================================
+   helpers for UI
+========================================================= */
+
+const POSITION_MAP: Record<string, string> = {
+  TOP: "탑",
+  JUNGLE: "정글",
+  MIDDLE: "미드",
+  MID: "미드",
+  BOTTOM: "원딜",
+  ADC: "원딜",
+  UTILITY: "서폿",
+  SUPPORT: "서폿",
+};
+
+export const computeMainPosition = (matches: MatchDto[], puuid: string): string => {
+  const counts = new Map<string, number>();
+  for (const m of matches ?? []) {
+    const me = m?.info?.participants?.find((p) => p.puuid === puuid);
+    if (!me) continue;
+    const raw = me.teamPosition || me.lane || "UNKNOWN";
+    const label = POSITION_MAP[raw] ?? "미정";
+    if (label === "미정") continue;
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] ?? "미정";
+};
+
+export const getChampionIconUrl = (name: string): string => {
+  const local = LOCAL_CHAMP_MAP[name];
+  if (local) return local;
+  const normalized = name.replace(/[^A-Za-z0-9]/g, "");
+  if (!normalized) return "";
+  return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${normalized}.png`;
 };

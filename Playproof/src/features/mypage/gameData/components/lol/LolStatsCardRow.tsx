@@ -1,5 +1,6 @@
 // src/features/mypage/gameData/components/lol/LolStatsCardRow.tsx
 
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import type { LolAggregateStats } from "@/features/mypage/gameData/types/gameDataTypes";
 import { getChampionIconUrl } from "@/features/mypage/gameData/utils/lolViewModel";
@@ -69,27 +70,55 @@ function WinLossDonut({
 }
 
 function ChampionIcon({ name }: { name: string }) {
-  const url = getChampionIconUrl(name);
+  const safeName = (name ?? "").trim();
+  const [broken, setBroken] = useState(false);
+
+  const url = useMemo(() => {
+    // ✅ name이 비어있으면 URL을 만들지 않는다 (undefined.png 방지)
+    if (!safeName) return null;
+    try {
+      return getChampionIconUrl(safeName);
+    } catch {
+      return null;
+    }
+  }, [safeName]);
+
+  const showFallback = broken || !url;
 
   return (
-    <div className="h-12 w-12 overflow-hidden rounded-full bg-gray-200">
-      <img
-        src={url}
-        alt={name}
-        className="h-full w-full object-cover"
-        loading="lazy"
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          // 로컬 파일이 없거나 DDragon이 깨져도 레이아웃 유지
-          e.currentTarget.style.display = "none";
-        }}
-      />
+    <div className="relative h-12 w-12 overflow-hidden rounded-full bg-gray-200">
+      {!showFallback && (
+        <img
+          src={url}
+          alt={safeName}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setBroken(true)}
+        />
+      )}
+
+      {showFallback && (
+        <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-gray-500">
+          ?
+        </div>
+      )}
     </div>
   );
 }
 
 export const LolStatsCardRow = ({ stats }: Props) => {
   const winRate = clampPercent(stats.winRatePercent);
+
+  const most3 = useMemo(() => {
+    const arr = stats.mostChampions ?? [];
+    return arr.slice(0, 3).map((c, idx) => ({
+      // ✅ name이 비면 표시용 텍스트를 강제
+      name: (c?.name ?? "").trim() || "Unknown",
+      // ✅ key 안정화
+      key: `${(c?.name ?? "").trim() || "unknown"}-${idx}`,
+    }));
+  }, [stats.mostChampions]);
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -134,14 +163,14 @@ export const LolStatsCardRow = ({ stats }: Props) => {
         <div className="text-[11px] text-gray-500">모스트 챔피언</div>
 
         <div className="mt-4 flex items-center gap-6">
-          {stats.mostChampions.slice(0, 3).map((c) => (
-            <div key={c.name} className="flex flex-col items-center gap-2">
+          {most3.map((c) => (
+            <div key={c.key} className="flex flex-col items-center gap-2">
               <ChampionIcon name={c.name} />
               <div className="text-[11px] text-gray-600">{c.name}</div>
             </div>
           ))}
 
-          {stats.mostChampions.length === 0 && (
+          {(stats.mostChampions?.length ?? 0) === 0 && (
             <div className="text-xs text-gray-400">데이터가 부족합니다.</div>
           )}
         </div>

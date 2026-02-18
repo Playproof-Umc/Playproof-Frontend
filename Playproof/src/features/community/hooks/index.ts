@@ -1,6 +1,8 @@
 // src/features/community/hooks/index.ts
 
 export { useCommunityPageLogic } from "@/features/community/hooks/useCommunityPageLogic";
+export { useCommunityUI } from "@/features/community/hooks/useCommunityUI";
+export { useCommunityData } from "@/features/community/hooks/useCommunityData";
 export { useCommunityWrite } from "@/features/community/hooks/useCommunityWrite";
 export { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
 export { useCommunityFilters } from "@/features/community/hooks/useCommunityFilters";

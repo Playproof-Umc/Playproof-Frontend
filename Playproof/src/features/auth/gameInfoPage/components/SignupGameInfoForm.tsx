@@ -25,6 +25,7 @@ export function SignupGameInfoForm() {
 
     gameName,
     nickname,
+    manualPlayStyle,
     onChangeGameName,
     onChangeNickname,
     onSelectManualPlayStyle,
@@ -184,12 +185,13 @@ export function SignupGameInfoForm() {
             <div className="flex w-full gap-4">
               <Button
                 type="button"
-                variant={playStyle === "실력 중심" ? "primary" : "outline"}
+                variant="outline"
                 fullWidth
                 className={cn(
                   "h-12",
-                  playStyle !== "실력 중심" &&
-                    "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                  manualPlayStyle === "실력 중심"
+                    ? "bg-[#1533B6] text-white border-[#1533B6]"
+                    : "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
                 )}
                 onClick={() => onSelectManualPlayStyle("실력 중심")}
               >
@@ -198,12 +200,13 @@ export function SignupGameInfoForm() {
 
               <Button
                 type="button"
-                variant={playStyle === "매너 중심" ? "primary" : "outline"}
+                variant="outline"
                 fullWidth
                 className={cn(
                   "h-12",
-                  playStyle !== "매너 중심" &&
-                    "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
+                  manualPlayStyle === "매너 중심"
+                    ? "bg-[#1533B6] text-white border-[#1533B6]"
+                    : "border-[#1533B6] text-[#1533B6] hover:bg-[#1533B6] hover:text-white"
                 )}
                 onClick={() => onSelectManualPlayStyle("매너 중심")}
               >

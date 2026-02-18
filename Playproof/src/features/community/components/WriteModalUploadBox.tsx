@@ -22,12 +22,14 @@ export const WriteModalUploadBox = ({
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = React.useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const previewsRef = React.useRef<string[]>([]);
 
+  // 컴포넌트 언마운트 시에만 URL revoke
   React.useEffect(() => {
     return () => {
-      previews.forEach((url) => URL.revokeObjectURL(url));
+      previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [previews]);
+  }, []);
 
   const handlePickFiles = () => {
     fileInputRef.current?.click();
@@ -53,8 +55,10 @@ export const WriteModalUploadBox = ({
     });
 
     const nextFiles = merged.slice(0, maxFiles);
-    previews.forEach((url) => URL.revokeObjectURL(url));
+    // 이전 URL들을 revoke (새로운 URL로 대체되므로)
+    previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
     const nextPreviews = nextFiles.map((file) => URL.createObjectURL(file));
+    previewsRef.current = nextPreviews;
     setSelectedFiles(nextFiles);
     setPreviews(nextPreviews);
     onFilesChange(nextFiles);
@@ -62,21 +66,42 @@ export const WriteModalUploadBox = ({
   };
 
   const clearPreviews = () => {
-    previews.forEach((url) => URL.revokeObjectURL(url));
+    // URL revoke는 나중에 cleanup에서 처리
     setPreviews([]);
     setSelectedFiles([]);
   };
 
+  const areFilesEqual = (filesA: File[], filesB: File[]) => {
+    if (filesA.length !== filesB.length) return false;
+    return filesA.every((fileA, index) => {
+      const fileB = filesB[index];
+      return (
+        fileA.name === fileB.name &&
+        fileA.size === fileB.size &&
+        fileA.lastModified === fileB.lastModified
+      );
+    });
+  };
+
   React.useEffect(() => {
     if (!initialFiles.length) {
-      clearPreviews();
+      if (selectedFiles.length > 0) {
+        clearPreviews();
+      }
       return;
     }
-    previews.forEach((url) => URL.revokeObjectURL(url));
+    
+    // 현재 파일과 동일하면 업데이트하지 않음
+    if (areFilesEqual(selectedFiles, initialFiles)) {
+      return;
+    }
+    
+    // 이전 URL들을 revoke (새로운 URL로 대체되므로)
+    previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
     const nextPreviews = initialFiles.map((file) => URL.createObjectURL(file));
+    previewsRef.current = nextPreviews;
     setSelectedFiles(initialFiles);
     setPreviews(nextPreviews);
-    onFilesChange(initialFiles);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFiles]);
 

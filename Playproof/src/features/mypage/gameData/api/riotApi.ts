@@ -1,11 +1,6 @@
 // src/features/mypage/gameData/api/riotApi.ts
 
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "/api/riot",
-  timeout: 10_000,
-});
+import { riotKrClient as api } from "@/services/axios";
 
 /* =========================
  * DTO
@@ -44,6 +39,8 @@ export type MatchDto = {
       championName: string;
       teamPosition?: string;
       lane?: string;
+      totalMinionsKilled?: number;
+      goldEarned?: number;
       item0: number;
       item1: number;
       item2: number;

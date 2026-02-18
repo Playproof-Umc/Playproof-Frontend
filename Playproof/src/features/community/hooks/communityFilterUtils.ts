@@ -61,12 +61,14 @@ export const filterHighlights = (
   const matchesMediaType = createMediaTypeChecker(filters);
   const isWithinRange = createDateRangeChecker(filters);
 
-  return highlights.filter(
-    (post) =>
+  return highlights.filter((post) => {
+    const createdAt = post.createdAt ?? post.date;
+    return (
       matchHighlightQuery(post, normalizedQuery) &&
       matchesMediaType(post.mediaType) &&
-      isWithinRange(post.createdAt)
-  );
+      isWithinRange(createdAt)
+    );
+  });
 };
 
 export const filterBoardPosts = (
@@ -86,11 +88,13 @@ export const filterBoardPosts = (
   };
   const targetGameId = BOARD_GAME_ID_MAP[boardGame];
 
-  return boardPosts.filter(
-    (post) =>
+  return boardPosts.filter((post) => {
+    const createdAt = post.createdAt ?? post.date;
+    return (
       matchBoardQuery(post, normalizedQuery) &&
       matchesMediaType(post.mediaType) &&
-      isWithinRange(post.createdAt) &&
+      isWithinRange(createdAt) &&
       (!shouldMatchGame || post.game === boardGame || post.gameId === targetGameId)
-  );
+    );
+  });
 };

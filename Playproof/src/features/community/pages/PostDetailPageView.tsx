@@ -1,14 +1,19 @@
 // src/features/community/pages/PostDetailPageView.tsx
 
+import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { MOCK_BOARD_POSTS } from "@/features/community/data/mockCommunityData";
 import { COMMUNITY_PAGE_LABELS } from "@/features/community/constants/labels";
 import { PostDetailHeader } from "@/features/community/components/detail/PostDetailHeader";
 import { PostDetailBody } from "@/features/community/components/detail/PostDetailBody";
 import { PostDetailComments } from "@/features/community/components/detail/PostDetailComments";
+import { BoardEditModal } from "@/features/community/components";
 import { useCommunityDetailLogic } from "@/features/community/hooks/useCommunityDetailLogic";
+import { updateBoardPost, deleteBoardPost, getBoardPost } from "@/features/community/api/communityApi";
+import type { BoardPost } from "@/features/community/types/types";
 
 export const PostDetailPageView = () => {
   const navigate = useNavigate();
@@ -16,9 +21,31 @@ export const PostDetailPageView = () => {
   const { postId } = useParams();
   const [searchParams] = useSearchParams();
   const fromTab = searchParams.get("from") || COMMUNITY_PAGE_LABELS.highlightTab;
-  const statePost = (location.state as { post?: typeof MOCK_BOARD_POSTS[number] } | null)?.post;
-  const post = statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  const statePost = (location.state as { post?: BoardPost } | null)?.post;
+  const [apiPost, setApiPost] = React.useState<BoardPost | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  
+  // API에서 post 정보 로드
+  React.useEffect(() => {
+    if (!postId) return;
+    setIsLoading(true);
+    getBoardPost(Number(postId))
+      .then((post) => {
+        setApiPost(post);
+        console.log("Loaded post from API:", post);
+      })
+      .catch(() => {
+        console.log("Failed to load post from API, using state or MOCK");
+      })
+      .finally(() => setIsLoading(false));
+  }, [postId]);
+  
+  // statePost가 있으면 우선, 없으면 API post 사용, 둘 다 없으면 MOCK에서 찾기
+  const post = apiPost ?? statePost ?? MOCK_BOARD_POSTS.find((p) => p.id === Number(postId));
+  console.log("PostDetailPageView - final post:", post, "statePost:", statePost, "apiPost:", apiPost);
   const { state, setters, handlers } = useCommunityDetailLogic(post);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const {
     commentText,
     replyText,
@@ -33,11 +60,23 @@ export const PostDetailPageView = () => {
     editText,
   } = state;
 
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <p>로드 중...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
   if (!post) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>{COMMUNITY_PAGE_LABELS.notFound}</p>
-      </div>
+      <AppLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <p>{COMMUNITY_PAGE_LABELS.notFound}</p>
+        </div>
+      </AppLayout>
     );
   }
 
@@ -54,11 +93,57 @@ export const PostDetailPageView = () => {
   };
 
   const handleEditPost = () => {
-    console.log("게시글 수정");
+    const postAuthor = post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 수정할 수 있습니다.');
+      return;
+    }
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (payload: { title: string; content: string; images: File[]; game: string }) => {
+    const postAuthor = post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 수정할 수 있습니다.');
+      setIsEditModalOpen(false);
+      return;
+    }
+
+    try {
+      // API 스펙: title, content, medias만 전송 (game_id는 수정 시 불필요)
+      const updated = await updateBoardPost(post.id, {
+        title: payload.title,
+        content: payload.content,
+        files: payload.images,
+      });
+      setApiPost(updated);
+    } catch (error: any) {
+      console.error('게시글 수정 실패:', error);
+      const errorMessage = error?.response?.data?.error?.message || '게시글 수정에 실패했습니다.';
+      throw new Error(errorMessage);
+    }
   };
 
   const handleDeletePost = () => {
-    console.log("게시글 삭제");
+    const postAuthor = post.author;
+    if (postAuthor !== currentUserName) {
+      alert('본인이 작성한 게시글만 삭제할 수 있습니다.');
+      return;
+    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteBoardPost(post.id);
+      navigate(`/community?tab=${fromTab}`);
+    } catch (error: any) {
+      console.error('게시글 삭제 실패:', error);
+      const errorMessage = error?.response?.data?.error?.message || '게시글 삭제에 실패했습니다.';
+      alert(errorMessage);
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
   };
 
   return (
@@ -118,6 +203,35 @@ export const PostDetailPageView = () => {
           </div>
         </div>
       </main>
+
+      <BoardEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditSubmit}
+        post={post}
+      />
+      <ModalShell open={isDeleteModalOpen} onOverlayClick={() => setIsDeleteModalOpen(false)}>
+        <div className="px-6 py-5">
+          <h2 className="text-lg font-bold text-gray-900">게시글 삭제</h2>
+          <p className="mt-2 text-sm text-gray-600">게시글을 삭제할까요? 삭제 후에는 복구할 수 없습니다.</p>
+        </div>
+        <div className="flex gap-2 border-t border-gray-100 px-6 py-4">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleDeleteConfirm}
+            className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            삭제
+          </button>
+        </div>
+      </ModalShell>
     </AppLayout>
   );
 };

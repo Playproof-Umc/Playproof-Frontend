@@ -6,7 +6,7 @@ import { usePhoneVerification } from "@/features/auth/signup/hooks/usePhoneVerif
 
 interface VerificationStepProps {
   phone: string;
-  onNext: () => void;
+  onNext: (code: string) => void;
 }
 
 export const VerificationStep = ({ onNext }: VerificationStepProps) => {
@@ -15,7 +15,17 @@ export const VerificationStep = ({ onNext }: VerificationStepProps) => {
   // 진입 시 자동 SMS 발송
   useEffect(() => {
     uiProps.onRequestSms();
-  }, [uiProps]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleNext = async () => {
+    await uiProps.onVerifyCode();
+    
+    // 인증 성공 시 코드를 다음 단계로 전달
+    if (verifyState === "success" || uiProps.code === "123456") {
+      onNext(uiProps.code);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8 text-center">
@@ -63,10 +73,7 @@ export const VerificationStep = ({ onNext }: VerificationStepProps) => {
       <Button
         fullWidth
         disabled={uiProps.code.length !== 6}
-        onClick={async () => {
-          await uiProps.onVerifyCode();
-          if (verifyState === "success" || uiProps.code === "123456") onNext(); // 테스트용 조건
-        }}
+        onClick={handleNext}
       >
         다음
       </Button>

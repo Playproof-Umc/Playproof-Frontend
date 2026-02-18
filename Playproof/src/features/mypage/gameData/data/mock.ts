@@ -106,6 +106,9 @@ export const MOCK_GAME_DATA_DASHBOARD: GameDataDashboardData = {
       kdaRatioText: "10.00:1 KDA",
       pills: ["피해량", "시야점수", "CS", "골드"],
       itemsCount: 7,
+      myChampionName: "아리",
+      teamChampions: ["아리", "리신", "레오나", "카이사", "오른"],
+      opponentChampions: ["야스오", "바이", "쓰레쉬", "진", "말파이트"],
     })),
     pagination: {
       page: 1,

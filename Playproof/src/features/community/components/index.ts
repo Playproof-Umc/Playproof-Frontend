@@ -11,6 +11,7 @@ export * from '@/features/community/components/highlight-feed/HighlightCard';
 export * from '@/features/community/components/highlight-detail/HighlightDetailModal';
 export * from '@/features/community/components/HighlightWriteModal';
 export * from '@/features/community/components/community-post/BoardWriteModal';
+export * from '@/features/community/components/community-post/BoardEditModal';
 export * from '@/features/community/components/WriteModalUploadBox';
 export * from '@/features/community/components/highlight-feed/HighlightFeed';
 export * from '@/features/community/components/Pagination';

@@ -90,12 +90,12 @@ export const AzitPageView = () => {
               </button>
 
               <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
-                {currentAzit.name}
+                {currentAzit?.name ?? "아지트"}
               </h1>
 
               <div className="flex items-center gap-1 text-gray-500 font-bold mt-0.5">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">{currentAzit.memberCount}</span>
+                <span className="text-sm">{currentAzit?.memberCount ?? 0}</span>
               </div>
 
               <span
@@ -138,10 +138,10 @@ export const AzitPageView = () => {
             textRooms={chatRooms}
             // ✅ 수정: actions.onCreateChatRoom을 그대로 전달 (PageLogic에서 처리)
             onCreateChatRoom={actions.onCreateChatRoom}
-            onRenameVoiceRoom={() => {}}
-            onDeleteVoiceRoom={() => {}}
-            onRenameChatRoom={() => {}}
-            onDeleteChatRoom={() => {}}
+            onRenameVoiceRoom={actions.onRenameVoiceRoom}
+            onDeleteVoiceRoom={actions.onDeleteVoiceRoom}
+            onRenameChatRoom={actions.onRenameChatRoom}
+            onDeleteChatRoom={actions.onDeleteChatRoom}
           />
 
           <MainPanel
@@ -150,6 +150,7 @@ export const AzitPageView = () => {
             roomName={selectedChatRoomName}
             messages={messages}
             onSendMessage={actions.onSendMessage}
+            currentUserId={currentUserId}
             currentUserName={currentUser.nickname}
           />
 
@@ -177,8 +178,8 @@ export const AzitPageView = () => {
       <AzitCreateModal
         open={isAzitCreateOpen}
         onClose={() => setIsAzitCreateOpen(false)}
-        onCreate={({ name, iconUrl }) => {
-          actions.addAzit(name, iconUrl);
+        onCreate={({ name, iconFile }) => {
+          actions.addAzit(name, iconFile);
           setIsAzitCreateOpen(false);
         }}
       />
@@ -186,10 +187,9 @@ export const AzitPageView = () => {
       <AzitSettingsModal
         open={isAzitSettingsOpen}
         onClose={() => setIsAzitSettingsOpen(false)}
-        profileUrl={currentAzit.icon}
-        onUpdateProfile={(url) => actions.updateAzitIcon(currentAzitId, url)}
-        initialName={currentAzit.name}
-        onUpdateName={(nextName) => actions.updateAzitName(currentAzitId, nextName)}
+        profileUrl={currentAzit?.icon}
+        initialName={currentAzit?.name ?? ""}
+        onSave={({ name, file }) => actions.updateAzitSettings(currentAzitId, { name, file })}
       />
 
       <FeedbackModal

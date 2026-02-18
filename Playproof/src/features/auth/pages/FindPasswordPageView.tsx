@@ -1,22 +1,22 @@
 // src/features/auth/pages/FindPasswordPageView.tsx
 
-import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PhoneStep } from "../find-password/components/PhoneStep";
 import { VerificationStep } from "../find-password/components/VerificationStep";
 import { NewPasswordStep } from "../find-password/components/NewPasswordStep";
 import { CompleteStep } from "../find-password/components/CompleteStep";
-
-type Step = "PHONE" | "VERIFY" | "NEW_PW" | "COMPLETE";
+import { useFindPassword } from "../find-password/hooks/useFindPassword";
 
 export const FindPasswordPageView = () => {
-  const [step, setStep] = useState<Step>("PHONE");
-  const [userData, setUserData] = useState({ phone: "", name: "" });
-
-  const handlePhoneNext = (data: { name: string; phone: string }) => {
-    setUserData(data);
-    setStep("VERIFY");
-  };
+  const {
+    step,
+    userData,
+    isPending,
+    handlePhoneNext,
+    handleVerifyNext,
+    handlePasswordSubmit,
+    handleComplete,
+  } = useFindPassword();
 
   return (
     <AppLayout>
@@ -27,11 +27,16 @@ export const FindPasswordPageView = () => {
             {step === "VERIFY" && (
               <VerificationStep 
                 phone={userData.phone} 
-                onNext={() => setStep("NEW_PW")} 
+                onNext={handleVerifyNext} 
               />
             )}
-            {step === "NEW_PW" && <NewPasswordStep onNext={() => setStep("COMPLETE")} />}
-            {step === "COMPLETE" && <CompleteStep />}
+            {step === "NEW_PW" && (
+              <NewPasswordStep 
+                onNext={handlePasswordSubmit}
+                isPending={isPending}
+              />
+            )}
+            {step === "COMPLETE" && <CompleteStep onNext={handleComplete} />}
           </div>
         </div>
       </main>

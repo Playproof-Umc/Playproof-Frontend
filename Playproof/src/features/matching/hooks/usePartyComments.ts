@@ -65,7 +65,7 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
 
       return { previousComments };
     },
-    onError: (err, newComment, context) => {
+    onError: (_err, _newComment, context) => {
       // 에러 시 이전 상태로 롤백
       if (context?.previousComments) {
         queryClient.setQueryData(queryKey, context.previousComments);
@@ -108,7 +108,7 @@ export const usePartyComments = (partyId: number, params?: GetCommentsParams) =>
 
       return { previousComments };
     },
-    onError: (err, commentId, context) => {
+    onError: (_err, _commentId, context) => {
       if (context?.previousComments) {
         queryClient.setQueryData(queryKey, context.previousComments);
       }

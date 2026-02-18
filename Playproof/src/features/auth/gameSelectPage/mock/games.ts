@@ -2,6 +2,18 @@
 
 import type { GameOption } from "@/features/auth/gameSelectPage/types";
 
+// 게임 ID 매핑 (문자열 -> 숫자)
+export const GAME_ID_MAP: Record<string, number> = {
+  "lol": 1,
+  "valo": 2,
+  "ow": 3,
+  "steam": 4,
+  "pubg": 5,
+  "lostark": 6,
+  "korea": 7,
+  "other": 8,
+};
+
 /**
  * 요구사항 반영:
  * - 리그/발로란트: 라이엇(빨강)

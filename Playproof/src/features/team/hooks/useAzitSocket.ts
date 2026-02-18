@@ -43,6 +43,7 @@ export interface ChatMessage {
   userId: number;
   nickname?: string | null;
   content: string;
+  mediaUrls?: string[];
   createdAt: string;
 }
 
@@ -230,9 +231,10 @@ export const useAzitSocket = (params: {
 
   const sendMessage = async (
     targetRoomId: number,
-    content: string
+    content: string,
+    mediaUrls?: string[]
   ): Promise<ChatMessage> => {
-    return emitWithAck("sendMessage", { roomId: targetRoomId, content });
+    return emitWithAck("sendMessage", { roomId: targetRoomId, content, mediaUrls });
   };
 
   const voiceJoin = async (targetRoomId: number) => {

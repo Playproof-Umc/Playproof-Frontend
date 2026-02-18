@@ -36,7 +36,7 @@ export function useCommunityFilterState({ onApply, onClose }: UseCommunityFilter
     ? `${range.from.toLocaleDateString("ko-KR")} ~ ${range.to.toLocaleDateString("ko-KR")}`
     : range?.from
       ? `${range.from.toLocaleDateString("ko-KR")} 선택됨`
-      : "날자선택";
+      : "날짜 선택";
 
   return {
     state: {

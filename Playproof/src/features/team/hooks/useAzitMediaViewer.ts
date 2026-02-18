@@ -60,7 +60,7 @@ export const useAzitMediaViewer = (clips: Clip[]) => {
     const file = new File([blob], `highlight-share-${Date.now()}.${ext}`, {
       type: blob.type || "image/jpeg",
     });
-    navigate("/community?tab=하이라이트", { state: { shareFiles: [file] } });
+    navigate("/community?tab=하이라이트&write=1", { state: { shareFiles: [file] } });
   }, [activeMedia, navigate]);
 
   return {

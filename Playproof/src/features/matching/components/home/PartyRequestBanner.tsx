@@ -65,11 +65,6 @@ export const PartyRequestBanner = ({ partyId, initialOpen = false }: PartyReques
     }
   };
 
-  const handleProfileClick = (e: React.MouseEvent, userId: string | number) => {
-    e.stopPropagation();
-    navigate(`/user/${userId}`);
-  };
-
   return (
     <div className="w-full mb-6">
         <div className={`flex items-center justify-between p-5 bg-white border border-gray-200 shadow-sm transition-all duration-200 ${isOpen ? 'rounded-t-2xl border-b-0' : 'rounded-2xl'}`}>

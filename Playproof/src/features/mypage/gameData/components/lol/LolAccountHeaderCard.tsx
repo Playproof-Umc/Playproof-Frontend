@@ -14,8 +14,34 @@ const getProfileIconUrl = (iconId?: number) => {
   return `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/profileicon/${iconId}.png`;
 };
 
+function getTierLabel(profile: LolLinkedProfile) {
+  const anyProfile = profile as unknown as Record<string, unknown>;
+
+  const candidates = [
+    anyProfile.currentTier,
+    anyProfile.tierText,
+    anyProfile.tier,
+    anyProfile.rank ? `${String(anyProfile.tier ?? "").trim()} ${String(anyProfile.rank ?? "").trim()}`.trim() : null,
+  ];
+
+  const first = candidates.find((v) => typeof v === "string" && v.trim().length > 0) as string | undefined;
+  return first ?? "-";
+}
+
+function getPositionLabel(profile: LolLinkedProfile) {
+  return profile.mainPosition && profile.mainPosition.trim().length > 0 ? profile.mainPosition : "미정";
+}
+
+function getWinRateLabel(profile: LolLinkedProfile) {
+  return typeof profile.winRatePercent === "number" ? `${profile.winRatePercent}%` : "-";
+}
+
 export const LolAccountHeaderCard = ({ profile }: Props) => {
   const iconUrl = getProfileIconUrl(profile.profileIconId);
+
+  const tierLabel = getTierLabel(profile);
+  const posLabel = getPositionLabel(profile);
+  const winRateLabel = getWinRateLabel(profile);
 
   return (
     <Card className="p-6">
@@ -46,15 +72,15 @@ export const LolAccountHeaderCard = ({ profile }: Props) => {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           <div>
             <div className="text-[11px] text-gray-500">현재 티어</div>
-            <div className="mt-1 text-sm font-semibold">{profile.currentTier}</div>
+            <div className="mt-1 text-sm font-semibold">{tierLabel}</div>
           </div>
           <div>
             <div className="text-[11px] text-gray-500">주 포지션</div>
-            <div className="mt-1 text-sm font-semibold">{profile.mainPosition}</div>
+            <div className="mt-1 text-sm font-semibold">{posLabel}</div>
           </div>
           <div>
             <div className="text-[11px] text-gray-500">승률</div>
-            <div className="mt-1 text-sm font-semibold">{profile.winRatePercent}%</div>
+            <div className="mt-1 text-sm font-semibold">{winRateLabel}</div>
           </div>
         </div>
       </div>

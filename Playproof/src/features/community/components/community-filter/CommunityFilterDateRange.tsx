@@ -20,7 +20,7 @@ export function CommunityFilterDateRange({
 }: CommunityFilterDateRangeProps) {
   return (
     <div className="space-y-3">
-      <label className="text-sm font-bold text-gray-900">업로드날자</label>
+      <label className="text-sm font-bold text-gray-900">업로드 날짜</label>
       <button
         type="button"
         onClick={onToggleCalendar}
