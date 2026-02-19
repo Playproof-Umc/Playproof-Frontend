@@ -29,15 +29,17 @@ export async function getAzitMembers(params: {
   page?: number;
   size?: number;
 }): Promise<GetAzitMembersResDto> {
-  const { azitId, page = 1, size = 20 } = params;
-  const res = await api.get<ApiResponse<GetAzitMembersResDto>>(
-    `/azits/${azitId}/members`,
-    { params: { page, size } }
-  );
-  if (res.data.error || res.data.statusCode !== 200) {
-    throw new Error(res.data.error?.message ?? "아지트 멤버 조회 실패");
-  }
-  return res.data.data;
+  return {
+    azit_id: params.azitId,
+    azit_name: "더미 아지트",
+    members: [
+      { member_id: 1, nickname: "레나", avatar_url: null, role: "OWNER" },
+      { member_id: 2, nickname: "철수", avatar_url: null, role: "MEMBER" },
+      { member_id: 3, nickname: "민지", avatar_url: null, role: "MEMBER" }
+    ],
+    nextCursor: null,
+    hasNext: false
+  };
 }
 
 export function mapAzitMembersToUsers(members: AzitMemberResDto[]): User[] {

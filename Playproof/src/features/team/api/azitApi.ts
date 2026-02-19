@@ -24,12 +24,12 @@ const normalizeAzit = (item: AzitResDto): Azit => ({
 });
 
 export async function getAzits(): Promise<Azit[]> {
-  const res = await api.get<ApiResponse<{ azits: AzitResDto[] }>>("/azits");
-  if (res.data.error || res.data.statusCode !== 200) {
-    throw new Error(res.data.error?.message ?? "아지트 목록 조회 실패");
-  }
-  const list = res.data.data?.azits ?? [];
-  return list.map(normalizeAzit);
+  // 시연용 더미 데이터 반환
+  return [
+    { id: 1, name: "롤 랭크 고정팀", icon: "", memberCount: 5 },
+    { id: 2, name: "발로란트 즐겜팟", icon: "", memberCount: 3 },
+    { id: 3, name: "오버워치 친목회", icon: "", memberCount: 8 }
+  ];
 }
 
 export async function updateAzit(
@@ -60,24 +60,16 @@ export async function updateAzit(
 export async function createAzit(payload: {
   azit_name: string;
   azit_icon?: File | null;
-} | string): Promise<AzitResDto> {
-  const formData = new FormData();
-  
-  if (typeof payload === "string") {
-    formData.append("azit_name", payload);
-  } else {
-    formData.append("azit_name", payload.azit_name);
-    if (payload.azit_icon) {
-      formData.append("azit_icon", payload.azit_icon);
-    }
-  }
+} | string): Promise<Azit> {
+  const azit_name = typeof payload === "string" ? payload : payload.azit_name;
 
-  const res = await api.post<ApiResponse<AzitResDto>>("/azits", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+  // 로컬 백엔드 호환성을 위해 JSON 전송
+  const res = await api.post<ApiResponse<AzitResDto>>("/azits", {
+    azit_name,
   });
 
   if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
     throw new Error(res.data.error?.message ?? "아지트 생성 실패");
   }
-  return res.data.data;
+  return normalizeAzit(res.data.data);
 }

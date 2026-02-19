@@ -131,7 +131,12 @@ export type VerifyNameResponse = {
  * POST /auth/signup
  */
 export async function signup(body: SignupRequest): Promise<SignupResponse['data']> {
-  const res = await api.post<SignupResponse>("/auth/signup", body);
+  // 전화번호에서 하이픈 제거
+  const normalizedBody = {
+    ...body,
+    phone: body.phone.replace(/\D/g, "")
+  };
+  const res = await api.post<SignupResponse>("/auth/signup", normalizedBody);
 
   if (res.data.error || res.data.statusCode !== 201) {
     throw new Error('회원가입 처리 중 오류가 발생했습니다.');
@@ -145,7 +150,12 @@ export async function signup(body: SignupRequest): Promise<SignupResponse['data'
  * POST /auth/login
  */
 export async function login(body: LoginRequest): Promise<LoginResponse> {
-  const res = await api.post<LoginResponse>("/auth/login", body);
+  // 전화번호에서 하이픈 제거
+  const normalizedBody = {
+    ...body,
+    phone: body.phone.replace(/\D/g, "")
+  };
+  const res = await api.post<LoginResponse>("/auth/login", normalizedBody);
 
   if (res.data.error || res.data.statusCode !== 200) {
     throw new Error('로그인 처리 중 오류가 발생했습니다.');

@@ -139,7 +139,7 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
     } else { 
       if (azit === 'new') {
         try {
-          const created = await createAzit(newAzitName.trim());
+          const created: Azit = await createAzit(newAzitName.trim());
           setAzits((prev) => [created, ...prev]);
           setAzit(String(created.id));
           onUpload(createPostData(created), 'new');
@@ -158,7 +158,7 @@ export const useMatchingWriteForm = ({ onUpload, onClose, existingPosts }: UseMa
   const handleDuplicateAction = async (action: 'bump' | 'replace' | 'new') => {
     if (azit === 'new') {
       try {
-        const created = await createAzit(newAzitName.trim());
+        const created: Azit = await createAzit(newAzitName.trim());
         setAzits((prev) => [created, ...prev]);
         setAzit(String(created.id));
         onUpload(createPostData(created), action);

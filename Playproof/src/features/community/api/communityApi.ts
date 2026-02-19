@@ -240,10 +240,42 @@ export async function getBoardPosts(gameId: number, page: number = 1, limit: num
  * 게시판 전체 글 목록 조회
  */
 export async function getAllBoardPosts(page: number = 1, limit: number = 10): Promise<BoardPost[]> {
-  const res = await api.get("/community/posts", { params: { page, limit } });
-  const data = res.data.data;
-  const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-  return posts.map((item: unknown) => mapBoardPost(item));
+  return [
+    {
+      id: 1,
+      userId: 1,
+      gameId: 1,
+      author: "레나",
+      date: "2024.05.20",
+      createdAt: "2024.05.20",
+      game: "리그오브레전드",
+      title: "오늘 같이 랭크 돌리실 분 구합니다!",
+      content: "매너 좋으신 분들이면 좋겠어요.",
+      likes: 12,
+      isLiked: false,
+      views: 150,
+      comments: 5,
+      mediaType: "photo",
+      thumbnail: "/no-image.png"
+    },
+    {
+      id: 2,
+      userId: 2,
+      gameId: 2,
+      author: "철수",
+      date: "2024.05.19",
+      createdAt: "2024.05.19",
+      game: "발로란트",
+      title: "발로란트 신규 맵 공략법 공유합니다.",
+      content: "이번 맵은 수비가 유리하네요.",
+      likes: 45,
+      isLiked: true,
+      views: 890,
+      comments: 12,
+      mediaType: "photo",
+      thumbnail: "/no-image.png"
+    }
+  ];
 }
 
 /**
@@ -333,42 +365,59 @@ export async function deleteBoardPost(postId: number) {
  * 하이라이트 목록 조회 (실제 API 연동)
  */
 export async function getHighlights(page: number = 1, limit: number = 10): Promise<HighlightPost[]> {
-  const res = await api.get('/community/highlights', { params: { page, limit } });
-  const highlights = res.data.data?.highlights || [];
-  // API 응답을 HighlightPost[]로 매핑
-  const mapped = (Array.isArray(highlights) ? highlights : []).map((raw) => {
-    const item = isRecord(raw) ? raw : {};
-    return {
-      id: toNumber(readValue(item, ["highlight_id", "id"])) ?? 0,
-      userId: toNumber(readValue(item, ["user_id", "userId"])),
-      nickname: toStringValue(readValue(item, ["nickname"])),
-      profileUrl: toStringValue(readValue(item, ["profileUrl"])),
-      content: toStringValue(readValue(item, ["content"])) ?? "",
-      medias: Array.isArray(readValue(item, ["medias"])) 
-        ? (readValue(item, ["medias"]) as string[]).map((m) => m.startsWith('http') ? m : `${import.meta.env.VITE_API_BASE_URL}/uploads/${m}`)
-        : [],
-      commentCount: toNumber(readValue(item, ["comment_count"])),
-      likeCount: toNumber(readValue(item, ["like_count"])),
-      isLiked: (readValue(item, ["is_liked"]) as boolean | undefined) ?? false,
-      createdAt: toStringValue(readValue(item, ["created_at"])),
-      updatedAt: toStringValue(readValue(item, ["updated_at"])),
-    } as HighlightPost;
-  });
-  return mapped;
+  return [
+    {
+      id: 1,
+      userId: 1,
+      nickname: "레나",
+      profileUrl: "/no-image.png",
+      content: "오늘 롤 펜타킬 했어요!!",
+      medias: ["/no-image.png"],
+      commentCount: 15,
+      likeCount: 50,
+      isLiked: true,
+      createdAt: "2024.05.20",
+      updatedAt: "2024.05.20"
+    },
+    {
+      id: 2,
+      userId: 3,
+      nickname: "민지",
+      profileUrl: "/no-image.png",
+      content: "오버워치 신기한 버그 발견",
+      medias: ["/no-image.png"],
+      commentCount: 2,
+      likeCount: 10,
+      isLiked: false,
+      createdAt: "2024.05.19",
+      updatedAt: "2024.05.19"
+    }
+  ];
 }
 
 /**
  * 베스트 게시글 조회 (실제 API 연동)
  */
 export async function getBestPosts(limit: number = 5): Promise<BoardPost[]> {
-  try {
-    const res = await api.get('/community/posts/best', { params: { limit } });
-    const data = res.data.data;
-    const posts = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : [];
-    return posts.map((item: unknown) => mapBoardPost(item));
-  } catch {
-    return [];
-  }
+  return [
+    {
+      id: 1,
+      userId: 1,
+      gameId: 1,
+      author: "레나",
+      date: "2024.05.20",
+      createdAt: "2024.05.20",
+      game: "리그오브레전드",
+      title: "베스트 게시글 테스트입니다.",
+      content: "이 글은 베스트 게시글입니다.",
+      likes: 100,
+      isLiked: false,
+      views: 2000,
+      comments: 20,
+      mediaType: "photo",
+      thumbnail: "/no-image.png"
+    }
+  ];
 }
 
 // 하이라이트 상세 조회 (단일)

@@ -49,19 +49,11 @@ export async function getChatRoomsByAzit(params: {
   accessToken: string;
   azitId: number;
 }): Promise<ChatRoomGetResDto[]> {
-  const base = normalizeBase(params.apiBaseUrl);
-  const url = `${base}/azits/${params.azitId}/chat-rooms`;
-
-  const json = await fetchJson<Result<ChatRoomGetResDto[]>>(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${params.accessToken}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (json.error) throw new Error(json.error.message);
-  return json.data;
+  return [
+    { id: 1, roomName: "일반 대화", chatType: "TEXT", isPrivate: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 2, roomName: "전략 회의", chatType: "TEXT", isPrivate: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 3, roomName: "음성 채널 1", chatType: "VOICE", isPrivate: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  ];
 }
 
 // ✅ [수정됨] 파라미터 이름(name, type)을 로직과 맞추고 isPrivate 활성화
@@ -103,20 +95,13 @@ export async function getChatMessages(params: {
   roomId: number; // chatRoomId
   cursor?: number | null;
 }): Promise<ChatMessageListResDto> {
-  const base = normalizeBase(params.apiBaseUrl);
-  const qs = params.cursor ? `?cursor=${params.cursor}` : "";
-  const url = `${base}/chat-rooms/${params.roomId}/messages${qs}`;
-
-  const json = await fetchJson<Result<ChatMessageListResDto>>(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${params.accessToken}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (json.error) throw new Error(json.error.message);
-  return json.data;
+  return {
+    messages: [
+      { id: 1, chatRoomId: params.roomId, memberId: 1, userId: 1, nickname: "레나", content: "반가워요! 오늘 저녁에 게임하실 분?", createdAt: new Date().toISOString() },
+      { id: 2, chatRoomId: params.roomId, memberId: 2, userId: 2, nickname: "철수", content: "저 참여 가능합니다!", createdAt: new Date().toISOString() }
+    ],
+    nextCursor: null
+  };
 }
 
 export async function uploadChatImage(params: {
