@@ -1,5 +1,6 @@
 // src/features/matching/components/home/RecommendedSection.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Lock } from 'lucide-react';
 import { MatchingCard } from '@/features/matching/components/common/MatchingCard';
 import type { MatchingData } from '@/features/matching/types';
@@ -10,6 +11,8 @@ interface RecommendedSectionProps {
 }
 
 const RecommendedSectionBase: React.FC<RecommendedSectionProps> = ({ isProUser, recommendations }) => {
+  const navigate = useNavigate();
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -31,7 +34,10 @@ const RecommendedSectionBase: React.FC<RecommendedSectionProps> = ({ isProUser, 
                 </div>
                 <p className="font-bold text-lg text-gray-900 mb-1">매너 좋은 '고티어 유저'를 찾으시나요?</p>
                 <p className="text-sm text-gray-500 mb-5">Pro 멤버십으로 TS 점수 상위 1% 유저를 추천받으세요.</p>
-                <button className="bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-700)] text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <button 
+                  onClick={() => navigate('/store')}
+                  className="bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-700)] text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
                     Pro 멤버십 시작하기
                 </button>
             </div>
