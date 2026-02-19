@@ -1,29 +1,21 @@
 // src/features/mypage/constants/labels.ts
 
+
+// MyPage 섹션 라벨 및 ID를 한 번만 선언
 export const MYPAGE_SECTION_LABELS = {
   profile: "내 프로필",
-  activity: "내 활동",
-  friends: "친구 목록",
   feedback: "피드백",
   writtenPosts: "작성 게시판 글",
-  blockedUsers: "차단 유저",
-  recentMatchingPosts: "최근 작성한 매칭 글",
-  recentHighlights: "최근 작성한 하이라이트",
-  recentCommunityPosts: "최근 작성한 커뮤니티 글",
-  favoriteGames: "즐겨찾는 게임",
-  gameStats: "게임별 통계",
-  gameAccounts: "게임 아이디",
-  playStyle: "플레이 스타일",
-  preferredTags: "선호 태그",
-  feedbackTags: "주요 피드백 태그",
-  feedbackTitle: "받은 피드백",
+  friends: "친구 목록",
+  gameData: "게임 전적 보기",
 } as const;
 
 export const MYPAGE_SECTION_IDS = {
-  profile: "내프로필",
-  feedback: "피드백",
-  writtenPosts: "작성게시판글",
-  friends: "친구목록",
+  profile: "profile",
+  feedback: "feedback",
+  writtenPosts: "writtenPosts",
+  friends: "friends",
+  gameData: "gameData",
 } as const;
 
 export type MyPageSectionId = (typeof MYPAGE_SECTION_IDS)[keyof typeof MYPAGE_SECTION_IDS];
