@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuthStore } from "@/store/authStore";
 
-const SOCKET_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my";
+const SOCKET_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "https://myfit.my").replace(/\/api$/, "");
 
 export type SocketAck<TData> =
   | { ok: true; data: TData }
