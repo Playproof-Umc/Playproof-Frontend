@@ -12,9 +12,6 @@ export const api = axios.create({
   baseURL: API_PREFIX,
   headers: {
     "Content-Type": "application/json",
-    ...(import.meta.env.VITE_ACCESS_TOKEN
-      ? { Authorization: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}` }
-      : {}),
   },
   // withCredentials: true, // refreshToken을 httpOnly 쿠키로 받게 될 때만 필요
 });
