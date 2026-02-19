@@ -23,19 +23,19 @@ export const appClient = axios.create({
 
 // 1. Riot 한국 서버
 export const riotKrClient = axios.create({
-  baseURL: `${API_PREFIX}/riot`,
+  baseURL: `${API_BASE}/api/riot`,
   headers: noCacheHeaders,
 });
 
 // 2. Riot 아시아 서버
 export const riotAsiaClient = axios.create({
-  baseURL: `${API_PREFIX}/riot-asia`,
+  baseURL: `${API_BASE}/api/riot-asia`,
   headers: noCacheHeaders,
 });
 
 // 3. Nexon 클라이언트
 export const nexonClient = axios.create({
-  baseURL: `${API_PREFIX}/nexon`,
+  baseURL: `${API_BASE}/api/nexon`,
   headers: {
     "x-nxopen-api-key": import.meta.env.VITE_NEXON_API_KEY,
     ...noCacheHeaders,
@@ -44,19 +44,19 @@ export const nexonClient = axios.create({
 
 // 4. Steam 클라이언트
 export const steamClient = axios.create({
-  baseURL: `${API_PREFIX}/steam`,
+  baseURL: `${API_BASE}/api/steam`,
   headers: noCacheHeaders,
 });
 
 // 5. Overwatch 클라이언트
 export const overwatchClient = axios.create({
-  baseURL: `${API_PREFIX}/overwatch`,
+  baseURL: `${API_BASE}/api/overwatch`,
   headers: noCacheHeaders,
 });
 
 // Valorant 클라이언트
 export const valorantClient = axios.create({
-  baseURL: `${API_PREFIX}/valorant`,
+  baseURL: `${API_BASE}/api/valorant`,
   headers: noCacheHeaders,
 });
 
