@@ -19,7 +19,7 @@ export const MatchingCard: React.FC<MatchingCardProps> = ({ data, onOpen }) => {
   const requestState = getRequestState(data);
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
-  const currentUserId = authUserId ? `user-${authUserId}` : 'user-1';
+  const currentUserId = authUserId ? String(authUserId) : '1';
   const displayName = data.hostUser.id === currentUserId ? (authNickname ?? data.hostUser.nickname) : data.hostUser.nickname;
   
   // 본인이 작성한 글인지 확인

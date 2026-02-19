@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useMatchingDetail } from '@/features/matching/context/MatchingDetailContext';
 import { useAuthStore } from '@/store/authStore';
 
-const FALLBACK_USER_ID = 'user-1';
+const FALLBACK_USER_ID = '1';
 const FALLBACK_USER_NAME = '사용자';
 
 export const useMatchingDetailLogic = () => {
@@ -15,7 +15,7 @@ export const useMatchingDetailLogic = () => {
   const { isOpen, selectedPost, closeMatchingDetail } = useMatchingDetail();
   const authUserId = useAuthStore((s) => s.userId);
   const authNickname = useAuthStore((s) => s.nickname);
-  const currentUserId = authUserId ? `user-${authUserId}` : FALLBACK_USER_ID;
+  const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
   const currentUserName = authNickname ?? FALLBACK_USER_NAME;
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);

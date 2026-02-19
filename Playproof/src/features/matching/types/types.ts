@@ -11,6 +11,7 @@ export interface MatchingData {
   tier: string;
   tags: string[];
   azit: string;
+  azitId?: number;
   position: string[];
   memo: string;
   currentMembers: number;
@@ -19,6 +20,9 @@ export interface MatchingData {
   views: number;
   likes: number;
   isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   isMatched?: boolean;
   comments: number;
   tsScore: number;

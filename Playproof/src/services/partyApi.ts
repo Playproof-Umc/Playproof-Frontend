@@ -27,7 +27,10 @@ export type PartyListItem = {
   status: string;
   viewCount: number;
   likeCount?: number;
-  isLike?: boolean;
+  isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   commentCount?: number;
   tags: Array<{ id: number; name: string }>;
   positions: Array<{ positionId: number; positionName: string }>;
@@ -64,6 +67,10 @@ export type PartyDetail = {
   status: string;
   viewCount: number;
   likeCount?: number;
+  isLiked?: boolean;
+  isApplied?: boolean;
+  applicationId?: number;
+  applicationStatus?: 'none' | 'pending' | 'accepted';
   commentCount?: number;
   tags: Array<{ id: number; name: string }>;
   positions: Array<{ positionId: number; positionName: string }>;
@@ -135,14 +142,15 @@ export type DeletePartyResponse = {
 
 export type PartyApplication = {
   applicationId: number;
-  userId: number;
-  nickname: string;
-  avatarUrl: string | null;
-  trustScore: number;
-  partyId: number;
-  partyTitle: string;
-  gameId: number;
-  status: string;
+  gameName: string;
+  applicant: {
+    id: number;
+    nickname: string | null;
+    avatarUrl: string | null;
+    trustScore: number;
+  };
+  recruitmentStatus: string;
+  memo: string | null;
   createdAt: string;
 };
 
@@ -360,7 +368,7 @@ export async function  getPartyApplications(partyId: number): Promise<PartyAppli
 export async function applyToParty(postId: number): Promise<ApplyPartyResponse['data']> {
   const res = await api.post<ApplyPartyResponse>(`/parties/${postId}/applications`);
 
-  if (res.data.error || res.data.statusCode !== 200) {
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
     throw new Error('파티 신청 중 오류가 발생했습니다.');
   }
 
@@ -449,7 +457,7 @@ export async function createPartyComment(
 ): Promise<CommentResponse['data']> {
   const res = await api.post<CommentResponse>(`/parties/${partyId}/comments`, body);
 
-  if (res.data.error || res.data.statusCode !== 200) {
+  if (res.data.error || (res.data.statusCode !== 200 && res.data.statusCode !== 201)) {
     throw new Error('댓글 작성 중 오류가 발생했습니다.');
   }
 

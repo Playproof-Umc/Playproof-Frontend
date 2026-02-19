@@ -3,7 +3,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { MatchingData } from '@/features/matching/types';
-import { likeParty, applyToParty } from '@/services/partyApi';
+import { likeParty, applyToParty, cancelApplication } from '@/services/partyApi';
+import { useToast } from '@/features/notification/context/ToastContext';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 type LikeState = {
   count: number;
@@ -13,6 +15,7 @@ type LikeState = {
 type RequestState = 'none' | 'pending' | 'accepted';
 
 type RequestStateMap = Record<number, RequestState>;
+type ApplicationIdMap = Record<number, number>;
 
 type CommentCountMap = Record<number, number>;
 
@@ -23,6 +26,7 @@ interface MatchingDetailContextType {
   closeMatchingDetail: () => void;
   hydrateLikes: (posts: MatchingData[]) => void;
   hydrateCommentCounts: (posts: MatchingData[]) => void;
+  hydrateRequestStates: (posts: MatchingData[]) => void;
   toggleLike: (post: MatchingData) => void;
   getLikeState: (post: MatchingData) => LikeState;
   getCommentCount: (post: MatchingData) => number;
@@ -48,6 +52,15 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   const [likeMap, setLikeMap] = useState<Record<number, LikeState>>({});
   const [commentCountMap, setCommentCountMap] = useState<CommentCountMap>({});
   const [requestStateMap, setRequestStateMap] = useState<RequestStateMap>({});
+  const [applicationIdMap, setApplicationIdMap] = useState<ApplicationIdMap>({});
+  
+  // 모달 상태
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    post: MatchingData | null;
+  }>({ isOpen: false, post: null });
+  
+  const { success, error: toastError } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -88,13 +101,45 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     });
   }, []);
 
+  const hydrateRequestStates = useCallback((posts: MatchingData[]) => {
+    setRequestStateMap((prev) => {
+      const next = { ...prev };
+      posts.forEach((post) => {
+        if (next[post.id] === undefined && post.applicationStatus) {
+          next[post.id] = post.applicationStatus;
+        }
+      });
+      return next;
+    });
+
+    setApplicationIdMap((prev) => {
+      const next = { ...prev };
+      posts.forEach((post) => {
+        if (next[post.id] === undefined && post.applicationId) {
+          next[post.id] = post.applicationId;
+        }
+      });
+      return next;
+    });
+  }, []);
+
   const openMatchingDetail = useCallback(
     (post: MatchingData) => {
       const likeState = getLikeState(post);
-      setSelectedPost({ ...post, likes: likeState.count, isLiked: likeState.isLiked });
+      const requestState = requestStateMap[post.id] ?? post.applicationStatus ?? 'none';
+      const applicationId = applicationIdMap[post.id] ?? post.applicationId;
+
+      setSelectedPost({ 
+        ...post, 
+        likes: likeState.count, 
+        isLiked: likeState.isLiked,
+        applicationStatus: requestState,
+        isApplied: requestState !== 'none',
+        applicationId
+      });
       setIsOpen(true);
     },
-    [getLikeState]
+    [getLikeState, requestStateMap, applicationIdMap]
   );
 
   const closeMatchingDetail = useCallback(() => {
@@ -104,6 +149,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
 
   const toggleLike = useCallback((post: MatchingData) => {
     console.log('❤️ 좋아요 토글:', { postId: post.id, currentLikes: post.likes, isLiked: post.isLiked });
+    const prev = likeMap[post.id] ?? { count: post.likes, isLiked: !!post.isLiked };
     
     // 즉시 UI 업데이트 (Optimistic Update)
     setLikeMap((prev) => {
@@ -127,11 +173,27 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     // API 호출 (백그라운드)
     console.log('🌐 좋아요 API 호출 시작:', { partyId: post.id });
     likeParty(post.id)
-      .then(() => {
-        console.log('✅ 좋아요 API 호출 성공:', { partyId: post.id });
+      .then((data) => {
+        console.log('✅ 좋아요 API 호출 성공:', { partyId: post.id, response: data });
+        if (typeof data?.isLiked === 'boolean') {
+          const correctedCount =
+            prev.count + (data.isLiked ? 1 : 0) - (prev.isLiked ? 1 : 0);
+          const next = { count: Math.max(0, correctedCount), isLiked: data.isLiked };
+
+          setLikeMap((prevMap) => ({ ...prevMap, [post.id]: next }));
+          setSelectedPost((prevPost) => {
+            if (!prevPost || prevPost.id !== post.id) return prevPost;
+            return { ...prevPost, likes: next.count, isLiked: next.isLiked };
+          });
+          
+          if (data.isLiked) {
+            success('좋아요가 저장되었습니다.');
+          }
+        }
       })
       .catch((error) => {
         console.error('❌ 좋아요 API 호출 실패:', error);
+        toastError('좋아요 처리에 실패했습니다.');
         // 실패 시 롤백
         setLikeMap((prev) => {
           const current = prev[post.id];
@@ -143,7 +205,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
           return { ...prev, [post.id]: rollback };
         });
       });
-  }, []);
+  }, [likeMap, success, toastError]);
 
   const getCommentCount = useCallback(
     (post: MatchingData) => {
@@ -161,7 +223,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
 
   const getRequestState = useCallback(
     (post: MatchingData): RequestState => {
-      return requestStateMap[post.id] ?? 'none';
+      return requestStateMap[post.id] ?? post.applicationStatus ?? 'none';
     },
     [requestStateMap]
   );
@@ -175,23 +237,53 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
     // API 호출
     console.log('📤 파티 신청 API 호출 시작...');
     applyToParty(post.id)
-      .then(() => {
-        console.log('✅ 파티 신청 API 호출 성공:', { partyId: post.id });
-        alert('파티 신청이 완료되었습니다!');
+      .then((data) => {
+        console.log('✅ 파티 신청 API 호출 성공:', { partyId: post.id, applicationId: data.applicationId });
+        setApplicationIdMap(prev => ({ ...prev, [post.id]: data.applicationId }));
+        success('파티 신청이 완료되었습니다!');
       })
       .catch((error) => {
         console.error('❌ 파티 신청 API 호출 실패:', error);
         const errorMessage = error.response?.data?.error?.message || '파티 신청에 실패했습니다.';
-        alert(errorMessage);
+        toastError(errorMessage);
         // 실패 시 롤백
         setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
       });
-  }, []);
+  }, [success, toastError]);
+
+  const executeCancelRequest = useCallback((post: MatchingData) => {
+    const applicationId = applicationIdMap[post.id] ?? post.applicationId;
+    
+    if (!applicationId) {
+      toastError('취소할 수 있는 신청 내역 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    console.log('❌ 매칭 요청 취소 시작:', { postId: post.id, applicationId });
+    
+    // 즉시 UI 업데이트
+    setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
+
+    cancelApplication(applicationId)
+      .then(() => {
+        console.log('✅ 파티 신청 취소 성공');
+        success('신청이 취소되었습니다.');
+        setApplicationIdMap(prev => {
+          const next = { ...prev };
+          delete next[post.id];
+          return next;
+        });
+      })
+      .catch((error) => {
+        console.error('❌ 파티 신청 취소 실패:', error);
+        toastError('신청 취소에 실패했습니다.');
+        // 실패 시 롤백
+        setRequestStateMap((prev) => ({ ...prev, [post.id]: 'pending' }));
+      });
+  }, [applicationIdMap, success, toastError]);
 
   const cancelMatchRequest = useCallback((post: MatchingData) => {
-    console.log('❌ 매칭 요청 취소:', { postId: post.id });
-    setRequestStateMap((prev) => ({ ...prev, [post.id]: 'none' }));
-    // TODO: 취소 API 추가 시 여기서 호출
+    setConfirmModal({ isOpen: true, post });
   }, []);
 
   const contextValue = useMemo(
@@ -202,6 +294,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       closeMatchingDetail,
       hydrateLikes,
       hydrateCommentCounts,
+      hydrateRequestStates,
       toggleLike,
       getLikeState,
       getCommentCount,
@@ -217,6 +310,7 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
       closeMatchingDetail,
       hydrateLikes,
       hydrateCommentCounts,
+      hydrateRequestStates,
       toggleLike,
       getLikeState,
       getCommentCount,
@@ -230,6 +324,20 @@ export const MatchingDetailProvider: React.FC<{ children?: ReactNode }> = ({ chi
   return (
     <MatchingDetailContext.Provider value={contextValue}>
       {children}
+      
+      {/* 파티 신청 취소 확인 모달 */}
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen}
+        title="파티 신청 취소"
+        message="정말 파티 신청을 취소하시겠습니까?"
+        confirmText="신청 취소"
+        cancelText="돌아가기"
+        isDangerous={true}
+        onConfirm={() => {
+          if (confirmModal.post) executeCancelRequest(confirmModal.post);
+        }}
+        onClose={() => setConfirmModal({ isOpen: false, post: null })}
+      />
     </MatchingDetailContext.Provider>
   );
 };

@@ -1,22 +1,27 @@
 // src/features/matching/components/write/WriteDetailSection.tsx
 import { ChevronDown, Mic, MicOff } from 'lucide-react';
-import { GAME_CONFIG, MY_AZITS } from '@/features/matching/constants/matchingConfig';
+import { GAME_CONFIG } from '@/features/matching/constants/matchingConfig';
+import type { Azit } from '@/features/team/types';
 
 interface WriteDetailSectionProps {
   game: string;
   tier: string;
   azit: string;
+  newAzitName: string;
+  azits: Azit[];
+  isAzitsLoading?: boolean;
   memberCount: number;
   micStatus: 'on' | 'off' | null;
   setTier: (val: string) => void;
   setAzit: (val: string) => void;
+  setNewAzitName: (val: string) => void;
   setMemberCount: (val: number) => void;
   setMicStatus: (val: 'on' | 'off' | null) => void;
 }
 
 export const WriteDetailSection = ({ 
-  game, tier, azit, memberCount, micStatus, 
-  setTier, setAzit, setMemberCount, setMicStatus 
+  game, tier, azit, newAzitName, azits, isAzitsLoading, memberCount, micStatus, 
+  setTier, setAzit, setNewAzitName, setMemberCount, setMicStatus 
 }: WriteDetailSectionProps) => {
   const currentConfig = GAME_CONFIG[game] || GAME_CONFIG['기타'];
 
@@ -40,16 +45,43 @@ export const WriteDetailSection = ({
         <div className="space-y-2">
             <label className="text-sm font-bold text-gray-900">아지트</label>
             <div className="relative">
-              <select value={azit} onChange={(e) => setAzit(e.target.value)} className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm appearance-none outline-none focus:border-black font-medium cursor-pointer text-gray-900">
-                <option value="new">➕ 신규 생성 (기본)</option>
-                <optgroup label="내 아지트 목록">
-                  {MY_AZITS.map(a => (<option key={a.id} value={a.id}>{a.name}</option>))}
-                </optgroup>
+              <select
+                value={azit}
+                onChange={(e) => setAzit(e.target.value)}
+                className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm appearance-none outline-none focus:border-black font-medium cursor-pointer text-gray-900"
+                disabled={isAzitsLoading}
+              >
+                <option value="new">➕ 신규 생성</option>
+                <option value="" disabled>
+                  {isAzitsLoading
+                    ? "아지트 불러오는 중..."
+                    : azits.length === 0
+                      ? "참여 중인 아지트가 없습니다."
+                      : "아지트를 선택해주세요."}
+                </option>
+                {azits.map((a) => (
+                  <option key={a.id} value={String(a.id)}>
+                    {a.name}
+                  </option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
             </div>
         </div>
       </div>
+
+      {azit === 'new' && (
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-gray-900">신규 아지트 이름</label>
+          <input
+            value={newAzitName}
+            onChange={(e) => setNewAzitName(e.target.value)}
+            maxLength={20}
+            placeholder="아지트 이름을 입력해주세요."
+            className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-black font-medium"
+          />
+        </div>
+      )}
 
       <div className="flex items-end gap-4">
          <div className="flex-1 space-y-2">

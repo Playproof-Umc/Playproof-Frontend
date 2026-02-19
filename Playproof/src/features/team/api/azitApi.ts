@@ -3,7 +3,7 @@
 import { api } from "@/services/api";
 import type { Azit } from "@/features/team/types/types";
 
-type AzitResDto = {
+export type AzitResDto = {
   azit_id: number;
   azit_name: string;
   azit_icon_url: string | null;
@@ -60,11 +60,16 @@ export async function updateAzit(
 export async function createAzit(payload: {
   azit_name: string;
   azit_icon?: File | null;
-}): Promise<AzitResDto> {
+} | string): Promise<AzitResDto> {
   const formData = new FormData();
-  formData.append("azit_name", payload.azit_name);
-  if (payload.azit_icon) {
-    formData.append("azit_icon", payload.azit_icon);
+  
+  if (typeof payload === "string") {
+    formData.append("azit_name", payload);
+  } else {
+    formData.append("azit_name", payload.azit_name);
+    if (payload.azit_icon) {
+      formData.append("azit_icon", payload.azit_icon);
+    }
   }
 
   const res = await api.post<ApiResponse<AzitResDto>>("/azits", formData, {

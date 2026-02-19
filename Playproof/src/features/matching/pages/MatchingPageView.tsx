@@ -15,15 +15,15 @@ import {
   removePendingFeedback,
 } from "@/features/team/utils/pendingFeedback";
 
-const FALLBACK_USER_ID = 'user-1';
+const FALLBACK_USER_ID = '1';
 
 export const MatchingPageView = () => {
   const { state, setters, actions } = useMatchingBoard();
   const location = useLocation();
   const navigate = useNavigate();
-  const { openMatchingDetail, hydrateLikes, hydrateCommentCounts } = useMatchingDetail();
+  const { openMatchingDetail, hydrateLikes, hydrateCommentCounts, hydrateRequestStates } = useMatchingDetail();
   const authUserId = useAuthStore((s) => s.userId);
-  const currentUserId = authUserId ? `user-${authUserId}` : FALLBACK_USER_ID;
+  const currentUserId = authUserId ? String(authUserId) : FALLBACK_USER_ID;
   const {
     allMatches,
     activeGame,
@@ -42,6 +42,11 @@ export const MatchingPageView = () => {
   const initialOpenApplicants = Boolean(
     (location.state as { openApplicants?: boolean } | null)?.openApplicants
   );
+  const myPartyId = useMemo(() => {
+    if (!authUserId) return undefined;
+    const mine = allMatches.find((post) => String(post.hostUser.id) === String(authUserId));
+    return mine?.id;
+  }, [allMatches, authUserId]);
 
   // 수정됨: 4개 이상일 때 스크롤을 확인하기 위해 3개 제한을 10개로 늘림
   const recommendedData = useMemo(() => {
@@ -51,7 +56,8 @@ export const MatchingPageView = () => {
   useEffect(() => {
     hydrateLikes(allMatches);
     hydrateCommentCounts(allMatches);
-  }, [allMatches, hydrateLikes, hydrateCommentCounts]);
+    hydrateRequestStates(allMatches);
+  }, [allMatches, hydrateLikes, hydrateCommentCounts, hydrateRequestStates]);
 
   useEffect(() => {
     if (lastLocationKeyRef.current === location.key) return;
@@ -122,7 +128,7 @@ export const MatchingPageView = () => {
       </div>
 
       <main className="py-8 space-y-10">
-        <PartyRequestBanner initialOpen={initialOpenApplicants} />
+        <PartyRequestBanner partyId={myPartyId} initialOpen={initialOpenApplicants} />
         {/* 추천 섹션 */}
         <RecommendedSection isProUser={isProUser} recommendations={recommendedData} />
         <PopularMatchList matches={popularMatches} />
