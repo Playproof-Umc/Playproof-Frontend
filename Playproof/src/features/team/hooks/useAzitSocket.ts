@@ -19,7 +19,6 @@ export interface JoinRoomData {
   azitId: number;
 }
 
-// ✅ [핵심] isPrivate 필드 포함
 export interface CreateRoomPayload {
   azitId: number;
   name: string;
@@ -54,6 +53,8 @@ type EmitWithAck = <TPayload, TData>(
 export const useAzitSocket = (params: {
   roomId?: number;
   onMessage?: (msg: ChatMessage) => void;
+  onVoiceUserJoined?: (data: { roomId: number; userId: number }) => void;
+  onVoiceUserLeft?: (data: { roomId: number; userId: number }) => void;
   onError?: (err: ApiError) => void;
 }) => {
   const { roomId } = params;
@@ -63,15 +64,15 @@ export const useAzitSocket = (params: {
   const joinedRoomIdRef = useRef<number | null>(null);
 
   const onMessageRef = useRef<typeof params.onMessage>(params.onMessage);
+  const onVoiceUserJoinedRef = useRef<typeof params.onVoiceUserJoined>(params.onVoiceUserJoined);
+  const onVoiceUserLeftRef = useRef<typeof params.onVoiceUserLeft>(params.onVoiceUserLeft);
   const onErrorRef = useRef<typeof params.onError>(params.onError);
-
-  const [isConnected, setIsConnected] = useState(false);
-  const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
-  const [lastError, setLastError] = useState<ApiError | null>(null);
 
   useEffect(() => {
     onMessageRef.current = params.onMessage;
-  }, [params.onMessage]);
+    onVoiceUserJoinedRef.current = params.onVoiceUserJoined;
+    onVoiceUserLeftRef.current = params.onVoiceUserLeft;
+  }, [params.onMessage, params.onVoiceUserJoined, params.onVoiceUserLeft]);
 
   useEffect(() => {
     onErrorRef.current = params.onError;
@@ -110,9 +111,12 @@ export const useAzitSocket = (params: {
     };
   }, []);
 
+  const [isConnected, setIsConnected] = useState(false);
+  const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
+  const [lastError, setLastError] = useState<ApiError | null>(null);
+
   /** 🔌 connect / subscribe */
   useEffect(() => {
-    // 토큰이 없어도 null로 연결 시도 (게스트 모드)
     console.log("🔌 [Socket] 연결 시도... (Token:", token ? "Yes" : "No", ")");
     
     disconnect();
@@ -159,11 +163,21 @@ export const useAzitSocket = (params: {
       onMessageRef.current?.(payload);
     };
 
+    const handleVoiceUserJoined = (data: { roomId: number; userId: number }) => {
+      onVoiceUserJoinedRef.current?.(data);
+    };
+
+    const handleVoiceUserLeft = (data: { roomId: number; userId: number }) => {
+      onVoiceUserLeftRef.current?.(data);
+    };
+
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("connect_error", handleConnectError);
     socket.on("error", handleServerError);
     socket.on("newMessage", handleNewMessage);
+    socket.on("voiceUserJoined", handleVoiceUserJoined);
+    socket.on("voiceUserLeft", handleVoiceUserLeft);
 
     return () => {
       socket.off("connect", handleConnect);
@@ -171,9 +185,10 @@ export const useAzitSocket = (params: {
       socket.off("connect_error", handleConnectError);
       socket.off("error", handleServerError);
       socket.off("newMessage", handleNewMessage);
+      socket.off("voiceUserJoined", handleVoiceUserJoined);
+      socket.off("voiceUserLeft", handleVoiceUserLeft);
       disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   /** 🏠 room 자동 join/leave */
@@ -225,7 +240,6 @@ export const useAzitSocket = (params: {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, isConnected]);
 
   const sendMessage = async (
@@ -244,7 +258,6 @@ export const useAzitSocket = (params: {
     socketRef.current?.emit("voiceLeave", { roomId: targetRoomId });
   };
 
-  // ✅ [수정] createRoomPayload 사용
   const createChatRoom = async (
     payload: CreateRoomPayload
   ): Promise<CreateRoomResponse> => {

@@ -214,6 +214,8 @@ export function useAzitPageLogic() {
     myVoiceRoomId,
     joinVoiceRoom: joinVoiceRoomUI, 
     leaveVoiceRoom,
+    addRemoteUserToVoiceRoom,
+    removeRemoteUserFromVoiceRoom,
     toggleMyMic,
     initAzitRooms,
   } = useAzitRooms(currentAzitId, currentUser);
@@ -247,6 +249,18 @@ export function useAzitPageLogic() {
           addClipsFromMedia(currentAzitId, roomName, mediaItems);
         }
       }
+    },
+    onVoiceUserJoined: (data) => {
+      const { roomId, userId } = data;
+      // 아지트 멤버 목록에서 유저 정보 찾기
+      const foundUser = membersByAzit[currentAzitId]?.find((m) => String(m.id) === String(userId));
+      if (foundUser) {
+        addRemoteUserToVoiceRoom(String(roomId), foundUser);
+      }
+    },
+    onVoiceUserLeft: (data) => {
+      const { userId } = data;
+      removeRemoteUserFromVoiceRoom(String(userId));
     },
     onError: (err) => {
       setSocketUiError(err);

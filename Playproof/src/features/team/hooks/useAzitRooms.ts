@@ -206,6 +206,38 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     setMyVoiceRoomIdByAzit((prev) => ({ ...prev, [currentAzitId]: null }));
   }, [currentAzitId, currentUser]);
 
+  const addRemoteUserToVoiceRoom = React.useCallback(
+    (roomId: string, user: User) => {
+      setVoiceRoomsByAzit((prev) => {
+        const rooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
+        const nextRooms = rooms.map((room) => {
+          // 기존에 이미 있다면 제거 (중복 방지)
+          const filteredUsers = room.users.filter((m) => String(m.user.id) !== String(user.id));
+          if (room.id === roomId) {
+            return { ...room, users: [...filteredUsers, { user, micOn: true }] };
+          }
+          return { ...room, users: filteredUsers };
+        });
+        return { ...prev, [currentAzitId]: nextRooms };
+      });
+    },
+    [currentAzitId]
+  );
+
+  const removeRemoteUserFromVoiceRoom = React.useCallback(
+    (userId: string) => {
+      setVoiceRoomsByAzit((prev) => {
+        const rooms = prev[currentAzitId] ?? createDefaultVoiceRooms();
+        const nextRooms = rooms.map((room) => ({
+          ...room,
+          users: room.users.filter((m) => String(m.user.id) !== String(userId)),
+        }));
+        return { ...prev, [currentAzitId]: nextRooms };
+      });
+    },
+    [currentAzitId]
+  );
+
   const initAzitRooms = React.useCallback((azitId: number) => {
     setChatRoomsByAzit((prev) => ({ ...prev, [azitId]: [] }));
     setSelectedChatRoomIdByAzit((prev) => ({ ...prev, [azitId]: null }));
@@ -229,6 +261,8 @@ export const useAzitRooms = (currentAzitId: number, currentUser: User) => {
     myVoiceRoomId,
     joinVoiceRoom,
     leaveVoiceRoom,
+    addRemoteUserToVoiceRoom,
+    removeRemoteUserFromVoiceRoom,
     toggleMyMic,
 
     initAzitRooms,
