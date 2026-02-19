@@ -26,6 +26,7 @@ export const HomePageView = () => {
   const partyFriendsProps = {
     azitSlides: s.azitSlides,
     azitIndex: s.azitIndex,
+    friends: s.friends,
     onPrevAzit: h.handlePrevAzit,
     onNextAzit: h.handleNextAzit,
     onOpenAzit: (azitId: number) => navigate("/azit", { state: { azitId } }),

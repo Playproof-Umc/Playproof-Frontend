@@ -1,23 +1,17 @@
 // src/features/home/components/HomeFriendList.tsx
 import React from "react";
 import { User } from "lucide-react";
-
-interface Friend {
-  id: number;
-  nickname: string;
-  statusMessage?: string;
-  isOnline: boolean;
-  avatarUrl?: string;
-}
+import type { Friend as ApiFriend } from "@/services/friendApi";
 
 interface HomeFriendListProps {
-  friends: Friend[];
+  friends: ApiFriend[];
 }
 
 export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
-  const onlineCount = friends.filter((f) => f.isOnline).length;
-  const sortedFriends = [...friends].sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
-  const pages: Friend[][] = [];
+  // 백엔드에서 isOnline을 주지 않는 경우를 대비해 임시로 true/false 처리 (추후 소켓 연동 시 반영 가능)
+  const onlineCount = friends.filter((f: any) => f.isOnline).length;
+  const sortedFriends = [...friends].sort((a: any, b: any) => Number(b.isOnline) - Number(a.isOnline));
+  const pages: ApiFriend[][] = [];
   for (let i = 0; i < sortedFriends.length; i += 3) {
     pages.push(sortedFriends.slice(i, i + 3));
   }
@@ -37,7 +31,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
       {pages.length <= 1 ? (
         <ul className="flex-1 space-y-4 overflow-y-auto pr-1 custom-scrollbar">
           {sortedFriends.map((friend) => (
-            <li key={friend.id} className="flex items-center gap-3 group cursor-pointer">
+            <li key={friend.userId} className="flex items-center gap-3 group cursor-pointer">
               {/* 아바타 + 온라인 표시 */}
               <div className="relative">
                 <div className="h-10 w-10 flex-shrink-0 rounded-full bg-zinc-100 overflow-hidden ring-1 ring-black/5">
@@ -49,7 +43,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
                     </div>
                   )}
                 </div>
-                {friend.isOnline && (
+                {(friend as any).isOnline && (
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
                 )}
               </div>
@@ -60,7 +54,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
                   {friend.nickname}
                 </div>
                 <div className="truncate text-xs font-medium text-zinc-500">
-                  {friend.statusMessage || (friend.isOnline ? "온라인" : "오프라인")}
+                  {friend.statusMessage || ((friend as any).isOnline ? "온라인" : "오프라인")}
                 </div>
               </div>
             </li>
@@ -72,7 +66,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
             {pages.map((page, pageIndex) => (
               <ul key={`page-${pageIndex}`} className="min-w-full snap-start space-y-4">
                 {page.map((friend) => (
-                  <li key={friend.id} className="flex items-center gap-3 group cursor-pointer">
+                  <li key={friend.userId} className="flex items-center gap-3 group cursor-pointer">
                     <div className="relative">
                       <div className="h-10 w-10 flex-shrink-0 rounded-full bg-zinc-100 overflow-hidden ring-1 ring-black/5">
                         {friend.avatarUrl ? (
@@ -83,7 +77,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
                           </div>
                         )}
                       </div>
-                      {friend.isOnline && (
+                      {(friend as any).isOnline && (
                         <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
                       )}
                     </div>
@@ -93,7 +87,7 @@ export const HomeFriendList: React.FC<HomeFriendListProps> = ({ friends }) => {
                         {friend.nickname}
                       </div>
                       <div className="truncate text-xs font-medium text-zinc-500">
-                        {friend.statusMessage || (friend.isOnline ? "온라인" : "오프라인")}
+                        {friend.statusMessage || ((friend as any).isOnline ? "온라인" : "오프라인")}
                       </div>
                     </div>
                   </li>

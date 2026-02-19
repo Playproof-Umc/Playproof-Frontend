@@ -4,10 +4,13 @@ import React from "react";
 import { useSignupCompleteModal } from "@/features/auth/signup/hooks/useSignupCompleteModal";
 import { useAuthStore } from "@/store/authStore";
 import { fetchUserSummaryMock, type UserSummary } from "@/features/home/data/userSummaryMock";
-import { MOCK_MY_AZITS, mockSchedules } from "@/features/team/data/mockTeamData";
 import { getBestPosts } from "@/features/community/api/communityApi";
+import { getFriends, type Friend } from "@/services/friendApi";
+import { getAzits } from "@/features/team/api/azitApi";
+import { getAzitSchedules } from "@/features/team/api/azitScheduleApi";
 import type { FilterState, MatchingData } from "@/features/matching/types";
 import type { HighlightPost, BoardPost, CommunityComment } from "@/features/community/types";
+import type { AzitSlide } from "@/features/home/components/sections/types";
 import { useHomeHighlightsLogic } from "@/features/home/hooks/useHomeHighlightsLogic";
 import { useHomeMatchingLogic } from "@/features/home/hooks/useHomeMatchingLogic";
 
@@ -24,12 +27,9 @@ type UseHomePageLogicReturn = {
     displayName: string;
     user: UserSummary | null;
     loading: boolean;
-    azitSlides: {
-      azit: (typeof MOCK_MY_AZITS)[number];
-      schedule: (typeof mockSchedules)[number] | undefined;
-      timeLabel: string;
-    }[];
+    azitSlides: AzitSlide[];
     azitIndex: number;
+    friends: Friend[];
     searchKeyword: string;
     isFilterOpen: boolean;
     filteredPopularMatches: MatchingData[];
@@ -65,49 +65,84 @@ type UseHomePageLogicReturn = {
 export const useHomePageLogic = (): UseHomePageLogicReturn => {
   const { open: isSignupCompleteOpen, username, close } = useSignupCompleteModal();
   const authNickname = useAuthStore((s) => s.nickname);
+  const accessToken = useAuthStore((s) => s.accessToken);
   const displayName = authNickname ?? "사용자";
 
   const [user, setUser] = React.useState<UserSummary | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [bestPosts, setBestPosts] = React.useState<BoardPost[]>([]);
   const [azitIndex, setAzitIndex] = React.useState(0);
+  const [friends, setFriends] = React.useState<Friend[]>([]);
+  const [azitSlides, setAzitSlides] = React.useState<AzitSlide[]>([]);
 
   const { state: matchingState, handlers: matchingHandlers } = useHomeMatchingLogic();
   const { state: highlightState, handlers: highlightHandlers } = useHomeHighlightsLogic(displayName);
 
-  const azitSlides = React.useMemo(() => {
-    const schedules = mockSchedules.length > 0 ? mockSchedules : [undefined];
-    return MOCK_MY_AZITS.map((azit, idx) => {
-      const schedule = schedules[idx % schedules.length];
-      const timeLabel = schedule?.fullDate
-        ? schedule.fullDate.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })
-        : "시간 미정";
-      return { azit, schedule, timeLabel };
-    });
-  }, []);
-
   React.useEffect(() => {
     let alive = true;
+    if (!accessToken) return;
+
     (async () => {
       try {
         setLoading(true);
-        const [data, bestData] = await Promise.all([
+        
+        const [userData, bestData, friendsData, azitsData] = await Promise.all([
           fetchUserSummaryMock(),
           getBestPosts(),
+          getFriends(),
+          getAzits()
         ]);
+
         if (!alive) return;
-        setUser(data);
+        setUser(userData);
         setBestPosts(bestData);
+        setFriends(friendsData);
+
+        const slides = await Promise.all(
+          azitsData.map(async (azit) => {
+            try {
+              const scheduleList = await getAzitSchedules({ azitId: azit.id, size: 1 });
+              const latestSchedule = scheduleList.schedules[0];
+              
+              let timeLabel = "시간 미정";
+              if (latestSchedule?.game_start_at) {
+                timeLabel = new Date(latestSchedule.game_start_at).toLocaleTimeString("ko-KR", { 
+                  hour: "numeric", minute: "2-digit" 
+                });
+              }
+
+              return {
+                azit: { id: azit.id, name: azit.name, icon: azit.icon },
+                schedule: latestSchedule ? {
+                  id: latestSchedule.schedule_id,
+                  title: latestSchedule.title,
+                  currentParticipants: latestSchedule.current_participants,
+                  maxParticipants: latestSchedule.max_participants
+                } : undefined,
+                timeLabel
+              };
+            } catch {
+              return {
+                azit: { id: azit.id, name: azit.name, icon: azit.icon },
+                timeLabel: "정보 없음"
+              };
+            }
+          })
+        );
+
+        if (alive) setAzitSlides(slides);
+
       } catch (e) {
-        console.error("user summary mock error:", e);
+        console.error("Home data fetch error:", e);
       } finally {
         if (alive) setLoading(false);
       }
     })();
+
     return () => {
       alive = false;
     };
-  }, []);
+  }, [accessToken]);
 
   const handlePrevAzit = () => {
     setAzitIndex((prev) => (prev <= 0 ? azitSlides.length - 1 : prev - 1));
@@ -132,6 +167,7 @@ export const useHomePageLogic = (): UseHomePageLogicReturn => {
       loading,
       azitSlides,
       azitIndex,
+      friends,
       searchKeyword: matchingState.searchKeyword,
       isFilterOpen: matchingState.isFilterOpen,
       filteredPopularMatches: matchingState.filteredPopularMatches,

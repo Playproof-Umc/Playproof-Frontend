@@ -13,8 +13,18 @@ export type HomeUserSummarySectionProps = {
 };
 
 export type AzitSlide = {
-  azit: (typeof MOCK_MY_AZITS)[number];
-  schedule: (typeof mockSchedules)[number] | undefined;
+  azit: {
+    id: number;
+    name: string;
+    icon?: string;
+    memberCount?: number;
+  };
+  schedule?: {
+    id: number;
+    title: string;
+    currentParticipants: number;
+    maxParticipants: number;
+  };
   timeLabel: string;
 };
 
@@ -24,6 +34,13 @@ export type HomePartyFriendsSectionProps = {
   onPrevAzit: () => void;
   onNextAzit: () => void;
   onOpenAzit: (azitId: number) => void;
+  friends: Array<{
+    id: number;
+    nickname: string;
+    statusMessage?: string;
+    isOnline: boolean;
+    avatarUrl?: string;
+  }>;
 };
 
 export type HomeMatchingSectionProps = {
