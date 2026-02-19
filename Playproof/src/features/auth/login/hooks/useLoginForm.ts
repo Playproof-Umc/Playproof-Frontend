@@ -187,7 +187,7 @@ export function useLoginForm() {
     if (!ok) return;
 
     const requestBody = {
-      phone: normalizeDigitsOnly(phoneNumber), // 하이픈 제거 후 숫자만 전송
+      phone: phoneNumber, // 하이픈 포함 전송
       password,
     };
 
